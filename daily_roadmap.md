@@ -5,13 +5,13 @@
 ---
 
 ## Phase 1: Foundation & Approval Engine (Days 1 - 10)
-* **Days 1 - 2: Database & Master Data Setup [Pending]**
+* **Days 1 - 2: Database & Master Data Setup [Completed]**
   - Run 69 migrations. Set up CRUDs for `Currency`, `Company`, `Department`, `Outlet`. Update User/Vendor forms.
-* **Days 3 - 5: Odoo-Style Polymorphic Approval Engine [Pending]**
+* **Days 3 - 5: Odoo-Style Polymorphic Approval Engine [Completed]**
   - Create ApprovalWorkflow and ApprovalStep models. Write `ApprovalService` to attach to workflows.
-* **Days 6 - 8: Requisition (SR/PR) Upgrades & Approvals [Pending]**
+* **Days 6 - 8: Requisition (SR/PR) Upgrades & Approvals [Completed]**
   - Refactor product requests. Implement approval workflow checkpoints.
-* **Days 9 - 10: Foundation QA & Client Review (First Feedback Loop) [Pending]**
+* **Days 9 - 10: Foundation QA & Client Review (First Feedback Loop) [Completed]**
   - Present the requisition approval flow to the client. Collect and fix initial UI/flow feedback.
 
 ---

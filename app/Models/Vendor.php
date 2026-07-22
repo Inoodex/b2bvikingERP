@@ -18,7 +18,21 @@ class Vendor extends Model
         'currency_name',
         'currency_icon',
         'currency_rate',
+        'currency_id',
         'description',
         'status'
     ];
+
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
+    }
+
+    public function getEffectiveExchangeRateAttribute()
+    {
+        if ($this->currency_id && $this->currency) {
+            return (float) $this->currency->exchange_rate;
+        }
+        return (float) ($this->currency_rate ?? 1.0000);
+    }
 }

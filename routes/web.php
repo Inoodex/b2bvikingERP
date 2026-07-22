@@ -34,6 +34,11 @@ use App\Http\Controllers\Backend\VendorController;
 use App\Http\Controllers\Backend\ProductTypeController;
 use App\Http\Controllers\Backend\ReviewController;
 use App\Http\Controllers\Backend\CustomProductRequestController;
+use App\Http\Controllers\Backend\CurrencyController;
+use App\Http\Controllers\Backend\CompanyController;
+use App\Http\Controllers\Backend\DepartmentController;
+use App\Http\Controllers\Backend\OutletController;
+use App\Http\Controllers\Backend\ApprovalWorkflowController;
 use App\Http\Controllers\Frontend\AccountController as FrontendAccountController;
 use App\Http\Controllers\Frontend\CartController as FrontendCartController;
 use App\Http\Controllers\Frontend\HomeController;
@@ -396,6 +401,15 @@ Route::controller(BackendAccountController::class)->group(function () {
     Route::get('accounts/vendor-payments/receipts/{receipt}/download', 'downloadPurchaseReceipt')->name('accounts.vendor-payments.receipts.download');
     Route::delete('accounts/vendor-payments/receipts/{receipt}', 'destroyPurchaseReceipt')->name('accounts.vendor-payments.receipts.destroy');
 });
+
+    /** Enterprise Master Data Routes */
+    Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
+        Route::resource('currencies', CurrencyController::class);
+        Route::resource('companies', CompanyController::class);
+        Route::resource('departments', DepartmentController::class);
+        Route::resource('outlets', OutletController::class);
+        Route::resource('approval-workflows', ApprovalWorkflowController::class);
+    });
 
 });
 
