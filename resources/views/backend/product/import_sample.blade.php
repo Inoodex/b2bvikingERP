@@ -1,0 +1,3 @@
+name,category_name,brand_name,vendor_name,unit_name,product_number,barcode,purchase_price,price,outlet_price,qty,long_description,image,raw_material_cost,transport_cost,tax,discount_type,discount,vat_type,vat_value,status,color_name,size_name,variant_price,variant_qty
+Samsung Galaxy S21,Electronics,Samsung,ABC Corp,Pcs,PRD-001,123456789,1000,1500,1400,100,Smartphone with excellent features,https://example.com/s21.jpg,500,50,10,percent,5,percent,7.5,1,Red,Large,1600,50
+iPhone 14,Electronics,Apple,XYZ Ltd,Pcs,PRD-002,987654321,2000,2500,2400,50,Latest iPhone model,https://example.com/iphone14.jpg,1000,100,15,flat,120,flat,80,1,Blue,Medium,2600,25

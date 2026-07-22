@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+/* Tailwind v4: explicitly declare template sources so all Blade pages (including shop)
+   are scanned and responsive utilities like `sm:w-72` are generated in production builds. */
+@source "../views/**/*.blade.php";
+@source "../js/**/*.js";
+
+@theme {
+  --animate-blob: blob 7s infinite;
+  --animate-fade-in-up: fadeInUp 0.5s ease-out forwards;
+
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 20px, 0);
+    }
+
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+}
+
+@layer base {
+  .frontend-classic {
+    --font-sans: "Jost", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-family: var(--font-sans);
+    background-color: #f6f4ef;
+    color: #1c1c1a;
+  }
+
+  .frontend-classic button,
+  .frontend-classic input,
+  .frontend-classic select,
+  .frontend-classic textarea {
+    font-family: var(--font-sans);
+  }
+
+  .frontend-classic .bg-slate-50 {
+    background-color: #f6f4ef !important;
+  }
+
+  .frontend-classic .bg-white {
+    background-color: #ffffff !important;
+  }
+
+  .frontend-classic .border-slate-100,
+  .frontend-classic .border-slate-200 {
+    border-color: #e3ded5 !important;
+  }
+
+  .frontend-classic .text-slate-900 {
+    color: #1c1c1a !important;
+  }
+
+  .frontend-classic .text-slate-600,
+  .frontend-classic .text-slate-500,
+  .frontend-classic .text-slate-400 {
+    color: #6e6a62 !important;
+  }
+
+  .frontend-classic .text-indigo-600 {
+    color: #4f46e5 !important;
+  }
+
+  .frontend-classic .text-indigo-500 {
+    color: #6366f1 !important;
+  }
+
+  .frontend-classic .bg-indigo-600 {
+    background-color: #4f46e5 !important;
+  }
+
+  .frontend-classic .bg-indigo-500 {
+    background-color: #6366f1 !important;
+  }
+
+  .frontend-classic .hover\:bg-indigo-700:hover {
+    background-color: #4338ca !important;
+  }
+
+  .frontend-classic .hover\:bg-indigo-600:hover {
+    background-color: #4f46e5 !important;
+  }
+
+  .frontend-classic .hover\:bg-indigo-500:hover {
+    background-color: #6366f1 !important;
+  }
+
+  .frontend-classic .shadow-xl,
+  .frontend-classic .shadow-lg {
+    box-shadow: 0 12px 30px rgba(16, 16, 16, 0.08) !important;
+  }
+
+  .frontend-classic .shadow-sm {
+    box-shadow: 0 1px 3px rgba(16, 16, 16, 0.08) !important;
+  }
+
+  .frontend-classic .rounded-3xl {
+    border-radius: 1.25rem !important;
+  }
+
+  .frontend-classic .rounded-2xl {
+    border-radius: 1rem !important;
+  }
+
+  .frontend-classic .rounded-xl {
+    border-radius: 0.75rem !important;
+  }
+
+  .frontend-classic .tracking-widest {
+    letter-spacing: 0.14em !important;
+  }
+
+  .frontend-classic .tracking-wider {
+    letter-spacing: 0.08em !important;
+  }
+
+  .frontend-classic .tracking-wide {
+    letter-spacing: 0.04em !important;
+  }
+
+
+  [x-cloak] {
+    display: none !important;
+  }
+
+  a[href],
+  button,
+  [role="button"],
+  summary,
+  label[for],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  input:disabled {
+    cursor: not-allowed;
+  }
+
+}
+@layer components {
+
+  /* Shop page layout helpers (desktop sidebar sizing + categories scroll). */
+  @media (min-width: 64rem) {
+    .shop-mobile-filters-trigger {
+      display: none !important;
+    }
+
+    .shop-desktop-sidebar {
+      width: 13.25rem !important;
+      /* ~w-45 */
+      flex: 0 0 auto !important;
+      display: block !important;
+    }
+
+    .shop-desktop-sidebar .shop-filter-categories {
+      max-height: 24rem;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding-right: 0.35rem;
+    }
+
+    .shop-desktop-sidebar .shop-filter-categories::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .shop-desktop-sidebar .shop-filter-categories::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.55);
+      border-radius: 999px;
+      border: 3px solid rgba(255, 255, 255, 1);
+    }
+
+    .shop-desktop-sidebar .shop-filter-categories::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  }
+
+  @media (max-width: 63.999rem) {
+    .shop-desktop-sidebar {
+      display: none !important;
+    }
+  }
+
+  /* Prevent tiny accidental horizontal overflows on tablet/desktop. */
+  .frontend-classic {
+    overflow-x: hidden;
+  }
+}
