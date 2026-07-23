@@ -11,6 +11,7 @@ class ApprovalWorkflow extends Model
 
     protected $fillable = [
         'name',
+        'document_type',
         'model_type',
         'min_amount',
         'max_amount',

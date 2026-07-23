@@ -30,7 +30,7 @@ class OutletDataTable extends DataTable
             ->addColumn('contact', function ($query) {
                 $phone = $query->phone ? '<div><i class="fas fa-phone mr-1 text-muted"></i> ' . e($query->phone) . '</div>' : '';
                 $email = $query->email ? '<div class="text-muted small"><i class="fas fa-envelope mr-1 text-muted"></i> ' . e($query->email) . '</div>' : '';
-                return $phone . $email ?: '-';
+                return ($phone || $email) ? ($phone . $email) : '-';
             })
             ->addColumn('manager', function ($query) {
                 return $query->manager->name ?? 'Unassigned';
@@ -73,7 +73,7 @@ class OutletDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->width(50),
+            // Column::make('id')->width(50),
             Column::make('code')->title('Code'),
             Column::make('name')->title('Name'),
             Column::computed('type')->title('Type'),

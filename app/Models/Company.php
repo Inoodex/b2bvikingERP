@@ -18,6 +18,7 @@ class Company extends Model
         'address',
         'logo',
         'currency_id',
+        'base_currency_id',
         'status',
     ];
 
@@ -27,7 +28,9 @@ class Company extends Model
 
     public function currency()
     {
-        return $this->belongsTo(Currency::class);
+        return $this->belongsTo(Currency::class, 'currency_id')->withDefault(function () {
+            return $this->belongsTo(Currency::class, 'base_currency_id')->getResults();
+        });
     }
 
     public function departments()

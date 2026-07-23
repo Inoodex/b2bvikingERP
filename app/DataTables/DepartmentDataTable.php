@@ -15,6 +15,9 @@ class DepartmentDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
+            ->addColumn('code', function ($query) {
+                return $query->code ?? '-';
+            })
             ->addColumn('company', function ($query) {
                 return $query->company->name ?? 'All Companies';
             })
@@ -59,8 +62,8 @@ class DepartmentDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->width(50),
-            Column::make('code')->title('Code'),
+            // Column::make('id')->width(50),
+            Column::computed('code')->title('Code'),
             Column::make('name')->title('Department Name'),
             Column::computed('company')->title('Company'),
             Column::computed('manager')->title('Manager'),

@@ -14,6 +14,8 @@ class Department extends Model
         'name',
         'code',
         'manager_id',
+        'head_user_id',
+        'parent_id',
         'status',
     ];
 
@@ -28,7 +30,9 @@ class Department extends Model
 
     public function manager()
     {
-        return $this->belongsTo(User::class, 'manager_id');
+        return $this->belongsTo(User::class, 'manager_id')->withDefault(function () {
+            return $this->belongsTo(User::class, 'head_user_id')->getResults();
+        });
     }
 
     public function users()

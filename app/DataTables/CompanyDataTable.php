@@ -18,10 +18,13 @@ class CompanyDataTable extends DataTable
             ->addColumn('currency', function ($query) {
                 return $query->currency->code ?? 'Base Currency';
             })
+            ->addColumn('vat_number', function ($query) {
+                return $query->vat_number ?? '-';
+            })
             ->addColumn('contact', function ($query) {
                 $phone = $query->phone ? '<div><i class="fas fa-phone mr-1"></i> ' . e($query->phone) . '</div>' : '';
                 $email = $query->email ? '<div class="text-muted small"><i class="fas fa-envelope mr-1"></i> ' . e($query->email) . '</div>' : '';
-                return $phone . $email ?: '-';
+                return ($phone || $email) ? ($phone . $email) : '-';
             })
             ->addColumn('status', function ($query) {
                 return $query->status
@@ -61,10 +64,10 @@ class CompanyDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->width(50),
+            // Column::make('id')->width(50),
             Column::make('code')->title('Code'),
             Column::make('name')->title('Company Name'),
-            Column::make('vat_number')->title('VAT / Tax ID'),
+            Column::computed('vat_number')->title('VAT / Tax ID'),
             Column::computed('contact')->title('Phone / Email'),
             Column::computed('currency')->title('Currency'),
             Column::make('status')->title('Status'),

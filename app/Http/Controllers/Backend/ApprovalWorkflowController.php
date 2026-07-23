@@ -49,8 +49,9 @@ class ApprovalWorkflowController extends Controller
         try {
             $workflow = ApprovalWorkflow::create([
                 'name' => $request->name,
+                'document_type' => \Illuminate\Support\Str::snake(class_basename($request->model_type)),
                 'model_type' => $request->model_type,
-                'min_amount' => $request->min_amount,
+                'min_amount' => $request->min_amount ?? 0,
                 'max_amount' => $request->max_amount,
                 'status' => $request->status,
             ]);
@@ -108,8 +109,9 @@ class ApprovalWorkflowController extends Controller
         try {
             $workflow->update([
                 'name' => $request->name,
+                'document_type' => \Illuminate\Support\Str::snake(class_basename($request->model_type)),
                 'model_type' => $request->model_type,
-                'min_amount' => $request->min_amount,
+                'min_amount' => $request->min_amount ?? 0,
                 'max_amount' => $request->max_amount,
                 'status' => $request->status,
             ]);

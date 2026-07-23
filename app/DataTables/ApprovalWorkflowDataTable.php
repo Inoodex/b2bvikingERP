@@ -71,7 +71,7 @@ class ApprovalWorkflowDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->width(50),
+            // Column::make('id')->width(50),
             Column::make('name')->title('Workflow Name'),
             Column::computed('model_type')->title('Target Module'),
             Column::computed('amount_range')->title('Amount Range'),
