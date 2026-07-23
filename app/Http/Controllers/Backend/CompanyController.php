@@ -4,13 +4,22 @@ namespace App\Http\Controllers\Backend;
 
 use App\DataTables\CompanyDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Company\StoreCompanyRequest;
+use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Models\Company;
 use App\Models\Currency;
+use App\Services\Company\CompanyService;
 use Brian2694\Toastr\Facades\Toastr;
-use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {
+    protected $companyService;
+
+    public function __construct(CompanyService $companyService)
+    {
+        $this->companyService = $companyService;
+    }
+
     public function index(CompanyDataTable $dataTable)
     {
         return $dataTable->render('backend.master.companies.index');
@@ -22,23 +31,16 @@ class CompanyController extends Controller
         return view('backend.master.companies.create', compact('currencies'));
     }
 
-    public function store(Request $request)
+    public function store(StoreCompanyRequest $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:companies,code',
-            'email' => 'nullable|email|max:255',
-            'phone' => 'nullable|string|max:50',
-            'vat_number' => 'nullable|string|max:100',
-            'address' => 'nullable|string',
-            'currency_id' => 'nullable|exists:currencies,id',
-            'status' => 'required|boolean',
-        ]);
-
-        Company::create($data);
-
-        Toastr::success('Company Created Successfully!');
-        return redirect()->route('admin.master.companies.index');
+        try {
+            $this->companyService->createCompany($request->validated());
+            Toastr::success('Company Created Successfully!');
+            return redirect()->route('admin.master.companies.index');
+        } catch (\Throwable $e) {
+            Toastr::error('Failed to create company: ' . $e->getMessage());
+            return redirect()->back()->withInput();
+        }
     }
 
     public function edit(string $id)
@@ -48,31 +50,27 @@ class CompanyController extends Controller
         return view('backend.master.companies.edit', compact('company', 'currencies'));
     }
 
-    public function update(Request $request, string $id)
+    public function update(UpdateCompanyRequest $request, string $id)
     {
-        $company = Company::findOrFail($id);
-
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:companies,code,' . $company->id,
-            'email' => 'nullable|email|max:255',
-            'phone' => 'nullable|string|max:50',
-            'vat_number' => 'nullable|string|max:100',
-            'address' => 'nullable|string',
-            'currency_id' => 'nullable|exists:currencies,id',
-            'status' => 'required|boolean',
-        ]);
-
-        $company->update($data);
-
-        Toastr::success('Company Updated Successfully!');
-        return redirect()->route('admin.master.companies.index');
+        try {
+            $company = Company::findOrFail($id);
+            $this->companyService->updateCompany($company, $request->validated());
+            Toastr::success('Company Updated Successfully!');
+            return redirect()->route('admin.master.companies.index');
+        } catch (\Throwable $e) {
+            Toastr::error('Failed to update company: ' . $e->getMessage());
+            return redirect()->back()->withInput();
+        }
     }
 
     public function destroy(string $id)
     {
-        $company = Company::findOrFail($id);
-        $company->delete();
-        return response(['status' => 'success', 'message' => 'Company Deleted Successfully!']);
+        try {
+            $company = Company::findOrFail($id);
+            $this->companyService->deleteCompany($company);
+            return response(['status' => 'success', 'message' => 'Company Deleted Successfully!']);
+        } catch (\Throwable $e) {
+            return response(['status' => 'error', 'message' => 'Failed to delete company.']);
+        }
     }
 }
