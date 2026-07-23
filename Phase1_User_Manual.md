@@ -62,5 +62,61 @@ B2B Viking ERP-এর Phase 1 সফলভাবে সম্পন্ন হয়
 🎉 **ব্যাস! আপনার ডাইনামিক রুল তৈরি!** এখন কেউ ৫,০০০ টাকার বেশি রিকুইজিশন দিলেই অটোমেটিক ২ জনের কাছে অ্যাপ্রুভালের জন্য চলে যাবে।
 
 ---
+
+# English Version
+
+## 1. Introduction
+Phase 1 of the B2B Viking ERP has been successfully completed. This manual is designed so that any non-technical user or admin can easily understand and use the core functions of the system. You don't need to ask the developer repeatedly, all answers are here!
+
+## 2. Company & Outlet Management
+The system defines companies and outlets separately.
+* **Company (Sister Concern):** This is the main legal entity (e.g., *Copenhagen Tourist Point A/S*).
+* **Outlet:** This is a store or warehouse under that company (e.g., *Nyhavn Store*, *Central Warehouse*).
+
+### How to Add a New Outlet?
+1. Click on **Master Setup** > **Outlets** from the left menu.
+2. Click the **Create New Outlet** button.
+3. Provide the outlet name, select the Company it belongs to from the dropdown, and click **Save**.
+
+## 3. User Management
+Creating users or staff for a specific outlet.
+
+### How to Create and Assign Users?
+1. Go to **User Management** > **Users** from the menu.
+2. Click on **Add New User**.
+3. Provide the user's name, email, and password.
+4. **Role**: Select the user's designation (e.g., Manager, Sales Staff).
+5. **Company & Outlet**: Specify which store/outlet this user will work for.
+*(Note: An Outlet User can only view data and perform tasks for their assigned store.)*
+
+## 4. Advanced Approval Engine - ⚠️ Very Important!
+This ERP features a state-of-the-art dynamic approval system (Enterprise-grade) similar to Odoo/SAP. Through this, you can create various rules based on monetary amounts.
+
+### 💡 Concept (How does it work?)
+Suppose you want:
+* For requisitions under 5,000 DKK, only the **Manager** approves.
+* For requisitions over 5,000 DKK, first the **Manager** and then the **Finance Head** approves.
+You can create all these rules directly from the system without any coding!
+
+### 🛠️ How to Create a New Approval Workflow?
+1. Click on **Master Setup** > **Approval Workflows** from the menu.
+2. Click the **Create Approval Workflow** button.
+3. **Workflow Name**: Give the rule a name (e.g., *High Value Requisition*).
+4. **Target Module**: What task is this rule for? Select from the dropdown (e.g., *Requisition / Product Request*).
+5. **Min Amount & Max Amount**: 
+   - *Example 1:* If you want it to work between 5,000 and 10,000, set Min = 5000, Max = 10000.
+   - *Example 2:* If you want it to work for any amount above 5,000, set Min = 5000 and leave Max blank (blank means unlimited).
+   - *Example 3:* If you want it to apply to all amounts, leave both blank or set to 0.
+
+### 🔗 Approval Steps (Defining who will approve)
+At the bottom of the same form, you'll find the **Approval Chain Steps** section.
+1. **Step 1:** Who will approve first? Select *Manager* from the `Approver Role`.
+2. **Add Another Level/Step:** Click the button to add a 2nd step.
+3. **Step 2:** Who will approve second? Select *Finance Head* from the `Approver Role`.
+4. Finally, click the **Create/Save** button.
+
+🎉 **Done! Your dynamic rule is created!** Now, if someone submits a requisition over 5,000, it will automatically go to 2 people for approval.
+
+---
 *Document Version: 1.0 (Phase 1)*
 *Generated for B2B Viking ERP Client*
