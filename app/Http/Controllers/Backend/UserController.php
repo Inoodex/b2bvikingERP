@@ -9,9 +9,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use App\Http\Requests\Backend\User\StoreUserRequest;
+use App\Http\Requests\Backend\User\UpdateUserRequest;
+use App\Services\User\UserService;
 
 class UserController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -32,46 +41,14 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $request->validate([
-            'image' => ['nullable', 'image', 'max:2048'],
-            'name' => ['required', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email'],
-            'phone' => ['nullable', 'max:255'],
-            'password' => ['required', 'min:8'],
-            'status' => ['required', 'boolean'],
-            'user_role' => ['required', 'exists:roles,id'],
-            'discount_type' => ['nullable', 'in:flat,percent'],
-            'discount_value' => ['nullable', 'numeric', 'min:0'],
-            'min_order_amount' => ['nullable', 'numeric', 'min:0']
-        ]);
-
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = rand() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads'), $imageName);
-            $imagePath = 'uploads/' . $imageName;
+        try {
+            $this->userService->createUser($request->validated(), $request->file('image'));
+            return redirect()->route('admin.users.index')->with('success', 'User Created Successfully!');
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error', 'Failed to create user: ' . $e->getMessage());
         }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'image' => $imagePath,
-            'status' => $request->status,
-            'role_id' => $request->user_role,
-            'discount_type' => $request->discount_type,
-            'discount_value' => $request->discount_value,
-            'min_order_amount' => $request->min_order_amount,
-        ]);
-
-        $role = Role::findById($request->user_role);
-        $user->assignRole($role->name);
-
-        return redirect()->route('admin.users.index')->with('success', 'User Created Successfully!');
     }
 
     /**
@@ -89,46 +66,15 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateUserRequest $request, string $id)
     {
-        $request->validate([
-            'image' => ['nullable', 'image', 'max:2048'],
-            'name' => ['required', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email,' . $id],
-            'phone' => ['nullable', 'max:255'],
-            'status' => ['required', 'boolean'],
-            'user_role' => ['required', 'exists:roles,id'],
-            'discount_type' => ['nullable', 'in:flat,percent'],
-            'discount_value' => ['nullable', 'numeric', 'min:0'],
-            'min_order_amount' => ['nullable', 'numeric', 'min:0']
-        ]);
-
-        $user = User::findOrFail($id);
-
-        if ($request->hasFile('image')) {
-            if ($user->image && File::exists(public_path($user->image))) {
-                File::delete(public_path($user->image));
-            }
-            $image = $request->file('image');
-            $imageName = rand() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads'), $imageName);
-            $user->image = 'uploads/' . $imageName;
+        try {
+            $user = User::findOrFail($id);
+            $this->userService->updateUser($user, $request->validated(), $request->file('image'));
+            return redirect()->route('admin.users.index')->with('success', 'User Updated Successfully!');
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error', 'Failed to update user: ' . $e->getMessage());
         }
-
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->phone = $request->phone;
-        $user->status = $request->status;
-        $user->role_id = $request->user_role;
-        $user->discount_type = $request->discount_type;
-        $user->discount_value = $request->discount_value;
-        $user->min_order_amount = $request->min_order_amount;
-        $user->save();
-
-        $role = Role::findById($request->user_role);
-        $user->syncRoles([$role->name]);
-
-        return redirect()->route('admin.users.index')->with('success', 'User Updated Successfully!');
     }
 
     /**
@@ -136,19 +82,13 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        $user = User::findOrFail($id);
-
-        if ($user->id === 1) {
-            return response(['status' => 'error', 'message' => 'Main Admin Cannot be Deleted!']);
+        try {
+            $user = User::findOrFail($id);
+            $this->userService->deleteUser($user);
+            return response(['status' => 'success', 'message' => 'Deleted Successfully!']);
+        } catch (\Throwable $e) {
+            return response(['status' => 'error', 'message' => $e->getMessage()]);
         }
-
-        if ($user->image && File::exists(public_path($user->image))) {
-            File::delete(public_path($user->image));
-        }
-
-        $user->delete();
-
-        return response(['status' => 'success', 'message' => 'Deleted Successfully!']);
     }
 
     /**

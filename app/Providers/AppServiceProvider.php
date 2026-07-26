@@ -30,6 +30,15 @@ class AppServiceProvider extends ServiceProvider
                 $settings = GeneralSetting::first();
 
                 if ($settings) {
+                    // Override legacy currency with the new Master Setup Base Currency
+                    $baseCurrency = \App\Models\Currency::where('is_base', true)->first();
+                    if ($baseCurrency) {
+                        $settings->currency_name = $baseCurrency->name;
+                        $settings->currency_icon = $baseCurrency->symbol;
+                        $settings->base_currency_name = $baseCurrency->name;
+                        $settings->base_currency_icon = $baseCurrency->symbol;
+                    }
+
                     config([
                         'mail.default' => $settings->mail_mailer ?: config('mail.default'),
                         'mail.mailers.smtp.host' => $settings->mail_host ?: config('mail.mailers.smtp.host'),

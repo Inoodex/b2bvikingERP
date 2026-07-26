@@ -62,35 +62,6 @@ class SettingController extends Controller
         return redirect()->route('admin.settings.general');
     }
 
-    public function currency()
-    {
-        $setting = GeneralSetting::first();
-
-        return view('backend.settings.currency', compact('setting'));
-    }
-
-    public function updateCurrency(Request $request)
-    {
-        $request->validate([
-            'currency_name' => ['required', 'string', 'max:20'],
-            'currency_icon' => ['required', 'string', 'max:10'],
-        ]);
-
-        GeneralSetting::updateOrCreate(
-            ['id' => 1],
-            [
-                'base_currency_name' => $request->currency_name,
-                'base_currency_icon' => $request->currency_icon,
-                'currency_name' => $request->currency_name,
-                'currency_icon' => $request->currency_icon,
-                'currency_rate' => 1.0,
-            ]
-        );
-
-         Toastr::success('Currency settings updated successfully!');
-        return redirect()->route('admin.settings.currency');
-    }
-
     public function email()
     {
         $setting = GeneralSetting::first();

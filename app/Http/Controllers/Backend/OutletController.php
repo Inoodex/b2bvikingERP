@@ -9,9 +9,18 @@ use App\Models\Outlet;
 use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
+use App\Http\Requests\Backend\Outlet\StoreOutletRequest;
+use App\Http\Requests\Backend\Outlet\UpdateOutletRequest;
+use App\Services\Outlet\OutletService;
 
 class OutletController extends Controller
 {
+    protected $outletService;
+
+    public function __construct(OutletService $outletService)
+    {
+        $this->outletService = $outletService;
+    }
     public function index(OutletDataTable $dataTable)
     {
         return $dataTable->render('backend.master.outlets.index');
@@ -24,24 +33,16 @@ class OutletController extends Controller
         return view('backend.master.outlets.create', compact('companies', 'users'));
     }
 
-    public function store(Request $request)
+    public function store(StoreOutletRequest $request)
     {
-        $data = $request->validate([
-            'company_id' => 'nullable|exists:companies,id',
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:outlets,code',
-            'type' => 'required|in:warehouse,retail,wholesale',
-            'phone' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255',
-            'address' => 'nullable|string',
-            'manager_id' => 'nullable|exists:users,id',
-            'status' => 'required|boolean',
-        ]);
-
-        Outlet::create($data);
-
-        Toastr::success('Outlet / Warehouse Created Successfully!');
-        return redirect()->route('admin.master.outlets.index');
+        try {
+            $this->outletService->createOutlet($request->validated());
+            Toastr::success('Outlet / Warehouse Created Successfully!');
+            return redirect()->route('admin.master.outlets.index');
+        } catch (\Throwable $e) {
+            Toastr::error('Failed to create outlet: ' . $e->getMessage());
+            return redirect()->back()->withInput();
+        }
     }
 
     public function edit(string $id)
@@ -52,32 +53,27 @@ class OutletController extends Controller
         return view('backend.master.outlets.edit', compact('outlet', 'companies', 'users'));
     }
 
-    public function update(Request $request, string $id)
+    public function update(UpdateOutletRequest $request, string $id)
     {
-        $outlet = Outlet::findOrFail($id);
-
-        $data = $request->validate([
-            'company_id' => 'nullable|exists:companies,id',
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:outlets,code,' . $outlet->id,
-            'type' => 'required|in:warehouse,retail,wholesale',
-            'phone' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255',
-            'address' => 'nullable|string',
-            'manager_id' => 'nullable|exists:users,id',
-            'status' => 'required|boolean',
-        ]);
-
-        $outlet->update($data);
-
-        Toastr::success('Outlet / Warehouse Updated Successfully!');
-        return redirect()->route('admin.master.outlets.index');
+        try {
+            $outlet = Outlet::findOrFail($id);
+            $this->outletService->updateOutlet($outlet, $request->validated());
+            Toastr::success('Outlet / Warehouse Updated Successfully!');
+            return redirect()->route('admin.master.outlets.index');
+        } catch (\Throwable $e) {
+            Toastr::error('Failed to update outlet: ' . $e->getMessage());
+            return redirect()->back()->withInput();
+        }
     }
 
     public function destroy(string $id)
     {
-        $outlet = Outlet::findOrFail($id);
-        $outlet->delete();
-        return response(['status' => 'success', 'message' => 'Outlet / Warehouse Deleted Successfully!']);
+        try {
+            $outlet = Outlet::findOrFail($id);
+            $this->outletService->deleteOutlet($outlet);
+            return response(['status' => 'success', 'message' => 'Outlet / Warehouse Deleted Successfully!']);
+        } catch (\Throwable $e) {
+            return response(['status' => 'error', 'message' => 'Failed to delete outlet.']);
+        }
     }
 }

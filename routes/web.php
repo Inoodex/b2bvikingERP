@@ -318,8 +318,6 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::get('settings', 'index')->name('settings.index');
         Route::get('settings/general', 'general')->name('settings.general');
         Route::put('settings/general', 'updateGeneral')->name('settings.general.update');
-        Route::get('settings/currency', 'currency')->name('settings.currency');
-        Route::put('settings/currency', 'updateCurrency')->name('settings.currency.update');
         Route::get('settings/email', 'email')->name('settings.email');
         Route::put('settings/email', 'updateEmail')->name('settings.email.update');
         Route::post('settings/email/test', 'sendTestEmail')->name('settings.email.test');

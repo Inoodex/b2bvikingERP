@@ -43,22 +43,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-lg-6 mb-4">
-                    <div class="card h-100 shadow-sm border-0">
-                        <div class="row no-gutters h-100">
-                            <div class="col-12 col-sm-4 d-flex align-items-center justify-content-center text-white p-3 p-sm-0" style="background: #5b6ee1;">
-                                <i class="fas fa-dollar-sign settings-icon" style="font-size: 54px;"></i>
-                            </div>
-                            <div class="col-12 col-sm-8">
-                                <div class="card-body d-flex flex-column h-100">
-                                    <h4 class="mb-2">Currency</h4>
-                                    <p class="text-muted flex-grow-1 mb-3">Set your default system currency and symbol.</p>
-                                    <a href="{{ route('admin.settings.currency') }}" class="font-weight-bold">Change Setting <i class="fas fa-angle-right ml-1"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
 
                 <div class="col-12 col-lg-6 mb-4">
                     <div class="card h-100 shadow-sm border-0">
