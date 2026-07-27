@@ -22,6 +22,11 @@ class ApprovalStep extends Model
         return $this->belongsTo(ApprovalWorkflow::class, 'approval_workflow_id');
     }
 
+    public function approverRole()
+    {
+        return $this->belongsTo(\Spatie\Permission\Models\Role::class, 'approver_role_id');
+    }
+
     public function approverUser()
     {
         return $this->belongsTo(User::class, 'approver_user_id');

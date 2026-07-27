@@ -72,6 +72,16 @@ class Order extends Model
         return $this->hasMany(Issue::class);
     }
 
+    public function approvals()
+    {
+        return $this->morphMany(Approval::class, 'approvable');
+    }
+
+    public function isFullyApproved(): bool
+    {
+        return $this->approval_status === 'approved';
+    }
+
     public function reconcileTotals(): bool
     {
         // Check if there are any issues linked to this order

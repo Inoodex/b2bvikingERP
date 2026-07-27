@@ -61,6 +61,14 @@ B2B Viking ERP-এর Phase 1 সফলভাবে সম্পন্ন হয়
 
 🎉 **ব্যাস! আপনার ডাইনামিক রুল তৈরি!** এখন কেউ ৫,০০০ টাকার বেশি রিকুইজিশন দিলেই অটোমেটিক ২ জনের কাছে অ্যাপ্রুভালের জন্য চলে যাবে।
 
+### 📬 কীভাবে ম্যানেজাররা রিকুইজিশন/অর্ডার Approve বা Reject করবেন?
+রুলস তৈরি হয়ে গেলে, কোনো রিকুইজিশন যদি রুলের আন্ডারে পড়ে, তবে তা অটোমেটিক্যালি **Pending** হয়ে যাবে।
+1. অ্যাডমিন প্যানেলে **Orders / Requisitions** পেজে যান এবং ডিটেইলস পেজটি ওপেন করুন।
+2. পেজের ডানদিকে একটি **Approval Chain** বক্স দেখতে পাবেন।
+3. যদি আপনার পদবী (Role) বর্তমান স্টেপের সাথে মিলে যায়, তবে আপনি সেখানে বড় দুটি বাটন দেখতে পাবেন: **[Approve]** এবং **[Reject]**।
+4. **Approve**-এ ক্লিক করলে তা পরবর্তী ধাপে (যদি থাকে) চলে যাবে।
+5. **Reject**-এ ক্লিক করলে একটি পপ-আপ আসবে, যেখানে কারণ লিখে সাবমিট করলে পুরো অর্ডারটি সাথে সাথে Cancelled হয়ে যাবে।
+
 ---
 
 # English Version
@@ -116,6 +124,14 @@ At the bottom of the same form, you'll find the **Approval Chain Steps** section
 4. Finally, click the **Create/Save** button.
 
 🎉 **Done! Your dynamic rule is created!** Now, if someone submits a requisition over 5,000, it will automatically go to 2 people for approval.
+
+### 📬 How do Managers Approve or Reject Requisitions/Orders?
+Once rules are created, if a requisition falls under a rule, it will automatically become **Pending**.
+1. Go to the **Orders / Requisitions** page in the admin panel and open the details page.
+2. On the right side of the page, you will see an **Approval Chain** box.
+3. If your designation (Role) matches the current pending step, you will see two big buttons: **[Approve]** and **[Reject]**.
+4. Clicking **Approve** will forward it to the next step (if any).
+5. Clicking **Reject** will open a pop-up asking for a reason, and upon submission, the entire order will immediately become Cancelled.
 
 ---
 *Document Version: 1.0 (Phase 1)*

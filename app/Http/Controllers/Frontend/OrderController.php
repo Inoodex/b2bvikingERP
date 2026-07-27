@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\CheckoutDiscountResolver;
 use App\Services\CheckoutTaxResolver;
+use App\Services\ApprovalService;
 use App\Support\PiInfoSupport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -279,6 +280,10 @@ class OrderController extends Controller
                     'line_total' => $line['line_total'],
                 ]);
             }
+
+            // Submit order for Multi-Level Approval
+            $approvalService = app(ApprovalService::class);
+            $approvalService->submitForApproval($newOrder, (float)$newOrder->total_amount);
 
             DB::commit();
 

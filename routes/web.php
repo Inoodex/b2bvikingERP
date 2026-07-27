@@ -274,6 +274,8 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::get('orders/{order}/download-customer-invoice', 'downloadCustomerInvoice')->name('orders.download-customer-invoice');
         Route::get('orders/{order}', 'show')->name('orders.show');
         Route::put('orders/{order}/status', 'updateStatus')->name('orders.update-status');
+        Route::post('orders/{order}/approve', [\App\Http\Controllers\Backend\OrderApprovalController::class, 'approve'])->name('orders.approve');
+        Route::post('orders/{order}/reject', [\App\Http\Controllers\Backend\OrderApprovalController::class, 'reject'])->name('orders.reject');
         Route::delete('orders/{order}', 'destroy')->name('orders.destroy');
     });
 

@@ -261,6 +261,89 @@
                 </div>
 
                 <div class="col-12 col-lg-4">
+                    {{-- Approval Engine UI --}}
+                    @if($order->approvals && $order->approvals->count() > 0)
+                    <div class="card card-info mb-3">
+                        <div class="card-header border-bottom">
+                            <h4><i class="fas fa-sitemap mr-2"></i>Approval Chain</h4>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled list-unstyled-border mb-0">
+                                @foreach($order->approvals as $approval)
+                                    @php
+                                        $step = $approval->step;
+                                        $isCurrentPending = ($approval->status === 'pending');
+                                        $roleName = $step->approverRole ? $step->approverRole->name : '';
+                                        $canApprove = $isCurrentPending && \Illuminate\Support\Facades\Auth::user()->hasRole($roleName);
+                                    @endphp
+                                    <li class="media mb-2 pb-2 {{ !$loop->last ? 'border-bottom' : '' }}">
+                                        <div class="media-body">
+                                            <div class="mt-0 mb-1 font-weight-bold">Step {{ $step->step_order ?? '' }}: {{ $roleName ?: 'Unknown Role' }}</div>
+                                            <div class="text-small">
+                                                Status:
+                                                @if($approval->status === 'approved')
+                                                    <span class="badge badge-success">Approved</span>
+                                                @elseif($approval->status === 'rejected')
+                                                    <span class="badge badge-danger">Rejected</span>
+                                                @else
+                                                    <span class="badge badge-warning">Pending</span>
+                                                @endif
+                                            </div>
+                                            
+                                            @if($approval->status === 'approved' || $approval->status === 'rejected')
+                                                <div class="text-muted small mt-1">
+                                                    By: {{ $approval->user->name ?? 'System' }}<br>
+                                                    Date: {{ $approval->updated_at->format('d M, Y h:i A') }}
+                                                    @if($approval->comments)
+                                                        <br><i>"{{ $approval->comments }}"</i>
+                                                    @endif
+                                                </div>
+                                            @endif
+
+                                            @if($canApprove)
+                                                <div class="mt-2 d-flex">
+                                                    <form action="{{ route('admin.orders.approve', $order->id) }}" method="POST" class="mr-2">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this order?')"><i class="fas fa-check"></i> Approve</button>
+                                                    </form>
+                                                    <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#rejectModal"><i class="fas fa-times"></i> Reject</button>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+
+                    {{-- Reject Modal --}}
+                    <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <form action="{{ route('admin.orders.reject', $order->id) }}" method="POST">
+                                @csrf
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Reject Order</h5>
+                                        <button type="button" class="close" data-dismiss="modal">
+                                            <span>&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label>Reason for Rejection</label>
+                                            <textarea name="reason" class="form-control" rows="3" required></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-danger">Reject Order</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="card card-statistic-1 mb-3">
                         <div class="card-icon bg-primary">
                             <i class="fas fa-shopping-bag"></i>
@@ -355,10 +438,19 @@
                                 @csrf
                                 @method('PUT')
                                 <div class="form-group mb-3">
+                                    @php
+                                        $disableApproveDropdown = false;
+                                        if($order->approvals && $order->approvals->where('status', 'pending')->count() > 0) {
+                                            $disableApproveDropdown = true;
+                                        }
+                                    @endphp
                                     <label class="font-weight-bold small text-muted text-uppercase">Change Status</label>
+                                    @if($disableApproveDropdown)
+                                        <div class="alert alert-warning py-2 mb-2 small"><i class="fas fa-exclamation-triangle mr-1"></i> Manual approval is disabled while pending multi-level approvals.</div>
+                                    @endif
                                     <select name="status" class="form-control" {{ $isLockedStatus ? 'disabled' : '' }}>
                                         <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                                        <option value="approved" {{ $order->status === 'approved' ? 'selected' : '' }}>Approve (Create Issue)</option>
+                                        <option value="approved" {{ $order->status === 'approved' ? 'selected' : '' }} {{ $disableApproveDropdown ? 'disabled' : '' }}>Approve (Create Issue)</option>
                                         <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                                         @if(!in_array($order->status, ['pending', 'approved', 'cancelled'], true))
                                             <option value="{{ $order->status }}" selected>{{ ucfirst($order->status) }}</option>

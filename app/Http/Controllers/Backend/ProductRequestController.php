@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use App\Support\PdfImageHelper;
+use App\Services\ApprovalService;
 
 
 class ProductRequestController extends Controller implements HasMiddleware
@@ -228,6 +229,10 @@ class ProductRequestController extends Controller implements HasMiddleware
             // Link Order to Product Request
             $productRequest->order_id = $order->id;
             $productRequest->save();
+
+            // Submit order for Multi-Level Approval
+            $approvalService = app(ApprovalService::class);
+            $approvalService->submitForApproval($order, (float)$order->total_amount);
 
             DB::commit();
 

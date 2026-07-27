@@ -14,6 +14,7 @@ use App\Models\SavedPurchaseForm;
 use App\Models\Wishlist;
 use App\Services\CheckoutDiscountResolver;
 use App\Services\CheckoutTaxResolver;
+use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -496,6 +497,10 @@ class CartController extends Controller
                     ->whereKey($savedFormId)
                     ->delete();
             }
+
+            // Submit order for Multi-Level Approval
+            $approvalService = app(ApprovalService::class);
+            $approvalService->submitForApproval($order, (float)$order->total_amount);
 
             DB::commit();
 
