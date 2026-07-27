@@ -17,13 +17,15 @@ class RfqNotificationMail extends Mailable
     use Queueable, SerializesModels;
 
     public Rfq $rfq;
+    public $vendor;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Rfq $rfq)
+    public function __construct(Rfq $rfq, $vendor)
     {
         $this->rfq = $rfq;
+        $this->vendor = $vendor;
     }
 
     /**
@@ -53,6 +55,14 @@ class RfqNotificationMail extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('backend.rfq.pdf', [
+            'rfq' => $this->rfq,
+            'vendor' => $this->vendor
+        ]);
+
+        return [
+            Attachment::fromData(fn () => $pdf->output(), 'RFQ_' . $this->rfq->rfq_no . '.pdf')
+                ->withMime('application/pdf'),
+        ];
     }
 }

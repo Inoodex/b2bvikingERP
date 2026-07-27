@@ -48,7 +48,7 @@ class ComparisonStatementController extends Controller
                 'cs_no' => 'CS-' . time(), // simplistic numbering for now
                 'rfq_id' => $rfqId,
                 'recommended_vendor_id' => $request->award_type === 'single' ? $request->recommended_vendor_id : null,
-                'status' => 'draft'
+                'approval_status' => 'draft'
             ]);
 
             $rfq = Rfq::with('items')->findOrFail($rfqId);
@@ -67,6 +67,9 @@ class ComparisonStatementController extends Controller
                     'selected_vendor_quotation_item_id' => $selectedVqiId,
                 ]);
             }
+
+            // Submit for Approval automatically
+            (new \App\Services\ApprovalService())->submitForApproval($cs);
 
             DB::commit();
             Toastr::success('Comparison Statement Generated Successfully!');

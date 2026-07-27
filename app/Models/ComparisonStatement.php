@@ -13,7 +13,7 @@ class ComparisonStatement extends Model
         'cs_no',
         'rfq_id',
         'recommended_vendor_id',
-        'status',
+        'approval_status',
     ];
 
     public function rfq()

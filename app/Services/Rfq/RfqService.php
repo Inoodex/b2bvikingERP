@@ -38,7 +38,7 @@ class RfqService
                 if (isset($rfqVendor->vendor->email) && $rfqVendor->vendor->email) {
                     dispatch(function () use ($rfq, $rfqVendor) {
                         try {
-                            Mail::to($rfqVendor->vendor->email)->send(new RfqNotificationMail($rfq));
+                            Mail::to($rfqVendor->vendor->email)->send(new RfqNotificationMail($rfq, $rfqVendor->vendor));
                         } catch (\Exception $e) {
                             // Log or ignore if SMTP fails
                         }
