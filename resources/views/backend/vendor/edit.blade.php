@@ -57,17 +57,21 @@ Vendor
                              <div class="row">
                                 <div class="form-group col-md-6">
                                     <label>Currency</label>
-                                    <select name="currency_select" id="currency_select" class="form-control select2">
-                                        <option value="">Select Currency</option>
-                                        @foreach (config('settings.currency_list') as $currency)
-                                            <option value="{{ $currency['code'] }}" data-icon="{{ $currency['symbol'] }}" 
-                                                {{ $vendor->currency_name == $currency['code'] ? 'selected' : '' }}>
-                                                {{ $currency['name'] }} ({{ $currency['code'] }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <input type="hidden" name="currency_name" id="currency_name" value="{{ $vendor->currency_name }}">
-                                    <input type="hidden" name="currency_icon" id="currency_icon" value="{{ $vendor->currency_icon }}">
+                                        <select name="currency_id" id="currency_select" class="form-control select2 @error('currency_id') is-invalid @enderror"
+                                                style="height: 44px; font-size: 0.95rem; border-radius: 10px; border: 2px solid #e2e8f0;">
+                                            <option value="">Select Currency</option>
+                                            @foreach ($currencies as $currency)
+                                                <option value="{{ $currency->id }}" 
+                                                    data-icon="{{ $currency->symbol }}" 
+                                                    data-rate="{{ $currency->exchange_rate }}"
+                                                    {{ (old('currency_id') ?? $vendor->currency_id) == $currency->id ? 'selected' : '' }}>
+                                                    {{ $currency->name }} ({{ $currency->code }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('currency_id')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                 </div>
 
                                 <div class="form-group col-md-3">
@@ -75,10 +79,6 @@ Vendor
                                     <div class="h4" id="currency_icon_display">{{ $vendor->currency_icon ?? '-' }}</div>
                                 </div>
 
-                                <div class="form-group col-md-3">
-                                    <label>Local Currency Rate</label>
-                                    <input type="number" step="0.0001" class="form-control" name="currency_rate" value="{{ $vendor->currency_rate }}">
-                                </div>
                              </div>
 
                             <div class="form-group">
@@ -109,14 +109,15 @@ Vendor
 @push('scripts')
     <script>
         $(document).ready(function() {
-            $('#currency_select').on('change', function() {
-                let code = $(this).val();
+            $('#currency_select').on('change', function(e, init) {
                 let icon = $(this).find(':selected').data('icon');
-                
-                $('#currency_name').val(code);
-                $('#currency_icon').val(icon);
-                $('#currency_icon_display').text(icon || '-');
+                $('#currency_icon_display').text(icon || '—');
             });
+            
+            // Trigger on load for initialization
+            if ($('#currency_select').val()) {
+                $('#currency_select').trigger('change', [true]);
+            }
         });
     </script>
 @endpush

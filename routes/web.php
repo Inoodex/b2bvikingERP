@@ -39,6 +39,8 @@ use App\Http\Controllers\Backend\CompanyController;
 use App\Http\Controllers\Backend\DepartmentController;
 use App\Http\Controllers\Backend\OutletController;
 use App\Http\Controllers\Backend\ApprovalWorkflowController;
+use App\Http\Controllers\Backend\RfqController;
+use App\Http\Controllers\Backend\VendorQuotationController;
 use App\Http\Controllers\Frontend\AccountController as FrontendAccountController;
 use App\Http\Controllers\Frontend\CartController as FrontendCartController;
 use App\Http\Controllers\Frontend\HomeController;
@@ -209,6 +211,25 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     /** Product Type Routes */
     Route::put('product-types/change-status', [ProductTypeController::class, 'changeStatus'])->name('product-types.change-status');
     Route::resource('product-types', ProductTypeController::class);
+
+    /** Procurement (Phase 2) Routes */
+    Route::get('rfqs/{rfq}/vendors/{vendor}/quotation', [\App\Http\Controllers\Backend\VendorQuotationController::class, 'create'])->name('rfqs.quotations.create');
+    Route::post('rfqs/quotations', [\App\Http\Controllers\Backend\VendorQuotationController::class, 'store'])->name('rfqs.quotations.store');
+    
+    // Comparison Statement Routes
+    Route::get('rfqs/{rfq}/cs', [\App\Http\Controllers\Backend\ComparisonStatementController::class, 'create'])->name('rfqs.cs.create');
+    Route::post('rfqs/{rfq}/cs', [\App\Http\Controllers\Backend\ComparisonStatementController::class, 'store'])->name('rfqs.cs.store');
+
+    Route::controller(RfqController::class)->group(function () {
+        Route::put('rfqs/{id}/close', 'close')->name('rfqs.close');
+        Route::get('rfqs/fetch-source-items', 'fetchSourceItems')->name('rfqs.fetch-source-items');
+    });
+    Route::resource('rfqs', RfqController::class);
+
+    Route::controller(VendorQuotationController::class)->group(function () {
+        Route::get('rfqs/{rfq}/quotations/create/{vendor}', 'create')->name('rfqs.quotations.create');
+        Route::post('rfqs/quotations', 'store')->name('rfqs.quotations.store');
+    });
 
     /** Booking Routes */
     Route::controller(BookingController::class)->group(function () {

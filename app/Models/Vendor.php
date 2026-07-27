@@ -15,9 +15,6 @@ class Vendor extends Model
         'email',
         'address',
         'country',
-        'currency_name',
-        'currency_icon',
-        'currency_rate',
         'currency_id',
         'description',
         'status'
@@ -30,9 +27,6 @@ class Vendor extends Model
 
     public function getEffectiveExchangeRateAttribute()
     {
-        if ($this->currency_id && $this->currency) {
-            return (float) $this->currency->exchange_rate;
-        }
-        return (float) ($this->currency_rate ?? 1.0000);
+        return (float) ($this->currency ? $this->currency->exchange_rate : 1.0000);
     }
 }

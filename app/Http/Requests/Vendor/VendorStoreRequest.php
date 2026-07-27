@@ -27,9 +27,7 @@ class VendorStoreRequest extends FormRequest
             'email' => 'nullable|email:filter|max:255|unique:vendors,email',
             'address' => 'required|string|max:500',
             'country' => 'required|string|max:255',
-            'currency_name' => 'required|string|max:20',
-            'currency_icon' => 'required|string|max:10',
-            'currency_rate' => 'required|numeric|min:0',
+            'currency_id' => 'required|exists:currencies,id',
             'description' => 'nullable|string',
             'status' => 'required|boolean',
         ];

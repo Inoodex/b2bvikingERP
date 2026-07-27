@@ -4,6 +4,7 @@
   $inventoryActive  = request()->routeIs('admin.inventory-reports.*', 'admin.issues.*', 'admin.issue-returns.*', 'admin.stock-ledger.*');
   $ordersActive     = request()->routeIs('admin.orders.*', 'admin.custom-product-requests.*', 'admin.product-requests.*');
   $purchaseActive   = request()->routeIs('admin.bookings.*', 'admin.purchases.*');
+  $procurementActive = request()->routeIs('admin.rfqs.*');
   $reportsActive    = request()->routeIs('admin.reports.*');
   $accountsActive   = request()->routeIs('admin.accounts.*');
   $brandsActive     = request()->routeIs('admin.brand.*');
@@ -1143,6 +1144,19 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.purchases.index') }}"><i class="fas fa-check-circle"></i> All Order Receive</a></li>
           <li class="sb-submenu-header">Quick Actions</li>
           <li><a href="{{ route('admin.purchases.create') }}"><i class="fas fa-plus-circle"></i> Create New</a></li>
+        </ul>
+      </li>
+
+      <li class="sb-item has-children {{ $procurementActive ? 'active open' : '' }}">
+        <a href="#" class="sb-link sb-toggle" title="Procurement">
+          <i class="fas fa-file-contract"></i>
+          <span class="sb-label">Procurement</span>
+          <i class="fas fa-chevron-down sb-arrow"></i>
+        </a>
+        <ul class="sb-submenu">
+          <li class="sb-flyout-title">Procurement</li>
+          <li><a href="{{ route('admin.rfqs.index') }}"><i class="fas fa-list"></i> All RFQs</a></li>
+          <li><a href="{{ route('admin.rfqs.create') }}"><i class="fas fa-plus-circle"></i> Create RFQ</a></li>
         </ul>
       </li>
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\VendorStoreRequest;
 use App\Http\Requests\Vendor\VendorUpdateRequest;
 use App\Models\Vendor;
+use App\Models\Currency;
 use App\Support\AuditLogSupport;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
@@ -26,7 +27,8 @@ class VendorController extends Controller
      */
     public function create()
     {
-        return view('backend.vendor.create');
+        $currencies = Currency::where('status', 1)->get();
+        return view('backend.vendor.create', compact('currencies'));
     }
 
     /**
@@ -66,7 +68,8 @@ class VendorController extends Controller
     public function edit(string $id)
     {
         $vendor = Vendor::findOrFail($id);
-        return view('backend.vendor.edit', compact('vendor'));
+        $currencies = Currency::where('status', 1)->get();
+        return view('backend.vendor.edit', compact('vendor', 'currencies'));
     }
 
     /**

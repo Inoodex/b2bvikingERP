@@ -165,60 +165,24 @@
                                             <span class="ml-1">Currency</span>
                                             <span class="text-danger">*</span>
                                         </label>
-                                        <select name="currency_select" id="currency_select" class="form-control select2 @error('currency_select') is-invalid @enderror"
+                                        <select name="currency_id" id="currency_select" class="form-control select2 @error('currency_id') is-invalid @enderror"
                                                 style="height: 44px; font-size: 0.95rem; border-radius: 10px; border: 2px solid #e2e8f0;">
                                             <option value="">Select Currency</option>
-                                            @foreach (config('settings.currency_list') as $currency)
-                                                <option value="{{ $currency['code'] }}" 
-                                                    data-icon="{{ $currency['symbol'] }}" 
-                                                    {{ old('currency_name') == $currency['code'] ? 'selected' : '' }}>
-                                                    {{ $currency['name'] }} ({{ $currency['code'] }})
+                                            @foreach ($currencies as $currency)
+                                                <option value="{{ $currency->id }}" 
+                                                    data-icon="{{ $currency->symbol }}" 
+                                                    data-rate="{{ $currency->exchange_rate }}"
+                                                    {{ old('currency_id') == $currency->id ? 'selected' : '' }}>
+                                                    {{ $currency->name }} ({{ $currency->code }})
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <input type="hidden" name="currency_name" id="currency_name" value="{{ old('currency_name') }}">
-                                        <input type="hidden" name="currency_icon" id="currency_icon" value="{{ old('currency_icon') }}">
-                                        @error('currency_select')
+                                        @error('currency_id')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
 
-                                <div class="row">
-                                    {{-- Currency Icon --}}
-                                    <div class="form-group col-12 col-md-6">
-                                        <label class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                                            <i class="fas fa-dollar-sign" style="color: #2563eb; width: 18px;"></i>
-                                            <span class="ml-1">Currency Icon</span>
-                                        </label>
-                                        <div class="currency-icon-box" id="currency_icon_display" 
-                                             style="background: linear-gradient(135deg, #f8f9fc 0%, #eef2ff 100%); border: 2px dashed #2563eb; border-radius: 12px; padding: 15px; text-align: center; font-size: 2.5rem; font-weight: 700; color: #2563eb; min-height: 65px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
-                                            {{ old('currency_icon', '—') }}
-                                        </div>
-                                        <small class="text-muted" style="font-size: 0.75rem;">Selected currency symbol will appear here</small>
-                                    </div>
-
-                                    {{-- Currency Rate --}}
-                                    <div class="form-group col-12 col-md-6">
-                                        <label class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                                            <i class="fas fa-exchange-alt" style="color: #2563eb; width: 18px;"></i>
-                                            <span class="ml-1">Currency Rate</span>
-                                        </label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text bg-light" style="border: 2px solid #e2e8f0; border-right: none; border-radius: 10px 0 0 10px; background: #f8f9fc; height: 44px;">
-                                                    <i class="fas fa-arrow-right" style="color: #2563eb;"></i>
-                                                </span>
-                                            </div>
-                                            <input type="number" step="0.0001" class="form-control @error('currency_rate') is-invalid @enderror" 
-                                                   style="height: 44px; font-size: 0.95rem; border-radius: 0 10px 10px 0; border: 2px solid #e2e8f0; border-left: none;"
-                                                   name="currency_rate" id="currency_rate" value="{{ old('currency_rate', 1.0000) }}">
-                                        </div>
-                                        @error('currency_rate')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        <small class="text-muted" style="font-size: 0.75rem;">Rate against base currency (1.0000 = 1:1)</small>
-                                    </div>
                                 </div>
 
                                 {{-- Description --}}
@@ -808,11 +772,7 @@
     $(document).ready(function() {
         // Currency selection handler
         $('#currency_select').on('change', function() {
-            let code = $(this).val();
             let icon = $(this).find(':selected').data('icon');
-            
-            $('#currency_name').val(code);
-            $('#currency_icon').val(icon);
             $('#currency_icon_display').text(icon || '—');
         });
 
@@ -837,13 +797,7 @@
                 $(this).val('').trigger('change');
             });
             
-            // Reset currency display
             $('#currency_icon_display').text('—');
-            $('#currency_name').val('');
-            $('#currency_icon').val('');
-            
-            // Set default currency rate
-            $('#currency_rate').val('1.0000');
             
             // Remove validation states
             $('.is-invalid').removeClass('is-invalid');

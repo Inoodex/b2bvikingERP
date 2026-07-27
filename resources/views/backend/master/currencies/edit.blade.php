@@ -23,18 +23,20 @@
                             @csrf
                             @method('PUT')
                             <div class="row">
-                                <div class="form-group col-md-6">
-                                    <label>Currency Code (ISO) <span class="text-danger">*</span></label>
-                                    <input type="text" name="code" class="form-control" value="{{ old('code', $currency->code) }}" required>
+                                <div class="form-group col-md-12">
+                                    <label>Select Currency <span class="text-danger">*</span></label>
+                                    <select id="currency_selector" class="form-control select2" required>
+                                        <option value="">-- Choose a Currency --</option>
+                                        @foreach(config('settings.currency_list') as $list_currency)
+                                            <option value="{{ $list_currency['code'] }}" data-name="{{ $list_currency['name'] }}" data-symbol="{{ $list_currency['symbol'] }}" {{ old('code', $currency->code) == $list_currency['code'] ? 'selected' : '' }}>
+                                                {{ $list_currency['name'] }} ({{ $list_currency['code'] }}) - {{ $list_currency['symbol'] }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                                <div class="form-group col-md-6">
-                                    <label>Currency Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="name" class="form-control" value="{{ old('name', $currency->name) }}" required>
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label>Symbol <span class="text-danger">*</span></label>
-                                    <input type="text" name="symbol" class="form-control" value="{{ old('symbol', $currency->symbol) }}" required>
-                                </div>
+                                <input type="hidden" name="code" id="currency_code" value="{{ old('code', $currency->code) }}">
+                                <input type="hidden" name="name" id="currency_name" value="{{ old('name', $currency->name) }}">
+                                <input type="hidden" name="symbol" id="currency_symbol" value="{{ old('symbol', $currency->symbol) }}">
                                 <div class="form-group col-md-6">
                                     <label>Exchange Rate <span class="text-danger">*</span></label>
                                     <input type="number" step="0.0001" name="exchange_rate" class="form-control" value="{{ old('exchange_rate', $currency->exchange_rate) }}" required>
@@ -64,3 +66,16 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#currency_selector').on('change', function() {
+            var selected = $(this).find('option:selected');
+            $('#currency_code').val(selected.val());
+            $('#currency_name').val(selected.data('name'));
+            $('#currency_symbol').val(selected.data('symbol'));
+        });
+    });
+</script>
+@endpush
