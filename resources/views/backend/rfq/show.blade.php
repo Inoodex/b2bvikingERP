@@ -222,8 +222,8 @@
                             <i class="fas fa-balance-scale text-primary mr-2"></i> Comparison Statement (CS Ref: {{ $cs->cs_no }})
                         </h5>
                         <div>
-                            <a href="{{ route('admin.rfqs.cs.pdf.view', ['rfq' => $rfq->id, 'cs' => $cs->id]) }}" target="_blank" class="btn btn-sm btn-danger mr-1"><i class="fas fa-eye mr-1"></i> Preview CS PDF</a>
-                            <a href="{{ route('admin.rfqs.cs.pdf', ['rfq' => $rfq->id, 'cs' => $cs->id]) }}" class="btn btn-sm btn-outline-danger mr-1"><i class="fas fa-download mr-1"></i> Download PDF</a>
+                            <a href="{{ route('admin.rfqs.cs.pdf.view', ['rfq' => $rfq->id, 'cs' => $cs->id]) }}" target="_blank" class="btn btn-sm btn-danger mr-1"><i class="fas fa-eye mr-1"></i>CS PDF</a>
+                            <a href="{{ route('admin.rfqs.cs.pdf', ['rfq' => $rfq->id, 'cs' => $cs->id]) }}" class="btn btn-sm btn-outline-danger mr-1"><i class="fas fa-download mr-1"></i>PDF</a>
                             <a href="{{ route('admin.rfqs.cs.create', $rfq->id) }}" class="btn btn-sm btn-primary"><i class="fas fa-table mr-1"></i> CS Matrix</a>
                         </div>
                     </div>
