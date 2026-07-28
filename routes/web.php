@@ -219,16 +219,24 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     // Comparison Statement Routes
     Route::get('rfqs/{rfq}/cs', [\App\Http\Controllers\Backend\ComparisonStatementController::class, 'create'])->name('rfqs.cs.create');
     Route::post('rfqs/{rfq}/cs', [\App\Http\Controllers\Backend\ComparisonStatementController::class, 'store'])->name('rfqs.cs.store');
+    Route::post('rfqs/cs/{cs}/approve', [\App\Http\Controllers\Backend\ComparisonStatementController::class, 'approve'])->name('rfqs.cs.approve');
+    Route::post('rfqs/cs/{cs}/reject', [\App\Http\Controllers\Backend\ComparisonStatementController::class, 'reject'])->name('rfqs.cs.reject');
+    Route::get('rfqs/{rfq}/cs/{cs}/pdf', [\App\Http\Controllers\Backend\ComparisonStatementController::class, 'downloadPdf'])->name('rfqs.cs.pdf');
+    Route::get('rfqs/{rfq}/cs/{cs}/pdf/view', [\App\Http\Controllers\Backend\ComparisonStatementController::class, 'streamPdf'])->name('rfqs.cs.pdf.view');
 
     Route::controller(RfqController::class)->group(function () {
         Route::put('rfqs/{id}/close', 'close')->name('rfqs.close');
         Route::get('rfqs/fetch-source-items', 'fetchSourceItems')->name('rfqs.fetch-source-items');
+        Route::get('rfqs/{id}/pdf/view', 'streamPdf')->name('rfqs.pdf.view');
+        Route::get('rfqs/{id}/pdf/download', 'downloadPdf')->name('rfqs.pdf.download');
+        Route::post('rfqs/{rfq}/send-emails', 'sendVendorEmails')->name('rfqs.send-emails');
     });
     Route::resource('rfqs', RfqController::class);
 
     Route::controller(VendorQuotationController::class)->group(function () {
         Route::get('rfqs/{rfq}/quotations/create/{vendor}', 'create')->name('rfqs.quotations.create');
         Route::post('rfqs/quotations', 'store')->name('rfqs.quotations.store');
+        Route::get('rfqs/{rfq}/quotations/{quotation}', 'show')->name('rfqs.quotations.show');
     });
 
     /** Booking Routes */

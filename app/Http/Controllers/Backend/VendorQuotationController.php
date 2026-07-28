@@ -44,4 +44,17 @@ class VendorQuotationController extends Controller
             return redirect()->back()->withInput();
         }
     }
+
+    public function show(string $rfqId, string $quotationId)
+    {
+        $rfq = Rfq::findOrFail($rfqId);
+        $quotation = \App\Models\VendorQuotation::with([
+            'vendor',
+            'currency',
+            'items.product.unit',
+            'items.variant'
+        ])->where('rfq_id', $rfqId)->findOrFail($quotationId);
+
+        return view('backend.rfq.quotation_show', compact('rfq', 'quotation'));
+    }
 }

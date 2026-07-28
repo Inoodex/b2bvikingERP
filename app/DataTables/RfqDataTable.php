@@ -57,8 +57,10 @@ class RfqDataTable extends DataTable
                 return $query->created_at->format('d M, Y');
             })
             ->addColumn('action', function ($query) {
-                $show = '<a href="' . route('admin.rfqs.show', $query->id) . '" class="btn btn-primary btn-sm mr-1" title="Details"><i class="fas fa-eye"></i></a>';
-                return $show;
+                $btn = '<a href="' . route('admin.rfqs.show', $query->id) . '" class="btn btn-info btn-sm mr-1" title="View Details"><i class="fas fa-eye"></i></a>';
+                $btn .= '<a href="' . route('admin.rfqs.pdf.view', $query->id) . '" target="_blank" class="btn btn-secondary btn-sm mr-1" title="Preview PDF"><i class="fas fa-file-pdf"></i></a>';
+                $btn .= '<a href="' . route('admin.rfqs.pdf.download', $query->id) . '" class="btn btn-danger btn-sm" title="Download PDF"><i class="fas fa-file-download"></i></a>';
+                return $btn;
             })
             ->rawColumns(['source', 'vendors_count', 'items_count', 'status_badge', 'action'])
             ->setRowId('id');

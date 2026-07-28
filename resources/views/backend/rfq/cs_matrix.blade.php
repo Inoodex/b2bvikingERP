@@ -4,7 +4,16 @@
 @section('content')
 <section class="section">
     <div class="section-header">
-        <h1>Comparison Statement (CS) Matrix for {{ $rfq->rfq_no }}</h1>
+        <div class="section-header-back">
+            <a href="{{ route('admin.rfqs.show', $rfq->id) }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+        </div>
+        <h1>Comparison Statement (CS) Matrix: {{ $rfq->rfq_no }}</h1>
+        <div class="section-header-breadcrumb">
+            <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
+            <div class="breadcrumb-item"><a href="{{ route('admin.rfqs.index') }}">Procurement</a></div>
+            <div class="breadcrumb-item"><a href="{{ route('admin.rfqs.show', $rfq->id) }}">RFQ Details</a></div>
+            <div class="breadcrumb-item">CS Matrix</div>
+        </div>
     </div>
 
     <div class="section-body">
@@ -39,7 +48,9 @@
                         <table class="table table-bordered text-center" id="cs-matrix-table">
                             <thead class="bg-light">
                                 <tr>
+                                    <th style="width: 70px;">Image</th>
                                     <th style="width: 200px;">Product</th>
+                                    <th>Unit Type</th>
                                     <th>Requested Qty</th>
                                     @foreach($quotations as $quotation)
                                         <th>
@@ -52,11 +63,21 @@
                             <tbody>
                                 @foreach($rfq->items as $index => $rfqItem)
                                     <tr>
+                                        <td class="text-center">
+                                            @if(optional($rfqItem->product)->thumb_image)
+                                                <img src="{{ asset($rfqItem->product->thumb_image) }}" alt="product" class="img-thumbnail" style="width: 45px; height: 45px; object-fit: cover;">
+                                            @else
+                                                <img src="{{ asset('backend/assets/img/news/img01.jpg') }}" alt="product" class="img-thumbnail" style="width: 45px; height: 45px; object-fit: cover;">
+                                            @endif
+                                        </td>
                                         <td class="text-left">
                                             <strong>{{ $rfqItem->product->name }}</strong>
                                             @if($rfqItem->variant)
                                                 <br><small>{{ $rfqItem->variant->name }}</small>
                                             @endif
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-light border">{{ $rfqItem->product->unit->name ?? 'Pcs' }}</span>
                                         </td>
                                         <td>{{ $rfqItem->qty }}</td>
                                         
@@ -73,9 +94,13 @@
                                             
                                             <td class="price-cell" data-normalized-price="{{ $normalizedPrice ?? 9999999999 }}">
                                                 @if($quotedItem)
+                                                    @php
+                                                        $baseCurrency = \App\Models\Currency::where('is_base', true)->first();
+                                                        $baseSymbol = $baseCurrency->symbol ?? 'kr.';
+                                                    @endphp
                                                     <div class="mb-2">
                                                         <span class="d-block font-weight-bold">{{ number_format($quotedItem->unit_price, 2) }}</span>
-                                                        <small class="text-muted d-block">Base: {{ number_format($normalizedPrice, 2) }}</small>
+                                                        <small class="text-muted d-block">Base: {{ $baseSymbol }}{{ number_format($normalizedPrice, 2) }}</small>
                                                     </div>
                                                     
                                                     <div class="split-radio" style="display: none;">

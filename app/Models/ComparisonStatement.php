@@ -30,4 +30,30 @@ class ComparisonStatement extends Model
     {
         return $this->hasMany(ComparisonStatementItem::class);
     }
+
+    public function approvals()
+    {
+        return $this->morphMany(Approval::class, 'approvable');
+    }
+
+    public function getTotalAmountAttribute()
+    {
+        $total = 0;
+        foreach ($this->items as $item) {
+            $vqi = $item->selectedQuotationItem;
+            if (!$vqi && $this->recommended_vendor_id) {
+                $vqi = VendorQuotationItem::whereHas('vendorQuotation', function ($q) {
+                    $q->where('rfq_id', $this->rfq_id)
+                      ->where('vendor_id', $this->recommended_vendor_id);
+                })->where('product_id', $item->product_id)->first();
+            }
+
+            if ($vqi) {
+                $quotation = $vqi->vendorQuotation;
+                $exchangeRate = ($quotation && $quotation->currency) ? (float)$quotation->currency->exchange_rate : 1.0;
+                $total += ($vqi->qty * $vqi->unit_price * $exchangeRate);
+            }
+        }
+        return $total;
+    }
 }

@@ -61,10 +61,18 @@
     <table class="info-section">
         <tr>
             <td width="50%">
-                <strong>To:</strong><br>
-                {{ $vendor->shop_name }}<br>
-                {{ $vendor->email }}<br>
-                {{ $vendor->address }}
+                <strong>To (Invited Vendor / Suppliers):</strong><br>
+                @if(isset($vendor) && $vendor)
+                    <strong>{{ $vendor->shop_name }}</strong><br>
+                    {{ $vendor->email }}<br>
+                    {{ $vendor->address }}
+                @elseif(isset($rfq->vendors) && $rfq->vendors->count() > 0)
+                    @foreach($rfq->vendors as $rv)
+                        • <strong>{{ $rv->vendor->shop_name ?? 'Vendor' }}</strong> ({{ $rv->vendor->email ?? '' }})<br>
+                    @endforeach
+                @else
+                    <em>All Invited Vendors / Suppliers</em>
+                @endif
             </td>
             <td width="50%" style="text-align: right;">
                 <strong>Date Issued:</strong> {{ $rfq->created_at->format('d M, Y') }}<br>

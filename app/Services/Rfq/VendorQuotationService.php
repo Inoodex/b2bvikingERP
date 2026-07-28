@@ -37,6 +37,9 @@ class VendorQuotationService
                 ]);
             }
 
+            // Invalidate cached RFQ PDF
+            \App\Support\PdfCacheManager::clearRfqCache($rfq->id);
+
             return $quotation;
         });
     }

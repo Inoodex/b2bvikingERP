@@ -63,8 +63,13 @@ class RfqController extends Controller
 
     public function show(string $id)
     {
-        $rfq = Rfq::with(['items.product', 'items.variant', 'vendors.vendor', 'source', 'quotations.items'])->findOrFail($id);
-        return view('backend.rfq.show', compact('rfq'));
+        $rfq = Rfq::with(['items.product', 'items.variant', 'vendors.vendor', 'source', 'quotations.items', 'quotations.currency'])->findOrFail($id);
+        $cs = \App\Models\ComparisonStatement::with(['items.product', 'items.selectedQuotationItem.quotation.vendor', 'recommendedVendor', 'approvals.step.approverRole', 'approvals.user'])
+            ->where('rfq_id', $id)
+            ->latest()
+            ->first();
+
+        return view('backend.rfq.show', compact('rfq', 'cs'));
     }
 
     public function edit(string $id)
@@ -133,5 +138,52 @@ class RfqController extends Controller
         }
 
         return response()->json(['status' => 'success', 'items' => []]);
+    }
+
+    public function sendVendorEmails(string $rfqId)
+    {
+        try {
+            $rfq = Rfq::with(['items.product', 'vendors'])->findOrFail($rfqId);
+
+            if ($rfq->vendors->isEmpty()) {
+                Toastr::warning('No vendors invited to this RFQ.');
+                return redirect()->back();
+            }
+
+            foreach ($rfq->vendors as $rv) {
+                \App\Jobs\SendRfqEmailJob::dispatch($rfq, $rv->vendor_id);
+            }
+
+            Toastr::success('RFQ Emails queued successfully for background delivery!');
+            return redirect()->back();
+        } catch (\Exception $e) {
+            Toastr::error('Error queuing RFQ emails: ' . $e->getMessage());
+            return redirect()->back();
+        }
+    }
+
+    public function streamPdf(string $id)
+    {
+        $path = 'rfqs/rfq_' . $id . '.pdf';
+        if (!\App\Support\PdfCacheManager::isFresh($path, 3600)) {
+            \App\Jobs\GenerateRfqPdfJob::dispatch($id, \Illuminate\Support\Facades\Auth::id());
+            Toastr::info('RFQ PDF is generating in the background. You will be notified once ready.');
+            return redirect()->back();
+        }
+        return response()->file(\Illuminate\Support\Facades\Storage::disk('public')->path($path), [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="RFQ-' . $id . '.pdf"'
+        ]);
+    }
+
+    public function downloadPdf(string $id)
+    {
+        $path = 'rfqs/rfq_' . $id . '.pdf';
+        if (!\App\Support\PdfCacheManager::isFresh($path, 3600)) {
+            \App\Jobs\GenerateRfqPdfJob::dispatch($id, \Illuminate\Support\Facades\Auth::id());
+            Toastr::info('RFQ PDF is generating in the background. You will be notified once ready.');
+            return redirect()->back();
+        }
+        return \Illuminate\Support\Facades\Storage::disk('public')->download($path, 'RFQ-' . $id . '.pdf');
     }
 }

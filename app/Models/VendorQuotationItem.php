@@ -23,6 +23,11 @@ class VendorQuotationItem extends Model
         return $this->belongsTo(VendorQuotation::class);
     }
 
+    public function quotation(): BelongsTo
+    {
+        return $this->belongsTo(VendorQuotation::class, 'vendor_quotation_id');
+    }
+
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
