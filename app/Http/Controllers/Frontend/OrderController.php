@@ -281,9 +281,9 @@ class OrderController extends Controller
                 ]);
             }
 
-            // Submit order for Multi-Level Approval
-            $approvalService = app(ApprovalService::class);
-            $approvalService->submitForApproval($newOrder, (float)$newOrder->total_amount);
+            // Customer frontend orders do not require internal approval
+            // $approvalService = app(ApprovalService::class);
+            // $approvalService->submitForApproval($newOrder, (float)$newOrder->total_amount);
 
             DB::commit();
 

@@ -498,9 +498,9 @@ class CartController extends Controller
                     ->delete();
             }
 
-            // Submit order for Multi-Level Approval
-            $approvalService = app(ApprovalService::class);
-            $approvalService->submitForApproval($order, (float)$order->total_amount);
+            // Customer frontend orders do not require internal approval
+            // $approvalService = app(ApprovalService::class);
+            // $approvalService->submitForApproval($order, (float)$order->total_amount);
 
             DB::commit();
 
