@@ -213,9 +213,6 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     Route::resource('product-types', ProductTypeController::class);
 
     /** Procurement (Phase 2) Routes */
-    Route::get('rfqs/{rfq}/vendors/{vendor}/quotation', [\App\Http\Controllers\Backend\VendorQuotationController::class, 'create'])->name('rfqs.quotations.create');
-    Route::post('rfqs/quotations', [\App\Http\Controllers\Backend\VendorQuotationController::class, 'store'])->name('rfqs.quotations.store');
-    
     // Comparison Statement Routes
     Route::get('rfqs/{rfq}/cs', [\App\Http\Controllers\Backend\ComparisonStatementController::class, 'create'])->name('rfqs.cs.create');
     Route::post('rfqs/{rfq}/cs', [\App\Http\Controllers\Backend\ComparisonStatementController::class, 'store'])->name('rfqs.cs.store');
@@ -234,7 +231,7 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     Route::resource('rfqs', RfqController::class);
 
     Route::controller(VendorQuotationController::class)->group(function () {
-        Route::get('rfqs/{rfq}/quotations/create/{vendor}', 'create')->name('rfqs.quotations.create');
+        Route::get('rfqs/{rfq}/vendors/{vendor}/quotation', 'create')->name('rfqs.quotations.create');
         Route::post('rfqs/quotations', 'store')->name('rfqs.quotations.store');
         Route::get('rfqs/{rfq}/quotations/{quotation}', 'show')->name('rfqs.quotations.show');
     });

@@ -33,9 +33,10 @@ class RfqService
                     'vendor_id' => $vendorId,
                     'invited_at' => now(),
                 ]);
+                $rfqVendor->load('vendor');
                 
                 // Dispatch Email Notification if Vendor has email
-                if (isset($rfqVendor->vendor->email) && $rfqVendor->vendor->email) {
+                if ($rfqVendor->vendor && $rfqVendor->vendor->email) {
                     dispatch(function () use ($rfq, $rfqVendor) {
                         try {
                             Mail::to($rfqVendor->vendor->email)->send(new RfqNotificationMail($rfq, $rfqVendor->vendor));

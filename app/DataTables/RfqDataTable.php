@@ -50,14 +50,15 @@ class RfqDataTable extends DataTable
                 };
                 return '<span class="badge ' . $class . '">' . ucfirst($status) . '</span>';
             })
-            ->editColumn('deadline', function ($query) {
-                return $query->deadline ? \Carbon\Carbon::parse($query->deadline)->format('d M, Y') : 'N/A';
+            ->editColumn('due_date', function ($query) {
+                return $query->due_date ? \Carbon\Carbon::parse($query->due_date)->format('d M, Y') : 'N/A';
             })
             ->editColumn('created_at', function ($query) {
                 return $query->created_at->format('d M, Y');
             })
             ->addColumn('action', function ($query) {
                 $btn = '<a href="' . route('admin.rfqs.show', $query->id) . '" class="btn btn-info btn-sm mr-1" title="View Details"><i class="fas fa-eye"></i></a>';
+                $btn .= '<a href="' . route('admin.rfqs.edit', $query->id) . '" class="btn btn-primary btn-sm mr-1" title="Edit RFQ"><i class="fas fa-edit"></i></a>';
                 $btn .= '<a href="' . route('admin.rfqs.pdf.view', $query->id) . '" target="_blank" class="btn btn-secondary btn-sm mr-1" title="Preview PDF"><i class="fas fa-file-pdf"></i></a>';
                 $btn .= '<a href="' . route('admin.rfqs.pdf.download', $query->id) . '" class="btn btn-danger btn-sm" title="Download PDF"><i class="fas fa-file-download"></i></a>';
                 return $btn;
@@ -107,7 +108,7 @@ class RfqDataTable extends DataTable
             Column::computed('source')->title('Source'),
             Column::computed('items_count')->title('Items'),
             Column::computed('vendors_count')->title('Vendors'),
-            Column::make('deadline')->title('Deadline'),
+            Column::make('due_date')->title('Due Date'),
             Column::computed('status_badge')->title('Status'),
             Column::make('created_at')->title('Created At'),
             Column::computed('action')

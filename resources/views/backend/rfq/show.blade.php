@@ -94,22 +94,33 @@
 
 @section('content')
     <section class="section">
-        <!-- Native Stisla Page Header -->
-        <div class="section-header">
-            <div class="section-header-back">
-                <a href="{{ route('admin.rfqs.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+        <!-- Seamless Stisla Page Header & Action Bar -->
+        <div class="section-header d-block p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="section-header-back mr-3">
+                        <a href="{{ route('admin.rfqs.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+                    </div>
+                    <h1 class="mb-0 text-dark font-weight-bold" style="font-size: 22px;">RFQ Details: {{ $rfq->rfq_no }}</h1>
+                </div>
+                <div class="section-header-breadcrumb" style="position: relative; top: 0; right: 0;">
+                    <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
+                    <div class="breadcrumb-item"><a href="{{ route('admin.rfqs.index') }}">Procurement</a></div>
+                    <div class="breadcrumb-item">RFQ Details</div>
+                </div>
             </div>
-            <h1>RFQ: {{ $rfq->rfq_no }}</h1>
-            <div class="section-header-button ml-3">
-                <form action="{{ route('admin.rfqs.send-emails', $rfq->id) }}" method="POST" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane mr-1"></i> Send RFQ Email</button>
-                </form>
-            </div>
-            <div class="section-header-breadcrumb">
-                <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
-                <div class="breadcrumb-item"><a href="{{ route('admin.rfqs.index') }}">Procurement</a></div>
-                <div class="breadcrumb-item">RFQ Details</div>
+
+            <div class="pt-3 border-top d-flex justify-content-between align-items-center flex-wrap">
+                <span class="badge badge-light border text-dark py-2 px-3 font-weight-bold" style="font-size: 12px;">
+                    <i class="fas fa-calendar-alt text-warning mr-1"></i> Bidding Deadline: {{ $rfq->due_date ? \Carbon\Carbon::parse($rfq->due_date)->format('d M, Y') : 'N/A' }}
+                </span>
+                <div class="mt-2 mt-sm-0">
+                    <a href="{{ route('admin.rfqs.edit', $rfq->id) }}" class="btn btn-warning btn-sm font-weight-bold mr-1"><i class="fas fa-edit mr-1"></i> Edit RFQ</a>
+                    <form action="{{ route('admin.rfqs.send-emails', $rfq->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-primary btn-sm font-weight-bold"><i class="fas fa-paper-plane mr-1"></i> Send RFQ Email</button>
+                    </form>
+                </div>
             </div>
         </div>
 
