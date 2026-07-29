@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Rfq;
 use App\Models\Vendor;
-use App\Mail\SendRfqMail;
+use App\Mail\RfqNotificationMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -35,7 +35,7 @@ class SendRfqEmailJob implements ShouldQueue
         }
 
         try {
-            Mail::to($vendor->email)->send(new SendRfqMail($this->rfq, $vendor));
+            Mail::to($vendor->email)->send(new RfqNotificationMail($this->rfq, $vendor));
             Log::info("RFQ {$this->rfq->rfq_no} email sent to vendor {$vendor->email}.");
         } catch (\Throwable $e) {
             Log::error("Failed to send RFQ {$this->rfq->rfq_no} email to vendor {$vendor->email}: " . $e->getMessage());

@@ -29,7 +29,7 @@ class RfqController extends Controller
         return $dataTable->render('backend.rfq.index');
     }
 
-    public function create(Request $request)
+    public function create(Request $request): \Illuminate\Contracts\View\View
     {
         // Fetch various procurement triggers
         $orders = Order::whereNotIn('status', ['completed', 'cancelled'])->latest()->get();

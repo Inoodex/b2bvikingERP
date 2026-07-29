@@ -52,9 +52,14 @@ class ComparisonStatementController extends Controller
                 $oldCs->delete();
             }
 
+            // Generate Sequential CS Number (CS-00001, CS-00002, etc.)
+            $lastCs = ComparisonStatement::latest('id')->first();
+            $nextId = $lastCs ? ($lastCs->id + 1) : 1;
+            $csNo = 'CS-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+
             // Create CS
             $cs = ComparisonStatement::create([
-                'cs_no' => 'CS-' . time(),
+                'cs_no' => $csNo,
                 'rfq_id' => $rfqId,
                 'recommended_vendor_id' => $request->award_type === 'single' ? $request->recommended_vendor_id : null,
                 'approval_status' => 'draft'
