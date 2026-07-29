@@ -236,6 +236,25 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::get('rfqs/{rfq}/quotations/{quotation}', 'show')->name('rfqs.quotations.show');
     });
 
+    /** Phase 2 Step 2: PO, PI & LC Routes */
+    Route::controller(\App\Http\Controllers\Backend\PurchaseOrderController::class)->group(function () {
+        Route::get('purchase-orders', 'index')->name('purchase-orders.index');
+        Route::post('purchase-orders/generate-from-cs/{cs}', 'generateFromCs')->name('purchase-orders.generate-from-cs');
+        Route::get('purchase-orders/{id}', 'show')->name('purchase-orders.show');
+        Route::post('purchase-orders/{id}/cancel', 'cancel')->name('purchase-orders.cancel');
+        Route::post('purchase-orders/{id}/send-email', 'sendEmail')->name('purchase-orders.send-email');
+        Route::get('purchase-orders/{id}/pdf/download', 'downloadPdf')->name('purchase-orders.pdf.download');
+    });
+
+    Route::post('proforma-invoices/store', [\App\Http\Controllers\Backend\ProformaInvoiceController::class, 'store'])->name('proforma-invoices.store');
+
+    Route::controller(\App\Http\Controllers\Backend\LetterOfCreditController::class)->group(function () {
+        Route::get('letters-of-credit', 'index')->name('letters-of-credit.index');
+        Route::post('letters-of-credit/store', 'store')->name('letters-of-credit.store');
+        Route::get('letters-of-credit/{id}', 'show')->name('letters-of-credit.show');
+        Route::post('letters-of-credit/{id}/amendments', 'addAmendment')->name('letters-of-credit.amendments.store');
+    });
+
     /** Booking Routes */
     Route::controller(BookingController::class)->group(function () {
         Route::get('bookings/get-subcategories', 'getSubCategories')->name('bookings.get-subcategories');

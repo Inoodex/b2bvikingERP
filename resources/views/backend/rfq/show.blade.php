@@ -235,7 +235,13 @@
                         <div>
                             <a href="{{ route('admin.rfqs.cs.pdf.view', ['rfq' => $rfq->id, 'cs' => $cs->id]) }}" target="_blank" class="btn btn-sm btn-danger mr-1"><i class="fas fa-eye mr-1"></i>CS PDF</a>
                             <a href="{{ route('admin.rfqs.cs.pdf', ['rfq' => $rfq->id, 'cs' => $cs->id]) }}" class="btn btn-sm btn-outline-danger mr-1"><i class="fas fa-download mr-1"></i>PDF</a>
-                            <a href="{{ route('admin.rfqs.cs.create', $rfq->id) }}" class="btn btn-sm btn-primary"><i class="fas fa-table mr-1"></i> CS Matrix</a>
+                            <a href="{{ route('admin.rfqs.cs.create', $rfq->id) }}" class="btn btn-sm btn-primary mr-1"><i class="fas fa-table mr-1"></i> CS Matrix</a>
+                            @if($cs->approval_status === 'approved')
+                                <form action="{{ route('admin.purchase-orders.generate-from-cs', $cs->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success font-weight-bold"><i class="fas fa-file-invoice mr-1"></i> Generate PO</button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                     <div class="card-body py-3 px-4">

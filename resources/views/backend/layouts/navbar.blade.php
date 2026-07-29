@@ -1157,6 +1157,8 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li class="sb-flyout-title">Procurement</li>
           <li><a href="{{ route('admin.rfqs.index') }}"><i class="fas fa-list"></i> All RFQs</a></li>
           <li><a href="{{ route('admin.rfqs.create') }}"><i class="fas fa-plus-circle"></i> Create RFQ</a></li>
+          <li><a href="{{ route('admin.purchase-orders.index') }}"><i class="fas fa-file-invoice"></i> Purchase Orders (PO)</a></li>
+          <li><a href="{{ route('admin.letters-of-credit.index') }}"><i class="fas fa-university"></i> LC Register</a></li>
         </ul>
       </li>
 
