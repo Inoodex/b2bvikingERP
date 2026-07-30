@@ -26,6 +26,10 @@ class PoDataTable extends \Yajra\DataTables\Services\DataTable
                 return '<span class="badge ' . $badge . '">' . strtoupper($type) . '</span>';
             })
             ->editColumn('total_amount', function ($query) {
+                if ($query->purchase_type === 'foreign' && $query->foreign_amount > 0) {
+                    $symbol = $query->currency ? $query->currency->symbol : '$';
+                    return '<span title="Base: kr. ' . number_format($query->total_amount, 2) . '">' . $symbol . ' ' . number_format($query->foreign_amount, 2) . '</span>';
+                }
                 $symbol = $query->currency ? $query->currency->symbol : 'kr.';
                 return $symbol . ' ' . number_format($query->total_amount, 2);
             })
@@ -61,7 +65,7 @@ class PoDataTable extends \Yajra\DataTables\Services\DataTable
                 $btn .= '<a href="' . route('admin.purchase-orders.pdf.download', $query->id) . '" class="btn btn-danger btn-sm" title="Download PDF"><i class="fas fa-file-download"></i></a>';
                 return $btn;
             })
-            ->rawColumns(['po_no', 'purchase_type', 'approval_status', 'milestone_status', 'action'])
+            ->rawColumns(['po_no', 'purchase_type', 'total_amount', 'approval_status', 'milestone_status', 'action'])
             ->setRowId('id');
     }
 
