@@ -55,7 +55,7 @@ Comparison Statement (CS) অনুমোদন হয়ে গেলে বিজ
 1. অনুমোদিত RFQ বা CS পেজে গিয়ে **+ Generate PO** বাটনে ক্লিক করুন।
 2. একাধিক ভেন্ডর বিজয়ী হলে সিস্টেম স্বয়ংক্রিয়ভাবে আলাদা আলাদা **Split PO (`PO-00001`, `PO-00002`...)** তৈরি করবে।
 3. **Procurement > Purchase Orders (PO)** ড্রপডাউন মেন্যুতে ক্লিক করে সকল PO-এর তালিকা ও মাইলস্টোন স্ট্যাটাস দেখতে পাবেন।
-4. **View Details** বাটনে ক্লিক করে **Download PO PDF** এবং **Send PO Email to Supplier** বাটনের মাধ্যমে সাপ্লায়ারকে সরাসরি ইমেইল পাঠাতে পারবেন।
+4. PO টেবিল অথবা Details পেজ থেকে **Live Preview** বা **Preview PDF** (নতুন ট্যাবে পিডিএফ দেখার জন্য) এবং **Download PDF** বাটনের মাধ্যমে ডাউনলোড করতে পারবেন। এছাড়াও **Send PO Email to Supplier** বাটনের মাধ্যমে সাপ্লায়ারকে সরাসরি ইমেইল পাঠাতে পারবেন।
 
 ---
 
@@ -131,7 +131,7 @@ Once a Comparison Statement (CS) is approved, Purchase Orders can be generated f
 1. Open the approved RFQ or CS details page and click **+ Generate PO**.
 2. If multiple vendors win different items, the system automatically creates separate **Split POs (`PO-00001`, `PO-00002`...)**.
 3. Navigate to **Procurement > Purchase Orders (PO)** from the left sidebar to view all POs and milestone trackers.
-4. Click **View Details** to **Download PO PDF** or click **Send PO Email to Supplier** to email the PO document to the vendor.
+4. From the PO table or details page, click **Preview PDF** (to view inline in a new tab) or **Live Preview** and **Download PDF**. You can also click **Send PO Email to Supplier** to email the PO document directly to the vendor.
 
 ### 2.2 Proforma Invoice (PI) Document Attachment
 After receiving the PO, the vendor will issue an official Proforma Invoice (PI), which must be uploaded to the system.
