@@ -4,16 +4,19 @@ namespace App\Http\Controllers\Backend;
 
 use App\DataTables\PoDataTable;
 use App\Http\Controllers\Controller;
+use App\Jobs\GeneratePoPdfJob;
 use App\Models\ComparisonStatement;
 use App\Models\ComparisonStatementItem;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
 use App\Models\Rfq;
+use App\Support\PdfCacheManager;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class PurchaseOrderController extends Controller
@@ -179,10 +182,65 @@ class PurchaseOrderController extends Controller
         return redirect()->back();
     }
 
-    public function downloadPdf($id)
+    /**
+     * Stream (view inline) PO PDF in new tab.
+     * If cache is fresh → serve from disk.
+     * If cache is stale → generate synchronously so target=_blank new tab works correctly.
+     * Also dispatches background job to warm cache for next request.
+     */
+    public function streamPdf(int $id)
     {
+        $path = 'pos/po_' . $id . '.pdf';
+
+        if (PdfCacheManager::isFresh($path, 3600)) {
+            return response()->file(Storage::disk('public')->path($path), [
+                'Content-Type'        => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="PO-' . $id . '.pdf"',
+            ]);
+        }
+
+        // Cache stale — generate synchronously so the new-tab view returns a real PDF response
+        ini_set('memory_limit', '-1');
+        set_time_limit(0);
+
         $po = Purchase::with(['vendor', 'currency', 'items.product', 'items.variant'])->findOrFail($id);
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('backend.purchase.po_pdf', compact('po'));
-        return $pdf->download('PO-' . ($po->po_no ?? $po->id) . '.pdf');
+        $settings = \App\Models\GeneralSetting::first();
+        if ($settings && $settings->site_logo) {
+            $settings->optimized_logo = \App\Support\PdfImageHelper::optimize($settings->site_logo, 480, 120, 95);
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::setOption([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled'      => false,
+            'defaultFont'          => 'sans-serif',
+        ])->loadView('backend.purchase.po_pdf', compact('po', 'settings'));
+
+        // Cache for future requests
+        Storage::disk('public')->put($path, $pdf->output());
+
+        // Also queue background job to refresh cache notification
+        GeneratePoPdfJob::dispatch($id, Auth::id());
+
+        return response($pdf->output(), 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="PO-' . $id . '.pdf"',
+        ]);
+    }
+
+    /**
+     * Download PO PDF — dispatches background job if cache is stale.
+     * Matches Phase 1 RFQ downloadPdf() approach.
+     */
+    public function downloadPdf(int $id)
+    {
+        $path = 'pos/po_' . $id . '.pdf';
+
+        if (!PdfCacheManager::isFresh($path, 3600)) {
+            GeneratePoPdfJob::dispatch($id, Auth::id());
+            Toastr::info('PO PDF is generating in the background. You will be notified once ready.');
+            return redirect()->back();
+        }
+
+        return Storage::disk('public')->download($path, 'PO-' . $id . '.pdf');
     }
 }

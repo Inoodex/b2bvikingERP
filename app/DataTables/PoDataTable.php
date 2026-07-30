@@ -57,7 +57,8 @@ class PoDataTable extends \Yajra\DataTables\Services\DataTable
             })
             ->addColumn('action', function ($query) {
                 $btn = '<a href="' . route('admin.purchase-orders.show', $query->id) . '" class="btn btn-info btn-sm mr-1" title="View PO Details"><i class="fas fa-eye"></i></a>';
-                $btn .= '<a href="' . route('admin.purchase-orders.pdf.download', $query->id) . '" class="btn btn-danger btn-sm mr-1" title="Download PO PDF"><i class="fas fa-file-pdf"></i></a>';
+                $btn .= '<a href="' . route('admin.purchase-orders.pdf.view', $query->id) . '" target="_blank" class="btn btn-secondary btn-sm mr-1" title="Preview PDF"><i class="fas fa-file-pdf"></i></a>';
+                $btn .= '<a href="' . route('admin.purchase-orders.pdf.download', $query->id) . '" class="btn btn-danger btn-sm" title="Download PDF"><i class="fas fa-file-download"></i></a>';
                 return $btn;
             })
             ->rawColumns(['po_no', 'purchase_type', 'approval_status', 'milestone_status', 'action'])

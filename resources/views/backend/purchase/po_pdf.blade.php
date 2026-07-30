@@ -25,8 +25,12 @@
     <table class="header-table">
         <tr>
             <td>
-                <span class="header-title">Copenhagen Tourist Point</span><br>
-                <small>Official Purchase Order Document</small>
+                @if(!empty($settings->optimized_logo))
+                    <img src="{{ $settings->optimized_logo }}" alt="{{ $settings->site_name ?? 'Company Logo' }}" style="max-height: 70px; max-width: 220px; object-fit: contain;">
+                @else
+                    <span class="header-title">{{ $settings->site_name ?? 'Company' }}</span>
+                @endif
+                <br><small style="color: #718096;">Official Purchase Order Document</small>
             </td>
             <td class="text-right">
                 <h2 style="margin: 0; color: #2d3748;">OFFICIAL PO</h2>

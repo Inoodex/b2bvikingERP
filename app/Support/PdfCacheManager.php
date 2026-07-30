@@ -43,4 +43,16 @@ class PdfCacheManager
             Log::info("Invalidated CS PDF cache: {$path}");
         }
     }
+
+    /**
+     * Invalidate (delete) PO PDF cache.
+     */
+    public static function clearPoCache(int|string $poId): void
+    {
+        $path = 'pos/po_' . $poId . '.pdf';
+        if (Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+            Log::info("Invalidated PO PDF cache: {$path}");
+        }
+    }
 }

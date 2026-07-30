@@ -92,7 +92,8 @@
                     <span class="badge badge-info py-2 px-3"><i class="fas fa-globe mr-1"></i> {{ strtoupper($po->purchase_type ?? 'LOCAL') }} PURCHASE</span>
                 </div>
                 <div class="mt-2 mt-sm-0">
-                    <a href="{{ route('admin.purchase-orders.pdf.download', $po->id) }}" class="btn btn-outline-danger btn-sm font-weight-bold mr-1"><i class="fas fa-file-pdf mr-1"></i> Download PO PDF</a>
+                    <a href="{{ route('admin.purchase-orders.pdf.view', $po->id) }}" class="btn btn-outline-secondary btn-sm font-weight-bold mr-1" target="_blank"><i class="fas fa-eye mr-1"></i> View PDF</a>
+                    <a href="{{ route('admin.purchase-orders.pdf.download', $po->id) }}" class="btn btn-outline-danger btn-sm font-weight-bold mr-1"><i class="fas fa-file-pdf mr-1"></i> Download PDF</a>
                     <form action="{{ route('admin.purchase-orders.send-email', $po->id) }}" method="POST" class="d-inline mr-1">
                         @csrf
                         <button type="submit" class="btn btn-primary btn-sm font-weight-bold"><i class="fas fa-paper-plane mr-1"></i> Send PO Email</button>
@@ -316,6 +317,30 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    {{-- ১৩টি Import Expense Breakdown --}}
+                                    <div class="mt-2 mb-2">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <small class="font-weight-bold text-muted text-uppercase" style="font-size: 10px;"><i class="fas fa-coins text-warning mr-1"></i> Normalized Import Cost Breakdown (13 Elements)</small>
+                                            <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" id="toggleExpenses" style="font-size: 11px;">
+                                                <i class="fas fa-chevron-down" id="expenseChevron"></i> Show Expenses
+                                            </button>
+                                        </div>
+                                        <div id="expenseFields" class="border rounded p-2 bg-light" style="display: none;">
+                                            @php
+                                                $expenseItems = ['CD' => 'Custom Duty (CD)', 'RD' => 'Regulatory Duty (RD)', 'SD' => 'Supplementary Duty (SD)', 'VAT' => 'Value Added Tax (VAT)', 'AIT' => 'Advance Income Tax (AIT)', 'AT' => 'Advance Tax (AT)', 'LC Margin' => 'LC Margin Deposit', 'Opening Charge' => 'LC Opening Charge', 'Doc Handling' => 'Document Handling', 'Insurance' => 'Insurance', 'Transport' => 'Local Transport', 'Freight' => 'Sea / Air Freight', 'C&F' => 'C&F Agent Fee'];
+                                            @endphp
+                                            <div class="row">
+                                                @foreach($expenseItems as $key => $label)
+                                                    <div class="col-6 mb-1">
+                                                        <label class="small text-muted mb-0" style="font-size: 11px;">{{ $label }}</label>
+                                                        <input type="number" name="expenses[{{ $key }}]" class="form-control form-control-sm" step="0.01" min="0" placeholder="0.00">
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <button type="submit" class="btn btn-success btn-sm btn-block font-weight-bold"><i class="fas fa-university mr-1"></i> Register LC</button>
                                 </form>
                             @endif
@@ -326,3 +351,23 @@
         </div>
     </section>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtn = document.getElementById('toggleExpenses');
+        const expenseFields = document.getElementById('expenseFields');
+        const chevron = document.getElementById('expenseChevron');
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function () {
+                const isHidden = expenseFields.style.display === 'none' || expenseFields.style.display === '';
+                expenseFields.style.display = isHidden ? 'block' : 'none';
+                chevron.classList.toggle('fa-chevron-down', !isHidden);
+                chevron.classList.toggle('fa-chevron-up', isHidden);
+                toggleBtn.innerHTML = (isHidden ? '<i class="fas fa-chevron-up" id="expenseChevron"></i> Hide Expenses' : '<i class="fas fa-chevron-down" id="expenseChevron"></i> Show Expenses');
+            });
+        }
+    });
+</script>
+@endpush

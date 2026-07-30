@@ -244,6 +244,7 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::post('purchase-orders/{id}/cancel', 'cancel')->name('purchase-orders.cancel');
         Route::post('purchase-orders/{id}/send-email', 'sendEmail')->name('purchase-orders.send-email');
         Route::get('purchase-orders/{id}/pdf/download', 'downloadPdf')->name('purchase-orders.pdf.download');
+        Route::get('purchase-orders/{id}/pdf/view', 'streamPdf')->name('purchase-orders.pdf.view');
     });
 
     Route::post('proforma-invoices/store', [\App\Http\Controllers\Backend\ProformaInvoiceController::class, 'store'])->name('proforma-invoices.store');
