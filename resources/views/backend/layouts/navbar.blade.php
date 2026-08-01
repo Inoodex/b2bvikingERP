@@ -1159,6 +1159,10 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.rfqs.create') }}"><i class="fas fa-plus-circle"></i> Create RFQ</a></li>
           <li><a href="{{ route('admin.purchase-orders.index') }}"><i class="fas fa-file-invoice"></i> Purchase Orders (PO)</a></li>
           <li><a href="{{ route('admin.letters-of-credit.index') }}"><i class="fas fa-university"></i> LC Register</a></li>
+          <li class="sb-submenu-header">Logistics & Receiving</li>
+          <li><a href="{{ route('admin.shipments.index') }}"><i class="fas fa-ship"></i> Shipments & SIT</a></li>
+          <li><a href="{{ route('admin.goods-receipts.index') }}"><i class="fas fa-dolly"></i> Goods Receipts (GRN)</a></li>
+          <li><a href="{{ route('admin.vendor-returns.index') }}"><i class="fas fa-undo"></i> Vendor Returns</a></li>
         </ul>
       </li>
 

@@ -22,6 +22,14 @@ class PurchaseDetail extends Model
         'variant_info' => 'array'
     ];
 
+    /**
+     * Get subtotal attribute for line item
+     */
+    public function getSubtotalAttribute(): float
+    {
+        return (float) ($this->attributes['total'] ?? ($this->qty * $this->unit_cost));
+    }
+
     public function purchase()
     {
         return $this->belongsTo(Purchase::class);

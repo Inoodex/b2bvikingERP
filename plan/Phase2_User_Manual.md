@@ -41,37 +41,50 @@ B2B Viking ERP-এর Phase 2-এর ম্যানুয়ালে আপনা
 1. অ্যাডমিন প্যানেলে **RFQs** পেজে গিয়ে নির্দিষ্ট RFQ-টির ডিটেইলসে যান।
 2. সেখানে **Generate CS** বা **View CS** বাটনে ক্লিক করুন।
 3. আপনি একটি ম্যাট্রিক্স (টেবিল) দেখতে পাবেন, যেখানে সব ভেন্ডরের দেওয়া দাম পাশাপাশি সাজানো থাকবে।
-4. সিস্টেম স্বয়ংক্রিয়ভাবে কারেন্সি কনভার্ট করে বেস কারেন্সিতে (যেমন: DKK বা BDT) সবচেয়ে কম দাম (L1 Bidder) কে দিয়েছে, তা হাইলাইট করে দেখাবে!
-5. **Submit CS for Approval** বাটনে ক্লিক করুন।
+4. সিস্টেম স্### ৩.১ Shipment Tracking & Stock-in-Transit (SIT)
+শিপিং ভেসেল, কনটেইনার নম্বর, বিল অফ লেডিং (BL/AWB) ডকুমেন্ট আপলোড, ডিপার্চার (ETD), অ্যারাইভাল (ETA) ট্র্যাকিং এবং এন্টারপ্রাইজ লজিস্টিকস সিকিউরিটি লক।
+
+**কীভাবে শিপমেন্ট রেজিস্টার, আপডেট ও ম্যানেজ করবেন?**
+1. বামপাশের মেনু থেকে **Procurement > Shipments & SIT** অথবা যেকোনো অনুমোদিত PO পেজ থেকে **Register Shipment** বাটনে ক্লিক করুন।
+2. **Vessel Name / Flight No**, **Container No**, **BL/AWB Number**, **Port of Loading**, **Port of Discharge**, **ETD**, এবং **ETA** ঘরগুলো পূরণ করুন।
+3. অফিসিয়াল Bill of Lading (BL) অথবা Packing List ফাইল (PDF/JPG/PNG) আপলোড করুন।
+4. **Register Shipment** বাটনে ক্লিক করুন। সিস্টেমের PO মাইলস্টোন স্বয়ংক্রিয়ভাবে **`shipped`** স্ট্যাটাসে আপডেট হবে।
+5. **স্ট্যাটাস আপডেট**: শিপমেন্টের অগ্রগতির সাথে সাথে মাইলস্টোন স্ট্যাটাস **`in_transit`** ➔ **`arrived`** ➔ **`cleared`** (Customs Cleared) হিসেবে আপডেট করুন।
+6. **লজিস্টিকস Edit ও Cancel লক (Enterprise Security Rules)**:
+   - **Edit Logistics**: শিপমেন্ট লিস্ট ড্যাশবোর্ড অথবা Details পেজ থেকে নীল রঙের **Edit Logistics** বাটনে ক্লিক করে তথ্য সংশোধন করতে পারবেন।
+   - **Customs / GRN Lock**: গুদামে মাল রিসিভ (GRN) সম্পন্ন হয়ে গেলে শিপমেন্টের স্ট্যাটাস পরিবর্তন এবং Edit বাটন স্বয়ংক্রিয়ভাবে লক হয়ে যাবে।
+   - **Cancelled Status Permanent Lock**: শিপমেন্ট ভুলবশত তৈরি হলে **`Cancelled`** সিলেক্ট করা যাবে, তবে একবার ক্যানসেল করা হলে স্ট্যাটাস চিরতরে লক হয়ে যাবে এবং PO মাইলস্টোন আগের অবস্থায় রোলব্যাক হবে।
 
 ---
 
-## Step 2: Purchase Orders (PO), Proforma Invoices (PI) & LC Register (ইম্পোর্ট ট্র্যাকিং)
+### ৩.২ Goods Received Note (GRN), Quality Control (QC) & Partial Receiving
+ওয়্যারহাউসে মাল রিসিভ করা, পন্যের গুণগত মান (QC) যাচাই করা, গৃহীত (Accepted) ও প্রত্যাখ্যাত (Rejected) পরিমাণ রেকর্ড করা এবং স্বয়ংক্রিয়ভাবে ইনভেন্টরি স্টক আপডেট করা।
 
-### ২.১ Automatic Purchase Order (PO) Generation
-Comparison Statement (CS) অনুমোদন হয়ে গেলে বিজয়ী ভেন্ডরদের নামে অটোমেটিক Purchase Order জেনারেট করা যায়।
-
-**কীভাবে PO জেনারেট ও ম্যানেজ করবেন?**
-1. অনুমোদিত RFQ বা CS পেজে গিয়ে **+ Generate PO** বাটনে ক্লিক করুন।
-2. একাধিক ভেন্ডর বিজয়ী হলে সিস্টেম স্বয়ংক্রিয়ভাবে আলাদা আলাদা **Split PO (`PO-00001`, `PO-00002`...)** তৈরি করবে।
-3. **Procurement > Purchase Orders (PO)** ড্রপডাউন মেন্যুতে ক্লিক করে সকল PO-এর তালিকা ও মাইলস্টোন স্ট্যাটাস দেখতে পাবেন।
-4. PO টেবিল অথবা Details পেজ থেকে **Live Preview** বা **Preview PDF** (নতুন ট্যাবে পিডিএফ দেখার জন্য) এবং **Download PDF** বাটনের মাধ্যমে ডাউনলোড করতে পারবেন। এছাড়াও **Send PO Email to Supplier** বাটনের মাধ্যমে সাপ্লায়ারকে সরাসরি ইমেইল পাঠাতে পারবেন।
-
----
-
-### ২.২ Proforma Invoice (PI) Document Attachment
-সাপ্লায়ার PO পাওয়ার পর তাদের চুড়ান্ত Proforma Invoice (PI) পাঠাবে, যা সিস্টেমে আপলোড করতে হবে।
-
-**কীভাবে PI ফাইল অ্যাটাচ করবেন?**
-1. নির্দিষ্ট PO Details পেজে প্রবেশ করুন।
-2. ডানে থাকা **Proforma Invoice (PI)** কার্ড ফর্মে PI নম্বর, ইস্যু তারিখ ও মোট টাকার পরিমাণ লিখুন।
-3. ভেন্ডরের পাঠানো PI ডকুমেন্ট (PDF/Image) আপলোড করে **Upload & Attach PI** বাটনে ক্লিক করুন।
-4. সাথে সাথে PO-এর স্ট্যাটাস **`pi_attached`** ধাপে আপডেট হয়ে যাবে।
+**কীভাবে GRN তৈরি করবেন এবং QC ইন্সপেকশন পরিচালনা করবেন?**
+1. **এন্টারপ্রাইজ কাস্টমস ক্লিয়ারেন্স ফিল্টার (Strict Clearance Guard)**: 
+   - **Foreign Purchase (আমদানি)**: শিপমেন্টের স্ট্যাটাস **`Customs Cleared`** না হওয়া পর্যন্ত সিস্টেমে **Receive Goods (GRN)** বাটন লক থাকবে এবং GRN ফর্মে ড্রপডাউনে আসবে না।
+   - **Local Purchase (স্থানীয় কেনাকাটা)**: PO অনুমোদিত হলেই সরাসরি GRN তৈরি করা যাবে।
+2. বামপাশের মেনু থেকে **Procurement > Goods Receipts (GRN)** পেজে গিয়ে **Receive Goods (Create GRN)** বাটনে ক্লিক করুন, অথবা কাস্টমস ক্লিয়ার হওয়া শিপমেন্ট/PO পেজ থেকে সরাসরি **Receive Goods (GRN)** ক্লিক করুন।
+3. গন্তব্য **Outlet / Warehouse** নির্বাচন করুন এবং প্রয়োজনে রিসিভিং নোট (যেমন গেট পাস বা ট্রাক নম্বর) লিখুন।
+4. সিস্টেম স্বয়ংক্রিয়ভাবে মালের তালিকা, **Ordered Qty** এবং **Remaining Qty** (পূর্বে কতটুকু মাল রিসিভ হয়েছে তার অবশিষ্ট) দেখাবে।
+5. প্রতিটি আইটেমের বিপরীতে **Accepted Qty** (সবুজ হাইলাইট) এবং **Rejected Qty** (লাল হাইলাইট) বসান। মাল রিজেক্ট হলে উপযুক্ত **Rejection Reason** (যেমন "Damaged in Transit", "Defective Batch") লিখুন।
+6. **Submit GRN & Update Inventory** বাটনে ক্লিক করুন (সিস্টেম Toastr নোটিফিকেশনের মাধ্যমে কনফার্ম করবে)।
+7. **স্বয়ংক্রিয় স্টক আপডেট**: QC স্ট্যাটাস **Passed** বা **Partial** হলে, Accepted পরিমাণটি সাথে সাথে উক্ত আউটলেটের `inventory_stocks` এবং `stock_ledgers`-এ Landed Unit Cost সহ যুক্ত হয়ে যাবে।
+8. **আংশিক মাল রিসিভ (Partial Receiving)**: কোনো PO-এর মালের কিছু অংশ আসলে (যেমন ১,০০০ পিসের জায়গায় ৬০০ পিস) PO স্ট্যাটাস **`goods_partial`** এ যাবে। পরবর্তীতে বাকি ৪০০ পিস রিসিভ হলে স্ট্যাটাস অটোমেটিক **`goods_received`** হয়ে সম্পূর্ণ হবে।
+9. **GRN PDF Slip**: GRN details পেজ থেকে **Stream / Print Official GRN PDF** বাটনে ক্লিক করে অফিশিয়াল রিসিভিং ডকুমেন্ট প্রিন্ট বা ভিউ করতে পারবেন।
 
 ---
 
-### ২.৩ International Letter of Credit (LC) & Expenses Breakdown
-বিদেশী ক্রয়ের জন্য ব্যাংকে খোলা এলসি (LC) রেজিস্টার করা এবং ১৩টি ইমপোর্ট খরচ হিসাব রাখা।
+### ৩.৩ Weighted Average Landed Cost Allocation Matrix
+১৩টি ইম্পোর্ট ডিউটি ও লজিস্টিকস খরচকে (Customs Duty, VAT, Freight, Insurance, C&F Agent Fees ইত্যাদি) মালের মূল্যের ওজনের ভিত্তিতে সমানুপাতিকভাবে বন্টন করে প্রতিটি পন্যের সঠিক **True Landed Unit Cost** হিসাব করা।
+
+**কীভাবে Landed Cost Matrix দেখবেন?**
+1. যেকোনো PO বা GRN Details পেজ থেকে **View Landed Cost Matrix** বাটনে ক্লিক করুন।
+2. এই ম্যাট্রিক্সে প্রতিটি SKU-এর সম্পূর্ণ হিসাব পরিষ্কার সফট-কার্ডস ও প্রফেশনাল থিমে দেখতে পাবেন:
+   - **PO Base Unit Cost**: মূল কেনা দাম (যেমন: `¥ 8.50 / unit`)।
+   - **Allocated LC Overhead**: মালের অনুপাত অনুযায়ী প্রতি ইউনিটে যুক্ত হওয়া অতিরিক্ত ডিউটি ও ফ্রেইট খরচ (যেমন: `+ ¥ 5.65 / unit`) এবং মোট ওভারহেড।
+   - **True Landed Unit Cost**: পন্যের চূড়ান্ত প্রকৃত কেনা দাম (যেমন: `¥ 14.15 / unit`) ($\text{Base Cost} + \text{Allocated Overhead} / \text{Accepted Qty}$)।
+3. নতুন কোনো LC খরচ যুক্ত বা আপডেট হলে **Recalculate Matrix** বাটনে ক্লিক করে ইনভেন্টরি ভ্যালুয়েশন সিঙ্ক করে নিতে পারবেন।�� রাখা।
 
 **কীভাবে LC রেজিস্টার ও খরচ ইনপুট দেবেন?**
 1. নির্দিষ্ট PO Details পেজের **Register LC** ফর্মে এলসি নম্বর, ইস্যুয়িং ব্যাংক, এলসি অ্যামাউন্ট, মার্জিন % এবং মেয়াদের তারিখ লিখুন।
@@ -81,10 +94,65 @@ Comparison Statement (CS) অনুমোদন হয়ে গেলে বিজ
 
 ---
 
+## Step 3: International Shipment Logistics, Stock-in-Transit (SIT), GRN QC & Landed Cost Engine
+
+### ৩.১ Shipment Tracking & Stock-in-Transit (SIT)
+শিপিং ভেসেল, কনটেইনার নম্বর, বিল অফ লেডিং (BL/AWB) ডকুমেন্ট আপলোড, ডিপার্চার (ETD) এবং অ্যারাইভাল (ETA) ট্র্যাকিং।
+
+**কীভাবে শিপমেন্ট রেজিস্টার ও আপডেট করবেন?**
+1. বামপাশের মেনু থেকে **Procurement > Shipments & SIT** অথবা যেকোনো অনুমোদিত PO পেজ থেকে **Register Shipment** বাটনে ক্লিক করুন।
+2. **Vessel Name / Flight No**, **Container No**, **BL/AWB Number**, **Port of Loading**, **Port of Discharge**, **ETD**, এবং **ETA** ঘরগুলো পূরণ করুন।
+3. অফিসিয়াল Bill of Lading (BL) অথবা Packing List ফাইল (PDF/JPG/PNG) আপলোড করুন।
+4. **Register Shipment** বাটনে ক্লিক করুন। সিস্টেমের PO মাইলস্টোন স্বয়ংক্রিয়ভাবে **`shipped`** স্ট্যাটাসে আপডেট হবে।
+5. শিপমেন্টের অগ্রগতির সাথে সাথে মাইলস্টোন স্ট্যাটাস **`in_transit`** ➔ **`arrived`** ➔ **`cleared`** (Customs Cleared) হিসেবে আপডেট করুন।
+
+---
+
+### ৩.২ Goods Received Note (GRN), Quality Control (QC) & Partial Receiving
+ওয়্যারহাউসে মাল রিসিভ করা, পন্যের গুণগত মান (QC) যাচাই করা, গৃহীত (Accepted) ও প্রত্যাখ্যাত (Rejected) পরিমাণ রেকর্ড করা এবং স্বয়ংক্রিয়ভাবে ইনভেন্টরি স্টক আপডেট করা।
+
+**কীভাবে GRN তৈরি করবেন এবং QC ইন্সপেকশন পরিচালনা করবেন?**
+1. বামপাশের মেনু থেকে **Procurement > Goods Receipts (GRN)** পেজে গিয়ে **Receive Goods (Create GRN)** বাটনে ক্লিক করুন, অথবা কাস্টমস ক্লিয়ার হওয়া শিপমেন্ট/PO পেজ থেকে সরাসরি **Receive Goods (GRN)** ক্লিক করুন।
+2. গন্তব্য **Outlet / Warehouse** নির্বাচন করুন এবং প্রয়োজনে রিসিভিং নোট (যেমন গেট পাস বা ট্রাক নম্বর) লিখুন।
+3. সিস্টেম স্বয়ংক্রিয়ভাবে মালের তালিকা, **Ordered Qty** এবং **Remaining Qty** (পূর্বে কতটুকু মাল রিসিভ হয়েছে তার অবশিষ্ট) দেখাবে।
+4. প্রতিটি আইটেমের বিপরীতে **Accepted Qty** এবং **Rejected Qty** বসান। মাল রিজেক্ট হলে উপযুক্ত **Rejection Reason** (যেমন "Damaged in Transit", "Defective Batch") লিখুন।
+5. **Submit GRN & Update Inventory** বাটনে ক্লিক করুন।
+6. **স্বয়ংক্রিয় স্টক আপডেট**: QC স্ট্যাটাস **Passed** বা **Partial** হলে, Accepted পরিমাণটি সাথে সাথে উক্ত আউটলেটের `inventory_stocks` এবং `stock_ledgers`-এ Landed Unit Cost সহ যুক্ত হয়ে যাবে।
+7. **আংশিক মাল রিসিভ (Partial Receiving)**: কোনো PO-এর মালের কিছু অংশ আসলে (যেমন ১,০০০ পিসের জায়গায় ৬০০ পিস) PO স্ট্যাটাস **`goods_partial`** এ যাবে। পরবর্তীতে বাকি ৪০০ পিস রিসিভ হলে স্ট্যাটাস অটোমেটিক **`goods_received`** হয়ে সম্পূর্ণ হবে।
+8. **GRN PDF Slip**: GRN details পেজ থেকে **Stream / Print Official GRN PDF** বাটনে ক্লিক করে অফিশিয়াল রিসিভিং ডকুমেন্ট প্রিন্ট বা ভিউ করতে পারবেন।
+
+---
+
+### ৩.৩ Weighted Average Landed Cost Allocation Matrix
+১৩টি ইম্পোর্ট ডিউটি ও লজিস্টিকস খরচকে (Customs Duty, VAT, Freight, Insurance, C&F Agent Fees ইত্যাদি) মালের মূল্যের ওজনের ভিত্তিতে সমানুপাতিকভাবে বন্টন করে প্রতিটি পন্যের সঠিক **True Landed Unit Cost** হিসাব করা।
+
+**কীভাবে Landed Cost Matrix দেখবেন?**
+1. যেকোনো PO বা GRN Details পেজ থেকে **View Landed Cost Matrix** বাটনে ক্লিক করুন।
+2. এই ম্যাট্রিক্সে প্রতিটি SKU-এর সম্পূর্ণ হিসাব দেখতে পাবেন:
+   - **PO Base Unit Cost**: মূল কেনা দাম।
+   - **Allocated LC Overhead**: মালের অনুপাত অনুযায়ী প্রতি ইউনিটে যুক্ত হওয়া অতিরিক্ত ডিউটি ও ফ্রেইট খরচ।
+   - **True Landed Unit Cost**: পন্যের চূড়ান্ত প্রকৃত কেনা দাম ($\text{Base Cost} + \text{Allocated Overhead} / \text{Accepted Qty}$)।
+3. নতুন কোনো LC খরচ যুক্ত বা আপডেট হলে **Recalculate Matrix** বাটনে ক্লিক করে ইনভентরি ভ্যালুয়েশন সিঙ্ক করে নিতে পারবেন।
+
+---
+
+### ৩.৪ Vendor Returns & Debit Notes
+QC-তে প্রত্যাখ্যাত (Rejected) মালামাল সাপ্লায়ারের কাছে ফেরত পাঠানো এবং সাপ্লায়ার অ্যাকাউন্টের বিরুদ্ধে অফিশিয়াল ডেবিট নোট (Debit Note) ইস্যু করা।
+
+**কীভাবে Vendor Return ও Debit Note তৈরি করবেন?**
+1. QC স্ট্যাটাস **Partial** বা **Failed** হওয়া যেকোনো GRN Details পেজ ওপেন করুন।
+2. **Process Vendor Return (Debit Note)** বাটনে ক্লিক করুন।
+3. সিস্টেম রিজেক্ট হওয়া মালের পরিমাণ এবং PO দর স্বয়ংক্রিয়ভাবে ফর্মে বসিয়ে দেবে।
+4. ফেরত পাঠানোর সাধারণ কারণ লিখে **Issue Debit Note & Submit Return** বাটনে ক্লিক করুন।
+5. সিস্টেম সাথে সাথে একটি অফিশিয়াল **Vendor Return Record (`RET-YYYYMMDD-XXXX`)** এবং **Debit Note (`DN-YYYYMMDD-XXXX`)** তৈরি করবে।
+6. **Procurement > Vendor Returns** মেনুতে গিয়ে সকল রিটার্ন ও ডেবিট নোটের তালিকা এবং ব্যালেন্স দেখতে পাবেন।
+
+---
+
 # English Version
 
 ## 1. Introduction
-Welcome to the Phase 2 User Manual of B2B Viking ERP! This phase covers the complete Procurement process in 4 distinct Steps. Below, you will find the step-by-step guide for **Step 1 (RFQ & CS)** and **Step 2 (Purchase Orders, PI & LC Tracking)**.
+Welcome to the Phase 2 User Manual of B2B Viking ERP! This phase covers the complete Procurement process in 4 distinct Steps. Below, you will find the step-by-step guide for **Step 1 (RFQ & CS)**, **Step 2 (Purchase Orders, PI & LC Tracking)**, and **Step 3 (Shipments, SIT, GRN QC & Landed Cost Engine)**.
 
 ---
 
@@ -152,5 +220,60 @@ Register Letters of Credit (LC) for foreign imports and track 13 itemized import
 4. Record LC validity extensions or amount changes via the **Record LC Amendment** modal to maintain complete audit logs.
 
 ---
-*Document Version: 2.0 (Phase 2, Step 1 & Step 2 Complete)*  
+
+## Step 3: International Shipment Logistics, Stock-in-Transit (SIT), GRN QC & Landed Cost Engine
+
+### 3.1 Shipment Tracking & Stock-in-Transit (SIT)
+Track shipping vessels, container numbers, Bill of Lading (BL/AWB) documents, departure (ETD), and arrival (ETA) milestones.
+
+**How to Register & Update a Shipment?**
+1. Go to **Procurement > Shipments & SIT** from the left sidebar or click **Register Shipment** from an approved PO.
+2. Fill in the **Vessel Name / Flight No**, **Container No**, **BL/AWB Number**, **Port of Loading**, **Port of Discharge**, **ETD**, and **ETA**.
+3. Upload the official Bill of Lading (BL) or Packing List document file (PDF/JPG/PNG).
+4. Click **Register Shipment**. The PO milestone will automatically update to **`shipped`**.
+5. As the shipment progresses, update its status milestone from **`in_transit`** ➔ **`arrived`** ➔ **`cleared`** (Customs Cleared).
+
+---
+
+### 3.2 Goods Received Note (GRN), Quality Control (QC) & Partial Receiving
+Receive physical goods at the warehouse, inspect item quality, record accepted vs. rejected quantities, and automatically update inventory stock ledgers.
+
+**How to Create a GRN & Conduct QC Inspection?**
+1. Go to **Procurement > Goods Receipts (GRN)** and click **Receive Goods (Create GRN)**, or click **Receive Goods (GRN)** directly from a Customs Cleared Shipment/PO.
+2. Select the **Destination Outlet / Warehouse** and enter optional receiving notes (e.g. Gate Pass / Truck No).
+3. The system automatically displays line items with **Ordered Qty** and **Remaining Qty** (ordered quantity minus items received in previous shipments).
+4. Enter the **Accepted Qty** and **Rejected Qty** for each line item. If items are rejected, enter a clear **Rejection Reason** (e.g. "Damaged in Transit", "Defective Batch").
+5. Click **Submit GRN & Update Inventory**.
+6. **Automatic Stock Update**: If QC status is **Passed** or **Partial**, accepted quantities are immediately added to the selected outlet's `inventory_stocks` and recorded in `stock_ledgers` with the calculated Landed Unit Cost.
+7. **Partial Receiving Support**: If only a portion of the order arrives (e.g., 600 out of 1,000 pcs), the PO milestone updates to **`goods_partial`**. When the remaining 400 pcs arrive in a subsequent GRN, the status updates to **`goods_received`**.
+8. **GRN PDF Slip**: Click **Stream / Print Official GRN PDF** from the GRN details view to view or print the official receiving document rendered via background caching.
+
+---
+
+### 3.3 Weighted Average Landed Cost Allocation Matrix
+Automatically allocate total import overheads (13 duty elements such as Customs Duty, VAT, Freight, Insurance, C&F fees) across purchased items based on their line value weight, calculating exact **True Landed Unit Cost** per SKU.
+
+**How to View the Landed Cost Allocation Matrix?**
+1. From any PO or GRN details page, click **View Landed Cost Matrix** or navigate to **`admin/landed-cost/{purchase_id}`**.
+2. The matrix displays a complete breakdown:
+   - **PO Base Unit Cost**: Original purchase price per item.
+   - **Allocated LC Overhead**: Exact proportional share of duty & freight per unit based on line value weight ratio.
+   - **True Landed Unit Cost**: Final unit cost ($\text{Base Cost} + \text{Allocated Duty Overhead} / \text{Accepted Qty}$).
+3. Click **Recalculate Matrix** anytime new LC expenses are added or updated to synchronize inventory stock valuation.
+
+---
+
+### 3.4 Vendor Returns & Debit Notes
+Process rejected QC items, return defective goods to the supplier, and automatically issue formal Debit Notes against Accounts Payable.
+
+**How to Create a Vendor Return & Debit Note?**
+1. Open any GRN details view that has a QC status of **Partial** or **Failed**.
+2. Click **Process Vendor Return (Debit Note)**.
+3. The system pre-fills rejected item quantities and PO unit prices.
+4. Enter a general return reason and click **Issue Debit Note & Submit Return**.
+5. The system generates a formal **Vendor Return Record (`RET-YYYYMMDD-XXXX`)** and an official **Debit Note (`DN-YYYYMMDD-XXXX`)**.
+6. Go to **Procurement > Vendor Returns** to view all active returns, debit note amounts, and status trackers.
+
+---
+*Document Version: 3.0 (Phase 2, Step 1, Step 2 & Step 3 Complete)*  
 *Generated for B2B Viking ERP Client*

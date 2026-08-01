@@ -20,6 +20,14 @@ class Vendor extends Model
         'status'
     ];
 
+    /**
+     * Accessor for name attribute (alias for shop_name for backward compatibility across modules)
+     */
+    public function getNameAttribute(): string
+    {
+        return $this->attributes['shop_name'] ?? $this->attributes['name'] ?? 'N/A';
+    }
+
     public function currency()
     {
         return $this->belongsTo(Currency::class);

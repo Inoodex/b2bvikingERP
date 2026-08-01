@@ -251,9 +251,41 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
 
     Route::controller(\App\Http\Controllers\Backend\LetterOfCreditController::class)->group(function () {
         Route::get('letters-of-credit', 'index')->name('letters-of-credit.index');
-        Route::post('letters-of-credit/store', 'store')->name('letters-of-credit.store');
+        Route::post('letters-of-credit', 'store')->name('letters-of-credit.store');
         Route::get('letters-of-credit/{id}', 'show')->name('letters-of-credit.show');
-        Route::post('letters-of-credit/{id}/amendments', 'addAmendment')->name('letters-of-credit.amendments.store');
+        Route::post('letters-of-credit/{id}/amendments', 'storeAmendment')->name('letters-of-credit.amendments.store');
+    });
+
+    /** Phase 2 Step 3: Shipment, SIT, GRN, Landed Cost & Vendor Return Routes */
+    Route::controller(\App\Http\Controllers\Backend\ShipmentController::class)->group(function () {
+        Route::get('shipments', 'index')->name('shipments.index');
+        Route::get('shipments/create', 'create')->name('shipments.create');
+        Route::post('shipments', 'store')->name('shipments.store');
+        Route::get('shipments/{id}', 'show')->name('shipments.show');
+        Route::get('shipments/{id}/edit', 'edit')->name('shipments.edit');
+        Route::put('shipments/{id}', 'update')->name('shipments.update');
+        Route::patch('shipments/{id}/status', 'updateStatus')->name('shipments.update-status');
+        Route::delete('shipments/{id}', 'destroy')->name('shipments.destroy');
+    });
+
+    Route::controller(\App\Http\Controllers\Backend\GoodsReceiptController::class)->group(function () {
+        Route::get('goods-receipts', 'index')->name('goods-receipts.index');
+        Route::get('goods-receipts/create', 'create')->name('goods-receipts.create');
+        Route::post('goods-receipts', 'store')->name('goods-receipts.store');
+        Route::get('goods-receipts/{id}', 'show')->name('goods-receipts.show');
+        Route::get('goods-receipts/{id}/pdf', 'streamPdf')->name('goods-receipts.pdf');
+    });
+
+    Route::controller(\App\Http\Controllers\Backend\LandedCostController::class)->group(function () {
+        Route::get('landed-cost/{purchase_id}', 'show')->name('landed-cost.show');
+        Route::get('landed-cost/{purchase_id}/recalculate', 'recalculate')->name('landed-cost.recalculate');
+    });
+
+    Route::controller(\App\Http\Controllers\Backend\VendorReturnController::class)->group(function () {
+        Route::get('vendor-returns', 'index')->name('vendor-returns.index');
+        Route::get('vendor-returns/create', 'create')->name('vendor-returns.create');
+        Route::post('vendor-returns', 'store')->name('vendor-returns.store');
+        Route::get('vendor-returns/{id}', 'show')->name('vendor-returns.show');
     });
 
     /** Booking Routes */

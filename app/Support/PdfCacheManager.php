@@ -55,4 +55,16 @@ class PdfCacheManager
             Log::info("Invalidated PO PDF cache: {$path}");
         }
     }
+
+    /**
+     * Invalidate (delete) GRN PDF cache.
+     */
+    public static function clearGrnCache(int|string $grnId): void
+    {
+        $path = 'grns/grn_' . $grnId . '.pdf';
+        if (Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+            Log::info("Invalidated GRN PDF cache: {$path}");
+        }
+    }
 }

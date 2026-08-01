@@ -10,6 +10,7 @@
         border: 1px solid #e2e8f0;
         border-radius: 10px;
         padding: 16px 24px;
+        overflow: hidden;
     }
     .milestone-step {
         text-align: center;
@@ -19,8 +20,8 @@
     .milestone-step:not(:last-child)::after {
         content: '';
         position: absolute;
-        top: 14px;
-        right: -50%;
+        top: 15px;
+        left: 50%;
         width: 100%;
         height: 3px;
         background: #cbd5e1;
@@ -86,23 +87,55 @@
                 </div>
             </div>
 
-            <div class="pt-3 border-top d-flex justify-content-between align-items-center flex-wrap">
-                <div>
-                    <span class="badge badge-success py-2 px-3 mr-2"><i class="fas fa-check-circle mr-1"></i> {{ ucfirst($po->approval_status ?? 'Approved') }}</span>
-                    <span class="badge badge-info py-2 px-3"><i class="fas fa-globe mr-1"></i> {{ strtoupper($po->purchase_type ?? 'LOCAL') }} PURCHASE</span>
+            <div class="pt-3 border-top d-flex justify-content-between align-items-center flex-wrap" style="gap: 12px;">
+                <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                    <span class="badge badge-success py-2 px-3 font-weight-bold" style="font-size: 12px; border-radius: 6px;"><i class="fas fa-check-circle mr-1"></i> {{ ucfirst($po->approval_status ?? 'Approved') }}</span>
+                    <span class="badge badge-info py-2 px-3 font-weight-bold" style="font-size: 12px; border-radius: 6px;"><i class="fas fa-globe mr-1"></i> {{ strtoupper($po->purchase_type ?? 'LOCAL') }} PURCHASE</span>
                 </div>
-                <div class="mt-2 mt-sm-0">
-                    <a href="{{ route('admin.purchase-orders.pdf.view', $po->id) }}" class="btn btn-outline-secondary btn-sm font-weight-bold mr-1" target="_blank"><i class="fas fa-eye mr-1"></i> View PDF</a>
-                    <a href="{{ route('admin.purchase-orders.pdf.download', $po->id) }}" class="btn btn-outline-danger btn-sm font-weight-bold mr-1"><i class="fas fa-file-pdf mr-1"></i> Download PDF</a>
-                    <form action="{{ route('admin.purchase-orders.send-email', $po->id) }}" method="POST" class="d-inline mr-1">
-                        @csrf
-                        <button type="submit" class="btn btn-primary btn-sm font-weight-bold"><i class="fas fa-paper-plane mr-1"></i> Send PO Email</button>
-                    </form>
+
+                <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                    <!-- Primary Workflow Actions -->
+                    <div class="btn-group" role="group">
+                        <a href="{{ route('admin.shipments.create', ['purchase_id' => $po->id]) }}" class="btn btn-info btn-sm font-weight-bold"><i class="fas fa-ship mr-1"></i> Shipment</a>
+                        
+                        @php
+                            $isForeign = strtolower($po->purchase_type ?? 'local') === 'foreign';
+                            $hasClearedShipment = $po->shipments()->where('status', 'cleared')->exists();
+                            $canReceive = !$isForeign || $hasClearedShipment;
+                        @endphp
+
+                        @if($canReceive)
+                            <a href="{{ route('admin.goods-receipts.create', ['purchase_id' => $po->id]) }}" class="btn btn-success btn-sm font-weight-bold"><i class="fas fa-dolly mr-1"></i> Receive Goods</a>
+                        @else
+                            <button class="btn btn-secondary btn-sm font-weight-bold" disabled title="Shipment must be Customs Cleared before receiving goods">
+                                <i class="fas fa-lock mr-1"></i> Receive Goods (Awaiting Clearance)
+                            </button>
+                        @endif
+
+                        <a href="{{ route('admin.landed-cost.show', $po->id) }}" class="btn btn-warning btn-sm font-weight-bold text-white"><i class="fas fa-calculator mr-1"></i> Landed Cost</a>
+                    </div>
+
+                    <!-- Actions Dropdown -->
+                    <div class="dropdown d-inline">
+                        <button class="btn btn-primary btn-sm dropdown-toggle font-weight-bold" type="button" id="poActionsMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-cog mr-1"></i> Actions
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="poActionsMenu">
+                            <a class="dropdown-item" href="{{ route('admin.purchase-orders.pdf.view', $po->id) }}" target="_blank"><i class="fas fa-eye text-primary mr-2"></i> View PDF</a>
+                            <a class="dropdown-item" href="{{ route('admin.purchase-orders.pdf.download', $po->id) }}"><i class="fas fa-file-pdf text-danger mr-2"></i> Download PDF</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('send-po-email-form').submit();"><i class="fas fa-paper-plane text-info mr-2"></i> Send PO Email</a>
+                            @if($po->milestone_status !== 'cancelled')
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); if(confirm('Cancel this PO?')) document.getElementById('cancel-po-form').submit();"><i class="fas fa-ban mr-2"></i> Cancel PO</a>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Hidden Forms for Dropdown Actions -->
+                    <form id="send-po-email-form" action="{{ route('admin.purchase-orders.send-email', $po->id) }}" method="POST" class="d-none">@csrf</form>
                     @if($po->milestone_status !== 'cancelled')
-                        <form action="{{ route('admin.purchase-orders.cancel', $po->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Cancel this PO?');">
-                            @csrf
-                            <button type="submit" class="btn btn-danger btn-sm font-weight-bold"><i class="fas fa-ban mr-1"></i> Cancel PO</button>
-                        </form>
+                        <form id="cancel-po-form" action="{{ route('admin.purchase-orders.cancel', $po->id) }}" method="POST" class="d-none">@csrf</form>
                     @endif
                 </div>
             </div>
@@ -111,10 +144,15 @@
         <div class="section-body">
             <!-- Milestone Stepper Bar -->
             @php
-                $milestones = ['draft', 'approved', 'po_sent', 'pi_attached', 'lc_opened'];
+                $milestones = ['draft', 'approved', 'po_sent', 'pi_attached', 'lc_opened', 'shipped', 'goods_received'];
                 $currentMilestone = $po->milestone_status ?? 'approved';
-                $currentIndex = array_search($currentMilestone, $milestones);
-                if ($currentIndex === false) $currentIndex = 1;
+                // Handle goods_partial as active at shipped step or before goods_received
+                if ($currentMilestone === 'goods_partial') {
+                    $currentIndex = 5; // Shipped / Receiving stage
+                } else {
+                    $currentIndex = array_search($currentMilestone, $milestones);
+                    if ($currentIndex === false) $currentIndex = 1;
+                }
             @endphp
             <div class="milestone-stepper mb-4">
                 @foreach($milestones as $mIndex => $mKey)

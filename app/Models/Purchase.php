@@ -118,4 +118,9 @@ class Purchase extends Model
     {
         return $this->hasMany(PurchasePayment::class);
     }
+
+    public function goodsReceipts()
+    {
+        return $this->hasMany(GoodsReceipt::class);
+    }
 }
