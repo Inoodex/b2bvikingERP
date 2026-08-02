@@ -10,6 +10,7 @@ use App\DataTables\VendorReturnDataTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Brian2694\Toastr\Facades\Toastr;
 
 class VendorReturnController extends Controller
 {
@@ -22,6 +23,13 @@ class VendorReturnController extends Controller
     {
         $grnId = $request->get('grn_id');
         $grn = GoodsReceipt::with(['purchase.vendor', 'items.product', 'items.variant'])->findOrFail($grnId);
+
+        // Check if VendorReturn / Debit Note already exists for this GRN
+        $existingReturn = VendorReturn::where('goods_receipt_id', $grn->id)->first();
+        if ($existingReturn) {
+            Toastr::warning("Vendor Return and Debit Note #{$existingReturn->debit_note_no} has already been issued for this GRN.", 'Duplicate Action Blocked');
+            return redirect()->route('admin.vendor-returns.show', $existingReturn->id);
+        }
 
         // Filter items that have rejected_qty > 0
         $rejectedItems = $grn->items->where('rejected_qty', '>', 0);
@@ -43,6 +51,13 @@ class VendorReturnController extends Controller
         ]);
 
         $grn = GoodsReceipt::with('purchase')->findOrFail($request->goods_receipt_id);
+
+        // Enterprise Security Guard: Prevent Duplicate Vendor Returns for the same GRN
+        $existingReturn = VendorReturn::where('goods_receipt_id', $grn->id)->first();
+        if ($existingReturn) {
+            Toastr::warning("Vendor Return and Debit Note #{$existingReturn->debit_note_no} was already issued for this GRN.", 'Duplicate Prevented');
+            return redirect()->route('admin.vendor-returns.show', $existingReturn->id);
+        }
 
         $vendorReturn = DB::transaction(function () use ($request, $grn) {
             $seq = VendorReturn::whereDate('created_at', now()->toDateString())->count() + 1;

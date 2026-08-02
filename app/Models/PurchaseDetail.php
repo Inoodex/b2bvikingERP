@@ -14,6 +14,7 @@ class PurchaseDetail extends Model
         'variant_id',
         'qty',
         'unit_cost',
+        'landed_cost',
         'total',
         'variant_info'
     ];

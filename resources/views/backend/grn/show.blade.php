@@ -60,9 +60,15 @@
                             @endif
 
                             @if(in_array($grn->qc_status, ['partial', 'failed']))
-                                <a href="{{ route('admin.vendor-returns.create', ['grn_id' => $grn->id]) }}" class="btn btn-warning btn-block mt-2">
-                                    <i class="fas fa-undo mr-1"></i> Process Vendor Return (Debit Note)
-                                </a>
+                                @if($grn->vendorReturn)
+                                    <a href="{{ route('admin.vendor-returns.show', $grn->vendorReturn->id) }}" class="btn btn-warning btn-block mt-2">
+                                        <i class="fas fa-file-invoice-dollar mr-1"></i> View Issued Debit Note ({{ $grn->vendorReturn->debit_note_no }})
+                                    </a>
+                                @else
+                                    <a href="{{ route('admin.vendor-returns.create', ['grn_id' => $grn->id]) }}" class="btn btn-warning btn-block mt-2">
+                                        <i class="fas fa-undo mr-1"></i> Process Vendor Return (Debit Note)
+                                    </a>
+                                @endif
                             @endif
                         </div>
                     </div>

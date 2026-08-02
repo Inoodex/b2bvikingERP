@@ -39,7 +39,11 @@ class GrnDataTable extends DataTable
                 
                 $returnBtn = '';
                 if (in_array($row->qc_status, ['partial', 'failed'])) {
-                    $returnBtn = '<a href="' . route('admin.vendor-returns.create', ['grn_id' => $row->id]) . '" class="btn btn-sm btn-warning" title="Create Return"><i class="fas fa-undo"></i> Return</a>';
+                    if ($row->vendorReturn) {
+                        $returnBtn = '<a href="' . route('admin.vendor-returns.show', $row->vendorReturn->id) . '" class="btn btn-sm btn-warning" title="View Issued Debit Note"><i class="fas fa-file-invoice-dollar"></i> View Debit Note</a>';
+                    } else {
+                        $returnBtn = '<a href="' . route('admin.vendor-returns.create', ['grn_id' => $row->id]) . '" class="btn btn-sm btn-warning" title="Process Return & Debit Note"><i class="fas fa-undo"></i> Return</a>';
+                    }
                 }
 
                 return $viewBtn . $pdfBtn . $returnBtn;
@@ -50,7 +54,7 @@ class GrnDataTable extends DataTable
 
     public function query(GoodsReceipt $model): QueryBuilder
     {
-        return $model->newQuery()->with(['purchase', 'outlet', 'receivedBy']);
+        return $model->newQuery()->with(['purchase', 'outlet', 'receivedBy', 'vendorReturn']);
     }
 
     public function html(): HtmlBuilder

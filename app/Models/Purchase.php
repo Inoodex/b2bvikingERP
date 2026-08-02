@@ -123,4 +123,9 @@ class Purchase extends Model
     {
         return $this->hasMany(GoodsReceipt::class);
     }
+
+    public function shipments()
+    {
+        return $this->hasMany(Shipment::class);
+    }
 }

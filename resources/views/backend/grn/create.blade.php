@@ -120,7 +120,7 @@
                                     @php
                                         $remaining = $remainingQtyMap[$item->id] ?? (float)$item->qty;
                                     @endphp
-                                    <tr>
+                                    <tr class="{{ $remaining <= 0 ? 'bg-light text-muted' : '' }}">
                                         <td class="text-center">{{ $index + 1 }}</td>
                                         <td>
                                             <strong class="text-dark">{{ $item->product?->name }}</strong>
@@ -129,18 +129,26 @@
                                         </td>
                                         <td>{{ $item->variant?->name ?? 'N/A' }}</td>
                                         <td class="text-right font-weight-bold text-muted">{{ number_format($item->qty, 2) }}</td>
-                                        <td class="text-right font-weight-bold text-primary">{{ number_format($remaining, 2) }}</td>
+                                        <td class="text-right font-weight-bold {{ $remaining > 0 ? 'text-primary' : 'text-success' }}">
+                                            @if($remaining > 0)
+                                                {{ number_format($remaining, 2) }}
+                                            @else
+                                                <span class="badge badge-success"><i class="fas fa-check-circle"></i> Fully Received</span>
+                                            @endif
+                                        </td>
                                         <td>
                                             <input type="number" step="0.01" min="0" max="{{ $remaining }}" 
                                                 name="items[{{ $index }}][accepted_qty]" 
-                                                value="{{ $remaining }}" 
-                                                class="form-control form-control-sm text-right font-weight-bold text-success accepted-input" required>
+                                                value="{{ $remaining > 0 ? $remaining : 0 }}" 
+                                                class="form-control form-control-sm text-right font-weight-bold text-success accepted-input" 
+                                                {{ $remaining <= 0 ? 'disabled' : 'required' }}>
                                         </td>
                                         <td>
                                             <input type="number" step="0.01" min="0" max="{{ $remaining }}" 
                                                 name="items[{{ $index }}][rejected_qty]" 
                                                 value="0" 
-                                                class="form-control form-control-sm text-right font-weight-bold text-danger rejected-input" required>
+                                                class="form-control form-control-sm text-right font-weight-bold text-danger rejected-input" 
+                                                {{ $remaining <= 0 ? 'disabled' : 'required' }}>
                                         </td>
                                         <td>
                                             <input type="text" name="items[{{ $index }}][rejection_reason]" 

@@ -41,7 +41,17 @@ B2B Viking ERP-এর Phase 2-এর ম্যানুয়ালে আপনা
 1. অ্যাডমিন প্যানেলে **RFQs** পেজে গিয়ে নির্দিষ্ট RFQ-টির ডিটেইলসে যান।
 2. সেখানে **Generate CS** বা **View CS** বাটনে ক্লিক করুন।
 3. আপনি একটি ম্যাট্রিক্স (টেবিল) দেখতে পাবেন, যেখানে সব ভেন্ডরের দেওয়া দাম পাশাপাশি সাজানো থাকবে।
-4. সিস্টেম স্### ৩.১ Shipment Tracking & Stock-in-Transit (SIT)
+4. সিস্টেম স্বয়ংক্রিয়ভাবে কারেন্সি কনভার্ট করে সর্বনিম্ন দাম (L1 Bidder) সবুজ রঙে হাইলাইট করবে!
+5. **Submit CS for Approval** বাটনে ক্লিক করে অনুমোদনের জন্য পাঠান。
+
+---
+
+## Step 2: Purchase Orders (PO), Proforma Invoices (PI) & LC Register (Import Tracking)
+
+### ২.১ স্বয়ংক্রিয় Purchase Order (PO) জেনারেশন
+Comparison Statement (CS) অ্যাপ্রুভ হওয়ার পর বিজয়ী ভেন্ডরদের জন্য PO জেনারেট করতে হয়।
+
+### ৩.১ Shipment Tracking & Stock-in-Transit (SIT)
 শিপিং ভেসেল, কনটেইনার নম্বর, বিল অফ লেডিং (BL/AWB) ডকুমেন্ট আপলোড, ডিপার্চার (ETD), অ্যারাইভাল (ETA) ট্র্যাকিং এবং এন্টারপ্রাইজ লজিস্টিকস সিকিউরিটি লক।
 
 **কীভাবে শিপমেন্ট রেজিস্টার, আপডেট ও ম্যানেজ করবেন?**
@@ -84,7 +94,7 @@ B2B Viking ERP-এর Phase 2-এর ম্যানুয়ালে আপনা
    - **PO Base Unit Cost**: মূল কেনা দাম (যেমন: `¥ 8.50 / unit`)।
    - **Allocated LC Overhead**: মালের অনুপাত অনুযায়ী প্রতি ইউনিটে যুক্ত হওয়া অতিরিক্ত ডিউটি ও ফ্রেইট খরচ (যেমন: `+ ¥ 5.65 / unit`) এবং মোট ওভারহেড।
    - **True Landed Unit Cost**: পন্যের চূড়ান্ত প্রকৃত কেনা দাম (যেমন: `¥ 14.15 / unit`) ($\text{Base Cost} + \text{Allocated Overhead} / \text{Accepted Qty}$)।
-3. নতুন কোনো LC খরচ যুক্ত বা আপডেট হলে **Recalculate Matrix** বাটনে ক্লিক করে ইনভেন্টরি ভ্যালুয়েশন সিঙ্ক করে নিতে পারবেন।�� রাখা।
+3. নতুন কোনো LC খরচ যুক্ত বা আপডেট হলে **Recalculate Matrix** বাটনে ক্লিক করে ইনভেন্টরি ভ্যালুয়েশন সিঙ্ক করে নিতে পারবেন।
 
 **কীভাবে LC রেজিস্টার ও খরচ ইনপুট দেবেন?**
 1. নির্দিষ্ট PO Details পেজের **Register LC** ফর্মে এলসি নম্বর, ইস্যুয়িং ব্যাংক, এলসি অ্যামাউন্ট, মার্জিন % এবং মেয়াদের তারিখ লিখুন।
@@ -112,13 +122,18 @@ B2B Viking ERP-এর Phase 2-এর ম্যানুয়ালে আপনা
 ওয়্যারহাউসে মাল রিসিভ করা, পন্যের গুণগত মান (QC) যাচাই করা, গৃহীত (Accepted) ও প্রত্যাখ্যাত (Rejected) পরিমাণ রেকর্ড করা এবং স্বয়ংক্রিয়ভাবে ইনভেন্টরি স্টক আপডেট করা।
 
 **কীভাবে GRN তৈরি করবেন এবং QC ইন্সপেকশন পরিচালনা করবেন?**
-1. বামপাশের মেনু থেকে **Procurement > Goods Receipts (GRN)** পেজে গিয়ে **Receive Goods (Create GRN)** বাটনে ক্লিক করুন, অথবা কাস্টমস ক্লিয়ার হওয়া শিপমেন্ট/PO পেজ থেকে সরাসরি **Receive Goods (GRN)** ক্লিক করুন।
+1. **এন্টারপ্রাইজ কাস্টমস ক্লিয়ারেন্স ফিল্টার (Strict Clearance Guard)**: 
+   - **Foreign Purchase (আমদানি)**: শিপমেন্টের স্ট্যাটাস **Customs Cleared** না হওয়া পর্যন্ত সিস্টেমে **Receive Goods (GRN)** বাটন লক থাকবে এবং GRN ফর্মে ড্রপডাউনে আসবে না।
+   - **Local Purchase (স্থানীয় কেনাকাটা)**: PO অনুমোদিত হলেই সরাসরি GRN তৈরি করা যাবে।
+2. বামপাশের মেনু থেকে **Procurement > Goods Receipts (GRN)** পেজে গিয়ে **Receive Goods (Create GRN)** বাটনে ক্লিক করুন, অথবা কাস্টমস ক্লিয়ার হওয়া শিপমেন্ট/PO পেজ থেকে সরাসরি **Receive Goods (GRN)** ক্লিক করুন।
 2. গন্তব্য **Outlet / Warehouse** নির্বাচন করুন এবং প্রয়োজনে রিসিভিং নোট (যেমন গেট পাস বা ট্রাক নম্বর) লিখুন।
 3. সিস্টেম স্বয়ংক্রিয়ভাবে মালের তালিকা, **Ordered Qty** এবং **Remaining Qty** (পূর্বে কতটুকু মাল রিসিভ হয়েছে তার অবশিষ্ট) দেখাবে।
 4. প্রতিটি আইটেমের বিপরীতে **Accepted Qty** এবং **Rejected Qty** বসান। মাল রিজেক্ট হলে উপযুক্ত **Rejection Reason** (যেমন "Damaged in Transit", "Defective Batch") লিখুন।
 5. **Submit GRN & Update Inventory** বাটনে ক্লিক করুন।
 6. **স্বয়ংক্রিয় স্টক আপডেট**: QC স্ট্যাটাস **Passed** বা **Partial** হলে, Accepted পরিমাণটি সাথে সাথে উক্ত আউটলেটের `inventory_stocks` এবং `stock_ledgers`-এ Landed Unit Cost সহ যুক্ত হয়ে যাবে।
-7. **আংশিক মাল রিসিভ (Partial Receiving)**: কোনো PO-এর মালের কিছু অংশ আসলে (যেমন ১,০০০ পিসের জায়গায় ৬০০ পিস) PO স্ট্যাটাস **`goods_partial`** এ যাবে। পরবর্তীতে বাকি ৪০০ পিস রিসিভ হলে স্ট্যাটাস অটোমেটিক **`goods_received`** হয়ে সম্পূর্ণ হবে।
+7. **আংশিক মাল রিসিভ (Partial Receiving) ও ভেন্ডর রিপ্লেসমেন্ট (Replacement Delivery)**:
+   - কোনো PO-এর মালের কিছু অংশ আসলে (যেমন ১,০০০ পিসের জায়গায় ৬০০ পিস) PO স্ট্যাটাস **goods_partial** এ থাকবে। পরবর্তীতে বাকি ৪০০ পিস রিসিভ হলে স্ট্যাটাস অটোমেটিক **goods_received** হয়ে সম্পূর্ণ হবে।
+   - **ভেন্ডর মাল রিপ্লেস করলে (Vendor Replacement Flow)**: QC-তে কোনো মাল রিজেক্ট হলে সিস্টেমে Remaining Qty অপশন থাকবে। ভেন্ডর পরবর্তীতে নতুন ভালো মাল পাঠালে আপনি একই PO-এর আন্ডারে ২য় আরেকটি GRN বানিয়ে নতুন মাল স্টকে তুলতে পারবেন।
 8. **GRN PDF Slip**: GRN details পেজ থেকে **Stream / Print Official GRN PDF** বাটনে ক্লিক করে অফিশিয়াল রিসিভিং ডকুমেন্ট প্রিন্ট বা ভিউ করতে পারবেন।
 
 ---
@@ -221,7 +236,7 @@ Register Letters of Credit (LC) for foreign imports and track 13 itemized import
 
 ---
 
-## Step 3: International Shipment Logistics, Stock-in-Transit (SIT), GRN QC & Landed Cost Engine
+
 
 ### 3.1 Shipment Tracking & Stock-in-Transit (SIT)
 Track shipping vessels, container numbers, Bill of Lading (BL/AWB) documents, departure (ETD), and arrival (ETA) milestones.
@@ -239,13 +254,18 @@ Track shipping vessels, container numbers, Bill of Lading (BL/AWB) documents, de
 Receive physical goods at the warehouse, inspect item quality, record accepted vs. rejected quantities, and automatically update inventory stock ledgers.
 
 **How to Create a GRN & Conduct QC Inspection?**
-1. Go to **Procurement > Goods Receipts (GRN)** and click **Receive Goods (Create GRN)**, or click **Receive Goods (GRN)** directly from a Customs Cleared Shipment/PO.
+1. **Enterprise Customs Clearance Filter (Strict Clearance Guard)**: 
+   - **Foreign Purchase**: Goods receiving is locked until the shipment status reaches **Customs Cleared**.
+   - **Local Purchase**: GRN can be initiated directly upon PO approval.
+2. Go to **Procurement > Goods Receipts (GRN)** and click **Receive Goods (Create GRN)**, or click **Receive Goods (GRN)** directly from a Customs Cleared Shipment/PO.
 2. Select the **Destination Outlet / Warehouse** and enter optional receiving notes (e.g. Gate Pass / Truck No).
 3. The system automatically displays line items with **Ordered Qty** and **Remaining Qty** (ordered quantity minus items received in previous shipments).
 4. Enter the **Accepted Qty** and **Rejected Qty** for each line item. If items are rejected, enter a clear **Rejection Reason** (e.g. "Damaged in Transit", "Defective Batch").
 5. Click **Submit GRN & Update Inventory**.
 6. **Automatic Stock Update**: If QC status is **Passed** or **Partial**, accepted quantities are immediately added to the selected outlet's `inventory_stocks` and recorded in `stock_ledgers` with the calculated Landed Unit Cost.
-7. **Partial Receiving Support**: If only a portion of the order arrives (e.g., 600 out of 1,000 pcs), the PO milestone updates to **`goods_partial`**. When the remaining 400 pcs arrive in a subsequent GRN, the status updates to **`goods_received`**.
+7. **Partial Receiving & Vendor Replacement Delivery**:
+   - If only a portion of the order arrives (e.g., 600 out of 1,000 pcs), the PO milestone updates to **goods_partial**. When the remaining 400 pcs arrive in a subsequent GRN, the status updates to **goods_received**.
+   - **Vendor Replacement Goods**: If QC items are rejected and the vendor later sends fresh replacement goods, the system automatically calculates Remaining Qty to allow receiving replacement items in a 2nd GRN under the same PO.
 8. **GRN PDF Slip**: Click **Stream / Print Official GRN PDF** from the GRN details view to view or print the official receiving document rendered via background caching.
 
 ---

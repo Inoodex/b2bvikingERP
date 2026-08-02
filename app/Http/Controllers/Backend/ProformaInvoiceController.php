@@ -15,10 +15,12 @@ class ProformaInvoiceController extends Controller
     {
         $request->validate([
             'purchase_id' => 'required|exists:purchases,id',
-            'pi_no' => 'required|string|max:50',
+            'pi_no' => 'required|string|max:50|unique:proforma_invoices,pi_no',
             'issue_date' => 'required|date',
             'total_amount' => 'required|numeric|min:0',
             'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ], [
+            'pi_no.unique' => 'This Proforma Invoice (PI) Number has already been used. Please enter a unique PI Number.',
         ]);
 
         $po = Purchase::findOrFail($request->purchase_id);

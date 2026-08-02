@@ -67,7 +67,7 @@ class LandedCostService
             LandedCostAllocation::whereIn('purchase_detail_id', $itemIds)->delete();
 
             foreach ($purchase->items as $item) {
-                $lineForeignTotal = (float) ($purchase->foreign_amount > 0 ? $item->subtotal : $item->subtotal);
+                $lineForeignTotal = (float) $item->subtotal;
 
                 // Weight ratio
                 $weightRatio = $poTotalForeign > 0 ? ($lineForeignTotal / $poTotalForeign) : (1 / count($purchase->items));

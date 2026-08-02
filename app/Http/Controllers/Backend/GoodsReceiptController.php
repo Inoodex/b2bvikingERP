@@ -14,6 +14,7 @@ use App\Jobs\GenerateGrnPdfJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Brian2694\Toastr\Facades\Toastr;
 
 class GoodsReceiptController extends Controller
 {
@@ -40,14 +41,16 @@ class GoodsReceiptController extends Controller
         if ($purchaseId) {
             $purchase = Purchase::with(['items.product', 'items.variant', 'vendor', 'goodsReceipts.items'])->findOrFail($purchaseId);
             
-            // Calculate remaining qty for each line item (ordered qty - sum of accepted+rejected in previous GRNs)
+            // Calculate remaining qty for each line item (ordered qty - sum of accepted_qty in previous GRNs)
+            // Rejected items are returned to vendor, so remaining qty allows vendor redelivery / replacement GRNs
             foreach ($purchase->items as $item) {
                 $previouslyReceived = DB::table('goods_receipt_items')
                     ->join('goods_receipts', 'goods_receipt_items.goods_receipt_id', '=', 'goods_receipts.id')
                     ->where('goods_receipts.purchase_id', $purchase->id)
+                    ->where('goods_receipts.qc_status', '!=', 'failed')
                     ->where('goods_receipt_items.product_id', $item->product_id)
                     ->when($item->variant_id, fn($q) => $q->where('goods_receipt_items.variant_id', $item->variant_id))
-                    ->sum(DB::raw('accepted_qty + rejected_qty'));
+                    ->sum('goods_receipt_items.accepted_qty');
 
                 $remaining = max(0, (float) $item->qty - (float) $previouslyReceived);
                 $remainingQtyMap[$item->id] = $remaining;
@@ -97,8 +100,8 @@ class GoodsReceiptController extends Controller
         }
 
         $grn = DB::transaction(function () use ($request, $purchase) {
-            // Generate GRN No: GRN-YYYYMMDD-XXXX
-            $seq = GoodsReceipt::whereDate('created_at', now()->toDateString())->count() + 1;
+            // Generate GRN No: GRN-YYYYMMDD-XXXX (Atomic locking for enterprise race condition prevention)
+            $seq = GoodsReceipt::whereDate('created_at', now()->toDateString())->lockForUpdate()->count() + 1;
             $grnNo = 'GRN-' . date('Ymd') . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
             // Determine overall QC Status based on items
