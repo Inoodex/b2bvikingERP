@@ -30,13 +30,22 @@ class ProductRequest extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function outlet()
+    {
+        return $this->belongsTo(Outlet::class);
+    }
+
     public function order()
     {
         return $this->belongsTo(Order::class);
     }
 
     public function items()
-
     {
         return $this->hasMany(ProductRequestItem::class);
     }

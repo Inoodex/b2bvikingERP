@@ -4,9 +4,9 @@
   $inventoryActive  = request()->routeIs('admin.inventory-reports.*', 'admin.issues.*', 'admin.issue-returns.*', 'admin.stock-ledger.*');
   $ordersActive     = request()->routeIs('admin.orders.*', 'admin.custom-product-requests.*', 'admin.product-requests.*');
   $purchaseActive   = request()->routeIs('admin.bookings.*', 'admin.purchases.*');
-  $procurementActive = request()->routeIs('admin.rfqs.*');
-  $reportsActive    = request()->routeIs('admin.reports.*');
-  $accountsActive   = request()->routeIs('admin.accounts.*');
+  $procurementActive = request()->routeIs('admin.rfqs.*', 'admin.purchase-orders.*', 'admin.letters-of-credit.*', 'admin.shipments.*', 'admin.goods-receipts.*', 'admin.vendor-returns.*', 'admin.vendor-bills.*');
+  $reportsActive    = request()->routeIs('admin.reports.*', 'admin.purchase-reports.*');
+  $accountsActive   = request()->routeIs('admin.accounts.*', 'admin.purchase-payments.*', 'admin.vendor-ledger.*');
   $brandsActive     = request()->routeIs('admin.brand.*');
   $vendorsActive    = request()->routeIs('admin.vendor.*');
   $masterActive     = request()->routeIs('admin.master.*');
@@ -759,7 +759,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
   position: relative;
 }
 
-.sb-item.open > .sb-submenu { max-height: 760px; }
+.sb-item.open > .sb-submenu { max-height: 3000px; }
 
 .sb-submenu::before {
   content: '';
@@ -856,7 +856,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
     padding: 0 !important;
     max-height: 0 !important;
   }
-  .app-sidebar .sb-item.open .sb-submenu { max-height: 760px !important; }
+  .app-sidebar .sb-item.open .sb-submenu { max-height: 3000px !important; }
   .app-sidebar .sb-item .sb-flyout-title { display: none !important; }
 
   /* ---- Right-side icon cluster: tightened + precisely centered ---- */
@@ -1158,11 +1158,19 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.rfqs.index') }}"><i class="fas fa-list"></i> All RFQs</a></li>
           <li><a href="{{ route('admin.rfqs.create') }}"><i class="fas fa-plus-circle"></i> Create RFQ</a></li>
           <li><a href="{{ route('admin.purchase-orders.index') }}"><i class="fas fa-file-invoice"></i> Purchase Orders (PO)</a></li>
+          <li><a href="{{ route('admin.vendor-bills.index') }}"><i class="fas fa-file-invoice-dollar"></i> Vendor Bills (Invoices)</a></li>
           <li><a href="{{ route('admin.letters-of-credit.index') }}"><i class="fas fa-university"></i> LC Register</a></li>
           <li class="sb-submenu-header">Logistics & Receiving</li>
           <li><a href="{{ route('admin.shipments.index') }}"><i class="fas fa-ship"></i> Shipments & SIT</a></li>
           <li><a href="{{ route('admin.goods-receipts.index') }}"><i class="fas fa-dolly"></i> Goods Receipts (GRN)</a></li>
           <li><a href="{{ route('admin.vendor-returns.index') }}"><i class="fas fa-undo"></i> Vendor Returns</a></li>
+          <li class="sb-submenu-header">Procurement Reports</li>
+          <li><a href="{{ route('admin.purchase-reports.supplier-wise') }}"><i class="fas fa-user-tag"></i> Supplier-wise Purchase</a></li>
+          <li><a href="{{ route('admin.purchase-reports.item-wise') }}"><i class="fas fa-cubes"></i> Item-wise Purchase</a></li>
+          <li><a href="{{ route('admin.purchase-reports.total-value') }}"><i class="fas fa-calculator"></i> Total Purchase Value</a></li>
+          <li><a href="{{ route('admin.purchase-reports.vs-last-year') }}"><i class="fas fa-balance-scale"></i> Purchase vs Last Year</a></li>
+          <li><a href="{{ route('admin.purchase-reports.pr-status') }}"><i class="fas fa-clipboard-list"></i> PR Status & Pending</a></li>
+          <li><a href="{{ route('admin.purchase-reports.po-status') }}"><i class="fas fa-file-signature"></i> PO Issued & Items</a></li>
         </ul>
       </li>
 
@@ -1188,6 +1196,13 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.reports.profit-loss') }}"><i class="fas fa-coins"></i> Profit & Loss</a></li>
           <li><a href="{{ route('admin.reports.purchase') }}"><i class="fas fa-shopping-bag"></i> Purchase History</a></li>
           <li><a href="{{ route('admin.reports.product-purchase-history') }}"><i class="fas fa-search"></i> Product Tracking</a></li>
+          <li class="sb-submenu-header">Procurement Reports</li>
+          <li><a href="{{ route('admin.purchase-reports.supplier-wise') }}"><i class="fas fa-user-tag"></i> Supplier-wise Purchase</a></li>
+          <li><a href="{{ route('admin.purchase-reports.item-wise') }}"><i class="fas fa-cubes"></i> Item-wise Purchase</a></li>
+          <li><a href="{{ route('admin.purchase-reports.total-value') }}"><i class="fas fa-calculator"></i> Total Purchase Value</a></li>
+          <li><a href="{{ route('admin.purchase-reports.vs-last-year') }}"><i class="fas fa-balance-scale"></i> Purchase vs Last Year</a></li>
+          <li><a href="{{ route('admin.purchase-reports.pr-status') }}"><i class="fas fa-clipboard-list"></i> PR Status & Pending</a></li>
+          <li><a href="{{ route('admin.purchase-reports.po-status') }}"><i class="fas fa-file-signature"></i> PO Issued & Items</a></li>
           <li class="sb-submenu-divider"></li>
           <li><a href="{{ route('admin.reports.audit') }}"><i class="fas fa-clipboard-check"></i> Audit Report</a></li>
         </ul>
@@ -1205,10 +1220,11 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.accounts.index') }}"><i class="fas fa-users"></i> Customer Transactions</a></li>
           <li><a href="{{ route('admin.accounts.record-payment') }}"><i class="fas fa-hand-holding-usd"></i> Receive Payment</a></li>
           <li><a href="{{ route('admin.accounts.due-orders') }}"><i class="fas fa-clock"></i> Customer Due Orders</a></li>
-          <li class="sb-submenu-header">Vendor Accounts</li>
-          <li><a href="{{ route('admin.accounts.vendor-payments.index') }}"><i class="fas fa-truck"></i> Vendor Payments</a></li>
-          <li><a href="{{ route('admin.accounts.vendor-payments.record-payment') }}"><i class="fas fa-money-check-alt"></i> Pay Vendor Invoice</a></li>
-          <li><a href="{{ route('admin.accounts.vendor-payments.due-purchases') }}"><i class="fas fa-hourglass-half"></i> Vendor Due Purchases</a></li>
+          <li class="sb-submenu-header">Vendor Accounts & AP</li>
+          <li><a href="{{ route('admin.vendor-bills.index') }}"><i class="fas fa-file-invoice-dollar"></i> Vendor Bills</a></li>
+          <li><a href="{{ route('admin.purchase-payments.index') }}"><i class="fas fa-receipt"></i> Payment Vouchers</a></li>
+          <li><a href="{{ route('admin.vendor-ledger.index') }}"><i class="fas fa-book"></i> Supplier Ledger & Statement</a></li>
+          <li><a href="{{ route('admin.vendor-ledger.aging') }}"><i class="fas fa-clock"></i> AP Aging Analysis</a></li>
         </ul>
       </li>
 

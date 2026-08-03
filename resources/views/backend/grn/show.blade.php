@@ -57,6 +57,9 @@
                                 <a href="{{ route('admin.landed-cost.show', $grn->purchase_id) }}" class="btn btn-outline-info btn-block mt-2">
                                     <i class="fas fa-calculator mr-1"></i> View Landed Cost Matrix
                                 </a>
+                                <a href="{{ route('admin.vendor-bills.create', ['grn_id' => $grn->id]) }}" class="btn btn-success btn-block mt-2">
+                                    <i class="fas fa-file-invoice-dollar mr-1"></i> Issue Vendor Bill (Invoice)
+                                </a>
                             @endif
 
                             @if(in_array($grn->qc_status, ['partial', 'failed']))

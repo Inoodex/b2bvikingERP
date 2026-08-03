@@ -164,6 +164,82 @@ QC-তে প্রত্যাখ্যাত (Rejected) মালামাল 
 
 ---
 
+## Step 4: Procurement Financials, Vendor Bills, Payment Vouchers, Supplier Ledger & Reports
+
+### ৪.১ Vendor Bills / Invoices (3-Way Matching & Debit Note Auto-Settlement)
+ওয়্যারহাউজে রিসিভ হওয়া GRN ডাটাকে অফিশিয়াল **Vendor Bill / Invoice (`BILL-YYYYMMDD-XXXX`)**-এ রূপান্তর করা এবং পূর্বে ইস্যু করা Debit Note অটো-কাটাকাটি করা।
+
+**কীভাবে Vendor Bill তৈরি করবেন?**
+1. বাম পাশের মেনু থেকে **Procurement > Vendor Bills**-এ গিয়ে **Create Vendor Bill** সিলেক্ট করুন, অথবা যেকোনো রিসিভ হওয়া GRN পেজ থেকে **Issue Vendor Bill** বাটনে ক্লিক করুন।
+2. **Purchase Order** এবং **Goods Receipt (GRN)** নির্বাচন করুন।
+3. সিস্টেম স্বয়ংক্রিয়ভাবে গুদামে গ্রহণ করা মালের পরিমাণ (Accepted Qty) এবং ল্যান্ডেড কস্ট গুণ করে ইনভয়েসের মোট টাকা হিসাব করবে।
+4. **ডেবিট নোট অটো-কাটাকাটি**: উক্ত ভেন্ডরের পূর্বে কোনো অনুমোদিত Debit Note থাকলে তা ফর্মে দেখতে পাবেন এবং `Auto-apply Debit Notes as Credit Adjustment` চেকবক্সে টিক দেওয়া থাকবে। সাবমিট দিলে মোট বিল থেকে ডেবিট নোটের টাকা স্বয়ংক্রিয়ভাবে মাইনাস হয়ে নেট বাকি টাকা হিসাব হবে।
+5. **Save & Issue Vendor Bill** বাটনে ক্লিক করলে সিলিকন সিল সহ ইউনিক ইনভয়েস জেনারেট হবে।
+
+---
+
+### ৪.২ Multi-Currency Payment Vouchers (`PAY-YYYYMMDD-XXXX`)
+সাপ্লায়ারকে আংশিক (Partial), পূর্ণাঙ্গ (Full) বা অগ্রিম (Advance) টাকা ক্যাশ, ব্যাংক ট্রান্সফার, চেক বা এলসি মার্জিন মারফতে পরিশোধ করা এবং অফিশিয়াল ভাউচার স্লিপ প্রিন্ট করা।
+
+**কীভাবে Payment Voucher এন্ট্রি দিবেন এবং PDF প্রিন্ট করবেন?**
+1. **Procurement > Purchase Payments** পেজে গিয়ে **Record Payment Voucher** বাটনে ক্লিক করুন।
+2. **Vendor Name** এবং পরিশোধ করার উপযোগী **Vendor Bill** (অথবা অগ্রিম পেমেন্টের জন্য PO) নির্বাচন করুন।
+3. **Payment Date**, **Amount** এবং **Payment Method** (Bank Transfer, Cash, Cheque, LC Settlement) বেছে নিন।
+4. বৈদেশিক মুদ্রায় পেমেন্ট দিলে (যেমন USD বা RMB) **Currency** এবং **Exchange Rate** দিয়ে দিন, সিস্টেম অটোমেটিক ERP Base Currency (`kr.`) তে কনভার্ট করে নিবে।
+5. ব্যাংকের জমা স্লিপ বা রসিদের ফাইল আপলোড করতে পারেন।
+6. **Process Payment** এ ক্লিক করলে ইউনিক ভাউচার নম্বর `PAY-YYYYMMDD-XXXX` তৈরি হবে এবং বিলের বাকি বকেয়া অটোমেটিক কমে যাবে।
+7. **Print PDF Voucher** বাটনে ক্লিক করে অফিশিয়াল পেমেন্ট ভাউচার পিডিএফ প্রিন্ট করুন।
+
+---
+
+### ৪.৩ Enterprise Debit Note Settlements (3 Modes)
+QC রিজেকশনের ফলে সৃষ্ট Debit Note (`DN-YYYYMMDD-XXXX`) ৩টি ফ্লেক্সিবল উপায়ে সেটেল বা নিস্পত্তি করার পদ্ধতি:
+- **Mode A: Bill Credit Deduction** (নতুন ইনভয়েস/বিলের টাকা থেকে কেটে রাখা - অটোমেটিক সচল)।
+- **Mode B: Product Replacement Swap** (ভেন্ডর রিজেক্ট মালের বদলে ভালো মাল পাঠালে গুদামে রিসিভ করা)।
+- **Mode C: Direct Money Refund Voucher** (ভেন্ডর সরাসরি ব্যাংকে/ক্যাশে টাকা ফেরত দিলে রিফান্ড ভাউচার তৈরি করা)।
+
+**কীভাবে Product Swap বা Money Refund সেটেল করবেন?**
+1. **Procurement > Vendor Returns** পেজে গিয়ে কাঙ্ক্ষিত Debit Note ডিটেইলস পেজটি ওপেন করুন।
+2. **Product Replacement (মাল বদলে ভালো মাল নেওয়া)**:
+   - **Settle via Product Replacement (Swap)** বাটনে ক্লিক করুন।
+   - ভেন্ডরের পাঠানো একই প্রোডাক্ট অথবা বিকল্প অন্য কোনো ভালো প্রোডাক্ট (Substitute Item) সিলেক্ট করুন।
+   - মালের পরিমাণ ও রিসিভ ডেট দিয়ে **Receive Stock & Settle Debit Note** সাবমিট দিলে গুদামের ইনভেন্টরি স্টক স্বয়ংক্রিয়ভাবে বৃদ্ধি পাবে এবং ডেবিট নোট নিস্পত্তি হবে।
+3. **Direct Money Refund (ব্যাংকে সরাসরি টাকা ফেরত নেওয়া)**:
+   - **Settle via Direct Money Refund** বাটনে ক্লিক করুন।
+   - ভেন্ডরের ফেরত দেওয়া টাকার পরিমাণ, তারিখ, পেমেন্ট মেথড ও ব্যাংকের রেফারেন্স নম্বর দিন।
+   - **Record Deposit & Settle Debit Note** সাবমিট দিলে রিফান্ড ভাউচার `RCN-YYYYMMDD-XXXX` তৈরি হবে এবং ক্যাশ/ব্যাংক ব্যালেন্স বৃদ্ধি পাবে।
+
+---
+
+### ৪.৪ Supplier Ledger, AP Aging Statement & Confirmation Letter
+সাপ্লায়ারের রানিং লেজার স্টেটমেন্ট, Accounts Payable (AP) Aging বিশ্লেষণ (0-30, 31-60, 61-90, 90+ দিন) এবং অফিশিয়াল বকেয়া স্বীকৃতি লেটার প্রিন্ট করা।
+
+**কীভাবে Supplier Ledger ও Aging Report দেখবেন?**
+1. **Procurement > Supplier Ledger** (অথবা **Accounts > Vendor Ledger**) পেজে প্রবেশ করুন।
+2. ড্যাশবোর্ডে মোট দেনা (Total Bills), মোট পরিশোধ (Total Payments), ডেবিট নোট এডজাস্টমেন্ট এবং নেট বাকি বকেয়া (Running Balance) দেখতে পাবেন।
+3. যেকোনো সাপ্লায়ারের **View Statement** এ ক্লিক করে নির্দিষ্ট তারিখের মধ্যকার লেনদেনের সময়ক্রম দেখুন।
+4. **AP Aging Analysis** ট্যাবে ক্লিক করে 0-30 দিন, 31-60 দিন, 61-90 দিন এবং 90+ দিনের পুরোনো ওভারডিউ বকেয়া বাকির বিশ্লেষণ দেখুন।
+5. **Export PDF Statement** বাটনে ক্লিক করে সাপ্লায়ারের বকেয়া স্বীকৃতির অফিশিয়াল কনফার্মেশন লেটার ডাউনলোড বা প্রিন্ট করুন।
+
+---
+
+### ৪.৫ Purchase Reporting Engine (13 Reports)
+প্রকিউরমেন্টের ১৩টি ক্লায়েন্ট রিপোর্ট ফিল্টারিং, সার্চ ও প্যাজিনেশন সহ দেখতে পাবেন।
+
+**কীভাবে পারচেজ রিপোর্ট দেখবেন?**
+1. নেভিগেশন মেনু থেকে **Procurement > Purchase Reports** সেকশনে যান।
+2. ১৩টি রিপোর্টের মধ্যে আপনার প্রয়োজনীয় রিপোর্ট নির্বাচন করুন:
+   - **2.23 Supplier-wise Purchase Report**: সাপ্লায়ার ভিত্তিক মোট ক্রয়ের পরিমাণ।
+   - **2.24 & 2.26 Item-wise Purchase Report**: প্রোডাক্ট ভিত্তিক ক্রয়ের বিবরণ ও মোট পরিমাণ।
+   - **2.25 Total Purchase Value (Periodic)**: মাসভিত্তিক বা নির্দিষ্ট পিরিয়ডের ক্রয়ের খরচ।
+   - **2.27 Purchase Value vs Last Year**: গত বছরের সাথে এ বছরের ক্রয়ের তুলনামূলক পারফরম্যান্স।
+   - **2.28 - 2.30 PR Status Reports**: কতটি PR রিসিভ হয়েছে, কতটি পেন্ডিং এবং কতটি আইটেম পেন্ডিং।
+   - **2.31 - 2.32 PO Status Reports**: কতটি PO ইস্যু হয়েছে এবং কতটি আইটেম কেনা সম্পন্ন হয়েছে।
+   - **2.33 PDF Print Format Validation**: SR, PR, CS, PO ও ভাউচারের পিডিএফ ফরম্যাট যাচাই।
+   - **2.35 LC Register Dashboard**: এলসি ব্যাংক মার্জিন, মেয়াদের তারিখ ও এলসি খরচের হিসাব।
+
+---
+
 # English Version
 
 ## 1. Introduction
@@ -184,6 +260,8 @@ When you need to purchase products, you will send an RFQ to various vendors.
 5. Click **Save / Send**. 
 *(The system will automatically generate a PDF and email it to the selected vendors).*
 
+---
+
 ### 1.2 Vendor Quotation
 When vendors receive the RFQ email, they will reply with their prices, and you will enter them into the system.
 
@@ -192,6 +270,8 @@ When vendors receive the RFQ email, they will reply with their prices, and you w
 2. The vendor will reply to your email with their offered prices and terms.
 3. Once you receive the email, go to the **RFQs** page in the admin panel and open that specific RFQ.
 4. Click on **Add Quotation** next to the specific vendor's name, manually enter the prices they provided, and save it.
+
+---
 
 ### 1.3 Comparison Statement (CS)
 When multiple vendors submit their prices, a Comparison Statement (CS) is generated to compare and identify the lowest bidder.
@@ -216,6 +296,8 @@ Once a Comparison Statement (CS) is approved, Purchase Orders can be generated f
 3. Navigate to **Procurement > Purchase Orders (PO)** from the left sidebar to view all POs and milestone trackers.
 4. From the PO table or details page, click **Preview PDF** (to view inline in a new tab) or **Live Preview** and **Download PDF**. You can also click **Send PO Email to Supplier** to email the PO document directly to the vendor.
 
+---
+
 ### 2.2 Proforma Invoice (PI) Document Attachment
 After receiving the PO, the vendor will issue an official Proforma Invoice (PI), which must be uploaded to the system.
 
@@ -224,6 +306,8 @@ After receiving the PO, the vendor will issue an official Proforma Invoice (PI),
 2. Under the **Proforma Invoice (PI)** card, fill in the PI Number, Issue Date, and Total Amount.
 3. Upload the PI file (PDF/Image) provided by the supplier and click **Upload & Attach PI**.
 4. The PO milestone status will update to **`pi_attached`**.
+
+---
 
 ### 2.3 International Letter of Credit (LC) & Expenses Breakdown
 Register Letters of Credit (LC) for foreign imports and track 13 itemized import duty costs.
@@ -236,7 +320,7 @@ Register Letters of Credit (LC) for foreign imports and track 13 itemized import
 
 ---
 
-
+## Step 3: International Shipment Logistics, Stock-in-Transit (SIT), GRN QC & Landed Cost Engine
 
 ### 3.1 Shipment Tracking & Stock-in-Transit (SIT)
 Track shipping vessels, container numbers, Bill of Lading (BL/AWB) documents, departure (ETD), and arrival (ETA) milestones.
@@ -247,6 +331,7 @@ Track shipping vessels, container numbers, Bill of Lading (BL/AWB) documents, de
 3. Upload the official Bill of Lading (BL) or Packing List document file (PDF/JPG/PNG).
 4. Click **Register Shipment**. The PO milestone will automatically update to **`shipped`**.
 5. As the shipment progresses, update its status milestone from **`in_transit`** ➔ **`arrived`** ➔ **`cleared`** (Customs Cleared).
+6. **Logistics Lock Rules**: Editing is enabled via **Edit Logistics**, but locked once GRN is received.
 
 ---
 
@@ -295,5 +380,55 @@ Process rejected QC items, return defective goods to the supplier, and automatic
 6. Go to **Procurement > Vendor Returns** to view all active returns, debit note amounts, and status trackers.
 
 ---
-*Document Version: 3.0 (Phase 2, Step 1, Step 2 & Step 3 Complete)*  
+## Step 4: Procurement Financials, Vendor Bills, Payment Vouchers, Supplier Ledger & Reports
+
+### 4.1 Vendor Bills / Invoices (3-Way Matching & Debit Note Settlement)
+Convert GRN data into formal **Vendor Bills / Invoices (`BILL-YYYYMMDD-XXXX`)** and auto-deduct outstanding Debit Notes.
+
+**How to Create a Vendor Bill?**
+1. Go to **Procurement > Vendor Bills** and click **Create Vendor Bill** (or click **Issue Vendor Bill** directly from GRN details).
+2. Select Purchase Order & GRN. Line items auto-populate from accepted quantities × unit landed cost.
+3. Outstanding Debit Notes are automatically deducted as credit adjustments from the bill total.
+4. Click **Save & Issue Vendor Bill** to generate invoice `BILL-YYYYMMDD-XXXX`.
+
+---
+
+### 4.2 Multi-Currency Payment Vouchers (`PAY-YYYYMMDD-XXXX`)
+Record partial, full, or advance supplier payments across cash, bank transfer, cheque, or LC settlements with real-time currency conversion.
+
+**How to Record Payment Vouchers?**
+1. Go to **Procurement > Purchase Payments** and click **Record Payment Voucher**.
+2. Select Vendor & Bill, enter Payment Date, Amount, and Payment Method.
+3. For foreign currency payments, enter Currency & Exchange Rate to convert to Base Currency (`kr.`).
+4. Upload receipt file if available and click **Process Payment** to generate Voucher `PAY-YYYYMMDD-XXXX`.
+5. Click **Print PDF Voucher** to stream official payment voucher slips.
+
+---
+
+### 4.3 Enterprise Debit Note Settlements (3 Modes)
+Settle Debit Notes (`DN-YYYYMMDD-XXXX`) via 3 flexible enterprise paths:
+- **Mode A: Bill Credit Deduction**: Auto-deducted from future Vendor Bills.
+- **Mode B: Product Replacement Receive (Swap)**: Open Debit Note details, click **Settle via Product Replacement**, select replacement product (same SKU or substitute product), enter quantity & submit. Warehouse stock is updated automatically.
+- **Mode C: Direct Money Refund Voucher**: Click **Settle via Direct Money Refund**, enter refund amount, date, bank reference & submit. Creates Refund Voucher `RCN-YYYYMMDD-XXXX` and credits bank account balance.
+
+---
+
+### 4.4 Supplier Ledger, AP Aging Statement & Confirmation Letter
+Real-time supplier ledger, running statement of account, Accounts Payable (AP) aging analysis (0-30, 31-60, 61-90, 90+ days), and printable audit confirmation letters.
+
+**How to View Supplier Ledger & AP Aging?**
+1. Go to **Procurement > Supplier Ledger** to view total payables, total paid, and net running balance.
+2. Click **View Statement** for any vendor to see chronological transactions.
+3. Click **AP Aging Analysis** to inspect overdue payables in **0-30**, **31-60**, **61-90**, and **90+ days** buckets.
+4. Click **Export PDF Statement** to download/print the official Supplier Outstanding Acknowledgement PDF letter.
+
+---
+
+### 4.5 Purchase Reporting Engine (13 Reports)
+Access 13 enterprise purchase reports under **Procurement > Purchase Reports** (Supplier-wise, Item-wise, Periodic Total Value, Value vs Last Year, PR Status, PO Status, LC Register Dashboard, etc.) with date range filters, pagination, and Base Currency (`kr.`) formatting.
+
+---
+
+
+*Document Version: 4.0 (Phase 2 Complete — Step 1, Step 2, Step 3 & Step 4)*  
 *Generated for B2B Viking ERP Client*

@@ -103,9 +103,37 @@ class VendorReturnController extends Controller
             'goodsReceipt',
             'approvedBy',
             'items.product',
-            'items.variant'
+            'items.variant',
+            'replacementProduct',
+            'replacementVariant',
+            'refunds.createdBy',
+            'settlements.vendorBill'
         ])->findOrFail($id);
 
-        return view('backend.vendor_return.show', compact('vendorReturn'));
+        $allProducts = \App\Models\Product::where('status', 1)->get();
+
+        return view('backend.vendor_return.show', compact('vendorReturn', 'allProducts'));
+    }
+
+    /**
+     * Settle Debit Note via Product Replacement / Swap (Same SKU or Substitute Item)
+     */
+    public function settleReplacement(\App\Http\Requests\Backend\VendorReturn\StoreReplacementReceiveRequest $request, \App\Services\VendorReturnService $returnService)
+    {
+        $vendorReturn = $returnService->settleViaProductReplacement($request->validated());
+
+        return redirect()->route('admin.vendor-returns.show', $vendorReturn->id)
+            ->with('success', "Debit Note #{$vendorReturn->debit_note_no} successfully settled via Product Replacement stock receipt.");
+    }
+
+    /**
+     * Settle Debit Note via Direct Money Refund (Cash/Bank Transfer Deposit)
+     */
+    public function settleRefund(\App\Http\Requests\Backend\VendorReturn\StoreVendorRefundRequest $request, \App\Services\VendorReturnService $returnService)
+    {
+        $refund = $returnService->settleViaCashRefund($request->validated());
+
+        return redirect()->route('admin.vendor-returns.show', $refund->vendor_return_id)
+            ->with('success', "Debit Note successfully settled via Direct Money Refund Voucher #{$refund->refund_no}.");
     }
 }

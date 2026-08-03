@@ -41,6 +41,11 @@ use App\Http\Controllers\Backend\OutletController;
 use App\Http\Controllers\Backend\ApprovalWorkflowController;
 use App\Http\Controllers\Backend\RfqController;
 use App\Http\Controllers\Backend\VendorQuotationController;
+use App\Http\Controllers\Backend\VendorBillController;
+use App\Http\Controllers\Backend\PurchasePaymentController;
+use App\Http\Controllers\Backend\VendorLedgerController;
+use App\Http\Controllers\Backend\PurchaseReportController;
+use App\Http\Controllers\Backend\VendorReturnController;
 use App\Http\Controllers\Frontend\AccountController as FrontendAccountController;
 use App\Http\Controllers\Frontend\CartController as FrontendCartController;
 use App\Http\Controllers\Frontend\HomeController;
@@ -487,6 +492,32 @@ Route::controller(BackendAccountController::class)->group(function () {
         Route::resource('departments', DepartmentController::class);
         Route::resource('outlets', OutletController::class);
         Route::resource('approval-workflows', ApprovalWorkflowController::class);
+    });
+
+    /** Phase 2 Step 4: Vendor Bills, Payments, Ledger, Returns & Reports */
+    Route::resource('vendor-bills', VendorBillController::class)->only(['index', 'create', 'store', 'show']);
+    
+    Route::get('purchase-payments/{purchase_payment}/pdf', [PurchasePaymentController::class, 'streamPdf'])->name('purchase-payments.pdf');
+    Route::resource('purchase-payments', PurchasePaymentController::class)->only(['index', 'create', 'store', 'show']);
+
+    Route::post('vendor-returns/settle-replacement', [VendorReturnController::class, 'settleReplacement'])->name('vendor-returns.settle-replacement');
+    Route::post('vendor-returns/settle-refund', [VendorReturnController::class, 'settleRefund'])->name('vendor-returns.settle-refund');
+    Route::resource('vendor-returns', VendorReturnController::class)->only(['index', 'create', 'store', 'show']);
+
+    Route::controller(VendorLedgerController::class)->prefix('vendor-ledger')->name('vendor-ledger.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/aging', 'agingReport')->name('aging');
+        Route::get('/{vendor_id}', 'show')->name('show');
+        Route::get('/{vendor_id}/pdf', 'exportPdf')->name('pdf');
+    });
+
+    Route::controller(PurchaseReportController::class)->prefix('purchase-reports')->name('purchase-reports.')->group(function () {
+        Route::get('/supplier-wise', 'supplierWise')->name('supplier-wise');
+        Route::get('/item-wise', 'itemWise')->name('item-wise');
+        Route::get('/total-value', 'totalValue')->name('total-value');
+        Route::get('/vs-last-year', 'vsLastYear')->name('vs-last-year');
+        Route::get('/pr-status', 'prStatus')->name('pr-status');
+        Route::get('/po-status', 'poStatus')->name('po-status');
     });
 
 });

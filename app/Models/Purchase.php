@@ -128,4 +128,17 @@ class Purchase extends Model
     {
         return $this->hasMany(Shipment::class);
     }
+
+    public function vendorBills()
+    {
+        return $this->hasMany(VendorBill::class);
+    }
+
+    public function closePurchaseOrder(): bool
+    {
+        return $this->update([
+            'status' => 1,
+            'milestone_status' => 'completed',
+        ]);
+    }
 }
