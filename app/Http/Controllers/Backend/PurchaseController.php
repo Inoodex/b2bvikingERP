@@ -257,7 +257,9 @@ class PurchaseController extends Controller
                             // $pVariant->increment('qty', $variantQty);
                             $processedVariants[] = $pVariant->id;
 
-                            // INV PLANE: InventoryStock
+                            // NOTE: Direct stock increment on PO creation disabled to prevent double entry. 
+                            // Stock is strictly incremented via Goods Receipt (GRN) in GoodsReceiptController / StockReceiveService.
+                            /*
                             $stock = \App\Models\InventoryStock::firstOrCreate([
                                 'product_id' => $item['product_id'],
                                 'variant_id' => $pVariant->id,
@@ -265,7 +267,6 @@ class PurchaseController extends Controller
                             ]);
                             $stock->increment('quantity', $variantQty);
 
-                            // INV PLANE: StockLedger
                             \App\Models\StockLedger::create([
                                 'product_id' => $item['product_id'],
                                 'variant_id' => $pVariant->id,
@@ -274,9 +275,10 @@ class PurchaseController extends Controller
                                 'reference_id' => $purchase->id,
                                 'in_qty' => $variantQty,
                                 'out_qty' => 0,
-                                'balance_qty' => $stock->quantity, // Post-increment
+                                'balance_qty' => $stock->quantity,
                                 'date' => $request->date
                             ]);
+                            */
                             
                             // INV PLANE: Update Detail variant_id
                             $detail->variant_id = $pVariant->id;
@@ -315,18 +317,14 @@ class PurchaseController extends Controller
                             }
                             
                             if($pVariant) {
-                                // REDUNDANT - Handled by InventoryStock
-                                // $pVariant->increment('qty', $vQty);
-                                
-                                // INV PLANE: InventoryStock
+                                /*
                                 $stock = \App\Models\InventoryStock::firstOrCreate([
                                     'product_id' => $item['product_id'],
                                     'variant_id' => $pVariant->id,
-                                    'outlet_id' => 1 // Default
+                                    'outlet_id' => 1
                                 ]);
                                 $stock->increment('quantity', $vQty);
     
-                                // INV PLANE: StockLedger
                                 \App\Models\StockLedger::create([
                                     'product_id' => $item['product_id'],
                                     'variant_id' => $pVariant->id,
@@ -335,23 +333,17 @@ class PurchaseController extends Controller
                                     'reference_id' => $purchase->id,
                                     'in_qty' => $vQty,
                                     'out_qty' => 0,
-                                    'balance_qty' => $stock->quantity, // Post-increment
+                                    'balance_qty' => $stock->quantity,
                                     'date' => $request->date
                                 ]);
+                                */
 
-                                // Note: PurchaseDetail structure assumes one variant per line often, 
-                                // but if aggregated, we might have issues linking single detail to multiple variant ledgers.
-                                // For now, we update logic, but ideal structure is 1 line = 1 variant.
-                                // If detail->variant_id is single, we can only set one. 
-                                // Assuming simplest case: likely one variant dominant or split lines.
-                                // We will update variant_id if it's the first one found, for trace.
                                 if(!$detail->variant_id) {
                                     $detail->variant_id = $pVariant->id;
                                     $detail->save();
                                 }
                             } else {
-                                // Fallback: If variant not found by name, assign to main product stock (No Variant)
-                                // This ensures stock is not lost if name matching fails
+                                /*
                                 $stock = \App\Models\InventoryStock::firstOrCreate([
                                     'product_id' => $item['product_id'],
                                     'variant_id' => null,
@@ -359,7 +351,6 @@ class PurchaseController extends Controller
                                 ]);
                                 $stock->increment('quantity', $vQty);
 
-                                // Ledger Fallback
                                 \App\Models\StockLedger::create([
                                     'product_id' => $item['product_id'],
                                     'variant_id' => null,
@@ -371,20 +362,19 @@ class PurchaseController extends Controller
                                     'balance_qty' => $stock->quantity,
                                     'date' => $request->date
                                 ]);
+                                */
                             }
                         }
                     }
                 } else {
-                    // No Variant Info - Product Level Stock Logic
-                    // INV PLANE: InventoryStock (No Variant)
+                    /*
                     $stock = \App\Models\InventoryStock::firstOrCreate([
                         'product_id' => $item['product_id'],
                         'variant_id' => null,
-                        'outlet_id' => 1 // Default
+                        'outlet_id' => 1
                     ]);
                     $stock->increment('quantity', $item['qty']);
 
-                    // INV PLANE: StockLedger
                     \App\Models\StockLedger::create([
                         'product_id' => $item['product_id'],
                         'variant_id' => null,
@@ -396,6 +386,7 @@ class PurchaseController extends Controller
                         'balance_qty' => $stock->quantity,
                         'date' => $request->date
                     ]);
+                    */
                 }
             }
 
