@@ -1164,13 +1164,6 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.shipments.index') }}"><i class="fas fa-ship"></i> Shipments & SIT</a></li>
           <li><a href="{{ route('admin.goods-receipts.index') }}"><i class="fas fa-dolly"></i> Goods Receipts (GRN)</a></li>
           <li><a href="{{ route('admin.vendor-returns.index') }}"><i class="fas fa-undo"></i> Vendor Returns</a></li>
-          {{-- <li class="sb-submenu-header">Procurement Reports</li>
-          <li><a href="{{ route('admin.purchase-reports.supplier-wise') }}"><i class="fas fa-user-tag"></i> Supplier-wise Purchase</a></li>
-          <li><a href="{{ route('admin.purchase-reports.item-wise') }}"><i class="fas fa-cubes"></i> Item-wise Purchase</a></li>
-          <li><a href="{{ route('admin.purchase-reports.total-value') }}"><i class="fas fa-calculator"></i> Total Purchase Value</a></li>
-          <li><a href="{{ route('admin.purchase-reports.vs-last-year') }}"><i class="fas fa-balance-scale"></i> Purchase vs Last Year</a></li>
-          <li><a href="{{ route('admin.purchase-reports.pr-status') }}"><i class="fas fa-clipboard-list"></i> PR Status & Pending</a></li>
-          <li><a href="{{ route('admin.purchase-reports.po-status') }}"><i class="fas fa-file-signature"></i> PO Issued & Items</a></li> --}}
         </ul>
       </li>
 
