@@ -62,7 +62,7 @@ class PurchaseOrderController extends Controller
 
                 foreach ($itemsByVendor as $vendorId => $csItems) {
                     // Generate sequential PO Number
-                    $lastPo = Purchase::latest('id')->first();
+                    $lastPo = Purchase::lockForUpdate()->latest('id')->first();
                     $nextId = $lastPo ? ($lastPo->id + 1) : 1;
                     $poNo = 'PO-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 

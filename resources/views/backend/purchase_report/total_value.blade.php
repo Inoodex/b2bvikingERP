@@ -5,7 +5,7 @@
 @section('content')
 <section class="section">
     <div class="section-header">
-        <h1><i class="fas fa-calculator text-primary mr-2"></i> Total Purchase Value — Periodic (Client Req 2.25)</h1>
+        <h1><i class="fas fa-calculator text-primary mr-2"></i> Total Purchase Value — Periodic</h1>
         <div class="section-header-breadcrumb">
             <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
             <div class="breadcrumb-item">Reports</div>

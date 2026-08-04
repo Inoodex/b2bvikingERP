@@ -90,6 +90,29 @@ class GoodsReceiptController extends Controller
 
         $purchase = Purchase::with(['items', 'shipments'])->findOrFail($request->purchase_id);
 
+        // Enterprise Security Guard: Validate Accepted Qty against Remaining Qty to prevent stock distortion
+        foreach ($request->items as $itemData) {
+            $poItem = $purchase->items->where('product_id', $itemData['product_id'])
+                ->when(!empty($itemData['variant_id']), fn($q) => $q->where('variant_id', $itemData['variant_id']))
+                ->first();
+
+            if ($poItem) {
+                $previouslyReceived = DB::table('goods_receipt_items')
+                    ->join('goods_receipts', 'goods_receipts.id', '=', 'goods_receipt_items.goods_receipt_id')
+                    ->where('goods_receipts.purchase_id', $purchase->id)
+                    ->where('goods_receipts.qc_status', '!=', 'failed')
+                    ->where('goods_receipt_items.product_id', $itemData['product_id'])
+                    ->when(!empty($itemData['variant_id']), fn($q) => $q->where('goods_receipt_items.variant_id', $itemData['variant_id']))
+                    ->sum('goods_receipt_items.accepted_qty');
+
+                $remaining = max(0, (float) $poItem->qty - (float) $previouslyReceived);
+                if ((float) $itemData['accepted_qty'] > ($remaining + 0.0001)) {
+                    Toastr::error("Accepted quantity ({$itemData['accepted_qty']}) cannot exceed remaining ordered quantity ({$remaining})!", 'Over-Receipt Guard');
+                    return redirect()->back()->withInput();
+                }
+            }
+        }
+
         // Enterprise Security Guard: Foreign Purchases MUST have a Customs Cleared shipment before receiving goods
         if (strtolower($purchase->purchase_type ?? 'local') === 'foreign') {
             $hasClearedShipment = $purchase->shipments()->where('status', 'cleared')->exists();

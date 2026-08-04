@@ -70,6 +70,14 @@ class VendorReturn extends Model
         return $this->hasMany(VendorReturnItem::class, 'vendor_return_id');
     }
 
+    public function getTotalClaimAmountAttribute(): float
+    {
+        if ($this->relationLoaded('items')) {
+            return (float) $this->items->sum('total_amount');
+        }
+        return (float) $this->items()->sum('total_amount');
+    }
+
     public function getStatusBadgeAttribute(): string
     {
         return match ($this->status) {

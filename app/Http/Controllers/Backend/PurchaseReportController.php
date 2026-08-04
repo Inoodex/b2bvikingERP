@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Backend;
 
+use App\DataTables\ItemWisePurchaseDataTable;
+use App\DataTables\PoStatusDataTable;
+use App\DataTables\PrStatusDataTable;
+use App\DataTables\SupplierWisePurchaseDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Vendor;
@@ -18,32 +22,30 @@ class PurchaseReportController extends Controller
     }
 
     /**
-     * Client Req 2.23: Supplier-wise Purchase Report
+     * Supplier-wise Purchase Report
      */
-    public function supplierWise(Request $request)
+    public function supplierWise(SupplierWisePurchaseDataTable $dataTable, Request $request)
     {
         $filters = $request->only(['start_date', 'end_date', 'vendor_id']);
-        $reportData = $this->reportService->getSupplierWisePurchase($filters);
         $vendors = Vendor::where('status', 1)->get();
 
-        return view('backend.purchase_report.supplier_wise', compact('reportData', 'vendors', 'filters'));
+        return $dataTable->render('backend.purchase_report.supplier_wise', compact('vendors', 'filters'));
     }
 
     /**
-     * Client Req 2.24 & 2.26: Item-wise Purchase Report
+     * Item-wise Purchase Report
      */
-    public function itemWise(Request $request)
+    public function itemWise(ItemWisePurchaseDataTable $dataTable, Request $request)
     {
         $filters = $request->only(['start_date', 'end_date', 'vendor_id', 'product_id']);
-        $reportData = $this->reportService->getItemWisePurchase($filters);
         $vendors = Vendor::where('status', 1)->get();
         $products = Product::where('status', 1)->get();
 
-        return view('backend.purchase_report.item_wise', compact('reportData', 'vendors', 'products', 'filters'));
+        return $dataTable->render('backend.purchase_report.item_wise', compact('vendors', 'products', 'filters'));
     }
 
     /**
-     * Client Req 2.25: Total Purchase Value Periodic
+     * Total Purchase Value Periodic
      */
     public function totalValue(Request $request)
     {
@@ -56,7 +58,7 @@ class PurchaseReportController extends Controller
     }
 
     /**
-     * Client Req 2.27: Purchase Value vs Last Year Comparison
+     * Purchase Value vs Last Year Comparison
      */
     public function vsLastYear(Request $request)
     {
@@ -67,24 +69,23 @@ class PurchaseReportController extends Controller
     }
 
     /**
-     * Client Req 2.28 - 2.30: PR Received / Pending / Items Pending Reports
+     * PR Received / Pending / Items Pending Reports
      */
-    public function prStatus(Request $request)
+    public function prStatus(PrStatusDataTable $dataTable, Request $request)
     {
         $filters = $request->only(['start_date', 'end_date']);
         $prData = $this->reportService->getPrStatusReport($filters);
 
-        return view('backend.purchase_report.pr_status', compact('prData', 'filters'));
+        return $dataTable->render('backend.purchase_report.pr_status', compact('prData', 'filters'));
     }
 
     /**
-     * Client Req 2.31 - 2.32: Items Purchased & PO Issued List
+     * Items Purchased & PO Issued List
      */
-    public function poStatus(Request $request)
+    public function poStatus(PoStatusDataTable $dataTable, Request $request)
     {
         $filters = $request->only(['start_date', 'end_date']);
-        $poList = $this->reportService->getPoIssuedReport($filters);
 
-        return view('backend.purchase_report.po_status', compact('poList', 'filters'));
+        return $dataTable->render('backend.purchase_report.po_status', compact('filters'));
     }
 }

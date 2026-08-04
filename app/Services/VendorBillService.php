@@ -58,7 +58,8 @@ class VendorBillService
             $debitNotesToSettle = [];
 
             if (!isset($data['apply_debit_notes']) || $data['apply_debit_notes']) {
-                $pendingReturns = VendorReturn::where('purchase_id', $purchase->id)
+                $pendingReturns = VendorReturn::with('items')
+                    ->where('purchase_id', $purchase->id)
                     ->where('status', 'approved')
                     ->get();
 

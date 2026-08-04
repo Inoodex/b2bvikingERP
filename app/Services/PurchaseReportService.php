@@ -72,10 +72,10 @@ class PurchaseReportService
             return [
                 'product_name' => $first->product?->name ?? 'Unknown Product',
                 'product_code' => $productCode,
-                'total_qty' => $group->sum('quantity'),
-                'avg_unit_price' => round($group->avg('unit_price'), 2),
+                'total_qty' => $group->sum('qty'),
+                'avg_unit_price' => round($group->avg('unit_cost'), 2),
                 'avg_landed_cost' => round($group->avg('landed_cost'), 2),
-                'total_value' => round($group->sum('total_amount'), 2),
+                'total_value' => round($group->sum('total'), 2),
             ];
         })->values();
 
