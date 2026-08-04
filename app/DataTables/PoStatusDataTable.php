@@ -47,7 +47,9 @@ class PoStatusDataTable extends DataTable
         return $this->builder()
             ->setTableId('po-status-table')
             ->columns($this->getColumns())
-            ->minifiedAjax()
+            ->ajax([
+                'data' => 'function(d) { d.start_date = $("input[name=\"start_date\"]").val(); d.end_date = $("input[name=\"end_date\"]").val(); }'
+            ])
             ->stateSave(false)
             ->pageLength(10)
             ->responsive(true)

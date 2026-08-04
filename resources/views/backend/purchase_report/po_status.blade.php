@@ -19,19 +19,20 @@
                 <h4>Issued Purchase Orders Registry</h4>
             </div>
             <div class="card-body">
-                <form action="{{ route('admin.purchase-reports.po-status') }}" method="GET" class="mb-4">
+                <form id="report-filter-form" action="javascript:void(0);" class="mb-4">
                     <div class="row align-items-end">
-                        <div class="col-md-4">
-                            <label>Start Date:</label>
-                            <input type="date" name="start_date" class="form-control" value="{{ $filters['start_date'] ?? '' }}">
+                        <div class="col-md-5">
+                            <label class="font-weight-bold">Start Date:</label>
+                            <input type="date" name="start_date" class="form-control filter-input">
                         </div>
-                        <div class="col-md-4">
-                            <label>End Date:</label>
-                            <input type="date" name="end_date" class="form-control" value="{{ $filters['end_date'] ?? '' }}">
+                        <div class="col-md-5">
+                            <label class="font-weight-bold">End Date:</label>
+                            <input type="date" name="end_date" class="form-control filter-input">
                         </div>
-                        <div class="col-md-4">
-                            <button type="submit" class="btn btn-primary mr-1"><i class="fas fa-search"></i> Filter POs</button>
-                            <a href="{{ route('admin.purchase-reports.po-status') }}" class="btn btn-secondary"><i class="fas fa-redo"></i> Reset</a>
+                        <div class="col-md-2">
+                            <button type="button" id="btn-reset-filter" class="btn btn-outline-danger btn-block shadow-sm">
+                                <i class="fas fa-undo-alt mr-1"></i> Reset Filters
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -47,4 +48,17 @@
 
 @push('scripts')
     {!! $dataTable->scripts() !!}
+    <script>
+    $(document).ready(function() {
+        $(document).on('change', '.filter-input', function() {
+            window.LaravelDataTables['po-status-table'].draw();
+        });
+
+        $('#btn-reset-filter').on('click', function(e) {
+            e.preventDefault();
+            $('#report-filter-form')[0].reset();
+            window.LaravelDataTables['po-status-table'].draw();
+        });
+    });
+    </script>
 @endpush

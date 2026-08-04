@@ -16,21 +16,21 @@
 
 ---
 
-## Phase 2: Purchase & Import (LC) Module (Days 11 - 25)
-* **Days 11 - 13: RFQ, Quotations, and Comparison Statements (CS) [Pending]**
+## Phase 2: Purchase & Import (LC) Module (Days 11 - 25) [Completed]
+* **Days 11 - 13: RFQ, Quotations, and Comparison Statements (CS) [Completed]**
   - Vendor RFQ, Vendor Quotations entry, side-by-side CS tables with CS approvals.
-* **Days 14 - 16: PO Upgrades, Proforma Invoices, and LC Details [Pending]**
+* **Days 14 - 16: PO Upgrades, Proforma Invoices, and LC Details [Completed]**
   - Link POs to RFQ/CS. Setup PI details and LC details/amendments.
-* **Days 17 - 19: Shipment, SIT, and GRN with Quality Control [Pending]**
-  - Shipment details form, Stock-in-Transit (SIT) calculations, GRN items checklist.
-* **Days 20 - 22: Landed Cost Allocation Engine & Vendor Returns [Pending]**
-  - Weighted Average landed cost calculations, Vendor Returns (Debit Note) flow.
-* **Days 23 - 25: Procurement testing, Reports, & Client Approval Loop [Pending]**
-  - Purchase reports and LC Register. Let the client perform mock purchases to verify the import costing logic.
+* **Days 17 - 19: Shipment, SIT, and GRN with Quality Control [Completed]**
+  - Shipment details form, Stock-in-Transit (SIT) calculations, GRN items checklist with strict over-receipt guards.
+* **Days 20 - 22: Landed Cost Allocation Engine & Vendor Returns [Completed]**
+  - Weighted Average landed cost calculations, Vendor Returns (Debit Note) flow with dynamic claim amount accessors.
+* **Days 23 - 25: Procurement testing, Reports, & Client Approval Loop [Completed]**
+  - Purchase reports and LC Register. Server-side Yajra DataTables, real-time instant AJAX filters, cleaned titles, and pagination controls.
 
 ---
 
-## Phase 3: Sales Module Polish (Days 26 - 33)
+## Phase 3: Sales Module Polish (Days 26 - 33) [Next Step]
 * **Days 26 - 27: Quotations, Pricelists, & Templates [Pending]**
   - Sales quotations, quotation templates, and pricelists for dynamic customer pricing.
 * **Days 28 - 29: Coupons, Gift Cards, & Sales Orders [Pending]**

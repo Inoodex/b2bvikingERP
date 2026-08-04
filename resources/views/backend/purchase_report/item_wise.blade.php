@@ -19,30 +19,29 @@
                 <h4>Item-wise Purchase Metrics</h4>
             </div>
             <div class="card-body">
-                <form action="{{ route('admin.purchase-reports.item-wise') }}" method="GET" class="mb-4">
+                <form id="report-filter-form" action="javascript:void(0);" class="mb-4">
                     <div class="row align-items-end">
                         <div class="col-md-3">
-                            <label>Start Date:</label>
-                            <input type="date" name="start_date" class="form-control" value="{{ $filters['start_date'] ?? '' }}">
+                            <label class="font-weight-bold">Start Date:</label>
+                            <input type="date" name="start_date" class="form-control filter-input">
                         </div>
                         <div class="col-md-3">
-                            <label>End Date:</label>
-                            <input type="date" name="end_date" class="form-control" value="{{ $filters['end_date'] ?? '' }}">
+                            <label class="font-weight-bold">End Date:</label>
+                            <input type="date" name="end_date" class="form-control filter-input">
                         </div>
-                        <div class="col-md-3">
-                            <label>Supplier:</label>
-                            <select name="vendor_id" class="form-control select2">
+                        <div class="col-md-4">
+                            <label class="font-weight-bold">Supplier:</label>
+                            <select name="vendor_id" class="form-control select2 filter-input">
                                 <option value="">-- All Suppliers --</option>
                                 @foreach($vendors as $v)
-                                    <option value="{{ $v->id }}" {{ (isset($filters['vendor_id']) && $filters['vendor_id'] == $v->id) ? 'selected' : '' }}>
-                                        {{ $v->name }}
-                                    </option>
+                                    <option value="{{ $v->id }}">{{ $v->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-primary mr-1"><i class="fas fa-search"></i> Filter</button>
-                            <a href="{{ route('admin.purchase-reports.item-wise') }}" class="btn btn-secondary"><i class="fas fa-redo"></i> Reset</a>
+                        <div class="col-md-2">
+                            <button type="button" id="btn-reset-filter" class="btn btn-outline-danger btn-block shadow-sm">
+                                <i class="fas fa-undo-alt mr-1"></i> Reset Filters
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -58,4 +57,20 @@
 
 @push('scripts')
     {!! $dataTable->scripts() !!}
+    <script>
+    $(document).ready(function() {
+        $(document).on('change', '.filter-input', function() {
+            window.LaravelDataTables['item-wise-table'].draw();
+        });
+
+        $('#btn-reset-filter').on('click', function(e) {
+            e.preventDefault();
+            $('#report-filter-form')[0].reset();
+            if ($.fn.select2) {
+                $('.select2').val('').trigger('change.select2');
+            }
+            window.LaravelDataTables['item-wise-table'].draw();
+        });
+    });
+    </script>
 @endpush

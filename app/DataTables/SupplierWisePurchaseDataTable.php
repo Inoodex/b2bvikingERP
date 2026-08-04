@@ -81,7 +81,9 @@ class SupplierWisePurchaseDataTable extends DataTable
         return $this->builder()
             ->setTableId('supplier-wise-table')
             ->columns($this->getColumns())
-            ->minifiedAjax()
+            ->ajax([
+                'data' => 'function(d) { d.start_date = $("input[name=\"start_date\"]").val(); d.end_date = $("input[name=\"end_date\"]").val(); d.vendor_id = $("select[name=\"vendor_id\"]").val(); }'
+            ])
             ->stateSave(false)
             ->pageLength(10)
             ->responsive(true)
