@@ -63,14 +63,22 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($cs->rfq->items as $item)
+            @foreach($cs->rfq->items as $index => $item)
                 <tr>
                     <td>{{ $item->product->name }}</td>
                     <td>{{ $item->product->unit->name ?? 'Pcs' }}</td>
                     <td>{{ $item->qty }}</td>
                     @foreach($quotations as $q)
                         @php
-                            $qi = $q->items->where('product_id', $item->product_id)->first();
+                            $qi = $q->items->values()->get($index);
+                            if (!$qi || $qi->product_id != $item->product_id || $qi->variant_id != $item->variant_id) {
+                                $qi = $q->items->where('product_id', $item->product_id)
+                                               ->where('variant_id', $item->variant_id)
+                                               ->where('qty', $item->qty)
+                                               ->first() ?? $q->items->where('product_id', $item->product_id)
+                                                                     ->where('variant_id', $item->variant_id)
+                                                                     ->first();
+                            }
                             $csItem = $cs->items->where('product_id', $item->product_id)->first();
                             $isSelected = $csItem && $qi && $csItem->selected_vendor_quotation_item_id == $qi->id;
                         @endphp

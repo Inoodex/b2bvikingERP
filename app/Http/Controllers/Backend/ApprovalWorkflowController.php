@@ -32,7 +32,10 @@ class ApprovalWorkflowController extends Controller
         $users = User::where('status', 1)->orderBy('name')->get();
         $models = [
             'App\Models\ProductRequest' => 'Requisition (SR / PR)',
+            'App\Models\ComparisonStatement' => 'Comparison Statement (CS)',
             'App\Models\Purchase' => 'Purchase Order (PO)',
+            'App\Models\LetterOfCredit' => 'Import Letter of Credit (LC)',
+            'App\Models\VendorReturn' => 'Vendor Return / Debit Note',
             'App\Models\StockTransfer' => 'Internal Stock Transfer',
         ];
         return view('backend.master.approval_workflows.create', compact('roles', 'users', 'models'));
@@ -57,7 +60,10 @@ class ApprovalWorkflowController extends Controller
         $users = User::where('status', 1)->orderBy('name')->get();
         $models = [
             'App\Models\ProductRequest' => 'Requisition (SR / PR)',
+            'App\Models\ComparisonStatement' => 'Comparison Statement (CS)',
             'App\Models\Purchase' => 'Purchase Order (PO)',
+            'App\Models\LetterOfCredit' => 'Import Letter of Credit (LC)',
+            'App\Models\VendorReturn' => 'Vendor Return / Debit Note',
             'App\Models\StockTransfer' => 'Internal Stock Transfer',
         ];
         return view('backend.master.approval_workflows.edit', compact('workflow', 'roles', 'users', 'models'));

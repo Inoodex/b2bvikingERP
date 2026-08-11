@@ -83,24 +83,36 @@
                                         
                                         @foreach($quotations as $quotation)
                                             @php
-                                                // Find the matching item in this quotation
-                                                $quotedItem = $quotation->items->where('product_id', $rfqItem->product_id)
-                                                                               ->where('variant_id', $rfqItem->variant_id)
-                                                                               ->first();
+                                                // Match quotation item by index position first, or by product_id + variant_id + qty
+                                                $quotedItem = $quotation->items->values()->get($index);
+                                                if (!$quotedItem || $quotedItem->product_id != $rfqItem->product_id || $quotedItem->variant_id != $rfqItem->variant_id) {
+                                                    $quotedItem = $quotation->items->where('product_id', $rfqItem->product_id)
+                                                                                   ->where('variant_id', $rfqItem->variant_id)
+                                                                                   ->where('qty', $rfqItem->qty)
+                                                                                   ->first() ?? $quotation->items->where('product_id', $rfqItem->product_id)
+                                                                                                                 ->where('variant_id', $rfqItem->variant_id)
+                                                                                                                 ->first();
+                                                }
                                                 
                                                 $exchangeRate = $quotation->currency ? $quotation->currency->exchange_rate : 1;
-                                                $normalizedPrice = $quotedItem ? ($quotedItem->unit_price * $exchangeRate) : null;
+                                                $unitBasePrice = $quotedItem ? ($quotedItem->unit_price * $exchangeRate) : null;
+                                                $lineTotalBase = $quotedItem ? ($unitBasePrice * $rfqItem->qty) : null;
                                             @endphp
                                             
-                                            <td class="price-cell" data-normalized-price="{{ $normalizedPrice ?? 9999999999 }}">
+                                            <td class="price-cell" data-normalized-price="{{ $unitBasePrice ?? 9999999999 }}">
                                                 @if($quotedItem)
                                                     @php
                                                         $baseCurrency = \App\Models\Currency::where('is_base', true)->first();
                                                         $baseSymbol = $baseCurrency->symbol ?? 'kr.';
                                                     @endphp
                                                     <div class="mb-2">
-                                                        <span class="d-block font-weight-bold">{{ number_format($quotedItem->unit_price, 2) }}</span>
-                                                        <small class="text-muted d-block">Base: {{ $baseSymbol }}{{ number_format($normalizedPrice, 2) }}</small>
+                                                        <span class="d-block font-weight-bold text-dark">{{ number_format($quotedItem->unit_price, 2) }}</span>
+                                                        <small class="text-muted d-block" title="Unit Base Price">
+                                                            Unit Base: {{ $baseSymbol }}{{ number_format($unitBasePrice, 2) }}
+                                                        </small>
+                                                        <small class="text-primary font-weight-bold d-block mt-1" title="Line Total Base Amount">
+                                                            Total: {{ $baseSymbol }}{{ number_format($lineTotalBase, 2) }}
+                                                        </small>
                                                     </div>
                                                     
                                                     <div class="split-radio" style="display: none;">
@@ -110,7 +122,7 @@
                                                                    name="items[{{ $index }}][selected_vqi_id]" 
                                                                    value="{{ $quotedItem->id }}" 
                                                                    class="custom-control-input">
-                                                            <label class="custom-control-label" for="vqi_{{ $index }}_{{ $quotation->id }}">Select</label>
+                                                            <label class="custom-control-label font-weight-bold" for="vqi_{{ $index }}_{{ $quotation->id }}">Select</label>
                                                         </div>
                                                     </div>
                                                 @else

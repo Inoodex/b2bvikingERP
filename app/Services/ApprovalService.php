@@ -60,10 +60,63 @@ class ApprovalService
     }
 
     /**
+     * Check if a specific user can approve the current pending step of a model.
+     */
+    public function canUserApproveCurrentStep(Model $model, ?\App\Models\User $user = null): bool
+    {
+        if (!$user) {
+            $user = \Illuminate\Support\Facades\Auth::user();
+        }
+
+        if (!$user) {
+            return false;
+        }
+
+        // Admin / Super Admin can always approve
+        if ($user->hasRole('Admin') || $user->hasRole('Super Admin') || $user->hasRole('Root Super Admin')) {
+            return true;
+        }
+
+        $modelType = get_class($model);
+        $currentApproval = Approval::where('approvable_type', $modelType)
+            ->where('approvable_id', $model->id)
+            ->where('status', 'pending')
+            ->first();
+
+        if (!$currentApproval || !$currentApproval->approval_step_id) {
+            return false;
+        }
+
+        $step = ApprovalStep::find($currentApproval->approval_step_id);
+        if (!$step) {
+            return false;
+        }
+
+        if ($step->approver_user_id && (int)$step->approver_user_id === (int)$user->id) {
+            return true;
+        }
+
+        if ($step->approver_role_id) {
+            $role = \Spatie\Permission\Models\Role::find($step->approver_role_id);
+            if ($role && $user->hasRole($role->name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Approve the current step for the model.
      */
     public function approveStep(Model $model, int $userId, ?string $comments = null): bool
     {
+        $user = \App\Models\User::find($userId);
+        if (!$user || !$this->canUserApproveCurrentStep($model, $user)) {
+            Log::warning("Unauthorized approval attempt by User #{$userId} on " . get_class($model) . " #{$model->id}");
+            return false;
+        }
+
         $modelType = get_class($model);
 
         DB::beginTransaction();
@@ -139,6 +192,12 @@ class ApprovalService
      */
     public function rejectStep(Model $model, int $userId, ?string $reason = null): bool
     {
+        $user = \App\Models\User::find($userId);
+        if (!$user || !$this->canUserApproveCurrentStep($model, $user)) {
+            Log::warning("Unauthorized rejection attempt by User #{$userId} on " . get_class($model) . " #{$model->id}");
+            return false;
+        }
+
         $modelType = get_class($model);
 
         DB::beginTransaction();

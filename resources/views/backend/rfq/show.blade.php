@@ -241,6 +241,16 @@
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-success font-weight-bold"><i class="fas fa-file-invoice mr-1"></i> Generate PO</button>
                                 </form>
+                            @elseif($cs->approval_status === 'pending' || $cs->approval_status === 'draft')
+                                @php
+                                    $canApprove = (new \App\Services\ApprovalService())->canUserApproveCurrentStep($cs);
+                                @endphp
+                                @if($canApprove)
+                                    <form action="{{ route('admin.rfqs.cs.approve', $cs->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i> Approve CS</button>
+                                    </form>
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -277,6 +287,22 @@
                                 </div>
                             </div>
                         </div>
+                        @if($cs->approvals && $cs->approvals->count() > 0)
+                            <div class="border-top pt-2 mt-2">
+                                <small class="text-warning font-weight-bold d-block mb-1">
+                                    <i class="fas fa-layer-group mr-1"></i> Approval Progress Chain:
+                                </small>
+                                @foreach($cs->approvals as $app)
+                                    <span class="badge badge-light border text-dark mr-1 mb-1" style="font-size: 11px;">
+                                        {{ $app->step->step_name ?? 'Step' }}: 
+                                        <strong class="{{ $app->status === 'approved' ? 'text-success' : ($app->status === 'rejected' ? 'text-danger' : 'text-warning') }}">
+                                            {{ strtoupper($app->status) }}
+                                        </strong> 
+                                        <span class="text-muted">({{ $app->step->approverRole->name ?? $app->step->approverUser->name ?? 'Approver' }})</span>
+                                    </span>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 </div>
             @endif
