@@ -75,7 +75,14 @@ class ItemWisePurchaseDataTable extends DataTable
     public function query(Product $model): QueryBuilder
     {
         $request = request();
-        $query = $model->newQuery()->where('status', 1);
+        $query = $model->newQuery()
+            ->where('status', 1)
+            ->whereHas('purchaseDetails.purchase', function($q) use ($request) {
+                $q->where('status', 1)
+                  ->when($request->filled('start_date'), fn($sub) => $sub->whereDate('date', '>=', $request->start_date))
+                  ->when($request->filled('end_date'), fn($sub) => $sub->whereDate('date', '<=', $request->end_date))
+                  ->when($request->filled('vendor_id'), fn($sub) => $sub->where('vendor_id', $request->vendor_id));
+            });
 
         if ($request->filled('product_id')) {
             $query->where('id', $request->product_id);

@@ -37,4 +37,9 @@ class Vendor extends Model
     {
         return (float) ($this->currency ? $this->currency->exchange_rate : 1.0000);
     }
+
+    public function purchases()
+    {
+        return $this->hasMany(Purchase::class, 'vendor_id');
+    }
 }

@@ -67,7 +67,13 @@ class SupplierWisePurchaseDataTable extends DataTable
     public function query(Vendor $model): QueryBuilder
     {
         $request = request();
-        $query = $model->newQuery()->where('status', 1);
+        $query = $model->newQuery()
+            ->where('status', 1)
+            ->whereHas('purchases', function($q) use ($request) {
+                $q->where('status', 1)
+                  ->when($request->filled('start_date'), fn($sub) => $sub->whereDate('date', '>=', $request->start_date))
+                  ->when($request->filled('end_date'), fn($sub) => $sub->whereDate('date', '<=', $request->end_date));
+            });
 
         if ($request->filled('vendor_id')) {
             $query->where('id', $request->vendor_id);
