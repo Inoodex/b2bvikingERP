@@ -78,7 +78,7 @@ CS অনুমোদিত হওয়ার পর বিজয়ী ভেন্�
 
 **কীভাবে LC রেজিস্টার ও অ্যামেন্ডমেন্ট করবেন?**
 1. PO Details পেজের **Register LC** ফর্মে এলসি নম্বর, ইস্যুয়িং ব্যাংক, এলসি অ্যামাউন্ট, মার্জিন % এবং মেয়াদের তারিখ লিখে সাবমিট দিন।
-2. **Procurement > LC Register** পেজে সকল এলসির তালিকা এবং **১৩টি আমদানিকৃত খরচ (CD, RD, SD, VAT, AIT, AT, Margin, Insurance, Freight, C&F Agent Fees ইত্যাদি)** দেখতে পাবেন।
+2. **Procurement > LC Register** পেজে সকল এলসির তালিকা এবং **১৩টি আমদানিকৃত খরচ (CD, RD, SD, VAT, AIT, AT, Margin, Insurance, Freight, C&F Agent Fees ইত্যাদি)** দেখতে পারবেন।
 3. এলসির মেয়াদ বা অ্যামাউন্ট বাড়লে **Record LC Amendment** বাটনে ক্লিক করে অ্যামেন্ডমেন্ট সংরক্ষণ করুন।
 
 ---
@@ -160,8 +160,8 @@ QC-তে রিজেক্ট হওয়া মালামাল ভেন্�
 সাপ্লায়ারের রানিং হিসাব ও পারচেজ রিপোর্ট দেখা।
 
 **কীভাবে Supplier Ledger ও Reports দেখবেন?**
-1. **Procurement > Supplier Ledger** পেজে গিয়ে ভেন্ডরের রানিং ব্যালেন্স দেখুন, **View Statement** থেকে লেনদেন সময়ক্রম এবং **AP Aging Analysis** (0-30, 31-60, 61-90, 90+ দিন) দেখুন। **Export PDF Statement** দিয়ে বকেয়া স্বীকৃতি পত্র প্রিন্ট করুন।
-2. **Procurement > Purchase Reports** সেকশনে গিয়ে ১৩টি পারচেজ রিপোর্ট (Supplier-wise, Item-wise, Total Value, Purchase vs Last Year, PR Status, PO Status ইত্যাদি) সার্ভার-সাইড ডাটাটেবিল ফিল্টারিং, পেজিনেশন ও এক্সপোর্ট বাটন সহ ব্যবহার করুন।
+1. **Procurement > Supplier Ledger** (অথবা **Accounts > Vendor Ledger**) পেজে গিয়ে ভেন্ডরের রানিং ব্যালেন্স দেখুন, **View Statement** থেকে লেনদেন সময়ক্রম এবং **AP Aging Analysis** (0-30, 31-60, 61-90, 90+ দিন) দেখুন। **Export PDF Statement** দিয়ে বকেয়া স্বীকৃতি পত্র প্রিন্ট করুন।
+2. **Reports > Procurement Reports** সেকশনে গিয়ে ১৩টি পারচেজ রিপোর্ট (Supplier-wise, Item-wise, Total Value, Purchase vs Last Year, PR Status, PO Status ইত্যাদি) সার্ভার-সাইড ডাটাটেবিল ফিল্টারিং, পেজিনেশন ও এক্সপোর্ট বাটন সহ ব্যবহার করুন।
 
 ---
 ---
@@ -248,7 +248,7 @@ Create RFQs from approved requisitions to request vendor pricing.
 
 ### 4.4 Supplier Ledger, AP Aging Statement & Purchase Reports
 1. Go to **Procurement > Supplier Ledger** for running balances, transaction history, AP Aging (0-30, 31-60, 61-90, 90+ days), and printable confirmation letters (**Export PDF Statement**).
-2. Go to **Procurement > Purchase Reports** to access 13 enterprise reports with server-side DataTables filtering, pagination, and export tools (Excel, CSV, PDF, Print).
+2. Go to **Reports > Procurement Reports** to access 13 enterprise reports with server-side DataTables filtering, pagination, and export tools (Excel, CSV, PDF, Print).
 
 ---
 
