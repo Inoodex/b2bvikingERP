@@ -22,6 +22,7 @@ class DashboardController extends Controller
 
         // Initialize all variables with default values to prevent "Undefined variable" errors in view
         $totalActiveProducts = $totalInactiveProducts = $totalProducts = $totalIssues = $pendingRequests = $totalOutlets = 0;
+        $totalPurchaseOrders = $activeLcs = $totalGrns = $totalPurchaseValue = 0;
         $myTotalRequests = $myPendingRequests = 0;
         $myTotalSpent = 0;
         $recentRequests = collect();
@@ -37,6 +38,12 @@ class DashboardController extends Controller
             $totalIssues = Issue::count();
             $pendingRequests = Order::where('status', 'pending')->count();
             $totalOutlets = User::role('Outlet User')->count();
+
+            // Phase 2 Procurement Stats
+            $totalPurchaseOrders = \App\Models\Purchase::count();
+            $activeLcs = \App\Models\LetterOfCredit::count();
+            $totalGrns = \App\Models\GoodsReceipt::count();
+            $totalPurchaseValue = \App\Models\Purchase::where('status', 1)->sum('total_amount');
             
             // Recent frontend orders for Admin
             $recentRequests = Order::with('user')->orderByDesc('id')->take(5)->get();
@@ -125,7 +132,11 @@ class DashboardController extends Controller
             'issueData',
             'statusData',
             'bestSellerProducts',
-            'topCustomers'
+            'topCustomers',
+            'totalPurchaseOrders',
+            'activeLcs',
+            'totalGrns',
+            'totalPurchaseValue'
         ));
     }
 }

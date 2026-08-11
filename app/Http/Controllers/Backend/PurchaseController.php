@@ -211,30 +211,27 @@ class PurchaseController extends Controller
                 
                 $detail->save();
 
-                // Update Product Costs and Prices
+                // Update Product Costs and Prices (Initial Fallback for legacy direct purchase)
                 $product = Product::findOrFail($item['product_id']);
-                
-                // Store the total landed cost (system currency) as the purchase price
-                $product->purchase_price = $itemUnitCost;
-                
-                // Update local costs to the product record
-                $product->raw_material_cost = $rawMaterial;
-                $product->tax = $tax;
-                $product->transport_cost = $transport;
-                
-                if ($rule) {
-                    $product->price = round($itemUnitCost * (float)$rule->sale_multiplier, 2);
-                    $product->outlet_price = round($itemUnitCost * (float)$rule->outlet_multiplier, 2);
-                } else {
-                    if (isset($item['sale_price'])) {
-                        $product->price = $item['sale_price'];
+                if (empty($product->purchase_price) || $product->purchase_price <= 0) {
+                    $product->purchase_price = $itemUnitCost;
+                    $product->raw_material_cost = $rawMaterial;
+                    $product->tax = $tax;
+                    $product->transport_cost = $transport;
+                    
+                    if ($rule) {
+                        $product->price = round($itemUnitCost * (float)$rule->sale_multiplier, 2);
+                        $product->outlet_price = round($itemUnitCost * (float)$rule->outlet_multiplier, 2);
+                    } else {
+                        if (isset($item['sale_price'])) {
+                            $product->price = $item['sale_price'];
+                        }
+                        if (isset($item['outlet_price'])) {
+                            $product->outlet_price = $item['outlet_price'];
+                        }
                     }
-                    if (isset($item['outlet_price'])) {
-                        $product->outlet_price = $item['outlet_price'];
-                    }
+                    $product->save();
                 }
-                
-                $product->save();
                 
                 // Update main stock
                 // REDUNDANT - Handled by InventoryStock
@@ -632,33 +629,8 @@ class PurchaseController extends Controller
 
             $purchase = Purchase::with(['details', 'attachments'])->findOrFail($id);
 
-            // Revert Stock
-            foreach ($purchase->details as $detail) {
-                // Decrement InventoryStock
-                $variant_id = $detail->variant_id;
-                
-                $stock = \App\Models\InventoryStock::where('product_id', $detail->product_id)
-                            ->where('variant_id', $variant_id)
-                            ->where('outlet_id', 1)
-                            ->first();
-
-                if ($stock) {
-                    $stock->decrement('quantity', $detail->qty);
-                    
-                    // Add Ledger Entry for Reversal
-                    \App\Models\StockLedger::create([
-                        'product_id' => $detail->product_id,
-                        'variant_id' => $variant_id,
-                        'outlet_id' => 1,
-                        'reference_type' => 'purchase_delete',
-                        'reference_id' => $purchase->id,
-                        'in_qty' => 0,
-                        'out_qty' => $detail->qty, // Out because we are reversing a purchase (in)
-                        'balance_qty' => $stock->quantity,
-                        'date' => date('Y-m-d') 
-                    ]);
-                }
-            }
+            // Note: Stock is managed exclusively by GRN (Goods Receipts), not PO creation/deletion.
+            // Stock reversal is handled via Vendor Returns / Goods Receipts.
 
             $attachmentPaths = $purchase->attachments->pluck('file_path')->filter()->unique()->values()->all();
             if ($purchase->invoice_attachment) {

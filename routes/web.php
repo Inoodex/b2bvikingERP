@@ -258,7 +258,7 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::get('letters-of-credit', 'index')->name('letters-of-credit.index');
         Route::post('letters-of-credit', 'store')->name('letters-of-credit.store');
         Route::get('letters-of-credit/{id}', 'show')->name('letters-of-credit.show');
-        Route::post('letters-of-credit/{id}/amendments', 'storeAmendment')->name('letters-of-credit.amendments.store');
+        Route::post('letters-of-credit/{id}/amendments', 'addAmendment')->name('letters-of-credit.amendments.store');
     });
 
     /** Phase 2 Step 3: Shipment, SIT, GRN, Landed Cost & Vendor Return Routes */
@@ -291,6 +291,8 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::get('vendor-returns/create', 'create')->name('vendor-returns.create');
         Route::post('vendor-returns', 'store')->name('vendor-returns.store');
         Route::get('vendor-returns/{id}', 'show')->name('vendor-returns.show');
+        Route::post('vendor-returns/settle-replacement', 'settleReplacement')->name('vendor-returns.settle-replacement');
+        Route::post('vendor-returns/settle-refund', 'settleRefund')->name('vendor-returns.settle-refund');
     });
 
     /** Booking Routes */
@@ -500,9 +502,7 @@ Route::controller(BackendAccountController::class)->group(function () {
     Route::get('purchase-payments/{purchase_payment}/pdf', [PurchasePaymentController::class, 'streamPdf'])->name('purchase-payments.pdf');
     Route::resource('purchase-payments', PurchasePaymentController::class)->only(['index', 'create', 'store', 'show']);
 
-    Route::post('vendor-returns/settle-replacement', [VendorReturnController::class, 'settleReplacement'])->name('vendor-returns.settle-replacement');
-    Route::post('vendor-returns/settle-refund', [VendorReturnController::class, 'settleRefund'])->name('vendor-returns.settle-refund');
-    Route::resource('vendor-returns', VendorReturnController::class)->only(['index', 'create', 'store', 'show']);
+
 
     Route::controller(VendorLedgerController::class)->prefix('vendor-ledger')->name('vendor-ledger.')->group(function () {
         Route::get('/', 'index')->name('index');

@@ -14,6 +14,54 @@
     </div>
 
     <div class="section-body">
+        <div class="row">
+            <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1 shadow-sm">
+                    <div class="card-icon bg-primary">
+                        <i class="fas fa-file-download"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>PR Received (Total)</h4>
+                        </div>
+                        <div class="card-body font-weight-bold">
+                            {{ number_format($prData['received_pr_count'] ?? 0) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1 shadow-sm">
+                    <div class="card-icon bg-warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>PR Pending Approval</h4>
+                        </div>
+                        <div class="card-body font-weight-bold">
+                            {{ number_format($prData['pending_pr_count'] ?? 0) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1 shadow-sm">
+                    <div class="card-icon bg-danger">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Items Pending in PR</h4>
+                        </div>
+                        <div class="card-body font-weight-bold">
+                            {{ number_format($prData['items_pending_count'] ?? 0) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card card-primary">
             <div class="card-header">
                 <h4>Pending Purchase Requisitions Overview</h4>

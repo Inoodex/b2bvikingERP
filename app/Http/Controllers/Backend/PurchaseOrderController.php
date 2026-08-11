@@ -164,21 +164,10 @@ class PurchaseOrderController extends Controller
             return redirect()->back();
         }
 
-        dispatch(function () use ($po) {
-            try {
-                \Illuminate\Support\Facades\Mail::to($po->vendor->email)->send(new \App\Mail\PoNotificationMail($po, $po->vendor));
-                $po->emailLogs()->create([
-                    'recipient_email' => $po->vendor->email,
-                    'status' => 'sent',
-                    'sent_at' => now(),
-                ]);
-                $po->update(['milestone_status' => 'po_sent']);
-            } catch (\Exception $e) {
-                // Log failure
-            }
-        })->afterResponse();
+        \App\Jobs\SendPoEmailJob::dispatch($po, $po->vendor->email, 'PO Email Notification to Supplier');
+        $po->update(['milestone_status' => 'po_sent']);
 
-        Toastr::success('PO Email has been sent to supplier background queue!');
+        Toastr::success('PO Email job has been dispatched to background queue!');
         return redirect()->back();
     }
 

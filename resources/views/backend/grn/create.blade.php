@@ -101,6 +101,41 @@
                         </div>
                     </div>
 
+                    <!-- Quality Control (QC) Inspection Verification Checklist -->
+                    <div class="card bg-light border-primary mt-3 mb-3">
+                        <div class="card-body py-3">
+                            <h6 class="font-weight-bold text-primary mb-2">
+                                <i class="fas fa-microscope mr-1"></i> Quality Control (QC) Inspection Checklist (Verify before receiving)
+                            </h6>
+                            <div class="row text-dark">
+                                <div class="col-md-4">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="qc_chk_physical" checked>
+                                        <label class="custom-control-label font-weight-600" for="qc_chk_physical">
+                                            <i class="fas fa-shield-alt text-success mr-1"></i> Physical Damage Check Passed
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="qc_chk_spec" checked>
+                                        <label class="custom-control-label font-weight-600" for="qc_chk_spec">
+                                            <i class="fas fa-tasks text-success mr-1"></i> Specification & Brand Verified
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="qc_chk_doc" checked>
+                                        <label class="custom-control-label font-weight-600" for="qc_chk_doc">
+                                            <i class="fas fa-file-invoice text-success mr-1"></i> Invoice & Waybill Verified
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="table-responsive mt-3">
                         <table class="table table-bordered table-hover">
                             <thead class="bg-light text-dark">

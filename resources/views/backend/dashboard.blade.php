@@ -109,6 +109,68 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- Phase 2 Procurement Stat Cards --}}
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="card card-statistic-1 shadow-sm">
+                        <div class="card-icon bg-primary">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div class="card-wrap">
+                            <div class="card-header">
+                                <h4>Purchase Orders</h4>
+                            </div>
+                            <div class="card-body">
+                                {{ number_format($totalPurchaseOrders) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="card card-statistic-1 shadow-sm">
+                        <div class="card-icon bg-info">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="card-wrap">
+                            <div class="card-header">
+                                <h4>LC Register</h4>
+                            </div>
+                            <div class="card-body">
+                                {{ number_format($activeLcs) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="card card-statistic-1 shadow-sm">
+                        <div class="card-icon bg-success">
+                            <i class="fas fa-dolly"></i>
+                        </div>
+                        <div class="card-wrap">
+                            <div class="card-header">
+                                <h4>Goods Receipts (GRN)</h4>
+                            </div>
+                            <div class="card-body">
+                                {{ number_format($totalGrns) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="card card-statistic-1 shadow-sm">
+                        <div class="card-icon bg-dark">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="card-wrap">
+                            <div class="card-header">
+                                <h4>Purchase Value</h4>
+                            </div>
+                            <div class="card-body font-weight-bold text-primary" style="font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="kr. {{ number_format($totalPurchaseValue, 2) }}">
+                                kr. {{ number_format($totalPurchaseValue, 2) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                     <div class="card card-statistic-1 shadow-sm">
                         <div class="card-icon bg-success">

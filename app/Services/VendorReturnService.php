@@ -26,12 +26,35 @@ class VendorReturnService
 
             $qty = (float) $data['qty'];
 
-            // 1. Increment warehouse stock for the replacement item
+            // 1. Increment warehouse stock for the replacement item in central inventory tables
             if ($variant) {
                 $variant->increment('qty', $qty);
             } else {
                 $product->increment('qty', $qty);
             }
+
+            $outletId = 1;
+            $stock = \App\Models\InventoryStock::firstOrCreate([
+                'outlet_id'  => $outletId,
+                'product_id' => $product->id,
+                'variant_id' => $variant?->id,
+            ], [
+                'quantity' => 0,
+            ]);
+
+            $stock->increment('quantity', $qty);
+
+            \App\Models\StockLedger::create([
+                'product_id'     => $product->id,
+                'variant_id'     => $variant?->id,
+                'outlet_id'      => $outletId,
+                'reference_type' => 'debit_note_replacement',
+                'reference_id'   => $return->id,
+                'in_qty'         => $qty,
+                'out_qty'        => 0,
+                'balance_qty'    => $stock->quantity,
+                'date'           => now()->format('Y-m-d'),
+            ]);
 
             // 2. Mark Debit Note as settled via product replacement
             $return->update([
