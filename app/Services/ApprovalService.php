@@ -72,10 +72,10 @@ class ApprovalService
             return false;
         }
 
-        // Admin / Super Admin can always approve
-        if ($user->hasRole('Admin') || $user->hasRole('Super Admin') || $user->hasRole('Root Super Admin')) {
-            return true;
-        }
+        // OPTIONAL ADMIN OVERRIDE (Commented out for strict dynamic workflow enforcement):
+        // if ($user->hasRole('Admin') || $user->hasRole('Super Admin') || $user->hasRole('Root Super Admin')) {
+        //     return true;
+        // }
 
         $modelType = get_class($model);
         $currentApproval = Approval::where('approvable_type', $modelType)
