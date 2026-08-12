@@ -36,7 +36,7 @@
                                     <option value="">-- Select PO --</option>
                                     @foreach($purchases as $p)
                                         <option value="{{ $p->id }}" data-vendor="{{ $p->vendor_id }}" data-due="{{ $p->due_amount }}" {{ ($purchase && $purchase->id == $p->id) ? 'selected' : '' }}>
-                                            {{ $p->po_no }} (Vendor: {{ $p->vendor?->name }} | Due: ${{ number_format($p->due_amount, 2) }})
+                                            {{ $p->po_no }} (Vendor: {{ $p->vendor?->name }} | Due: {{ $p->currency?->symbol ?? 'kr.' }}{{ number_format($p->due_amount, 2) }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -136,18 +136,35 @@
                             <h4><i class="fas fa-file-invoice text-info mr-2"></i> Target Bill Information</h4>
                         </div>
                         <div class="card-body">
+                            @php
+                                $billRate = $vendorBill->purchase?->exchange_rate_used ?? $vendorBill->currency?->exchange_rate ?? $vendorBill->exchange_rate ?? 1;
+                                $baseCurrencySymbol = $settings->currency_icon ?? 'kr.';
+                                $isForeignBill = $vendorBill->currency_id && ($vendorBill->currency?->code !== 'DKK');
+                            @endphp
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item d-flex justify-content-between">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <strong>Bill No:</strong> <code>{{ $vendorBill->bill_no }}</code>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <strong>Grand Total:</strong> {{ $vendorBill->currency?->symbol ?? ($settings->currency_icon ?? 'Kr.') }}{{ number_format($vendorBill->grand_total, 2) }}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <strong>Grand Total:</strong>
+                                    <div class="text-right">
+                                        <div>{{ $vendorBill->currency?->symbol ?? ($settings->currency_icon ?? 'kr.') }}{{ number_format($vendorBill->grand_total, 2) }}</div>
+                                        @if($isForeignBill && $billRate > 0)
+                                            <div class="text-muted small font-weight-bold" style="font-size: 11px;">(≈ {{ $baseCurrencySymbol }}{{ number_format($vendorBill->grand_total * $billRate, 2) }} Base)</div>
+                                        @endif
+                                    </div>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <strong>Already Paid:</strong> {{ $vendorBill->currency?->symbol ?? ($settings->currency_icon ?? 'Kr.') }}{{ number_format($vendorBill->paid_amount, 2) }}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <strong>Already Paid:</strong> {{ $vendorBill->currency?->symbol ?? ($settings->currency_icon ?? 'kr.') }}{{ number_format($vendorBill->paid_amount, 2) }}
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between text-danger font-weight-bold">
-                                    <strong>Current Due:</strong> {{ $vendorBill->currency?->symbol ?? ($settings->currency_icon ?? 'Kr.') }}{{ number_format($vendorBill->due_amount, 2) }}
+                                <li class="list-group-item d-flex justify-content-between text-danger font-weight-bold align-items-center">
+                                    <strong>Current Due:</strong>
+                                    <div class="text-right">
+                                        <div>{{ $vendorBill->currency?->symbol ?? ($settings->currency_icon ?? 'kr.') }}{{ number_format($vendorBill->due_amount, 2) }}</div>
+                                        @if($isForeignBill && $billRate > 0)
+                                            <div class="text-muted small font-weight-bold" style="font-size: 11px;">(≈ {{ $baseCurrencySymbol }}{{ number_format($vendorBill->due_amount * $billRate, 2) }} Base)</div>
+                                        @endif
+                                    </div>
                                 </li>
                             </ul>
                         </div>
