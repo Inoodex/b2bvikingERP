@@ -60,6 +60,51 @@ class ApprovalService
     }
 
     /**
+     * Check if a specific user can initiate/generate a document based on Step 1 of active workflow.
+     */
+    public function canUserInitiateDocument(string $modelType, ?\App\Models\User $user = null): bool
+    {
+        if (!$user) {
+            $user = \Illuminate\Support\Facades\Auth::user();
+        }
+
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->hasRole('Admin') || $user->hasRole('Super Admin') || $user->hasRole('Root Super Admin')) {
+            return true;
+        }
+
+        $workflow = ApprovalWorkflow::active()
+            ->where('model_type', $modelType)
+            ->with(['steps' => function ($q) {
+                $q->orderBy('step_order', 'asc');
+            }])
+            ->first();
+
+        // If no active workflow is defined for this model, anyone can initiate
+        if (!$workflow || $workflow->steps->isEmpty()) {
+            return true;
+        }
+
+        $firstStep = $workflow->steps->first();
+
+        if ($firstStep->approver_user_id && (int)$firstStep->approver_user_id === (int)$user->id) {
+            return true;
+        }
+
+        if ($firstStep->approver_role_id) {
+            $role = \Spatie\Permission\Models\Role::find($firstStep->approver_role_id);
+            if ($role && $user->hasRole($role->name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Check if a specific user can approve the current pending step of a model.
      */
     public function canUserApproveCurrentStep(Model $model, ?\App\Models\User $user = null): bool
@@ -73,9 +118,9 @@ class ApprovalService
         }
 
         // OPTIONAL ADMIN OVERRIDE (Commented out for strict dynamic workflow enforcement):
-        // if ($user->hasRole('Admin') || $user->hasRole('Super Admin') || $user->hasRole('Root Super Admin')) {
-        //     return true;
-        // }
+        if ($user->hasRole('Admin') || $user->hasRole('Super Admin') || $user->hasRole('Root Super Admin')) {
+            return true;
+        }
 
         $modelType = get_class($model);
         $currentApproval = Approval::where('approvable_type', $modelType)

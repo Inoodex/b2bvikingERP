@@ -118,8 +118,9 @@
                     <a href="{{ route('admin.rfqs.edit', $rfq->id) }}" class="btn btn-warning btn-sm font-weight-bold mr-1"><i class="fas fa-edit mr-1"></i> Edit RFQ</a>
                     <form action="{{ route('admin.rfqs.send-emails', $rfq->id) }}" method="POST" class="d-inline">
                         @csrf
-                        <button type="submit" class="btn btn-primary btn-sm font-weight-bold"><i class="fas fa-paper-plane mr-1"></i> Send RFQ Email</button>
+                        <button type="submit" class="btn btn-primary btn-sm font-weight-bold mr-1"><i class="fas fa-paper-plane mr-1"></i> Send RFQ Email</button>
                     </form>
+                    <a href="{{ route('admin.rfqs.cs.create', $rfq->id) }}" class="btn btn-info btn-sm font-weight-bold"><i class="fas fa-table mr-1"></i> CS Matrix</a>
                 </div>
             </div>
         </div>
@@ -236,27 +237,11 @@
                             <a href="{{ route('admin.rfqs.cs.pdf.view', ['rfq' => $rfq->id, 'cs' => $cs->id]) }}" target="_blank" class="btn btn-sm btn-danger mr-1"><i class="fas fa-eye mr-1"></i>CS PDF</a>
                             <a href="{{ route('admin.rfqs.cs.pdf', ['rfq' => $rfq->id, 'cs' => $cs->id]) }}" class="btn btn-sm btn-outline-danger mr-1"><i class="fas fa-download mr-1"></i>PDF</a>
                             <a href="{{ route('admin.rfqs.cs.create', $rfq->id) }}" class="btn btn-sm btn-primary mr-1"><i class="fas fa-table mr-1"></i> CS Matrix</a>
-                            @if($cs->approval_status === 'approved')
-                                <form action="{{ route('admin.purchase-orders.generate-from-cs', $cs->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-success font-weight-bold"><i class="fas fa-file-invoice mr-1"></i> Generate PO</button>
-                                </form>
-                            @elseif($cs->approval_status === 'pending' || $cs->approval_status === 'draft')
-                                @php
-                                    $canApprove = (new \App\Services\ApprovalService())->canUserApproveCurrentStep($cs);
-                                @endphp
-                                @if($canApprove)
-                                    <form action="{{ route('admin.rfqs.cs.approve', $cs->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i> Approve CS</button>
-                                    </form>
-                                @endif
-                            @endif
                         </div>
                     </div>
                     <div class="card-body py-3 px-4">
                         <div class="row align-items-center">
-                            <div class="col-lg-5 col-md-5 mb-2 mb-md-0 border-right">
+                            <div class="col-lg-4 col-md-4 mb-2 mb-md-0 border-right">
                                 <small class="text-muted font-weight-bold text-uppercase d-block" style="font-size: 10px;">Award Strategy & Recommended Winner</small>
                                 <div class="mt-1">
                                     @if($cs->recommendedVendor)
@@ -268,37 +253,73 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="col-lg-4 col-md-4 mb-2 mb-md-0 border-right">
+                            <div class="col-lg-3 col-md-3 mb-2 mb-md-0 border-right">
                                 <small class="text-muted font-weight-bold text-uppercase d-block" style="font-size: 10px;">Total Evaluated Value</small>
                                 <div class="mt-1 font-weight-bold text-primary h4 mb-0" style="font-size: 20px;">
                                     kr.{{ number_format($cs->total_amount, 2) }}
                                 </div>
                             </div>
-                            <div class="col-lg-3 col-md-3">
-                                <small class="text-muted font-weight-bold text-uppercase d-block" style="font-size: 10px;">Approval Status</small>
-                                <div class="mt-1">
+                            <div class="col-lg-5 col-md-5">
+                                <small class="text-muted font-weight-bold text-uppercase d-block style="font-size: 10px;">Approval & Action Status</small>
+                                <div class="mt-1 d-flex align-items-center flex-wrap" style="gap: 8px;">
                                     @if($cs->approval_status === 'approved')
-                                        <span class="badge badge-success px-3 py-1 font-weight-bold"><i class="fas fa-check-circle mr-1"></i> Fully Approved</span>
+                                        <span class="badge badge-success px-3 py-2 font-weight-bold" style="border-radius: 6px;"><i class="fas fa-check-circle mr-1"></i> Fully Approved</span>
+                                        @php
+                                            $canInitiatePo = (new \App\Services\ApprovalService())->canUserInitiateDocument(\App\Models\Purchase::class);
+                                        @endphp
+                                        @if($canInitiatePo)
+                                            <form action="{{ route('admin.purchase-orders.generate-from-cs', $cs->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-success font-weight-bold px-3 shadow-sm"><i class="fas fa-file-invoice mr-1"></i> Generate PO</button>
+                                            </form>
+                                        @else
+                                            <span class="badge badge-warning px-3 py-2 text-dark font-weight-bold" style="border-radius: 6px;" title="Only assigned Step 1 approver can generate PO">
+                                                <i class="fas fa-clock mr-1"></i> ⏳ Waiting for PO Generation by Step 1 Approver
+                                            </span>
+                                        @endif
                                     @elseif($cs->approval_status === 'rejected')
-                                        <span class="badge badge-danger px-3 py-1 font-weight-bold"><i class="fas fa-times-circle mr-1"></i> Rejected</span>
+                                        <span class="badge badge-danger px-3 py-2 font-weight-bold" style="border-radius: 6px;"><i class="fas fa-times-circle mr-1"></i> Rejected</span>
                                     @else
-                                        <span class="badge badge-warning px-3 py-1 text-dark font-weight-bold"><i class="fas fa-clock mr-1"></i> Pending Approval</span>
+                                        @php
+                                            $canApprove = (new \App\Services\ApprovalService())->canUserApproveCurrentStep($cs);
+                                            $pendingApproval = $cs->approvals->where('status', 'pending')->first();
+                                            $pendingRoleOrUser = $pendingApproval->step->approverRole->name ?? $pendingApproval->step->approverUser->name ?? 'Approver';
+                                            $pendingStepName = $pendingApproval->step->step_name ?? 'Step 1';
+                                        @endphp
+                                        @if($canApprove)
+                                            <form action="{{ route('admin.rfqs.cs.approve', $cs->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-success font-weight-bold px-3 shadow-sm"><i class="fas fa-check-circle mr-1"></i> Approve CS</button>
+                                            </form>
+                                        @else
+                                            <span class="badge badge-warning px-3 py-2 text-dark font-weight-bold" style="border-radius: 6px;">
+                                                <i class="fas fa-clock mr-1"></i> ⏳ Waiting for Approval: {{ $pendingStepName }} ({{ $pendingRoleOrUser }})
+                                            </span>
+                                        @endif
                                     @endif
                                 </div>
                             </div>
                         </div>
                         @if($cs->approvals && $cs->approvals->count() > 0)
+                            @php
+                                $firstStep = $cs->approvals->first()->step ?? null;
+                                $workflow = $firstStep ? \App\Models\ApprovalWorkflow::find($firstStep->approval_workflow_id) : null;
+                                $workflowName = $workflow->name ?? 'Standard Approval Chain';
+                            @endphp
                             <div class="border-top pt-2 mt-2">
                                 <small class="text-warning font-weight-bold d-block mb-1">
-                                    <i class="fas fa-layer-group mr-1"></i> Approval Progress Chain:
+                                    <i class="fas fa-sitemap mr-1"></i> Approval Workflow Chain: <span class="text-dark font-weight-bold">{{ $workflowName }}</span>
                                 </small>
                                 @foreach($cs->approvals as $app)
+                                    @php
+                                        $stepRoleOrUser = $app->step->approverRole->name ?? $app->step->approverUser->name ?? 'Assigned Approver';
+                                        $stepLabel = $app->step->step_name ? ($app->step->step_name . ' (' . $stepRoleOrUser . ')') : ('Step ' . ($app->step->step_order ?? 1) . ' (' . $stepRoleOrUser . ')');
+                                    @endphp
                                     <span class="badge badge-light border text-dark mr-1 mb-1" style="font-size: 11px;">
-                                        {{ $app->step->step_name ?? 'Step' }}: 
+                                        {{ $stepLabel }}: 
                                         <strong class="{{ $app->status === 'approved' ? 'text-success' : ($app->status === 'rejected' ? 'text-danger' : 'text-warning') }}">
                                             {{ strtoupper($app->status) }}
                                         </strong> 
-                                        <span class="text-muted">({{ $app->step->approverRole->name ?? $app->step->approverUser->name ?? 'Approver' }})</span>
                                     </span>
                                 @endforeach
                             </div>

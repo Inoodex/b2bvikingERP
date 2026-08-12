@@ -1,101 +1,82 @@
-# Master Implementation Plan: Enterprise Approval Workflow Enforcement (All Modules)
+# Master Enterprise Implementation Plan: Dynamic Approval Workflows (Pure Workflow Engine)
 
-This plan details the comprehensive fixes and security enhancements required to make the Approval Workflow System 100% dynamic, secure, and strictly enforced across **all 6 modules**: `Requisition (SR/PR)`, `Comparison Statement (CS)`, `Purchase Order (PO)`, `Import Letter of Credit (LC)`, `Vendor Return / Debit Note`, and `Stock Transfer`.
+This document outlines the strict, pure **Approval Workflow Integration Plan** for all Phase 2 target modules (`Requisition / PR`, `Comparison Statement / CS`, `Purchase Order / PO`, `Stock Transfer`, `Import LC`, `Vendor Return / Debit Note`).
 
----
-
-## 🎯 Root Cause Audit Findings (All Modules)
-
-### 1. Requisition (SR / PR - ProductRequest & Order)
-- **Problem A:** `ProductRequestController@store` hardcoded `$productRequest->status = 'approved'` upon creation, bypassing the workflow entirely.
-- **Problem B:** `product-request/show.blade.php` contained a manual dropdown `<select name="status">` allowing any user (such as `manager@example.com`) to manually select `Approve` without checking if `canUserApproveCurrentStep()` was satisfied.
-
-### 2. Comparison Statement (CS)
-- **Problem A:** `ComparisonStatementController@store` and `approve` had no permission checks.
-- **Problem B:** `rfq/show.blade.php` displayed the `Generate PO` button to anyone if CS status was `approved`, without verifying if the user has `Create Purchase Orders` / `Manage Purchases` permission.
-- **Problem C:** `PurchaseOrderController@generateFromCs` allowed any user to trigger PO generation without backend permission checks.
-
-### 3. Purchase Order (PO)
-- **Problem A:** `po_show.blade.php` did not render the `Approve PO` button or status check.
-- **Problem B:** `po_show.blade.php` rendered action buttons (`Shipment`, `Receive Goods`, `Landed Cost`) even when PO `approval_status` was `pending`!
-- **Problem C:** Any user could click `Shipment` or `Receive Goods` on a pending PO.
-
-### 4. Internal Stock Transfer (StockTransfer)
-- **Problem:** Status transitions from `pending` to `completed` in `StockTransferController` and `stock_transfers/show.blade.php` did not enforce `ApprovalService` step matching.
-
-### 5. Import LC & Vendor Return (Debit Note)
-- **Problem:** `LetterOfCreditController@store` and `VendorReturnController@store` did not invoke `submitForApproval()`, allowing them to bypass workflow enforcement.
+> [!IMPORTANT]
+> **Strict Architecture Principle**: Zero static Spatie permission wrappers. All authorization, document locking, and step progression will be driven **100% dynamically** by the `Approval Workflow` database rules (`approval_workflows`, `approval_steps`, `approvals`).
 
 ---
 
-## 📋 Proposed Master Changes (Component by Component)
+## 🎯 Current Database Workflow Status Audit
 
-### Component 1: `app/Services/ApprovalService.php` & Backend Controllers
-
-#### [MODIFY] [ApprovalService.php](file:///c:/laragon/www/b2bvikingErp/app/Services/ApprovalService.php)
-- Enforce strict authorization in `approveStep()` and `rejectStep()` checking `canUserApproveCurrentStep()`.
-- If no workflow is active, auto-approve the document (`approval_status = 'approved'`).
-
-#### [MODIFY] [ProductRequestController.php](file:///c:/laragon/www/b2bvikingErp/app/Http/Controllers/Backend/ProductRequestController.php)
-- Remove hardcoded `status = 'approved'` on creation; call `submitForApproval()`.
-- Require `canUserApproveCurrentStep()` check on status update.
-
-#### [MODIFY] [PurchaseOrderController.php](file:///c:/laragon/www/b2bvikingErp/app/Http/Controllers/Backend/PurchaseOrderController.php)
-- Guard `generateFromCs` and PO creation with `Auth::user()->can('Create Purchase Orders')` or `Admin` role check.
-- Connect PO approval route (`admin.purchase-orders.approve`).
-
-#### [MODIFY] [StockTransferController.php](file:///c:/laragon/www/b2bvikingErp/app/Http/Controllers/Backend/StockTransferController.php)
-- Connect `submitForApproval()` and enforce step approval check on transfer completion.
-
-#### [MODIFY] [LetterOfCreditController.php](file:///c:/laragon/www/b2bvikingErp/app/Http/Controllers/Backend/LetterOfCreditController.php)
-- Connect `submitForApproval()` on LC creation and enforce step approval checks.
-
-#### [MODIFY] [VendorReturnController.php](file:///c:/laragon/www/b2bvikingErp/app/Http/Controllers/Backend/VendorReturnController.php)
-- Connect `submitForApproval()` on Debit Note creation and enforce step approval checks.
+| Workflow ID | Module Target | Document Type | Step 1 Approver | Step 2 Approver | Min/Max Amount Rule |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **#4** | `App\Models\Order` | Requisition / Order | `Role #6` (Manager) | `Role #1` (Admin) | Min Amount: 5,000 |
+| **#5** | `App\Models\ComparisonStatement` | Comparison Statement (CS) | `Role #1` / `User #1` (Admin) | N/A | Min Amount: 0 (All CS) |
+| **#6** | `App\Models\Purchase` | Purchase Order (PO) | `Role #1` / `User #1` (Admin) | N/A | Min Amount: 0 (All POs) |
 
 ---
 
-### Component 2: Blade Views & UI Action Guards
+## 📋 Pure Workflow Enforcing Architecture (Component by Component)
 
-#### [MODIFY] [rfq/show.blade.php](file:///c:/laragon/www/b2bvikingErp/resources/views/backend/rfq/show.blade.php)
-- `Approve CS` button: Visible ONLY to assigned step approver / Admin.
-- `Generate PO` button: Visible ONLY when CS is `approved` AND user has `Create Purchase Orders` / `Admin` permission.
-- Non-approvers see: `⏳ Waiting for Approval: Step X (Role Name)`.
+### Component 1: Centralized Service & Backend Authorization (`ApprovalService.php`)
 
-#### [MODIFY] [purchase/po_show.blade.php](file:///c:/laragon/www/b2bvikingErp/resources/views/backend/purchase/po_show.blade.php)
-- Lock `Shipment`, `Receive Goods`, `Landed Cost` buttons when PO `approval_status !== 'approved'`.
-- Render `Approve PO` button ONLY for assigned step approver / Admin.
-- Non-approvers see: `⏳ Waiting for Approval: Step X (Role Name)`.
+#### 1. Strict Step Authorization Check (`canUserApproveCurrentStep`)
+- Query active pending step in `approvals` table for `$model`.
+- Return `true` **ONLY if** the logged-in user matches `approver_user_id` OR has `approver_role_id` assigned to that specific active step.
+- **No hardcoded role overrides** (`Admin` role bypass is strictly commented out).
 
-#### [MODIFY] [product-request/show.blade.php](file:///c:/laragon/www/b2bvikingErp/resources/views/backend/product-request/show.blade.php)
-- Replace manual status dropdown with gated `Approve Requisition` button visible ONLY to assigned step approver.
-
-#### [MODIFY] [stock_transfers/show.blade.php](file:///c:/laragon/www/b2bvikingErp/resources/views/backend/stock_transfers/show.blade.php)
-- Lock completion buttons until step approval is satisfied.
+#### 2. Workflow Submission Fallback (`submitForApproval`)
+- If an active `ApprovalWorkflow` rule exists for `$model`:
+  - Set `$model->approval_status = 'pending'`.
+  - Create initial pending entry in `approvals` table for `Step 1`.
+- If NO active `ApprovalWorkflow` exists:
+  - Auto-approve the model (`$model->approval_status = 'approved'`).
 
 ---
 
-## 🧪 Comprehensive Verification Plan
+### Component 2: Module-by-Module Integration & UI Locking
 
-### Manual UI Verification Steps
+#### 1. Requisition (SR / PR - `ProductRequest`)
+- **Creation (`ProductRequestController@store`)**: Set initial status `$productRequest->status = 'pending'` and invoke `$approvalService->submitForApproval($productRequest)`.
+- **View (`product-request/show.blade.php`)**:
+  - If `canUserApproveCurrentStep($productRequest)` is `true`: Display `Approve Requisition` action button.
+  - If `false`: Hide approval button and display `⏳ Waiting for Approval: Step X (Role Name)`.
+  - Disable manual status change dropdowns.
 
-1. **Test Requisition (SR/PR):**
-   - Create PR as Manager -> Verify status is `pending` and manual dropdown is removed.
-   - Log in as Admin -> Verify `Approve Requisition` button is visible and works.
+#### 2. Comparison Statement (CS)
+- **Creation (`ComparisonStatementController@store`)**: Automatically submits generated CS to `$approvalService->submitForApproval($cs)`.
+- **View (`rfq/show.blade.php`)**:
+  - `Approve CS` button: Rendered **ONLY** if `canUserApproveCurrentStep($cs)` returns `true`.
+  - `Generate PO` button: Rendered **ONLY** if `$cs->approval_status === 'approved'`. (If pending, button is completely hidden).
+  - Non-approvers see: `⏳ Waiting for Approval: Step X (Role Name)`.
 
-2. **Test CS & PO Generation:**
-   - Create CS -> Verify status is `pending`.
-   - Log in as Manager (`manager@example.com`) -> Verify `Approve CS` and `Generate PO` buttons are **hidden**.
-   - Log in as Admin -> Approve CS -> Verify `Generate PO` button is visible for Admin.
+#### 3. Purchase Order (PO)
+- **Creation (`PurchaseOrderController@generateFromCs`)**: When generated from an approved CS, invoke `$approvalService->submitForApproval($po)`.
+- **Approval Route (`PurchaseOrderController@approve`)**: Calls `$approvalService->approveStep($po, Auth::id())`.
+- **View (`purchase/po_show.blade.php`)**:
+  - `Approve PO` button: Rendered **ONLY** if `canUserApproveCurrentStep($po)` returns `true`.
+  - Downstream Actions (`Shipment`, `Receive Goods / GRN`, `Landed Cost`): **LOCKED & DISABLED** until `$po->approval_status === 'approved'`.
+  - Non-approvers see: `⏳ Waiting for Approval: Step X (Role Name)`.
 
-3. **Test Purchase Order (PO) Locking:**
+#### 4. Import LC, Debit Note & Stock Transfer
+- Connect `submitForApproval()` on creation and enforce `canUserApproveCurrentStep()` on status completion.
+
+---
+
+## 🧪 Verification & Live Testing Plan
+
+1. **Requisition Test (SR/PR):**
+   - Submit PR -> Verify status is `pending` in DB.
+   - Log in as Manager -> Verify status banner shows `⏳ Waiting for Approval`.
+   - Log in as Admin (Assigned Approver) -> Click `Approve Requisition` -> Verify status becomes `approved`.
+
+2. **CS & PO Test:**
+   - Generate CS -> Verify status is `pending`.
+   - Log in as Manager (`manager@example.com`) -> Verify `Approve CS` and `Generate PO` buttons are **hidden**, and banner `⏳ Waiting for Approval: Step 1 (Admin)` is shown.
+   - Log in as Admin -> Click `Approve CS` -> Verify CS status becomes `approved` and `Generate PO` button appears.
+
+3. **PO Locking Test:**
    - Generate PO -> Status becomes `pending`.
    - Log in as Manager -> Verify `Shipment`, `Receive Goods`, and `Landed Cost` buttons are **LOCKED / DISABLED**.
-   - Log in as Admin -> Click `Approve PO` -> Verify status becomes `approved` and action buttons are unlocked.
-
-4. **Test Stock Transfer, LC, Debit Notes:**
-   - Create Transfer / LC / Debit Note -> Verify workflow approval chain is enforced.
-
-
-
-
+   - Log in as Admin -> Click `Approve PO` -> Verify status becomes `approved` and downstream action buttons unlock.

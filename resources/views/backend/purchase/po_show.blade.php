@@ -89,31 +89,57 @@
 
             <div class="pt-3 border-top d-flex justify-content-between align-items-center flex-wrap" style="gap: 12px;">
                 <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
-                    <span class="badge badge-success py-2 px-3 font-weight-bold" style="font-size: 12px; border-radius: 6px;"><i class="fas fa-check-circle mr-1"></i> {{ ucfirst($po->approval_status ?? 'Approved') }}</span>
+                    @php
+                        $isPoApproved = ($po->approval_status === 'approved');
+                        $canApprovePo = (new \App\Services\ApprovalService())->canUserApproveCurrentStep($po);
+                        $pendingPoApproval = $po->approvals->where('status', 'pending')->first();
+                        $pendingPoRoleOrUser = $pendingPoApproval->step->approverRole->name ?? $pendingPoApproval->step->approverUser->name ?? 'Approver';
+                        $pendingPoStepName = $pendingPoApproval->step->step_name ?? 'Step 1';
+                    @endphp
+                    
+                    @if($isPoApproved)
+                        <span class="badge badge-success py-2 px-3 font-weight-bold" style="font-size: 12px; border-radius: 6px;"><i class="fas fa-check-circle mr-1"></i> Fully Approved</span>
+                    @elseif($po->approval_status === 'rejected')
+                        <span class="badge badge-danger py-2 px-3 font-weight-bold" style="font-size: 12px; border-radius: 6px;"><i class="fas fa-times-circle mr-1"></i> Rejected</span>
+                    @else
+                        @if($canApprovePo)
+                            <form action="{{ route('admin.purchase-orders.approve', $po->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-success font-weight-bold shadow-sm px-3"><i class="fas fa-check-circle mr-1"></i> Approve PO</button>
+                            </form>
+                        @else
+                            <span class="badge badge-warning py-2 px-3 text-dark font-weight-bold" style="font-size: 12px; border-radius: 6px;">
+                                <i class="fas fa-clock mr-1"></i> ⏳ Waiting for Approval: {{ $pendingPoStepName }} ({{ $pendingPoRoleOrUser }})
+                            </span>
+                        @endif
+                    @endif
+
                     <span class="badge badge-info py-2 px-3 font-weight-bold" style="font-size: 12px; border-radius: 6px;"><i class="fas fa-globe mr-1"></i> {{ strtoupper($po->purchase_type ?? 'LOCAL') }} PURCHASE</span>
                 </div>
 
                 <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
-                    <!-- Primary Workflow Actions -->
-                    <div class="btn-group" role="group">
-                        <a href="{{ route('admin.shipments.create', ['purchase_id' => $po->id]) }}" class="btn btn-info btn-sm font-weight-bold"><i class="fas fa-ship mr-1"></i> Shipment</a>
-                        
-                        @php
-                            $isForeign = strtolower($po->purchase_type ?? 'local') === 'foreign';
-                            $hasClearedShipment = $po->shipments()->where('status', 'cleared')->exists();
-                            $canReceive = !$isForeign || $hasClearedShipment;
-                        @endphp
+                    <!-- Primary Workflow Actions (Unlocked only when PO is Fully Approved) -->
+                    @if($isPoApproved)
+                        <div class="btn-group" role="group">
+                            <a href="{{ route('admin.shipments.create', ['purchase_id' => $po->id]) }}" class="btn btn-info btn-sm font-weight-bold"><i class="fas fa-ship mr-1"></i> Shipment</a>
+                            
+                            @php
+                                $isForeign = strtolower($po->purchase_type ?? 'local') === 'foreign';
+                                $hasClearedShipment = $po->shipments()->where('status', 'cleared')->exists();
+                                $canReceive = !$isForeign || $hasClearedShipment;
+                            @endphp
 
-                        @if($canReceive)
-                            <a href="{{ route('admin.goods-receipts.create', ['purchase_id' => $po->id]) }}" class="btn btn-success btn-sm font-weight-bold"><i class="fas fa-dolly mr-1"></i> Receive Goods</a>
-                        @else
-                            <button class="btn btn-secondary btn-sm font-weight-bold" disabled title="Shipment must be Customs Cleared before receiving goods">
-                                <i class="fas fa-lock mr-1"></i> Receive Goods (Awaiting Clearance)
-                            </button>
-                        @endif
+                            @if($canReceive)
+                                <a href="{{ route('admin.goods-receipts.create', ['purchase_id' => $po->id]) }}" class="btn btn-success btn-sm font-weight-bold"><i class="fas fa-dolly mr-1"></i> Receive Goods</a>
+                            @else
+                                <button class="btn btn-secondary btn-sm font-weight-bold" disabled title="Shipment must be Customs Cleared before receiving goods">
+                                    <i class="fas fa-lock mr-1"></i> Receive Goods (Awaiting Clearance)
+                                </button>
+                            @endif
 
-                        <a href="{{ route('admin.landed-cost.show', $po->id) }}" class="btn btn-warning btn-sm font-weight-bold text-white"><i class="fas fa-calculator mr-1"></i> Landed Cost</a>
-                    </div>
+                            <a href="{{ route('admin.landed-cost.show', $po->id) }}" class="btn btn-warning btn-sm font-weight-bold text-white"><i class="fas fa-calculator mr-1"></i> Landed Cost</a>
+                        </div>
+                    @endif
 
                     <!-- Actions Dropdown -->
                     <div class="dropdown d-inline">
@@ -145,13 +171,16 @@
             <!-- Milestone Stepper Bar -->
             @php
                 $milestones = ['draft', 'approved', 'po_sent', 'pi_attached', 'lc_opened', 'shipped', 'goods_received'];
-                $currentMilestone = $po->milestone_status ?? 'approved';
-                // Handle goods_partial as active at shipped step or before goods_received
-                if ($currentMilestone === 'goods_partial') {
-                    $currentIndex = 5; // Shipped / Receiving stage
+                if (!$isPoApproved) {
+                    $currentIndex = 0; // Draft / Pending Approval stage
                 } else {
-                    $currentIndex = array_search($currentMilestone, $milestones);
-                    if ($currentIndex === false) $currentIndex = 1;
+                    $currentMilestone = $po->milestone_status ?? 'approved';
+                    if ($currentMilestone === 'goods_partial') {
+                        $currentIndex = 5;
+                    } else {
+                        $currentIndex = array_search($currentMilestone, $milestones);
+                        if ($currentIndex === false || $currentIndex === 0) $currentIndex = 1;
+                    }
                 }
             @endphp
             <div class="milestone-stepper mb-4">

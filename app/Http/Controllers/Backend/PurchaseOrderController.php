@@ -28,6 +28,12 @@ class PurchaseOrderController extends Controller
 
     public function generateFromCs($csId): RedirectResponse
     {
+        $canInitiate = (new \App\Services\ApprovalService())->canUserInitiateDocument(Purchase::class);
+        if (!$canInitiate) {
+            Toastr::error('You are not authorized to generate Purchase Orders under the current active workflow.');
+            return redirect()->back();
+        }
+
         $cs = ComparisonStatement::with(['rfq', 'items.selectedQuotationItem.quotation'])->findOrFail($csId);
 
         if ($cs->approval_status !== 'approved') {
@@ -143,6 +149,18 @@ class PurchaseOrderController extends Controller
     {
         $po = Purchase::with(['vendor', 'rfq', 'comparisonStatement', 'currency', 'items.product', 'items.variant', 'proformaInvoice', 'letterOfCredit.expenses', 'letterOfCredit.amendments', 'emailLogs'])->findOrFail($id);
         return view('backend.purchase.po_show', compact('po'));
+    }
+
+    public function approve($id): RedirectResponse
+    {
+        $po = Purchase::findOrFail($id);
+        $success = (new \App\Services\ApprovalService())->approveStep($po, (int)\Illuminate\Support\Facades\Auth::id());
+        if ($success) {
+            Toastr::success('Purchase Order Approved Successfully!');
+        } else {
+            Toastr::error('Failed or unauthorized to approve Purchase Order.');
+        }
+        return redirect()->back();
     }
 
     public function cancel($id): RedirectResponse

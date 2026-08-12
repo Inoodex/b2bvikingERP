@@ -330,36 +330,46 @@
                             <h4><i class="fas fa-user-cog mr-2"></i>Actions</h4>
                         </div>
                         <div class="card-body">
-                            @if(Auth::user()->can('Manage Product Requests'))
+                            @php
+                                $canApprovePr = (new \App\Services\ApprovalService())->canUserApproveCurrentStep($productRequest);
+                                $isPrApproved = ($productRequest->status === 'approved' || $productRequest->status === 'completed');
+                                $pendingPrApproval = $productRequest->approvals->where('status', 'pending')->first();
+                                $pendingPrRoleOrUser = $pendingPrApproval->step->approverRole->name ?? $pendingPrApproval->step->approverUser->name ?? 'Approver';
+                                $pendingPrStepName = $pendingPrApproval->step->step_name ?? 'Step 1';
+                            @endphp
+
+                            @if($isPrApproved)
+                                <div class="alert alert-success font-weight-bold mb-3"><i class="fas fa-check-circle mr-1"></i> Requisition Approved</div>
+                            @elseif($canApprovePr)
                                 <form action="{{ route('admin.product-requests.update-status', $productRequest->id) }}" method="POST">
                                     @csrf
                                     @method('PUT')
                                     
                                     <div class="form-group mb-3">
-                                        <label class="font-weight-bold small text-muted text-uppercase">Change Status</label>
+                                        <label class="font-weight-bold small text-muted text-uppercase">Approve Requisition</label>
                                         <select name="status" class="form-control select2">
                                             <option value="pending" {{ $productRequest->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                            <option value="approved" {{ $productRequest->status == 'approved' ? 'selected' : '' }}>Approve (<code>create issue</code>)</option>
-                                             @if($productRequest->status == 'completed')
-                                                <option value="completed" selected>Completed</option>
-                                            @endif
-                                            {{-- <option value="shipped" {{ $productRequest->status == 'shipped' ? 'selected' : '' }}>Shipped / Dispatched</option>
-                                            <option value="completed" {{ $productRequest->status == 'completed' ? 'selected' : '' }}>Completed</option>
-                                            <option value="rejected" {{ $productRequest->status == 'rejected' ? 'selected' : '' }}>Reject</option> --}}
+                                            <option value="approved">Approve (Enable Stock Issue)</option>
                                         </select>
                                     </div>
 
                                     <div class="form-group mb-4">
-                                        <label class="font-weight-bold small text-muted text-uppercase">Admin Note</label>
+                                        <label class="font-weight-bold small text-muted text-uppercase">Note</label>
                                         <textarea name="admin_note" class="form-control" style="height: 80px;" placeholder="Internal tracking notes...">{{ $productRequest->admin_note }}</textarea>
                                     </div>
 
                                     <div class="text-right">
                                         <button type="submit" class="btn btn-primary shadow-sm px-4">
-                                            Update Request
+                                            Update Request Status
                                         </button>
                                     </div>
                                 </form>
+                            @else
+                                <div class="alert alert-warning font-weight-bold mb-3">
+                                    <i class="fas fa-clock mr-1"></i> ⏳ Waiting for Requisition Approval: {{ $pendingPrStepName }} ({{ $pendingPrRoleOrUser }})
+                                </div>
+                                <p class="text-muted small">You are not authorized to approve this requisition step.</p>
+                            @endif
 
                                 @if($productRequest->status == 'approved')
                                     <div class="border-top pt-4 mt-2">

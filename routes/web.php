@@ -246,6 +246,7 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::get('purchase-orders', 'index')->name('purchase-orders.index');
         Route::post('purchase-orders/generate-from-cs/{cs}', 'generateFromCs')->name('purchase-orders.generate-from-cs');
         Route::get('purchase-orders/{id}', 'show')->name('purchase-orders.show');
+        Route::post('purchase-orders/{id}/approve', 'approve')->name('purchase-orders.approve');
         Route::post('purchase-orders/{id}/cancel', 'cancel')->name('purchase-orders.cancel');
         Route::post('purchase-orders/{id}/send-email', 'sendEmail')->name('purchase-orders.send-email');
         Route::get('purchase-orders/{id}/pdf/download', 'downloadPdf')->name('purchase-orders.pdf.download');
