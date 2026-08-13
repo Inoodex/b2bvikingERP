@@ -2,7 +2,7 @@
   $categoriesActive = request()->routeIs('admin.category.*', 'admin.sub-category.*', 'admin.child-category.*', 'admin.slider.*', 'admin.product-types.*');
   $productsActive   = request()->routeIs('admin.products.*', 'admin.units.*', 'admin.colors.*', 'admin.sizes.*');
   $inventoryActive  = request()->routeIs('admin.inventory-reports.*', 'admin.issues.*', 'admin.issue-returns.*', 'admin.stock-ledger.*');
-  $ordersActive     = request()->routeIs('admin.orders.*', 'admin.custom-product-requests.*', 'admin.product-requests.*');
+  $ordersActive     = request()->routeIs('admin.orders.*', 'admin.sales-quotations.*', 'admin.custom-product-requests.*', 'admin.product-requests.*');
   $purchaseActive   = request()->routeIs('admin.bookings.*', 'admin.purchases.*');
   $procurementActive = request()->routeIs('admin.rfqs.*', 'admin.purchase-orders.*', 'admin.letters-of-credit.*', 'admin.shipments.*', 'admin.goods-receipts.*', 'admin.vendor-returns.*', 'admin.vendor-bills.*');
   $reportsActive    = request()->routeIs('admin.reports.*', 'admin.purchase-reports.*');
@@ -1124,7 +1124,8 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
         </a>
         <ul class="sb-submenu">
           <li class="sb-flyout-title">Orders</li>
-          <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-store-alt"></i> Outlet/Shop Orders</a></li>
+          <li><a href="{{ route('admin.sales-quotations.index') }}"><i class="fas fa-file-signature"></i> Sales Quotations</a></li>
+          <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-store-alt"></i> Sales Orders (SO)</a></li>
           <li><a href="{{ route('admin.custom-product-requests.index') }}"><i class="fas fa-sync-alt"></i> Custom Requests</a></li>
           <li class="sb-submenu-divider"></li>
           <li><a href="{{ route('admin.product-requests.index') }}"><i class="fas fa-history"></i> Old Requests</a></li>

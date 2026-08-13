@@ -44,6 +44,7 @@ use App\Http\Controllers\Backend\VendorQuotationController;
 use App\Http\Controllers\Backend\VendorBillController;
 use App\Http\Controllers\Backend\PurchasePaymentController;
 use App\Http\Controllers\Backend\DocumentSequenceController;
+use App\Http\Controllers\Backend\SalesQuotationController;
 use App\Http\Controllers\Backend\VendorLedgerController;
 use App\Http\Controllers\Backend\PurchaseReportController;
 use App\Http\Controllers\Backend\VendorReturnController;
@@ -202,6 +203,12 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     /** Document Sequence Routes */
     Route::get('document-sequences', [DocumentSequenceController::class, 'index'])->name('document-sequences.index');
     Route::put('document-sequences/{documentSequence}', [DocumentSequenceController::class, 'update'])->name('document-sequences.update');
+
+    /** Sales Quotation Routes */
+    Route::post('sales-quotations/{salesQuotation}/clone', [SalesQuotationController::class, 'clone'])->name('sales-quotations.clone');
+    Route::post('sales-quotations/{salesQuotation}/convert-to-order', [SalesQuotationController::class, 'convertToOrder'])->name('sales-quotations.convert-to-order');
+    Route::get('sales-quotations/{salesQuotation}/pdf', [SalesQuotationController::class, 'pdf'])->name('sales-quotations.pdf');
+    Route::resource('sales-quotations', SalesQuotationController::class);
 
     /** Size Routes */
     Route::put('sizes/change-status', [SizeController::class, 'changeStatus'])->name('sizes.change-status');
