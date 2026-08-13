@@ -43,6 +43,7 @@ use App\Http\Controllers\Backend\RfqController;
 use App\Http\Controllers\Backend\VendorQuotationController;
 use App\Http\Controllers\Backend\VendorBillController;
 use App\Http\Controllers\Backend\PurchasePaymentController;
+use App\Http\Controllers\Backend\DocumentSequenceController;
 use App\Http\Controllers\Backend\VendorLedgerController;
 use App\Http\Controllers\Backend\PurchaseReportController;
 use App\Http\Controllers\Backend\VendorReturnController;
@@ -197,6 +198,10 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     /** Color Routes */
     Route::put('colors/change-status', [ColorController::class, 'changeStatus'])->name('colors.change-status');
     Route::resource('colors', ColorController::class);
+
+    /** Document Sequence Routes */
+    Route::get('document-sequences', [DocumentSequenceController::class, 'index'])->name('document-sequences.index');
+    Route::put('document-sequences/{documentSequence}', [DocumentSequenceController::class, 'update'])->name('document-sequences.update');
 
     /** Size Routes */
     Route::put('sizes/change-status', [SizeController::class, 'changeStatus'])->name('sizes.change-status');

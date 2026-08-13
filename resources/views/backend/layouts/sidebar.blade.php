@@ -204,7 +204,7 @@
       @can('Administration')
       <li class="menu-header">System</li>
       <li
-        class="dropdown {{ setActive(['admin.permission.*', 'admin.role.*', 'admin.users.*', 'admin.settings.*', 'admin.pricing-rules.*']) }}">
+        class="dropdown {{ setActive(['admin.permission.*', 'admin.role.*', 'admin.users.*', 'admin.settings.*', 'admin.pricing-rules.*', 'admin.document-sequences.*']) }}">
         <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-cogs"></i>
           <span>Administration</span></a>
         <ul class="dropdown-menu">
@@ -216,6 +216,8 @@
               href="{{ route('admin.role.index') }}">Roles</a></li>
           <li class="{{ setActive(['admin.pricing-rules.*']) }}"><a class="nav-link"
               href="{{ route('admin.pricing-rules.index') }}">Pricing Rules</a></li>
+          <li class="{{ setActive(['admin.document-sequences.*']) }}"><a class="nav-link"
+              href="{{ route('admin.document-sequences.index') }}">Doc Sequences</a></li>
           <li class="{{ setActive(['admin.settings.*']) }}"><a class="nav-link"
               href="{{ route('admin.settings.index') }}">Settings</a></li>
         </ul>

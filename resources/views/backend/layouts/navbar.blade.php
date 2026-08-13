@@ -10,7 +10,7 @@
   $brandsActive     = request()->routeIs('admin.brand.*');
   $vendorsActive    = request()->routeIs('admin.vendor.*');
   $masterActive     = request()->routeIs('admin.master.*');
-  $systemActive     = request()->routeIs('admin.users.*', 'admin.role.*', 'admin.permission.*', 'admin.pricing-rules.*', 'admin.taxes.*', 'admin.discounts.*', 'admin.products.announcement.*', 'admin.settings.*');
+  $systemActive     = request()->routeIs('admin.users.*', 'admin.role.*', 'admin.permission.*', 'admin.pricing-rules.*', 'admin.taxes.*', 'admin.discounts.*', 'admin.document-sequences.*', 'admin.products.announcement.*', 'admin.settings.*');
 @endphp
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1279,6 +1279,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.pricing-rules.index') }}"><i class="fas fa-dollar-sign"></i> Pricing Rules</a></li>
           <li><a href="{{ route('admin.taxes.index') }}"><i class="fas fa-percent"></i> Tax / VAT</a></li>
           <li><a href="{{ route('admin.discounts.index') }}"><i class="fas fa-tags"></i> Discount</a></li>
+          <li class="{{ request()->routeIs('admin.document-sequences.*') ? 'active' : '' }}"><a href="{{ route('admin.document-sequences.index') }}"><i class="fas fa-barcode"></i> Doc Sequences</a></li>
           <li class="sb-submenu-header">System Settings</li>
           <li><a href="{{ route('admin.products.announcement.index') }}"><i class="fas fa-bullhorn"></i> Product Announcement</a></li>
           <li><a href="{{ route('admin.settings.index') }}"><i class="fas fa-sliders-h"></i> Settings</a></li>
