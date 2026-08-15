@@ -44,6 +44,7 @@ use App\Http\Controllers\Backend\VendorQuotationController;
 use App\Http\Controllers\Backend\VendorBillController;
 use App\Http\Controllers\Backend\PurchasePaymentController;
 use App\Http\Controllers\Backend\DocumentSequenceController;
+use App\Http\Controllers\Backend\PricelistController;
 use App\Http\Controllers\Backend\SalesQuotationController;
 use App\Http\Controllers\Backend\VendorLedgerController;
 use App\Http\Controllers\Backend\PurchaseReportController;
@@ -209,6 +210,11 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     Route::post('sales-quotations/{salesQuotation}/convert-to-order', [SalesQuotationController::class, 'convertToOrder'])->name('sales-quotations.convert-to-order');
     Route::get('sales-quotations/{salesQuotation}/pdf', [SalesQuotationController::class, 'pdf'])->name('sales-quotations.pdf');
     Route::resource('sales-quotations', SalesQuotationController::class);
+
+    /** Pricelist Routes */
+    Route::put('pricelists/change-status', [PricelistController::class, 'changeStatus'])->name('pricelists.change-status');
+    Route::get('pricelists/resolve-price', [PricelistController::class, 'resolvePrice'])->name('pricelists.resolve-price');
+    Route::resource('pricelists', PricelistController::class);
 
     /** Size Routes */
     Route::put('sizes/change-status', [SizeController::class, 'changeStatus'])->name('sizes.change-status');

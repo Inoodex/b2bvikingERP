@@ -49,6 +49,20 @@ class UsersDataTable extends DataTable
                 }
                 return '<span class="text-muted">No Discount</span>';
             })
+            ->addColumn('customer_segment', function ($query) {
+                $segment = $query->customer_segment ?? 'retail';
+                $badgeMap = [
+                    'retail' => 'badge-secondary',
+                    'wholesale' => 'badge-info',
+                    'b2b_vip' => 'badge-warning',
+                    'distributor' => 'badge-primary',
+                ];
+                $class = $badgeMap[$segment] ?? 'badge-secondary';
+                return '<span class="badge ' . $class . '">' . strtoupper(str_replace('_', ' ', $segment)) . '</span>';
+            })
+            ->addColumn('credit_limit', function ($query) {
+                return 'kr. ' . number_format((float)($query->credit_limit ?? 0), 2);
+            })
             ->addColumn('status', function ($query) {
                 $checked = $query->status ? 'checked' : '';
                 return '<label class="custom-switch mt-2">
@@ -56,7 +70,7 @@ class UsersDataTable extends DataTable
                             <span class="custom-switch-indicator"></span>
                         </label>';
             })
-            ->rawColumns(['image', 'action', 'discount', 'status'])
+            ->rawColumns(['image', 'action', 'customer_segment', 'credit_limit', 'discount', 'status'])
             ->setRowId('id');
     }
 
@@ -101,6 +115,8 @@ class UsersDataTable extends DataTable
             Column::make('name'),
             Column::make('email'),
             Column::make('role'),
+            Column::make('customer_segment')->title('Segment'),
+            Column::make('credit_limit')->title('Credit Limit'),
             Column::make('discount'),
             Column::make('status'),
             Column::computed('action')

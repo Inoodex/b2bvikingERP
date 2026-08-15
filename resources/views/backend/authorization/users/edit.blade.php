@@ -71,9 +71,22 @@
                                         <label>Image preview </label>
                                         <img src="{{ asset($user->image) }}" alt="" width="150px">
                                     </div>
-                                    <div class="form-group col-md-12">
-                                        <h6>User Level Discount Information</h6>
-                                    </div>
+                                     <div class="form-group col-md-6">
+                                         <label for="customer_segment">Customer Segment / Tier</label>
+                                         <select id="customer_segment" class="form-control" name="customer_segment">
+                                             <option value="retail" {{ ($user->customer_segment ?? 'retail') == 'retail' ? 'selected' : '' }}>Retail Customer</option>
+                                             <option value="wholesale" {{ ($user->customer_segment ?? '') == 'wholesale' ? 'selected' : '' }}>Wholesale Customer</option>
+                                             <option value="b2b_vip" {{ ($user->customer_segment ?? '') == 'b2b_vip' ? 'selected' : '' }}>B2B VIP Partner</option>
+                                             <option value="distributor" {{ ($user->customer_segment ?? '') == 'distributor' ? 'selected' : '' }}>Distributor</option>
+                                         </select>
+                                     </div>
+                                     <div class="form-group col-md-6">
+                                         <label for="credit_limit">Credit Limit ({{ $settings->currency_icon ?? 'kr' }})</label>
+                                         <input type="number" id="credit_limit" class="form-control" name="credit_limit" step="0.01" min="0" value="{{ old('credit_limit') ?? $user->credit_limit }}" placeholder="Enter maximum credit limit">
+                                     </div>
+                                     <div class="form-group col-md-12">
+                                         <h6>User Level Discount Information</h6>
+                                     </div>
                                     <div class="row col-md-12">
                                         <div class="form-group col-md-6">
                                             <label for="discount_type">Discount Type</label>

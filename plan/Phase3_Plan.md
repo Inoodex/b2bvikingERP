@@ -48,11 +48,11 @@ Phase 3 implements a **Tier-1 Enterprise Sales & Commercial Distribution Engine*
 
 ---
 
-### 🔹 Step 3.4: Customer Pricelists & Dynamic Pricing Tiers [Pending - Next]
-- **Controller:** `PricelistController.php`
-- **Features:**
-  - Customer-type pricing tiers (Retail, Wholesale, B2B VIP, Distributor).
-  - Volume discount rules (Min Quantity threshold, e.g. 100+ pcs ➔ 15% discount).
+### 🔹 Step 3.4: User Management Polish & Customer Pricelists Engine [x] ✅ FULLY COMPLETED
+- **User Management Polish:** Added `Credit Limit ($ / kr.)` input/column and `Customer Segment` dropdown (`Retail`, `Wholesale`, `B2B VIP`, `Distributor`) to User Create/Edit forms and `UsersDataTable.php`. ✅
+- **Controller & Yajra DataTable:** Built `PricelistController.php` & `PricelistDataTable.php` supporting full CRUD, date validity ranges, and status toggles. ✅
+- **Auto-Price Resolver Service:** Built `PricelistResolverService.php` to automatically resolve effective tier prices for any customer segment with MRP fallback. ✅
+- **Live Sales Quotation Auto-Pricing:** Integrated live AJAX price resolution endpoint `/admin/pricelists/resolve-price` into `sales_quotation/create.blade.php`. ✅
 
 ---
 

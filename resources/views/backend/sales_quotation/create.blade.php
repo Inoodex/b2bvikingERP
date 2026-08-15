@@ -232,9 +232,32 @@ $(document).ready(function() {
     }
 
     $(document).on('change', '.product-select', function() {
-        let price = parseFloat($(this).find('option:selected').data('price')) || 0;
-        $(this).closest('.item-row').find('.price-input').val(price.toFixed(2));
-        calculateTotals();
+        let row = $(this).closest('.item-row');
+        let productId = $(this).val();
+        let customerId = $('select[name="customer_id"]').val();
+        let defaultPrice = parseFloat($(this).find('option:selected').data('price')) || 0;
+
+        if (productId) {
+            $.ajax({
+                url: "{{ route('admin.pricelists.resolve-price') }}",
+                method: 'GET',
+                data: {
+                    product_id: productId,
+                    customer_id: customerId
+                },
+                success: function(res) {
+                    row.find('.price-input').val(parseFloat(res.price).toFixed(2));
+                    calculateTotals();
+                },
+                error: function() {
+                    row.find('.price-input').val(defaultPrice.toFixed(2));
+                    calculateTotals();
+                }
+            });
+        } else {
+            row.find('.price-input').val('0.00');
+            calculateTotals();
+        }
     });
 
     $(document).on('input', '.qty-input, .price-input, #discountInput', function() {

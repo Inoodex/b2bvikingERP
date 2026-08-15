@@ -26,6 +26,8 @@ class UserService
             'image' => $imagePath,
             'status' => $data['status'],
             'role_id' => $data['user_role'],
+            'credit_limit' => $data['credit_limit'] ?? 0.00,
+            'customer_segment' => $data['customer_segment'] ?? 'retail',
             'discount_type' => $data['discount_type'] ?? null,
             'discount_value' => $data['discount_value'] ?? null,
             'min_order_amount' => $data['min_order_amount'] ?? null,
@@ -53,6 +55,8 @@ class UserService
         $user->phone = $data['phone'] ?? null;
         $user->status = $data['status'];
         $user->role_id = $data['user_role'];
+        $user->credit_limit = $data['credit_limit'] ?? 0.00;
+        $user->customer_segment = $data['customer_segment'] ?? 'retail';
         $user->discount_type = $data['discount_type'] ?? null;
         $user->discount_value = $data['discount_value'] ?? null;
         $user->min_order_amount = $data['min_order_amount'] ?? null;

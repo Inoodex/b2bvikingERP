@@ -60,9 +60,22 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="form-group col-md-12">
-                                        <h6>User Level Discount Information</h6>
-                                    </div>
+                                     <div class="form-group col-md-6">
+                                         <label for="customer_segment">Customer Segment / Tier</label>
+                                         <select id="customer_segment" class="form-control" name="customer_segment">
+                                             <option value="retail" selected>Retail Customer</option>
+                                             <option value="wholesale">Wholesale Customer</option>
+                                             <option value="b2b_vip">B2B VIP Partner</option>
+                                             <option value="distributor">Distributor</option>
+                                         </select>
+                                     </div>
+                                     <div class="form-group col-md-6">
+                                         <label for="credit_limit">Credit Limit ({{ $settings->currency_icon ?? 'kr' }})</label>
+                                         <input type="number" id="credit_limit" class="form-control" name="credit_limit" step="0.01" min="0" value="{{ old('credit_limit', '0.00') }}" placeholder="Enter maximum credit limit">
+                                     </div>
+                                     <div class="form-group col-md-12">
+                                         <h6>User Level Discount Information</h6>
+                                     </div>
 
                                     <div class="form-group col-md-6">
                                         <label for="discount_type">Discount Type</label>

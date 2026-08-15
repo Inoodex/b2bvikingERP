@@ -1125,6 +1125,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
         <ul class="sb-submenu">
           <li class="sb-flyout-title">Orders</li>
           <li><a href="{{ route('admin.sales-quotations.index') }}"><i class="fas fa-file-signature"></i> Sales Quotations</a></li>
+          <li><a href="{{ route('admin.pricelists.index') }}"><i class="fas fa-tags"></i> Customer Pricelists</a></li>
           <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-store-alt"></i> Sales Orders (SO)</a></li>
           <li><a href="{{ route('admin.custom-product-requests.index') }}"><i class="fas fa-sync-alt"></i> Custom Requests</a></li>
           <li class="sb-submenu-divider"></li>
