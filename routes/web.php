@@ -47,6 +47,7 @@ use App\Http\Controllers\Backend\DocumentSequenceController;
 use App\Http\Controllers\Backend\CouponController;
 use App\Http\Controllers\Backend\GiftCardController;
 use App\Http\Controllers\Backend\PricelistController;
+use App\Http\Controllers\Backend\SalesOrderController;
 use App\Http\Controllers\Backend\SalesQuotationController;
 use App\Http\Controllers\Backend\VendorLedgerController;
 use App\Http\Controllers\Backend\PurchaseReportController;
@@ -212,6 +213,11 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     Route::post('sales-quotations/{salesQuotation}/convert-to-order', [SalesQuotationController::class, 'convertToOrder'])->name('sales-quotations.convert-to-order');
     Route::get('sales-quotations/{salesQuotation}/pdf', [SalesQuotationController::class, 'pdf'])->name('sales-quotations.pdf');
     Route::resource('sales-quotations', SalesQuotationController::class);
+
+    /** Sales Order Routes */
+    Route::post('sales-orders/{order}/release-credit', [SalesOrderController::class, 'releaseCreditHold'])->name('sales-orders.release-credit');
+    Route::get('sales-orders/check-credit', [SalesOrderController::class, 'checkCustomerCredit'])->name('sales-orders.check-credit');
+    Route::resource('sales-orders', SalesOrderController::class);
 
     /** Pricelist Routes */
     Route::put('pricelists/change-status', [PricelistController::class, 'changeStatus'])->name('pricelists.change-status');

@@ -62,10 +62,10 @@ Phase 3 implements a **Tier-1 Enterprise Sales & Commercial Distribution Engine*
 
 ---
 
-### 🔹 Step 3.6: Sales Orders & Customer Credit Limit Validation [Pending]
-- **Controller:** `SalesOrderController.php` (utilizing unified `orders` and `order_items` engine).
-- **Features:**
-  - Customer Credit Limit Validation: Checks customer's `credit_limit` on `users` table vs current unpaid balance + new order total before order creation.
+### 🔹 Step 3.6: Sales Orders & Customer Credit Limit Validation Engine [x] ✅ FULLY COMPLETED
+- **Sales Order Controller & DataTable:** Built `SalesOrderController.php` & `SalesOrderDataTable.php` supporting full CRUD, status filter tabs, and line items. ✅
+- **Credit Limit Exposure Service:** Built `CreditValidationService.php` calculating total exposure ($\text{Unpaid Dues} + \text{New Order}$) vs approved credit limit. ✅
+- **Credit Hold & Release Workflow:** Built automatic `credit_hold` status assignment and Credit Override Release authorization modal. ✅
 
 ---
 

@@ -1028,7 +1028,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
 
     <li class="dropdown">
       <a href="#" data-toggle="dropdown" class="nav-link-user">
-        <img alt="image" height="32px" width="32px" src="https://ui-avatars.com/api/?background=cda05a&color=1a1408&bold=true&name={{ urlencode(Auth::user()->name) }}" class="rounded-circle">
+        <img alt="image" height="32px" width="32px" src="https://ui-avatars.com/api/?background=cda05a&color=1a1408&bold=true&name={{ urlencode(Auth::user()?->name ?? 'Admin') }}" class="rounded-circle">
       </a>
       <div class="dropdown-menu dropdown-menu-right">
         <a href="{{ route('admin.profile') }}" class="dropdown-item has-icon">
@@ -1054,7 +1054,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
 <aside class="app-sidebar" id="appSidebar">
   <div class="sidebar-header">
     <i class="fas fa-store"></i>
-    <span>{{ strtoupper(collect(explode(' ', Auth::user()->name))->map(fn($w) => $w[0])->take(2)->implode('')) }}</span>
+    <span>{{ strtoupper(collect(explode(' ', Auth::user()?->name ?? 'Admin'))->map(fn($w) => $w[0] ?? 'A')->take(2)->implode('')) }}</span>
   </div>
 
   <div class="sidebar-body">
@@ -1128,7 +1128,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.pricelists.index') }}"><i class="fas fa-tags"></i> Customer Pricelists</a></li>
           <li><a href="{{ route('admin.coupons.index') }}"><i class="fas fa-ticket-alt"></i> Promo Coupons</a></li>
           <li><a href="{{ route('admin.gift-cards.index') }}"><i class="fas fa-gift"></i> Gift Cards Engine</a></li>
-          <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-store-alt"></i> Sales Orders (SO)</a></li>
+          <li><a href="{{ route('admin.sales-orders.index') }}"><i class="fas fa-store-alt"></i> Sales Orders (SO)</a></li>
           <li><a href="{{ route('admin.custom-product-requests.index') }}"><i class="fas fa-sync-alt"></i> Custom Requests</a></li>
           <li class="sb-submenu-divider"></li>
           <li><a href="{{ route('admin.product-requests.index') }}"><i class="fas fa-history"></i> Old Requests</a></li>
