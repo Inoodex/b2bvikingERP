@@ -58,14 +58,18 @@ class SalesQuotationDataTable extends DataTable
             })
             ->addColumn('action', function ($query) {
                 $viewBtn = '<a href="' . route('admin.sales-quotations.show', $query->id) . '" class="btn btn-sm btn-info shadow-sm mr-1" title="View"><i class="fas fa-eye"></i></a>';
+                $editBtn = '';
+                if ($query->status === 'draft') {
+                    $editBtn = '<a href="' . route('admin.sales-quotations.edit', $query->id) . '" class="btn btn-sm btn-warning shadow-sm mr-1" title="Edit Quote"><i class="fas fa-edit"></i></a>';
+                }
                 $pdfBtn = '<a href="' . route('admin.sales-quotations.pdf', $query->id) . '" class="btn btn-sm btn-secondary shadow-sm mr-1" title="Download PDF" target="_blank"><i class="fas fa-file-pdf"></i></a>';
                 $cloneBtn = '<form action="' . route('admin.sales-quotations.clone', $query->id) . '" method="POST" class="d-inline mr-1">
                                 ' . csrf_field() . '
-                                <button type="submit" class="btn btn-sm btn-warning shadow-sm" title="Clone Quotation"><i class="fas fa-copy"></i></button>
+                                <button type="submit" class="btn btn-sm btn-dark shadow-sm" title="Clone Quotation"><i class="fas fa-copy"></i></button>
                              </form>';
                 $deleteBtn = '<a href="' . route('admin.sales-quotations.destroy', $query->id) . '" class="btn btn-sm btn-danger shadow-sm delete-item" title="Delete"><i class="fas fa-trash"></i></a>';
 
-                return $viewBtn . $pdfBtn . $cloneBtn . $deleteBtn;
+                return $viewBtn . $editBtn . $pdfBtn . $cloneBtn . $deleteBtn;
             })
             ->rawColumns([
                 'quotation_no_link',

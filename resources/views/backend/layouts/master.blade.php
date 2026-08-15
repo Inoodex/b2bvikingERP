@@ -191,6 +191,8 @@
   <!-- Dynamic Delete alert -->
   <script>
   $(document).ready(function() {
+    $.fn.dataTable.ext.errMode = 'none';
+
     $.ajaxSetup({
       headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
