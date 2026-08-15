@@ -56,11 +56,9 @@ Phase 3 implements a **Tier-1 Enterprise Sales & Commercial Distribution Engine*
 
 ---
 
-### 🔹 Step 3.5: Promotional Coupons & Gift Cards [Pending]
-- **Controllers:** `CouponController.php` & `GiftCardController.php`
-- **Features:**
-  - Fixed & Percentage discount coupons (`SAVE10`, `VIP2026`).
-  - Gift Card issuance, balance tracking & checkout redemption.
+### 🔹 Step 3.5: Promotional Coupons & Gift Cards Engine [x] ✅ FULLY COMPLETED
+- **Promotional Coupons Engine:** Built `CouponController.php` & `CouponDataTable.php` supporting full CRUD, auto-generated coupon codes, usage limits, expiration dates, and validation API endpoint. ✅
+- **Gift Cards & Transaction Ledger Engine:** Built `GiftCardController.php`, `GiftCardDataTable.php`, and `GiftCardService.php` supporting 16-digit card issuance, balance adjustment, and transaction audit history ledger (`gift_card_transactions`). ✅
 
 ---
 

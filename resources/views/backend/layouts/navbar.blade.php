@@ -1126,6 +1126,8 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li class="sb-flyout-title">Orders</li>
           <li><a href="{{ route('admin.sales-quotations.index') }}"><i class="fas fa-file-signature"></i> Sales Quotations</a></li>
           <li><a href="{{ route('admin.pricelists.index') }}"><i class="fas fa-tags"></i> Customer Pricelists</a></li>
+          <li><a href="{{ route('admin.coupons.index') }}"><i class="fas fa-ticket-alt"></i> Promo Coupons</a></li>
+          <li><a href="{{ route('admin.gift-cards.index') }}"><i class="fas fa-gift"></i> Gift Cards Engine</a></li>
           <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-store-alt"></i> Sales Orders (SO)</a></li>
           <li><a href="{{ route('admin.custom-product-requests.index') }}"><i class="fas fa-sync-alt"></i> Custom Requests</a></li>
           <li class="sb-submenu-divider"></li>

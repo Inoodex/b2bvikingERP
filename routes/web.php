@@ -44,6 +44,8 @@ use App\Http\Controllers\Backend\VendorQuotationController;
 use App\Http\Controllers\Backend\VendorBillController;
 use App\Http\Controllers\Backend\PurchasePaymentController;
 use App\Http\Controllers\Backend\DocumentSequenceController;
+use App\Http\Controllers\Backend\CouponController;
+use App\Http\Controllers\Backend\GiftCardController;
 use App\Http\Controllers\Backend\PricelistController;
 use App\Http\Controllers\Backend\SalesQuotationController;
 use App\Http\Controllers\Backend\VendorLedgerController;
@@ -215,6 +217,17 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     Route::put('pricelists/change-status', [PricelistController::class, 'changeStatus'])->name('pricelists.change-status');
     Route::get('pricelists/resolve-price', [PricelistController::class, 'resolvePrice'])->name('pricelists.resolve-price');
     Route::resource('pricelists', PricelistController::class);
+
+    /** Coupon Routes */
+    Route::put('coupons/change-status', [CouponController::class, 'changeStatus'])->name('coupons.change-status');
+    Route::get('coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
+    Route::resource('coupons', CouponController::class);
+
+    /** Gift Card Routes */
+    Route::put('gift-cards/change-status', [GiftCardController::class, 'changeStatus'])->name('gift-cards.change-status');
+    Route::post('gift-cards/{giftCard}/adjust-balance', [GiftCardController::class, 'adjustBalance'])->name('gift-cards.adjust-balance');
+    Route::get('gift-cards/validate', [GiftCardController::class, 'validateGiftCard'])->name('gift-cards.validate');
+    Route::resource('gift-cards', GiftCardController::class);
 
     /** Size Routes */
     Route::put('sizes/change-status', [SizeController::class, 'changeStatus'])->name('sizes.change-status');
