@@ -17,6 +17,7 @@ class SalesReturnItem extends Model
         'variant_id',
         'qty',
         'reason',
+        'disposition',
     ];
 
     protected $casts = [

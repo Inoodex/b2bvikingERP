@@ -204,4 +204,69 @@ SAP S/4HANA & Odoo 17 এন্টারপ্রাইজ স্ট্যান
 
 ---
 
-💡 **উপসংহার:** এই একটি মাস্টার টেস্ট ম্যানুয়াল ফাইল অনুসরন করে Phase 3-এর সকল ফিচার ব্যবহার ও টেস্ট করা যাবে।
+## 8️⃣ Step 3.7: কাস্টমার সেলস রিটার্ন (RMA), ইনভেন্টরি অটো-রিস্টক, ৩-মোড ক্রেডিট নোট ও ক্রেডিট লিমিট রিলিজ
+
+### 💡 কেন ও কখন ব্যবহার করবেন? (Business Purpose)
+আন্তর্জাতিক এন্টারপ্রাইজ লেভেলে ক্ষতিগ্রস্ত বা ভুল পণ্য ফেরত (Customer Returns / RMA) নেওয়া এবং ফাইনান্স বিভাগের জন্য ক্রেডিট নোট (Credit Note) ইস্যু করা।
+- **RMA (Return Merchandise Authorization):** আসল সেলস অর্ডারের বিপরীতে কত পিস মালামাল ফেরত নেওয়া হচ্ছে তার সঠিক হিসাব রাখা।
+- **SAP/Odoo ৪টি ওয়্যারহাউজ স্টক অ্যাকশন (Warehouse Stock Action):**
+  1. 📦 `Restock to Salable Inventory`: বিক্রয়যোগ্য ভালো স্টক পুনরায় গুদামে প্লাস করা (`StockLedger` + `InventoryStock`)।
+  2. 🗑️ `Scrap / Write-Off`: ট্রানজিটে ভাঙা/নষ্ট মালামাল স্ক্র্যাপ করা (গুদামের স্টকে ভুল প্লাস হবে না)।
+  3. 🔁 `Return to Vendor (RTV)`: ফ্যাক্টরি/সাপ্লাইয়ার ডিফেক্ট হিসেবে আলাদা করা।
+  4. 🔬 `Quarantine (Inspection)`: কোয়ালিটি ল্যাব টেস্টের জন্য রাখা।
+- **ক্রেডিট লিমিট এক্সপোজার রিলিজ:** রিটার্নের ফলে কাস্টমারের বকেয়া কমে যাওয়া এবং তার অব্যবহৃত Credit Limit পুনরায় মুক্ত (Restored) হয়ে যাওয়া।
+- **৩টি ফাইনান্সিয়াল সেটেলমেন্ট মোড (Credit Note Settlement):**
+  1. `Mode A: Invoice Offset`: স্রেফ বকেয়া অনাদায়ী ইনভয়েস (`due_amount > 0`) থেকে স্মাৰ্ট ডাইনামিক লিমিটে টাকা বিয়োগ করা।
+  2. `Mode B: Product Replacement`: কাস্টমারকে নতুন ভালো প্রোডাক্ট ডাইরেক্ট ইস্যু করা।
+  3. `Mode C: Direct Cash / Bank Refund`: কাস্টমারকে সরাসরি ক্যাশ/ব্যাংক রিফান্ড বা রিফান্ড ভাউচার দেওয়া।
+- **DomPDF Credit Note Export:** কাস্টমার ও অডিটের জন্য অফিশিয়াল ক্রেডিট নোট PDF জেনারেট করা।
+
+### 👣 টেস্ট করার ধাপসমূহ:
+
+#### ক. RMA রিটার্ন রিকোয়েস্ট তৈরি (Create Customer Return):
+1. নেভিগেশন বার থেকে **Orders ➔ Customer Returns (RMA) ➔ Create Customer Return** পেজে যান:  
+   👉 `http://b2bvikingerp.test/admin/sales-returns/create`
+2. **মাঝখানে সেন্টার্ড সিলেক্ট সার্চ বক্সে (Centered Select Order):**  
+   **Select Commercial Order** ড্রপডাউন থেকে যেকোনো একটি সম্পন্ন হওয়া সেলস অর্ডার (যেমন `#DS-11` বা `#SO-202608-XXXX`) সিলেক্ট করুন।
+3. **অর্ডার আইটেম টেবিল লোড হবে:**  
+   - **Ordered Qty:** অর্ডারের কেনা সংখ্যা দেখাবে।  
+   - **Returned Qty:** পূর্বে ফেরত দেওয়া সংখ্যা দেখাবে।  
+   - **Unit Price:** একক মূল্য দেখাবে।
+4. **Return Qty** বক্সে সংখ্যা বসান (যেমন: `2`)।
+5. **Warehouse Stock Action** ড্রপডাউন থেকে সিদ্ধান্ত নিন:
+   - মালামাল ভালো থাকলে: 📦 **Restock to Inventory** বেছে নিন।
+   - ট্রানজিটে ভাঙা/নষ্ট থাকলে: 🗑️ **Scrap (Damaged in Transit)** বেছে নিন।
+6. **Return Reason** ঘরে কারণ লিখুন (যেমন: `Damaged in Transit`) এবং **Submit Return Request** চাপুন।
+
+#### খ. রিটার্ন এপ্রুভাল ও অটো-রিস্টক টেস্ট (Approve Return & Physical Restock):
+1. **Orders ➔ Customer Returns (RMA)** লিস্ট পেজ থেকে আপনার তৈরি হওয়া রিটার্নটির পাশে **View** (চোখের আইকন) বাটনে ক্লিক করুন:  
+   👉 `http://b2bvikingerp.test/admin/sales-returns/{id}`
+2. **Approve & Issue Credit Note** বাটনে ক্লিক করুন।
+3. **এন্টারপ্রাইজ SweetAlert পপ-আপ:** সিস্টেম মালামালের অবস্থা বুঝে ডায়নামিক সুইট-অ্যালার্ট দেখাবে:
+   - ভালো মাল হলে: *"This will physically restock inventory and issue Credit Note."*
+   - ড্যামেজড মাল হলে: *"Return contains DAMAGED items (Scrap). Official Accounts Credit Note will be issued WITHOUT inventory restock."*
+4. **Yes, Approve & Issue Credit Note!** বাটনে চাপ দিন।
+5. **ফলাফল:**  
+   - স্ক্রিনের উপরে সবুজ রঙের Pure **Toastr** পপ-আপ মেসেজ ভেসে উঠবে!
+   - রিটার্নটি সবুজ **`Approved`** স্ট্যাটাসে রূপান্তর হবে।  
+   - সিদ্ধান্ত অনুযায়ী স্টক প্লাস হবে (ভালো মাল হলে) অথবা স্ক্র্যাপে যাবে (ড্যামেজড হলে)।
+   - ফাইনান্সিয়াল লেজারে স্বয়ংক্রিয়ভাবে একটি নতুন **`CN-XXXX`** ক্রেডিট নোট জেনারেট হয়ে যাবে!
+
+#### গ. ক্রেডিট নোট সেটেলমেন্ট ও কাস্টমার ক্রেডিট লিমিট রিলিজ টেস্ট (Settle Credit Note):
+1. নেভিগেশন বার থেকে **Orders ➔ Credit Notes** পেজে যান:  
+   👉 `http://b2bvikingerp.test/admin/credit-notes`
+2. আপনার তৈরি হওয়া ক্রেডিট নোটটির পাশে **View / Settle** বাটনে ক্লিক করুন।
+3. **Settle Credit Note** বাটনে চাপ দিন:
+   - **Target Unpaid Order** ড্রপডাউনে স্রেফ **বকেয়া টাকা থাকা অর্ডারসমূহ (`due_amount > 0`)** দেখাবে।
+   - **Amount to Settle** বক্সে স্বয়ংক্রিয়ভাবে ক্রেডিট নোটের অবশিষ্টাংশ এবং অর্ডারের বকেয়া পাওনার মধ্যে ছোট পরিমাণটি (`Math.min`) ডায়নামিকভাবে লিমিট সেট হয়ে যাবে!
+4. **Apply Settlement** চাপুন।
+5. **ফলাফল:** কাস্টমারের বকেয়া দায় কমে যাবে এবং কাস্টমারের **অব্যবহৃত Credit Limit Exposure আবার স্বয়ংক্রিয়ভাবে রিলিজ (Free)** হয়ে যাবে!
+
+#### ঘ. DomPDF ক্রেডিট নোট ডাউনলোড পরীক্ষা (Download Credit Note PDF):
+1. ক্রেডিট নোট ডিটেইলস পেজে থাকা **PDF Export** বাটনে চাপ দিন:  
+   👉 `http://b2bvikingerp.test/admin/credit-notes/{id}/pdf`
+2. **Falafl:** ব্রাউজারে আন্তর্জাতিক মানসম্পন্ন অফিশিয়াল `Credit Note Document` ডাউনলোড/ভিউ হবে!
+
+---
+
+💡 **উপসংহার:** এই ম্যানুয়াল অনুসরণ করে কাস্টমার সেলস রিটার্ন এবং ক্রেডিট নোটের ১০০% ফিচার টেস্ট করা যাবে।

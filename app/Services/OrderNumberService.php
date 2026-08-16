@@ -137,6 +137,12 @@ class OrderNumberService
     {
         $value = "{$prefix}-{$serial}";
 
+        if ($sequenceKey === 'sales_returns') {
+            return DB::table('sales_returns')->where('return_no', $value)->exists();
+        }
+        if ($sequenceKey === 'credit_notes') {
+            return DB::table('credit_notes')->where('credit_note_no', $value)->exists();
+        }
         if ($sequenceKey === 'issue_returns') {
             return DB::table('issue_returns')->where('return_no', $value)->exists();
         }

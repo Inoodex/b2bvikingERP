@@ -6,6 +6,8 @@ use App\Http\Controllers\Backend\BrandController;
 use App\Http\Controllers\Backend\AccountController as BackendAccountController;
 use App\Http\Controllers\Backend\CartController as BackendCartController;
 use App\Http\Controllers\Backend\CategoryController;
+use App\Http\Controllers\Backend\CreditNoteController;
+use App\Http\Controllers\Backend\SalesReturnController;
 use App\Http\Controllers\Backend\SubCategoryController;
 use App\Http\Controllers\Backend\TaxController;
 use App\Http\Controllers\Backend\ChildCategoryController;
@@ -457,12 +459,7 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     });
     Route::resource('issues', IssueController::class);
 
-    Route::controller(IssueReturnController::class)->group(function () {
-        Route::get('issue-returns/get-issue-items', 'getIssueItems')->name('issue-returns.get-issue-items');
-        Route::post('issue-returns/{id}/approve', 'approve')->name('issue-returns.approve');
-        Route::post('issue-returns/{id}/cancel', 'cancel')->name('issue-returns.cancel');
-    });
-    Route::resource('issue-returns', IssueReturnController::class);
+
 
     Route::get('stock-ledger', [StockLedgerController::class, 'index'])->name('stock-ledger.index');
     Route::controller(InventoryReportController::class)->group(function () {
@@ -559,8 +556,20 @@ Route::controller(BackendAccountController::class)->group(function () {
         Route::get('/po-status', 'poStatus')->name('po-status');
     });
 
-});
+    /** Phase 3 Step 3.7: Customer Sales Return (RMA) & Credit Notes Engine */
+    Route::controller(SalesReturnController::class)->group(function () {
+        Route::get('sales-returns/get-order-items', 'getOrderItems')->name('sales-returns.get-order-items');
+        Route::post('sales-returns/{salesReturn}/approve', 'approve')->name('sales-returns.approve');
+    });
+    Route::resource('sales-returns', SalesReturnController::class);
 
+    Route::controller(CreditNoteController::class)->group(function () {
+        Route::post('credit-notes/{creditNote}/settle', 'settle')->name('credit-notes.settle');
+        Route::get('credit-notes/{creditNote}/pdf', 'downloadPdf')->name('credit-notes.pdf');
+    });
+    Route::resource('credit-notes', CreditNoteController::class);
+
+});
 });
 
 require __DIR__ . '/auth.php';

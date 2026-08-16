@@ -1110,7 +1110,6 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li class="sb-flyout-title">Inventory</li>
           <li><a href="{{ route('admin.inventory-reports.index') }}"><i class="fas fa-clipboard-check"></i> Current Stock</a></li>
           <li><a href="{{ route('admin.issues.index') }}"><i class="fas fa-arrow-right"></i> Stock Issues</a></li>
-          <li><a href="{{ route('admin.issue-returns.index') }}"><i class="fas fa-undo-alt"></i> Stock Returns</a></li>
           <li class="sb-submenu-divider"></li>
           <li><a href="{{ route('admin.stock-ledger.index') }}"><i class="fas fa-book"></i> Stock Ledger</a></li>
         </ul>
@@ -1129,6 +1128,8 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.coupons.index') }}"><i class="fas fa-ticket-alt"></i> Promo Coupons</a></li>
           <li><a href="{{ route('admin.gift-cards.index') }}"><i class="fas fa-gift"></i> Gift Cards Engine</a></li>
           <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-store-alt"></i> Sales Orders (SO)</a></li>
+          <li><a href="{{ route('admin.sales-returns.index') }}"><i class="fas fa-undo-alt"></i> Customer Returns (RMA)</a></li>
+          <li><a href="{{ route('admin.credit-notes.index') }}"><i class="fas fa-file-invoice-dollar"></i> Credit Notes</a></li>
           <li><a href="{{ route('admin.custom-product-requests.index') }}"><i class="fas fa-sync-alt"></i> Custom Requests</a></li>
           <li class="sb-submenu-divider"></li>
           <li><a href="{{ route('admin.product-requests.index') }}"><i class="fas fa-history"></i> Old Requests</a></li>

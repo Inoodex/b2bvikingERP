@@ -22,6 +22,8 @@ return new class extends Migration
                 $table->foreignId('created_by')->nullable()->after('approved_by')->constrained('users')->onDelete('set null');
             }
         });
+
+        DB::statement("ALTER TABLE sales_returns MODIFY COLUMN refund_method VARCHAR(50) NULL DEFAULT 'credit_note'");
     }
 
     /**
