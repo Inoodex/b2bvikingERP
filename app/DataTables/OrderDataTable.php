@@ -68,7 +68,9 @@ class OrderDataTable extends DataTable
                 $status = strtolower((string) $query->status);
                 $class = 'badge-secondary';
 
-                if ($status === 'pending') {
+                if ($status === 'credit_hold') {
+                    return '<span class="badge badge-danger font-weight-bold"><i class="fas fa-lock mr-1"></i> CREDIT HOLD</span>';
+                } elseif ($status === 'pending') {
                     $class = 'badge-warning';
                 } elseif ($status === 'approved') {
                     $class = 'badge-info';

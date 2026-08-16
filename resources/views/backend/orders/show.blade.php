@@ -24,6 +24,27 @@
         </div>
 
         <div class="section-body">
+            @if($order->status === 'credit_hold')
+                <div class="alert alert-danger shadow-sm border-0 mb-4 p-4" style="border-radius: 12px; background: #fff5f5; border-left: 5px solid #dc3545 !important;">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                        <div class="d-flex align-items-center mb-2 mb-md-0">
+                            <div class="p-3 bg-danger text-white rounded-circle mr-3">
+                                <i class="fas fa-lock fa-2x"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1 text-danger font-weight-bold"><i class="fas fa-exclamation-triangle mr-1"></i> Order Flagged Under Credit Hold</h5>
+                                <p class="mb-0 text-dark small">This order exceeds the customer's approved credit limit exposure. Fulfillment is blocked until a Credit Manager releases the hold.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-danger btn-lg font-weight-bold shadow-sm px-4" data-toggle="modal" data-target="#releaseCreditModal" style="border-radius: 8px;">
+                                <i class="fas fa-unlock-alt mr-2"></i> Release Credit Hold
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <div class="row">
                 <div class="col-12 col-lg-8">
                     <div class="card card-primary">
@@ -274,7 +295,7 @@
                                         $step = $approval->step;
                                         $isCurrentPending = ($approval->status === 'pending');
                                         $roleName = $step->approverRole ? $step->approverRole->name : '';
-                                        $canApprove = $isCurrentPending && \Illuminate\Support\Facades\Auth::user()->hasRole($roleName);
+                                        $canApprove = $isCurrentPending && (\Illuminate\Support\Facades\Auth::user()?->hasRole($roleName) ?? false);
                                     @endphp
                                     <li class="media mb-2 pb-2 {{ !$loop->last ? 'border-bottom' : '' }}">
                                         <div class="media-body">
@@ -389,6 +410,41 @@
                         </div>
                     </div>
 
+                    {{-- Customer Credit Exposure Widget --}}
+                    @if(isset($creditEvaluation))
+                        <div class="card card-warning mb-3">
+                            <div class="card-header border-bottom">
+                                <h4><i class="fas fa-shield-alt text-warning mr-2"></i>Customer Credit Exposure</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted small">Approved Credit Limit:</span>
+                                    <strong class="text-dark">kr. {{ number_format($creditEvaluation['credit_limit'] ?? 0, 2) }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted small">Current Unpaid Dues:</span>
+                                    <strong class="text-danger">kr. {{ number_format($creditEvaluation['current_dues'] ?? 0, 2) }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted small">This Order Total:</span>
+                                    <strong class="text-primary">kr. {{ number_format($creditEvaluation['new_order_total'] ?? 0, 2) }}</strong>
+                                </div>
+                                <hr class="my-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="font-weight-bold text-dark">Total Exposure:</span>
+                                    <span class="h6 font-weight-bold {{ ($creditEvaluation['is_exceeded'] ?? false) ? 'text-danger' : 'text-success' }} mb-0">
+                                        kr. {{ number_format($creditEvaluation['total_exposure'] ?? 0, 2) }}
+                                    </span>
+                                </div>
+                                @if(($creditEvaluation['is_exceeded'] ?? false))
+                                    <div class="alert alert-danger py-2 mb-0 mt-3 small font-weight-bold text-center">
+                                        <i class="fas fa-lock mr-1"></i> Credit Limit Exceeded!
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- Payment Summary & History (Admin Only) --}}
                     @role('Admin')
                     <div class="card card-success mb-3">
@@ -451,8 +507,9 @@
                                     <select name="status" class="form-control" {{ $isLockedStatus ? 'disabled' : '' }}>
                                         <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
                                         <option value="approved" {{ $order->status === 'approved' ? 'selected' : '' }} {{ $disableApproveDropdown ? 'disabled' : '' }}>Approve (Create Issue)</option>
+                                        <option value="credit_hold" {{ $order->status === 'credit_hold' ? 'selected' : '' }}>Credit Hold</option>
                                         <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                        @if(!in_array($order->status, ['pending', 'approved', 'cancelled'], true))
+                                        @if(!in_array($order->status, ['pending', 'approved', 'credit_hold', 'cancelled'], true))
                                             <option value="{{ $order->status }}" selected>{{ ucfirst($order->status) }}</option>
                                         @endif
                                     </select>
@@ -465,6 +522,14 @@
                                     <p class="text-muted small mt-2 mb-0">This order is already {{ ucfirst($order->status) }} and cannot be changed from here.</p>
                                 @endif
                             </form>
+
+                            @if($order->status === 'credit_hold')
+                                <div class="border-top pt-3 mt-3">
+                                    <button type="button" class="btn btn-danger btn-block font-weight-bold py-2 shadow-sm" data-toggle="modal" data-target="#releaseCreditModal">
+                                        <i class="fas fa-unlock-alt mr-1"></i> Release Credit Hold
+                                    </button>
+                                </div>
+                            @endif
 
                             @can('Manage Inventory')
                             @if(strtolower((string) $order->status) === 'approved')
@@ -482,4 +547,36 @@
             </div>
         </div>
     </section>
+
+    {{-- Credit Hold Release Modal --}}
+    @if($order->status === 'credit_hold')
+        <div class="modal fade" id="releaseCreditModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content" style="border-radius: 16px;">
+                    <div class="modal-header border-bottom py-3">
+                        <h5 class="modal-title font-weight-bold text-dark"><i class="fas fa-unlock-alt text-danger mr-2"></i> Authorize Credit Hold Release</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="{{ route('admin.orders.release-credit', $order->id) }}" method="POST">
+                        @csrf
+                        <div class="modal-body p-4">
+                            <div class="alert alert-warning mb-3 small">
+                                <strong>Warning:</strong> Releasing credit hold will bypass the customer's credit limit rule for Order #{{ $order->order_no }}.
+                            </div>
+                            <div class="form-group mb-0">
+                                <label class="font-weight-bold text-dark">Override Reason / Authorization Notes <span class="text-danger">*</span></label>
+                                <textarea name="override_reason" class="form-control" rows="3" placeholder="e.g. Approved by Finance Manager (Payment Promise on 25th)" required style="border-radius: 8px;"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light py-3 border-top">
+                            <button type="button" class="btn btn-secondary px-4 font-weight-bold" data-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+                            <button type="submit" class="btn btn-danger px-4 font-weight-bold shadow-sm" style="border-radius: 8px;">Authorize Release</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection

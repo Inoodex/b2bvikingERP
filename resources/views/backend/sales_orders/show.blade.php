@@ -1,156 +1,275 @@
 @extends('backend.layouts.master')
-
-@section('title', 'Sales Order Details - ' . $order->order_no)
+@section('title', 'Sales Order Details')
 
 @section('content')
+    @php
+        // Calculate display values dynamically based on displayed items (original or issued)
+        $displayItems = isset($items) ? $items : $order->items;
+        $displaySubtotal = $displayItems->sum('line_total');
+        $displayGrandTotal = isset($items) ? ($displaySubtotal - $order->discount_amount + $order->tax_amount) : $order->total_amount;
+        $displayPaid = (float) $order->paid_amount;
+        $displayDue = max(0, round($displayGrandTotal - $displayPaid, 2));
+    @endphp
     <section class="section">
-        {{-- Top Bar Navigation & Actions --}}
-        <div class="section-header border-0 shadow-sm mb-4" style="background: #ffffff; border-radius: 16px; padding: 20px 24px;">
-            <div class="d-flex align-items-center flex-wrap w-100">
-                <div class="d-flex align-items-center mb-2 mb-sm-0">
-                    <div class="mr-3 p-3 rounded-circle text-white shadow-sm" style="background: linear-gradient(135deg, #0a0e1a 0%, #1e293b 100%); border: 1px solid rgba(205, 160, 90, 0.3);">
-                        <i class="fas fa-file-invoice text-warning" style="font-size: 1.25rem;"></i>
-                    </div>
-                    <div>
-                        <div class="d-flex align-items-center">
-                            <h4 class="mb-0 font-weight-bold text-dark mr-3" style="font-family: 'Plus Jakarta Sans', sans-serif;">
-                                Sales Order #{{ $order->order_no }}
-                            </h4>
-                            @if($order->status === 'credit_hold')
-                                <span class="badge badge-danger px-3 py-1 font-weight-bold"><i class="fas fa-lock mr-1"></i> CREDIT HOLD</span>
-                            @else
-                                <span class="badge badge-success px-3 py-1 font-weight-bold text-uppercase">{{ str_replace('_', ' ', $order->status) }}</span>
-                            @endif
-                        </div>
-                        <p class="text-muted mb-0 small mt-1">Placed on: {{ $order->placed_at?->format('d M, Y H:i') ?? ($order->created_at?->format('d M, Y H:i') ?? 'N/A') }}</p>
-                    </div>
-                </div>
-
-                <div class="ml-auto d-flex align-items-center flex-wrap">
-                    @if($order->status === 'credit_hold')
-                        <button type="button" class="btn btn-danger font-weight-bold text-white mr-2 shadow-sm" data-toggle="modal" data-target="#releaseCreditModal" style="border-radius: 8px;">
-                            <i class="fas fa-unlock-alt mr-1"></i> Release Credit Hold
-                        </button>
-                    @endif
-
-                    <a href="{{ route('admin.sales-orders.index') }}" class="btn btn-outline-secondary font-weight-bold" style="border-radius: 8px;">
-                        <i class="fas fa-arrow-left mr-1"></i> Back to Orders
-                    </a>
-                </div>
+        <div class="section-header">
+            <div class="section-header-back">
+                <a href="{{ route('admin.sales-orders.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            </div>
+            <h1>Sales Order #{{ $order->order_no }}</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
+                <div class="breadcrumb-item"><a href="{{ route('admin.sales-orders.index') }}">Sales Orders</a></div>
+                <div class="breadcrumb-item">Details</div>
             </div>
         </div>
 
-        {{-- Order Status Banner --}}
-        @if($order->status === 'credit_hold')
-            <div class="alert alert-danger shadow-sm border-0 mb-4" style="border-radius: 12px;">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-exclamation-triangle fa-2x mr-3"></i>
-                    <div>
-                        <h6 class="mb-1 font-weight-bold">Order Flagged Under Credit Hold</h6>
-                        <p class="mb-0 small">This order exceeds the customer's approved credit limit exposure. Fulfillment is blocked until a Credit Manager releases the hold.</p>
+        <div class="section-body">
+            @if($order->status === 'credit_hold')
+                <div class="alert alert-danger shadow-sm border-0 mb-4 p-4" style="border-radius: 12px; background: #fff5f5; border-left: 5px solid #dc3545 !important;">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                        <div class="d-flex align-items-center mb-2 mb-md-0">
+                            <div class="p-3 bg-danger text-white rounded-circle mr-3">
+                                <i class="fas fa-lock fa-2x"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1 text-danger font-weight-bold"><i class="fas fa-exclamation-triangle mr-1"></i> Order Flagged Under Credit Hold</h5>
+                                <p class="mb-0 text-dark small">This order exceeds the customer's approved credit limit exposure. Fulfillment is blocked until a Credit Manager releases the hold.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-danger btn-lg font-weight-bold shadow-sm px-4" data-toggle="modal" data-target="#releaseCreditModal" style="border-radius: 8px;">
+                                <i class="fas fa-unlock-alt mr-2"></i> Release Credit Hold
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        @endif
+            @endif
 
-        @if($order->pi_email)
-            <div class="alert alert-info shadow-sm border-0 mb-4" style="border-radius: 12px;">
-                <i class="fas fa-info-circle mr-2"></i> {{ $order->pi_email }}
-            </div>
-        @endif
-
-        <div class="section-body">
             <div class="row">
-                {{-- Left Details Column --}}
-                <div class="col-lg-8">
-                    <div class="card card-primary border-0 shadow-sm mb-4" style="border-radius: 16px;">
-                        <div class="card-header bg-white py-3 border-bottom">
-                            <h6 class="mb-0 font-weight-bold text-dark"><i class="fas fa-boxes mr-2 text-primary"></i> Order Line Items</h6>
+                <div class="col-12 col-lg-8">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h4><i class="fas fa-list mr-2"></i>Order Items</h4>
+                            <div class="card-header-action">
+                                <a href="{{ route('admin.orders.pi-invoice', $order->id) }}" class="btn btn-success" target="_blank"><i class="fas fa-file-signature mr-1"></i> PI Invoice</a>
+                                <a href="{{ route('admin.orders.view-invoice', $order->id) }}" class="btn btn-warning" target="_blank"><i class="fas fa-file-invoice mr-1"></i> View Invoice</a>
+                                <a href="{{ route('admin.orders.download-invoice', $order->id) }}" class="btn btn-info ml-2"><i class="fas fa-download mr-1"></i> Download PDF</a>
+                                <a href="{{ route('admin.orders.download-customer-invoice', $order->id) }}" class="btn btn-dark ml-2"><i class="fas fa-file-invoice mr-1"></i> Customer Invoice</a>
+                            </div>
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead class="bg-light" style="font-size: 0.8rem; text-transform: uppercase; color: #64748b;">
+                                <table class="table table-striped table-hover mb-0">
+                                    <thead class="bg-light">
                                         <tr>
-                                            <th class="pl-4">Product</th>
-                                            <th class="text-center">Quantity</th>
+                                            <th class="text-center" width="5%">#</th>
+                                            <th class="text-center" width="12%">Image</th>
+                                            <th>Product</th>
+                                            <th class="text-center">Variant</th>
+                                            <th class="text-center">Qty</th>
                                             <th class="text-right">Unit Price</th>
-                                            <th class="text-right pr-4">Total</th>
+                                            <th class="text-right">Line Total</th>
                                         </tr>
                                     </thead>
+                                    @php
+                                        $groupedItems = $displayItems->groupBy(function($item) {
+                                            return $item->category_name ?: 'General';
+                                        })->sortKeys();
+                                    @endphp
                                     <tbody>
-                                        @foreach($order->items as $item)
-                                            <tr>
-                                                <td class="pl-4 align-middle">
-                                                    <strong class="text-dark">{{ $item->product_name ?? ($item->product?->name ?? 'Product Item') }}</strong>
-                                                    @if($item->variant_label || $item->variant)
-                                                        <br><small class="text-muted">Variant: {{ $item->variant_label ?? $item->variant?->name }}</small>
-                                                    @endif
+                                        @forelse($groupedItems as $categoryName => $catItems)
+                                            <tr class="bg-secondary text-white font-weight-bold">
+                                                <td colspan="7" class="py-2 px-3">
+                                                    <i class="fas fa-folder mr-1 text-warning"></i> Category: {{ $categoryName }}
                                                 </td>
-                                                <td class="text-center align-middle font-weight-bold">{{ $item->quantity ?? $item->qty }}</td>
-                                                <td class="text-right align-middle font-weight-bold text-muted">kr. {{ number_format($item->unit_price, 2) }}</td>
-                                                <td class="text-right align-middle pr-4 font-weight-bold text-dark">kr. {{ number_format($item->line_total ?? $item->subtotal, 2) }}</td>
                                             </tr>
-                                        @endforeach
+                                            @foreach($catItems as $item)
+                                                <tr>
+                                                    <td class="text-center align-middle">{{ $loop->iteration }}</td>
+                                                    <td class="text-center align-middle">
+                                                        @if(!empty($item->product_image))
+                                                            <img src="{{ asset($item->product_image) }}" alt="{{ $item->product_name }}" class="rounded shadow-sm" width="50" height="50" style="object-fit: cover;">
+                                                        @else
+                                                            <div class="bg-light rounded d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                                <i class="fas fa-box text-muted"></i>
+                                                            </div>
+                                                        @endif
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <span class="font-weight-bold text-dark d-block">{{ $item->product_name }}</span>
+                                                        <small class="text-muted">Item #: {{ $item->product_number }}</small>
+                                                    </td>
+                                                    <td class="text-center align-middle">
+                                                        <span class="badge badge-light border">{{ $item->variant_label }}</span>
+                                                    </td>
+                                                    <td class="text-center align-middle font-weight-bold">{{ $item->quantity }}</td>
+                                                    <td class="text-right align-middle">{{ number_format($item->unit_price, 2) }}</td>
+                                                    <td class="text-right align-middle font-weight-bold text-primary">{{ number_format($item->line_total, 2) }}</td>
+                                                </tr>
+                                            @endforeach
+                                        @empty
+                                            <tr>
+                                                <td colspan="7" class="text-center py-4 text-muted">No items in this order.</td>
+                                            </tr>
+                                        @endforelse
                                     </tbody>
+                                    <tfoot class="bg-light font-weight-bold">
+                                        <tr>
+                                            <td colspan="6" class="text-right">Subtotal</td>
+                                            <td class="text-right">{{ number_format($displaySubtotal, 2) }}</td>
+                                        </tr>
+                                        @if($order->discount_amount > 0)
+                                            <tr>
+                                                <td colspan="6" class="text-right text-success">Discount</td>
+                                                <td class="text-right text-success">-{{ number_format($order->discount_amount, 2) }}</td>
+                                            </tr>
+                                        @endif
+                                        @if($order->tax_amount > 0)
+                                            <tr>
+                                                <td colspan="6" class="text-right">VAT / Tax</td>
+                                                <td class="text-right">{{ number_format($order->tax_amount, 2) }}</td>
+                                            </tr>
+                                        @endif
+                                        <tr class="h6">
+                                            <td colspan="6" class="text-right font-weight-bold">Grand Total</td>
+                                            <td class="text-right text-primary font-weight-bold">{{ number_format($displayGrandTotal, 2) }}</td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- Right Column (Customer & Financial Summary) --}}
-                <div class="col-lg-4">
-                    {{-- Credit Exposure Summary Box --}}
-                    <div class="card card-warning border-0 shadow-sm mb-4" style="border-radius: 16px;">
-                        <div class="card-header bg-white py-3 border-bottom">
-                            <h6 class="mb-0 font-weight-bold text-dark"><i class="fas fa-shield-alt mr-2 text-warning"></i> Customer Credit Exposure</h6>
+                <div class="col-12 col-lg-4">
+                    <div class="card card-statistic-1 mb-3">
+                        <div class="card-icon bg-primary">
+                            <i class="fas fa-shopping-bag"></i>
                         </div>
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted font-weight-bold">Approved Credit Limit:</span>
-                                <span class="font-weight-bold text-dark">kr. {{ number_format($creditEvaluation['credit_limit'], 2) }}</span>
+                        <div class="card-wrap">
+                            <div class="card-header">
+                                <h4>Current Status</h4>
                             </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted font-weight-bold">Unpaid Dues:</span>
-                                <span class="font-weight-bold text-danger">kr. {{ number_format($creditEvaluation['current_dues'], 2) }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted font-weight-bold">This Order:</span>
-                                <span class="font-weight-bold text-primary">kr. {{ number_format($order->total_amount, 2) }}</span>
-                            </div>
-                            <hr class="my-2">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="font-weight-bold text-dark">Total Exposure:</span>
-                                <span class="font-weight-bold {{ $creditEvaluation['is_exceeded'] ? 'text-danger' : 'text-success' }}" style="font-size: 1.1rem;">
-                                    kr. {{ number_format($creditEvaluation['total_exposure'], 2) }}
-                                </span>
+                            <div class="card-body">
+                                @php
+                                    $status = strtolower((string) $order->status);
+                                    $statusColor = match($status) {
+                                        'pending' => 'warning',
+                                        'credit_hold' => 'danger',
+                                        'approved' => 'info',
+                                        'processing' => 'primary',
+                                        'shipped' => 'primary',
+                                        'completed' => 'success',
+                                        'rejected', 'cancelled' => 'danger',
+                                        default => 'secondary',
+                                    };
+                                @endphp
+                                <div class="text-{{ $statusColor }} font-weight-bold text-uppercase">{{ str_replace('_', ' ', $order->status) }}</div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Financial Summary Box --}}
-                    <div class="card card-primary border-0 shadow-sm mb-4" style="border-radius: 16px;">
-                        <div class="card-header bg-white py-3 border-bottom">
-                            <h6 class="mb-0 font-weight-bold text-dark"><i class="fas fa-calculator mr-2 text-primary"></i> Financial Summary</h6>
+                    <div class="card mb-3">
+                        <div class="card-header border-bottom">
+                            <h4>Order Summary</h4>
                         </div>
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted font-weight-bold">Subtotal:</span>
-                                <span class="font-weight-bold text-dark">kr. {{ number_format($order->subtotal_amount, 2) }}</span>
+                        <div class="card-body">
+                            <p class="mb-1"><strong>Order No:</strong> {{ $order->order_no }}</p>
+                            <p class="mb-1"><strong>Date:</strong> {{ $order->created_at?->format('d M, Y h:i A') }}</p>
+                            <p class="mb-1"><strong>Customer:</strong> {{ $order->user->name ?? $order->billing_name }}</p>
+                            <p class="mb-1"><strong>Outlet/Shop:</strong> {{ $order->billing_outlet_name ?: ($order->user->outlet_name ?? 'N/A') }}</p>
+                            <p class="mb-3"><strong>Source:</strong> {{ $order->shipping_method ?: 'frontend_checkout' }}</p>
+
+                            <hr>
+                            <p class="mb-1 d-flex justify-content-between"><span>Subtotal</span><strong>{{ number_format($displaySubtotal, 2) }}</strong></p>
+                            <p class="mb-1 d-flex justify-content-between"><span>Discount</span><strong>-{{ number_format($order->discount_amount, 2) }}</strong></p>
+                            <p class="mb-1 d-flex justify-content-between"><span>VAT</span><strong>{{ number_format($order->tax_amount, 2) }}</strong></p>
+                            <p class="mb-0 d-flex justify-content-between"><span class="font-weight-bold">Total</span><strong class="text-primary">{{ number_format($displayGrandTotal, 2) }}</strong></p>
+                        </div>
+                    </div>
+
+                    {{-- Customer Credit Exposure Widget --}}
+                    @if(isset($creditEvaluation))
+                        <div class="card card-warning mb-3">
+                            <div class="card-header border-bottom">
+                                <h4><i class="fas fa-shield-alt text-warning mr-2"></i>Customer Credit Exposure</h4>
                             </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted font-weight-bold">Tax ({{ $order->tax_label }}):</span>
-                                <span class="font-weight-bold text-dark">kr. {{ number_format($order->tax_amount, 2) }}</span>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted small">Approved Credit Limit:</span>
+                                    <strong class="text-dark">kr. {{ number_format($creditEvaluation['credit_limit'] ?? 0, 2) }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted small">Current Unpaid Dues:</span>
+                                    <strong class="text-danger">kr. {{ number_format($creditEvaluation['current_dues'] ?? 0, 2) }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted small">This Order Total:</span>
+                                    <strong class="text-primary">kr. {{ number_format($creditEvaluation['new_order_total'] ?? 0, 2) }}</strong>
+                                </div>
+                                <hr class="my-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="font-weight-bold text-dark">Total Exposure:</span>
+                                    <span class="h6 font-weight-bold {{ ($creditEvaluation['is_exceeded'] ?? false) ? 'text-danger' : 'text-success' }} mb-0">
+                                        kr. {{ number_format($creditEvaluation['total_exposure'] ?? 0, 2) }}
+                                    </span>
+                                </div>
+                                @if(($creditEvaluation['is_exceeded'] ?? false))
+                                    <div class="alert alert-danger py-2 mb-0 mt-3 small font-weight-bold text-center">
+                                        <i class="fas fa-lock mr-1"></i> Credit Limit Exceeded!
+                                    </div>
+                                @endif
                             </div>
-                            <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
-                                <span class="text-muted font-weight-bold">Discount:</span>
-                                <span class="font-weight-bold text-danger">- kr. {{ number_format($order->discount_amount, 2) }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0 text-dark font-weight-bold">Grand Total:</h6>
-                                <h4 class="mb-0 text-primary font-weight-bold">kr. {{ number_format($order->total_amount, 2) }}</h4>
-                            </div>
+                        </div>
+                    @endif
+
+                    <div class="card card-warning">
+                        <div class="card-header">
+                            <h4><i class="fas fa-user-cog mr-2"></i>Actions</h4>
+                        </div>
+                        <div class="card-body">
+                            @php
+                                $currentStatus = strtolower((string) $order->status);
+                                $isLockedStatus = in_array($currentStatus, ['completed', 'rejected'], true);
+                            @endphp
+                            <form method="POST" action="{{ route('admin.orders.update-status', $order->id) }}">
+                                @csrf
+                                @method('PUT')
+                                <div class="form-group mb-3">
+                                    <label class="font-weight-bold small text-muted text-uppercase">Change Status</label>
+                                    <select name="status" class="form-control" {{ $isLockedStatus ? 'disabled' : '' }}>
+                                        <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="approved" {{ $order->status === 'approved' ? 'selected' : '' }}>Approve (Create Issue)</option>
+                                        <option value="credit_hold" {{ $order->status === 'credit_hold' ? 'selected' : '' }}>Credit Hold</option>
+                                        <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                        @if(!in_array($order->status, ['pending', 'approved', 'credit_hold', 'cancelled'], true))
+                                            <option value="{{ $order->status }}" selected>{{ ucfirst($order->status) }}</option>
+                                        @endif
+                                    </select>
+                                </div>
+
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-primary shadow-sm px-4" {{ $isLockedStatus ? 'disabled' : '' }}>Update Order</button>
+                                </div>
+                            </form>
+
+                            @if($order->status === 'credit_hold')
+                                <div class="border-top pt-3 mt-3">
+                                    <button type="button" class="btn btn-danger btn-block font-weight-bold py-2 shadow-sm" data-toggle="modal" data-target="#releaseCreditModal">
+                                        <i class="fas fa-unlock-alt mr-1"></i> Release Credit Hold
+                                    </button>
+                                </div>
+                            @endif
+
+                            @can('Manage Inventory')
+                            @if(strtolower((string) $order->status) === 'approved')
+                                <div class="border-top pt-4 mt-3">
+                                    <a href="{{ route('admin.issues.create', ['order_id' => $order->id]) }}" class="btn btn-success btn-lg btn-block shadow-sm py-3 font-weight-bold">
+                                        <i class="fas fa-box-open mr-2"></i> Create Stock Issue
+                                    </a>
+                                </div>
+                            @endif
+                            @endcan
                         </div>
                     </div>
                 </div>

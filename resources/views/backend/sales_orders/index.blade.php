@@ -1,47 +1,71 @@
 @extends('backend.layouts.master')
-
-@section('title', 'Sales Orders (SO) Management')
+@section('title', 'Sales Orders (SO)')
 
 @section('content')
     <section class="section">
-        {{-- Header --}}
-        <div class="section-header border-0 shadow-sm mb-4" style="background: #ffffff; border-radius: 16px; padding: 20px 24px;">
-            <div class="d-flex align-items-center flex-wrap w-100">
-                <div class="d-flex align-items-center mb-2 mb-sm-0">
-                    <div class="mr-3 p-3 rounded-circle text-white shadow-sm" style="background: linear-gradient(135deg, #0a0e1a 0%, #1e293b 100%); border: 1px solid rgba(205, 160, 90, 0.3);">
-                        <i class="fas fa-store-alt text-warning" style="font-size: 1.25rem;"></i>
-                    </div>
-                    <div>
-                        <h4 class="mb-1 font-weight-bold text-dark" style="font-family: 'Plus Jakarta Sans', sans-serif;">Sales Orders (SO)</h4>
-                        <p class="text-muted mb-0 small">Manage commercial sales orders, credit limit holds, and fulfillment workflows</p>
-                    </div>
-                </div>
-                <div class="ml-auto d-flex align-items-center flex-wrap">
-                    <a href="{{ route('admin.sales-orders.create') }}" class="btn btn-primary font-weight-bold px-4 py-2 shadow-sm" style="border-radius: 10px;">
-                        <i class="fas fa-plus mr-1"></i> Create Sales Order
-                    </a>
-                </div>
+        {{-- Standard Stisla Section Header --}}
+        <div class="section-header">
+            <h1>Sales Orders (SO)</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
+                <div class="breadcrumb-item">Sales Orders</div>
             </div>
         </div>
 
-        {{-- Filter Tabs --}}
         <div class="section-body">
-            <div class="card card-primary border-0 shadow-sm mb-4" style="border-radius: 16px;">
-                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center flex-wrap">
-                    <h6 class="text-dark font-weight-bold mb-0 mr-4"><i class="fas fa-filter mr-2 text-primary"></i> Order Status Filters:</h6>
-                    <div class="btn-group btn-group-sm flex-wrap" role="group">
-                        <a href="{{ route('admin.sales-orders.index') }}" class="btn {{ request('status_filter') == '' ? 'btn-primary' : 'btn-outline-primary' }} font-weight-bold">All Orders</a>
-                        <a href="{{ route('admin.sales-orders.index', ['status_filter' => 'credit_hold']) }}" class="btn {{ request('status_filter') == 'credit_hold' ? 'btn-danger' : 'btn-outline-danger' }} font-weight-bold">
-                            <i class="fas fa-lock mr-1"></i> Credit Hold
-                        </a>
-                        <a href="{{ route('admin.sales-orders.index', ['status_filter' => 'pending_approval']) }}" class="btn {{ request('status_filter') == 'pending_approval' ? 'btn-warning' : 'btn-outline-warning' }} font-weight-bold">Pending Approval</a>
-                        <a href="{{ route('admin.sales-orders.index', ['status_filter' => 'approved']) }}" class="btn {{ request('status_filter') == 'approved' ? 'btn-info' : 'btn-outline-info' }} font-weight-bold">Approved</a>
-                        <a href="{{ route('admin.sales-orders.index', ['status_filter' => 'delivered']) }}" class="btn {{ request('status_filter') == 'delivered' ? 'btn-success' : 'btn-outline-success' }} font-weight-bold">Delivered</a>
+            <div class="row">
+                <div class="col-12">
+                    {{-- Clean Filter Card --}}
+                    <div class="card card-primary mb-4">
+                        <div class="card-header">
+                            <h4><i class="fas fa-filter mr-2"></i>Filter Orders</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-end">
+                                <div class="col-md-5 col-sm-6 mb-3 mb-md-0">
+                                    <div class="form-group mb-0">
+                                        <label class="font-weight-bold">User / Outlet</label>
+                                        <select id="filter_user" class="form-control select2" style="width: 100%;">
+                                            <option value="">All Users & Outlets</option>
+                                            @foreach ($users as $user)
+                                                <option value="{{ $user->id }}">{{ $user->outlet_name ? $user->outlet_name . ' (' . $user->name . ')' : $user->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 col-sm-6 mb-3 mb-md-0">
+                                    <div class="form-group mb-0">
+                                        <label class="font-weight-bold">Status</label>
+                                        <select id="filter_status" class="form-control">
+                                            <option value="">All Orders</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="credit_hold">🔒 CREDIT HOLD</option>
+                                            <option value="approved">Approved</option>
+                                            <option value="processing">Processing</option>
+                                            <option value="completed">Completed</option>
+                                            <option value="cancelled">Cancelled</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-12">
+                                    <button type="button" id="reset_filter" class="btn btn-danger btn-block font-weight-bold" style="display: none;">
+                                        <i class="fas fa-redo-alt mr-1"></i> Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        {{ $dataTable->table(['class' => 'table table-striped table-hover w-100']) }}
+
+                    {{-- Data Table Card --}}
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>All Sales Orders</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                {{ $dataTable->table(['class' => 'table table-striped table-bordered', 'id' => 'sales-order-table']) }}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -51,4 +75,36 @@
 
 @push('scripts')
     {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
+
+    <script>
+        $(document).ready(function() {
+            if ($.fn.select2) {
+                $('#filter_user').select2();
+            }
+
+            function toggleResetBtn() {
+                if ($('#filter_status').val() || $('#filter_user').val()) {
+                    $('#reset_filter').show();
+                } else {
+                    $('#reset_filter').hide();
+                }
+            }
+
+            $('#filter_status, #filter_user').on('change', function() {
+                toggleResetBtn();
+                if (window.LaravelDataTables && window.LaravelDataTables['sales-order-table']) {
+                    window.LaravelDataTables['sales-order-table'].ajax.reload();
+                }
+            });
+
+            $('#reset_filter').on('click', function() {
+                $('#filter_status').val('');
+                $('#filter_user').val('').trigger('change');
+                toggleResetBtn();
+                if (window.LaravelDataTables && window.LaravelDataTables['sales-order-table']) {
+                    window.LaravelDataTables['sales-order-table'].ajax.reload();
+                }
+            });
+        });
+    </script>
 @endpush

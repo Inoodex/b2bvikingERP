@@ -15,9 +15,24 @@ class SalesOrderDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function ($query) {
-                $viewBtn = '<a href="' . route('admin.sales-orders.show', $query->id) . '" class="btn btn-sm btn-info shadow-sm mr-1" title="View Order"><i class="fas fa-eye"></i></a>';
-                $deleteBtn = '<a href="' . route('admin.sales-orders.destroy', $query->id) . '" class="btn btn-sm btn-danger shadow-sm delete-item" title="Delete"><i class="fas fa-trash"></i></a>';
-                return $viewBtn . $deleteBtn;
+                $view = "<a href='" . route('admin.orders.show', $query->id) . "' class='btn btn-primary btn-sm mr-1' title='Control Panel'><i class='fas fa-eye'></i></a>";
+                $pi_invoice = "<a href='" . route('admin.orders.pi-invoice', $query->id) . "' target='_blank' class='btn btn-success btn-sm mr-1' title='PI Invoice'>PI</a>";
+                $invoice = "<a href='" . route('admin.orders.view-invoice', $query->id) . "' target='_blank' class='btn btn-warning btn-sm mr-1' title='View Invoice'><i class='fas fa-file-invoice'></i></a>";
+                $download = "<a href='" . route('admin.orders.download-invoice', $query->id) . "' class='btn btn-info btn-sm mr-1' title='Download PDF'><i class='fas fa-download'></i></a>";
+                $delete = "<a href='" . route('admin.orders.destroy', $query->id) . "' class='btn btn-danger btn-sm delete-item mr-1' title='Delete'><i class='fas fa-trash'></i></a>";
+                
+                $issue = '';
+                $canCreateIssue = \Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->hasRole('Admin');
+                if ($canCreateIssue && strtolower((string) $query->status) === 'approved') {
+                    $issue = "<a href='" . route('admin.issues.create', ['order_id' => $query->id]) . "' class='btn btn-success btn-sm mr-1' title='Create Stock Issue'><i class='fas fa-box-open'></i></a>";
+                }
+
+                $pay = '';
+                if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->hasRole('Admin') && (float)$query->due_amount > 0 && strtolower((string)$query->status) === 'completed') {
+                    $pay = "<a href='" . route('admin.accounts.record-payment', ['order_no' => $query->order_no]) . "' class='btn btn-dark btn-sm mr-1' title='Record Payment'><i class='fas fa-money-bill-wave'></i></a>";
+                }
+
+                return $pay . $pi_invoice . $invoice . $download . $view . $issue . ' ' . $delete;
             })
             ->addColumn('order_no_badge', function ($query) {
                 return '<span class="badge badge-dark px-3 py-1 font-weight-bold" style="font-family: monospace; font-size: 0.9rem; letter-spacing: 1px;"><i class="fas fa-shopping-cart text-warning mr-1"></i>' . e($query->order_no) . '</span>';
@@ -73,8 +88,13 @@ class SalesOrderDataTable extends DataTable
     {
         $query = $model->newQuery()->with(['user'])->latest();
 
-        if ($this->request()->has('status_filter') && $this->request()->get('status_filter') !== '') {
-            $query->where('status', $this->request()->get('status_filter'));
+        $status = $this->request()->get('status') ?: $this->request()->get('status_filter');
+        if (!empty($status)) {
+            $query->where('status', $status);
+        }
+
+        if ($this->request()->filled('user_id')) {
+            $query->where('user_id', $this->request()->get('user_id'));
         }
 
         return $query;

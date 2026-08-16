@@ -1,38 +1,70 @@
 @extends('backend.layouts.master')
-@section('title', 'Frontend Orders')
+@section('title', 'Sales Orders (SO)')
 
 @section('content')
     <section class="section">
+        {{-- Standard Stisla Section Header --}}
         <div class="section-header">
-            <h1>Frontend Orders</h1>
+            <h1>Sales Orders (SO)</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
+                <div class="breadcrumb-item">Sales Orders</div>
+            </div>
         </div>
+
         <div class="section-body">
             <div class="row">
                 <div class="col-12">
-                    <div class="card">
+                    {{-- Clean Filter Card --}}
+                    <div class="card card-primary mb-4">
                         <div class="card-header">
-                            <h4>All Frontend Orders</h4>
-                            <div id="custom-status-filter" style="display: none; align-items: center; gap: 10px; flex-wrap: wrap;">
-                                <label for="filter_user" class="mb-0" style="white-space: nowrap;"><strong>User/Outlet:</strong></label>
-                                <select id="filter_user" class="form-control form-control-sm" style="width: auto; min-width: 140px;">
-                                    <option value="">All Users</option>
-                                    @foreach ($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->outlet_name ?: $user->name }}</option>
-                                    @endforeach
-                                </select>
-                                <label for="filter_status" class="mb-0" style="white-space: nowrap;"><strong>Status:</strong></label>
-                                <select id="filter_status" class="form-control form-control-sm" style="width: auto;">
-                                    <option value="">All Orders</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="approved">Approved</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
-                                </select>
-                                <button type="button" id="reset_filter" class="btn btn-danger btn-sm" style="display: none;">Reset</button>
+                            <h4><i class="fas fa-filter mr-2"></i>Filter Orders</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-end">
+                                <div class="col-md-5 col-sm-6 mb-3 mb-md-0">
+                                    <div class="form-group mb-0">
+                                        <label class="font-weight-bold">User / Outlet</label>
+                                        <select id="filter_user" class="form-control select2" style="width: 100%;">
+                                            <option value="">All Users & Outlets</option>
+                                            @foreach ($users as $user)
+                                                <option value="{{ $user->id }}">{{ $user->outlet_name ? $user->outlet_name . ' (' . $user->name . ')' : $user->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 col-sm-6 mb-3 mb-md-0">
+                                    <div class="form-group mb-0">
+                                        <label class="font-weight-bold">Status</label>
+                                        <select id="filter_status" class="form-control">
+                                            <option value="">All Orders</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="credit_hold">🔒 CREDIT HOLD</option>
+                                            <option value="approved">Approved</option>
+                                            <option value="processing">Processing</option>
+                                            <option value="completed">Completed</option>
+                                            <option value="cancelled">Cancelled</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-12">
+                                    <button type="button" id="reset_filter" class="btn btn-danger btn-block font-weight-bold" style="display: none;">
+                                        <i class="fas fa-redo-alt mr-1"></i> Reset
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="table-responsive card-body">
-                            {{ $dataTable->table(['class' => 'table table-striped table-bordered', 'id' => 'order-table']) }}
+                    </div>
+
+                    {{-- Data Table Card --}}
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>All Sales Orders</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                {{ $dataTable->table(['class' => 'table table-striped table-bordered', 'id' => 'order-table']) }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -46,20 +78,9 @@
 
     <script>
         $(document).ready(function() {
-            $('#order-table').on('init.dt', function() {
-                var filterWrapper = $('#custom-status-filter');
-                filterWrapper.css('display', 'flex');
-
-                var dtFilter = $('.dataTables_filter');
-                dtFilter.css({
-                    'display': 'flex',
-                    'align-items': 'center',
-                    'justify-content': 'flex-end',
-                    'gap': '10px'
-                });
-                dtFilter.prepend(filterWrapper);
-                $('#filter_user').select2({ width: '200px' });
-            });
+            if ($.fn.select2) {
+                $('#filter_user').select2();
+            }
 
             function toggleResetBtn() {
                 if ($('#filter_status').val() || $('#filter_user').val()) {
@@ -71,16 +92,16 @@
 
             $('#filter_status, #filter_user').on('change', function() {
                 toggleResetBtn();
-                if(window.LaravelDataTables && window.LaravelDataTables['order-table']) {
+                if (window.LaravelDataTables && window.LaravelDataTables['order-table']) {
                     window.LaravelDataTables['order-table'].ajax.reload();
                 }
             });
 
             $('#reset_filter').on('click', function() {
                 $('#filter_status').val('');
-                $('#filter_user').val('').trigger('change.select2');
+                $('#filter_user').val('').trigger('change');
                 toggleResetBtn();
-                if(window.LaravelDataTables && window.LaravelDataTables['order-table']) {
+                if (window.LaravelDataTables && window.LaravelDataTables['order-table']) {
                     window.LaravelDataTables['order-table'].ajax.reload();
                 }
             });

@@ -215,6 +215,7 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     Route::resource('sales-quotations', SalesQuotationController::class);
 
     /** Sales Order Routes */
+    Route::post('orders/{order}/release-credit', [FrontendOrderController::class, 'releaseCreditHold'])->name('orders.release-credit');
     Route::post('sales-orders/{order}/release-credit', [SalesOrderController::class, 'releaseCreditHold'])->name('sales-orders.release-credit');
     Route::get('sales-orders/check-credit', [SalesOrderController::class, 'checkCustomerCredit'])->name('sales-orders.check-credit');
     Route::resource('sales-orders', SalesOrderController::class);

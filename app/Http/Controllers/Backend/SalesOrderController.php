@@ -32,7 +32,8 @@ class SalesOrderController extends Controller
 
     public function index(SalesOrderDataTable $dataTable)
     {
-        return $dataTable->render('backend.sales_orders.index');
+        $users = User::where('status', 1)->orderBy('name')->get(['id', 'name', 'outlet_name']);
+        return $dataTable->render('backend.sales_orders.index', compact('users'));
     }
 
     public function create(): View
@@ -155,9 +156,16 @@ class SalesOrderController extends Controller
 
     public function show(string $id): View
     {
-        $order = Order::with(['user', 'items.product', 'items.variant'])->findOrFail($id);
+        $order = Order::with(['items.product', 'items.variant.color', 'items.variant.size', 'items.vendor', 'user', 'payments.receipts'])->findOrFail($id);
+        $order->reconcileTotals();
+        $order->refresh();
+        $items = $order->items;
+        $piInfo = \App\Support\PiInfoSupport::prepare($order->pi_info, $items, 'quantity');
+        $piTotals = \App\Support\PiInfoSupport::summarize($piInfo);
+        $hasSavedPiInfo = \App\Support\PiInfoSupport::hasContent($order->pi_info);
         $creditEvaluation = $this->creditService->evaluateCreditExposure($order->user_id, (float)$order->total_amount, $order->id);
-        return view('backend.sales_orders.show', compact('order', 'creditEvaluation'));
+
+        return view('backend.orders.show', compact('order', 'piInfo', 'piTotals', 'hasSavedPiInfo', 'items', 'creditEvaluation'));
     }
 
     public function releaseCreditHold(Request $request, string $id): RedirectResponse

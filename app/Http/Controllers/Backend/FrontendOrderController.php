@@ -44,7 +44,11 @@ class FrontendOrderController extends Controller
         $piTotals = PiInfoSupport::summarize($piInfo);
         $hasSavedPiInfo = PiInfoSupport::hasContent($order->pi_info);
 
-        return view('backend.orders.show', compact('order', 'piInfo', 'piTotals', 'hasSavedPiInfo', 'items'));
+        // Calculate Credit Limit Exposure
+        $creditService = app(\App\Services\Credit\CreditValidationService::class);
+        $creditEvaluation = $creditService->evaluateCreditExposure($order->user_id, (float)$order->total_amount, $order->id);
+
+        return view('backend.orders.show', compact('order', 'piInfo', 'piTotals', 'hasSavedPiInfo', 'items', 'creditEvaluation'));
     }
 
     /**
@@ -223,13 +227,36 @@ class FrontendOrderController extends Controller
     public function updateStatus(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'status' => 'required|in:pending,approved,cancelled',
+            'status' => 'required|string',
         ]);
 
         $order->status = $validated['status'];
         $order->save();
 
         Toastr::success('Order status updated successfully!');
+        return redirect()->route('admin.orders.show', $order->id);
+    }
+
+    /**
+     * Authorize Release for Credit Hold.
+     */
+    public function releaseCreditHold(Request $request, Order $order)
+    {
+        $request->validate([
+            'override_reason' => 'required|string|max:255',
+        ]);
+
+        if ($order->status !== 'credit_hold') {
+            Toastr::info('Order is not under Credit Hold.');
+            return redirect()->back();
+        }
+
+        $order->update([
+            'status' => 'approved',
+            'pi_email' => 'Credit Override Granted: ' . $request->override_reason . ' (By ' . (auth()->user()?->name ?? 'Admin') . ' at ' . now()->format('d M Y H:i') . ')',
+        ]);
+
+        Toastr::success('Credit Hold released successfully for Order #' . $order->order_no . '!');
         return redirect()->route('admin.orders.show', $order->id);
     }
 
