@@ -15,13 +15,13 @@ class DeliveryOrderItem extends Model
         'order_item_id',
         'product_id',
         'variant_id',
-        'ordered_qty',
         'qty_delivered',
+        'unit_price',
     ];
 
     protected $casts = [
-        'ordered_qty' => 'float',
         'qty_delivered' => 'float',
+        'unit_price' => 'float',
     ];
 
     public function deliveryOrder(): BelongsTo

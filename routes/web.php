@@ -5,8 +5,8 @@ use App\Http\Controllers\Backend\BrandController;
 // use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Backend\AccountController as BackendAccountController;
 use App\Http\Controllers\Backend\CartController as BackendCartController;
-use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\CreditNoteController;
+use App\Http\Controllers\Backend\DeliveryOrderController;
 use App\Http\Controllers\Backend\SalesReturnController;
 use App\Http\Controllers\Backend\SubCategoryController;
 use App\Http\Controllers\Backend\TaxController;
@@ -568,6 +568,14 @@ Route::controller(BackendAccountController::class)->group(function () {
         Route::get('credit-notes/{creditNote}/pdf', 'downloadPdf')->name('credit-notes.pdf');
     });
     Route::resource('credit-notes', CreditNoteController::class);
+
+    /** Phase 3 Step 3.8: Delivery Orders, Packing Slips & Partial Fulfillment Engine */
+    Route::controller(DeliveryOrderController::class)->group(function () {
+        Route::get('delivery-orders/get-order-items', 'getOrderItems')->name('delivery-orders.get-order-items');
+        Route::post('delivery-orders/{deliveryOrder}/dispatch', 'dispatch')->name('delivery-orders.dispatch');
+        Route::get('delivery-orders/{deliveryOrder}/pdf', 'downloadPdf')->name('delivery-orders.pdf');
+    });
+    Route::resource('delivery-orders', DeliveryOrderController::class);
 
 });
 });

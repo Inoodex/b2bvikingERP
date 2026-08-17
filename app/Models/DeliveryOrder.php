@@ -15,20 +15,18 @@ class DeliveryOrder extends Model
     protected $fillable = [
         'order_id',
         'delivery_no',
-        'delivery_type',
-        'tracking_number',
         'carrier_name',
-        'shipping_address',
+        'awb_number',
+        'shipping_method',
         'status',
         'date',
-        'actual_delivery_date',
         'notes',
         'created_by',
+        'dispatched_by',
     ];
 
     protected $casts = [
         'date' => 'date',
-        'actual_delivery_date' => 'date',
     ];
 
     public function order(): BelongsTo
@@ -39,6 +37,11 @@ class DeliveryOrder extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function dispatcher(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'dispatched_by');
     }
 
     public function items(): HasMany

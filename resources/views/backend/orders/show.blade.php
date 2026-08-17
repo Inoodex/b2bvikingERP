@@ -52,7 +52,8 @@
                             <h4><i class="fas fa-list mr-2"></i>Order Items</h4>
                             <div class="card-header-action">
                                 <a href="{{ route('admin.orders.pi-invoice', $order->id) }}" class="btn btn-success" target="_blank"><i class="fas fa-file-signature mr-1"></i> PI Invoice</a>
-                                <a href="{{ route('admin.orders.view-invoice', $order->id) }}" class="btn btn-warning" target="_blank"><i class="fas fa-file-invoice mr-1"></i> View Invoice</a>
+                                <a href="{{ route('admin.delivery-orders.create', ['order_id' => $order->id]) }}" class="btn btn-primary font-weight-bold ml-2"><i class="fas fa-truck mr-1"></i> Create Delivery Order</a>
+                                <a href="{{ route('admin.orders.view-invoice', $order->id) }}" class="btn btn-warning ml-2" target="_blank"><i class="fas fa-file-invoice mr-1"></i> View Invoice</a>
                                 <a href="{{ route('admin.orders.download-invoice', $order->id) }}" class="btn btn-info ml-2"><i class="fas fa-download mr-1"></i> Download PDF</a>
                                 <a href="{{ route('admin.orders.download-customer-invoice', $order->id) }}" class="btn btn-dark ml-2"><i class="fas fa-file-invoice mr-1"></i> Customer Invoice</a>
                                 {{-- <a href="{{ route('admin.orders.destroy', $order->id) }}" class="btn btn-danger ml-2 delete-item"><i class="fas fa-trash mr-1"></i> Delete</a> --}}

@@ -37,6 +37,7 @@ class Order extends Model
         'tax_label',
         'vat_rate',
         'placed_at',
+        'fulfillment_status',
     ];
 
     protected $casts = [
@@ -70,6 +71,11 @@ class Order extends Model
     public function issues()
     {
         return $this->hasMany(Issue::class);
+    }
+
+    public function deliveryOrders()
+    {
+        return $this->hasMany(DeliveryOrder::class);
     }
 
     public function approvals()
