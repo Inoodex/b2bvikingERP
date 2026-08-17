@@ -53,6 +53,7 @@
                             <div class="card-header-action">
                                 <a href="{{ route('admin.orders.pi-invoice', $order->id) }}" class="btn btn-success" target="_blank"><i class="fas fa-file-signature mr-1"></i> PI Invoice</a>
                                 <a href="{{ route('admin.delivery-orders.create', ['order_id' => $order->id]) }}" class="btn btn-primary font-weight-bold ml-2"><i class="fas fa-truck mr-1"></i> Create Delivery Order</a>
+                                <a href="{{ route('admin.sales-invoices.create', ['order_id' => $order->id]) }}" class="btn btn-secondary font-weight-bold ml-2"><i class="fas fa-file-invoice-dollar mr-1"></i> Create Commercial Invoice</a>
                                 <a href="{{ route('admin.orders.view-invoice', $order->id) }}" class="btn btn-warning ml-2" target="_blank"><i class="fas fa-file-invoice mr-1"></i> View Invoice</a>
                                 <a href="{{ route('admin.orders.download-invoice', $order->id) }}" class="btn btn-info ml-2"><i class="fas fa-download mr-1"></i> Download PDF</a>
                                 <a href="{{ route('admin.orders.download-customer-invoice', $order->id) }}" class="btn btn-dark ml-2"><i class="fas fa-file-invoice mr-1"></i> Customer Invoice</a>
@@ -97,13 +98,15 @@
                                             </tr>
                                             @foreach($categoryItems as $item)
                                                 @php
-                                                    $imagePath = (string) ($item->product_image ?? '');
+                                                    $imagePath = (string) ($item->product_image ?? (optional($item->product)->thumb_image ?? (optional($item->product)->image ?? '')));
                                                     $imageUrl = null;
                                                     if ($imagePath !== '') {
                                                         if (str_starts_with($imagePath, 'http://') || str_starts_with($imagePath, 'https://')) {
                                                             $imageUrl = $imagePath;
                                                         } elseif (is_file(public_path(ltrim($imagePath, '/')))) {
                                                             $imageUrl = asset(ltrim($imagePath, '/'));
+                                                        } elseif (is_file(public_path('storage/' . ltrim($imagePath, '/')))) {
+                                                            $imageUrl = asset('storage/' . ltrim($imagePath, '/'));
                                                         } elseif (str_starts_with($imagePath, 'storage/')) {
                                                             $imageUrl = asset($imagePath);
                                                         } else {

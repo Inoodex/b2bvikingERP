@@ -69,28 +69,34 @@ Phase 3 implements a **Tier-1 Enterprise Sales & Commercial Distribution Engine*
 
 ---
 
-### 🔹 Step 3.7: Sales Order Polymorphic Approval Workflow [Pending]
+### 🔹 Step 3.7: Sales Order Polymorphic Approval Workflow [x] ✅ FULLY COMPLETED
 - **Model Target:** `App\Models\Order` (Polymorphic Model Type)
 - **Features:**
-  - Integration with `ApprovalService.php` (`submitForApproval`, `canUserApproveCurrentStep`, `approveStep`).
-  - Status Progression: `Draft` ➔ `Pending Approval` ➔ `Approved` ➔ `Fulfilled`.
-  - Visual Stepper & Status Banners.
+  - Integration with `ApprovalService.php` (`submitForApproval`, `canUserApproveCurrentStep`, `approveStep`). ✅
+  - Status Progression: `Draft` ➔ `Pending Approval` ➔ `Approved` ➔ `Fulfilled`. ✅
+  - Visual Stepper & Status Banners. ✅
 
 ---
 
-### 🔹 Step 3.8: Delivery Orders, Packing Slips & Partial Fulfillment [Pending]
-- **Controller:** `DeliveryOrderController.php`
+### 🔹 Step 3.8: Delivery Orders, Packing Slips & Partial Fulfillment [x] ✅ FULLY COMPLETED
+- **Controller:** `DeliveryOrderController.php` & `DeliveryOrderDataTable.php`
 - **Features:**
-  - Commercial Delivery Orders (`DO-XXXX`) & Packing Slips.
-  - Partial Shipment support (e.g. ship 50 pcs now, 50 pcs later as Back Order).
+  - Commercial Delivery Orders (`DO-202608-XXXX`) & Executive DomPDF Packing Slips. ✅
+  - Carrier AWB Tracking & Driver Instructions. ✅
+  - Partial Shipment & Back-Order Auto-Calculation (`maxDeliverable` calculation). ✅
+  - Physical Inventory Stock Deduction & StockLedger `OUT` Logging. ✅
+  - Order Fulfillment Status Auto-Sync (`partially_delivered` / `fully_delivered`). ✅
+  - Smart Dropdown Filtering (fully delivered orders automatically hidden). ✅
 
 ---
 
-### 🔹 Step 3.9: Sales Invoicing Engine [Pending]
-- **Controller:** `SalesInvoiceController.php`
+### 🔹 Step 3.9: Sales Invoicing Engine [x] ✅ FULLY COMPLETED
+- **Controller:** `SalesInvoiceController.php` & `SalesInvoiceDataTable.php`
 - **Features:**
-  - Sales Invoices (`INV-XXXX`) generated from Approved Sales Orders or Delivery Orders.
-  - Commercial Incoterms tracking (FOB, CIF, EXW, DDP, CFR).
+  - Commercial B2B Sales Invoices (`INV-202608-XXXX`) generated from Approved Sales Orders or Delivery Orders. ✅
+  - 1-Click Invoice Generation with AJAX item, quantity, and unit price preloading. ✅
+  - Automated Double-Entry General Ledger Journal Entries (`Accounts Receivable` Dr, `Sales Revenue` Cr, `VAT Payable` Cr). ✅
+  - DomPDF B2B Commercial Sales Invoice Export formatted with seller/buyer VAT Tax IDs, Payment Terms (Net 30), and Bank IBAN Wire Transfer instructions. ✅
 
 ---
 

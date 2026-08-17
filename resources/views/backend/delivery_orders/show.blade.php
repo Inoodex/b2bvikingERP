@@ -24,6 +24,9 @@
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h4><i class="fas fa-truck mr-2"></i>Outbound Shipping Challan Details</h4>
                             <div>
+                                <a href="{{ route('admin.sales-invoices.create', ['delivery_order_id' => $deliveryOrder->id]) }}" class="btn btn-primary font-weight-bold mr-2 shadow-sm">
+                                    <i class="fas fa-file-invoice-dollar mr-1"></i> Generate Invoice
+                                </a>
                                 <a href="{{ route('admin.delivery-orders.pdf', $deliveryOrder->id) }}" target="_blank" class="btn btn-danger font-weight-bold mr-2 shadow-sm">
                                     <i class="fas fa-file-pdf mr-1"></i> Packing Slip PDF
                                 </a>

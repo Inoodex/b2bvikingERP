@@ -7,6 +7,7 @@ use App\Http\Controllers\Backend\AccountController as BackendAccountController;
 use App\Http\Controllers\Backend\CartController as BackendCartController;
 use App\Http\Controllers\Backend\CreditNoteController;
 use App\Http\Controllers\Backend\DeliveryOrderController;
+use App\Http\Controllers\Backend\SalesInvoiceController;
 use App\Http\Controllers\Backend\SalesReturnController;
 use App\Http\Controllers\Backend\SubCategoryController;
 use App\Http\Controllers\Backend\TaxController;
@@ -576,6 +577,14 @@ Route::controller(BackendAccountController::class)->group(function () {
         Route::get('delivery-orders/{deliveryOrder}/pdf', 'downloadPdf')->name('delivery-orders.pdf');
     });
     Route::resource('delivery-orders', DeliveryOrderController::class);
+
+    /** Phase 3 Step 3.9: Commercial B2B Sales Invoicing & Billing Engine */
+    Route::controller(SalesInvoiceController::class)->group(function () {
+        Route::get('sales-invoices/get-items', 'getItems')->name('sales-invoices.get-items');
+        Route::post('sales-invoices/{salesInvoice}/post', 'post')->name('sales-invoices.post');
+        Route::get('sales-invoices/{salesInvoice}/pdf', 'downloadPdf')->name('sales-invoices.pdf');
+    });
+    Route::resource('sales-invoices', SalesInvoiceController::class);
 
 });
 });
