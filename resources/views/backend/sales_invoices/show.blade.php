@@ -129,6 +129,12 @@
                                 <i class="fas fa-lock mr-2"></i> <strong>Posted & Accounting Locked</strong>
                             </div>
                         @endif
+
+                        @if ($invoice->due_amount > 0)
+                            <a href="{{ route('admin.customer-payments.create', ['sales_invoice_id' => $invoice->id]) }}" class="btn btn-success btn-block mt-2 font-weight-bold shadow-sm" style="border-radius: 6px;">
+                                <i class="fas fa-money-check-alt mr-1"></i> Record Customer Payment
+                            </a>
+                        @endif
                     </div>
                 </div>
 

@@ -586,6 +586,13 @@ Route::controller(BackendAccountController::class)->group(function () {
     });
     Route::resource('sales-invoices', SalesInvoiceController::class);
 
+    /** Phase 3 Step 3.10: Customer Payment Collection & Receipt Vouchers Engine */
+    Route::controller(\App\Http\Controllers\Backend\CustomerPaymentController::class)->group(function () {
+        Route::get('customer-payments/get-invoice-details', 'getInvoiceDetails')->name('customer-payments.get-invoice-details');
+        Route::get('customer-payments/{customerPayment}/pdf', 'pdf')->name('customer-payments.pdf');
+    });
+    Route::resource('customer-payments', \App\Http\Controllers\Backend\CustomerPaymentController::class);
+
 });
 });
 

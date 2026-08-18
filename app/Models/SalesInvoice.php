@@ -48,6 +48,16 @@ class SalesInvoice extends Model
         return $this->belongsTo(Order::class, 'order_id');
     }
 
+    public function user()
+    {
+        return $this->hasOneThrough(User::class, Order::class, 'id', 'id', 'order_id', 'user_id');
+    }
+
+    public function getUserIdAttribute()
+    {
+        return $this->order ? $this->order->user_id : null;
+    }
+
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class, 'currency_id');

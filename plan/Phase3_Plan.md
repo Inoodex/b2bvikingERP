@@ -100,22 +100,29 @@ Phase 3 implements a **Tier-1 Enterprise Sales & Commercial Distribution Engine*
 
 ---
 
-### 🔹 Step 3.10: Customer Payment Collection [Pending]
-- **Controller:** `CustomerPaymentController.php`
+### 🔹 Step 3.10: Customer Payment Collection [x] ✅ FULLY COMPLETED
+- **Controller:** `CustomerPaymentController.php` & `CustomerPaymentDataTable.php`
 - **Features:**
-  - Record Customer Payments (Full, Partial & Advance Receipts).
-  - Payment Allocations against unpaid sales invoices.
+  - Sequential Receipt Vouchers (`REC-202608-XXXX`). ✅
+  - Record Customer Payments (Full, Partial & Advance Receipts). ✅
+  - Auto-knockdown of Unpaid Sales Invoice Due Amounts (`due_amount` becomes 0). ✅
+  - Double-Entry General Ledger Journal Entries (`Cash/Bank` Dr, `Accounts Receivable` Cr). ✅
+  - DomPDF Printable Payment Receipt Voucher Export. ✅
+  - 1-Click Payment Recording from Sales Invoices and Sales Orders. ✅
 
 ---
 
-### 🔹 Step 3.11: Customer Returns (RMA) & Accounting Credit Notes [Pending]
+### 🔹 Step 3.11: Customer Returns (RMA) & Accounting Credit Notes [x] ✅ FULLY COMPLETED
 - **Controllers:** `SalesReturnController.php` & `CreditNoteController.php`
 - **Features:**
-  - Customer Return (RMA) process & Credit Notes (`CN-XXXX`).
+  - Customer Return (RMA) process & Credit Notes (`CN-202608-XXXX`). ✅
   - **3 Settlement Modes:**
-    - Mode A: Auto-deduct Credit Note amount from unpaid customer invoice.
-    - Mode B: Product Replacement swap.
-    - Mode C: Direct Money Refund.
+    - Mode A: Auto-deduct Credit Note amount from unpaid customer invoice. ✅
+    - Mode B: Product Replacement swap. ✅
+    - Mode C: Direct Money Refund. ✅
+  - **4 Stock Actions:** Restock, Scrap (Write-Off), Return to Vendor, Quarantine. ✅
+  - Credit Limit Exposure Restoration on Approval. ✅
+  - DomPDF Official Credit Note Export. ✅
 
 ---
 

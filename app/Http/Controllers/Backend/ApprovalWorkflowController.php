@@ -31,6 +31,7 @@ class ApprovalWorkflowController extends Controller
         $roles = Role::orderBy('name')->get();
         $users = User::where('status', 1)->orderBy('name')->get();
         $models = [
+            'App\Models\Order' => 'Commercial Sales Order (SO)',
             'App\Models\ProductRequest' => 'Requisition (SR / PR)',
             'App\Models\ComparisonStatement' => 'Comparison Statement (CS)',
             'App\Models\Purchase' => 'Purchase Order (PO)',
@@ -59,6 +60,7 @@ class ApprovalWorkflowController extends Controller
         $roles = Role::orderBy('name')->get();
         $users = User::where('status', 1)->orderBy('name')->get();
         $models = [
+            'App\Models\Order' => 'Commercial Sales Order (SO)',
             'App\Models\ProductRequest' => 'Requisition (SR / PR)',
             'App\Models\ComparisonStatement' => 'Comparison Statement (CS)',
             'App\Models\Purchase' => 'Purchase Order (PO)',

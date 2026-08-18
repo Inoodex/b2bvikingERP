@@ -4,49 +4,60 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CustomerPayment extends Model
 {
     use HasFactory;
 
+    protected $table = 'customer_payments';
+
     protected $fillable = [
         'payment_no',
-        'customer_id',
+        'user_id',
         'sales_invoice_id',
-        'currency_id',
+        'order_id',
+        'account_id',
         'amount',
-        'exchange_rate',
         'payment_method',
-        'payment_date',
         'reference_no',
+        'payment_date',
         'notes',
         'created_by',
+        'status',
     ];
 
     protected $casts = [
+        'amount' => 'decimal:2',
         'payment_date' => 'date',
-        'amount' => 'float',
-        'exchange_rate' => 'float',
     ];
 
-    public function customer(): BelongsTo
+    public function user()
     {
-        return $this->belongsTo(User::class, 'customer_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function invoice(): BelongsTo
+    public function invoice()
     {
         return $this->belongsTo(SalesInvoice::class, 'sales_invoice_id');
     }
 
-    public function currency(): BelongsTo
+    public function order()
     {
-        return $this->belongsTo(Currency::class, 'currency_id');
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
-    public function creator(): BelongsTo
+    public function account()
+    {
+        return $this->belongsTo(ChartOfAccount::class, 'account_id');
+    }
+
+    public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function journalEntry()
+    {
+        return $this->morphOne(JournalEntry::class, 'reference', 'reference_type', 'reference_id');
     }
 }

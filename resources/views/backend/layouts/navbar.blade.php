@@ -1130,6 +1130,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-store-alt"></i> Sales Orders (SO)</a></li>
           <li><a href="{{ route('admin.delivery-orders.index') }}"><i class="fas fa-truck"></i> Delivery Orders (Challans)</a></li>
           <li><a href="{{ route('admin.sales-invoices.index') }}"><i class="fas fa-file-invoice-dollar"></i> Commercial Invoices</a></li>
+          <li><a href="{{ route('admin.customer-payments.index') }}"><i class="fas fa-money-check-alt"></i> Customer Payments</a></li>
           <li><a href="{{ route('admin.sales-returns.index') }}"><i class="fas fa-undo-alt"></i> Customer Returns (RMA)</a></li>
           <li><a href="{{ route('admin.credit-notes.index') }}"><i class="fas fa-file-invoice-dollar"></i> Credit Notes</a></li>
           <li><a href="{{ route('admin.custom-product-requests.index') }}"><i class="fas fa-sync-alt"></i> Custom Requests</a></li>

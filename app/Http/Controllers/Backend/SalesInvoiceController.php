@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\DataTables\SalesInvoiceDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\ChartOfAccount;
 use App\Models\DeliveryOrder;
 use App\Models\GeneralSetting;
 use App\Models\JournalEntry;
@@ -11,6 +12,7 @@ use App\Models\JournalEntryLine;
 use App\Models\Order;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
+use App\Models\Tax;
 use App\Services\OrderNumberService;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
@@ -55,7 +57,10 @@ class SalesInvoiceController extends Controller
             $preloadedOrder = Order::with(['user', 'items.product', 'items.variant'])->find($selectedOrderId);
         }
 
-        return view('backend.sales_invoices.create', compact('orders', 'deliveryOrders', 'selectedOrderId', 'selectedDeliveryOrderId', 'preloadedOrder', 'preloadedDeliveryOrder'));
+        $defaultTax = Tax::where('is_default', 1)->first() ?: Tax::where('status', 1)->first();
+        $defaultTaxRate = $defaultTax ? (float)$defaultTax->value : 5.00;
+
+        return view('backend.sales_invoices.create', compact('orders', 'deliveryOrders', 'selectedOrderId', 'selectedDeliveryOrderId', 'preloadedOrder', 'preloadedDeliveryOrder', 'defaultTaxRate'));
     }
 
     public function getItems(Request $request)
@@ -86,12 +91,17 @@ class SalesInvoiceController extends Controller
                 ];
             });
 
+            $defaultTax = Tax::where('is_default', 1)->first() ?: Tax::where('status', 1)->first();
+            $defaultTaxRate = $defaultTax ? (float)$defaultTax->value : 5.00;
+
             return response()->json([
                 'success' => true,
                 'type' => 'delivery_order',
                 'order_id' => $do->order_id,
                 'order_no' => $do->order ? $do->order->order_no : '-',
                 'customer_name' => $do->order && $do->order->user ? ($do->order->user->outlet_name ?: $do->order->user->name) : 'Guest / Cash',
+                'discount_amount' => (float)($do->order ? $do->order->discount_amount : 0),
+                'vat_rate' => (float)($do->order && $do->order->vat_rate > 0 ? $do->order->vat_rate : $defaultTaxRate),
                 'items' => $items,
             ]);
         }
@@ -119,12 +129,17 @@ class SalesInvoiceController extends Controller
                 ];
             });
 
+            $defaultTax = Tax::where('is_default', 1)->first() ?: Tax::where('status', 1)->first();
+            $defaultTaxRate = $defaultTax ? (float)$defaultTax->value : 5.00;
+
             return response()->json([
                 'success' => true,
                 'type' => 'order',
                 'order_id' => $order->id,
                 'order_no' => $order->order_no,
                 'customer_name' => $order->user ? ($order->user->outlet_name ?: $order->user->name) : 'Guest / Cash',
+                'discount_amount' => (float)$order->discount_amount,
+                'vat_rate' => (float)($order->vat_rate > 0 ? $order->vat_rate : $defaultTaxRate),
                 'items' => $items,
             ]);
         }
@@ -253,40 +268,41 @@ class SalesInvoiceController extends Controller
         // Check if Chart of Accounts / Journal Entries exist
         if (class_exists(JournalEntry::class)) {
             $journalEntry = JournalEntry::create([
-                'entry_number' => 'JE-INV-' . $invoice->invoice_no,
-                'date' => $invoice->date ?: now(),
-                'reference' => 'Commercial Sales Invoice #' . $invoice->invoice_no,
-                'notes' => 'Accounting entry for Invoice #' . $invoice->invoice_no,
-                'status' => 'posted',
+                'entry_no' => 'JE-INV-' . $invoice->invoice_no,
+                'reference_type' => SalesInvoice::class,
+                'reference_id' => $invoice->id,
+                'entry_date' => $invoice->date ?: now(),
+                'narration' => 'Commercial Sales Invoice #' . $invoice->invoice_no,
                 'created_by' => Auth::id(),
             ]);
+
+            $arAccount = ChartOfAccount::where('account_name', 'LIKE', '%Receivable%')->first() ?: ChartOfAccount::first();
+            $revenueAccount = ChartOfAccount::where('account_type', 'revenue')->first() ?: ChartOfAccount::first();
+            $taxAccount = ChartOfAccount::where('account_name', 'LIKE', '%VAT%')->orWhere('account_name', 'LIKE', '%Tax%')->first() ?: ChartOfAccount::first();
 
             // Accounts Receivable Dr
             JournalEntryLine::create([
                 'journal_entry_id' => $journalEntry->id,
-                'account_name' => 'Accounts Receivable (Trade Debtors)',
+                'account_id' => $arAccount ? $arAccount->id : 1,
                 'debit' => $invoice->total_amount,
                 'credit' => 0.00,
-                'description' => 'Customer Debt for Invoice #' . $invoice->invoice_no,
             ]);
 
             // Sales Revenue Cr
             JournalEntryLine::create([
                 'journal_entry_id' => $journalEntry->id,
-                'account_name' => 'Sales Revenue',
+                'account_id' => $revenueAccount ? $revenueAccount->id : 1,
                 'debit' => 0.00,
                 'credit' => $invoice->subtotal_amount - $invoice->discount_amount,
-                'description' => 'Gross Sales Revenue for Invoice #' . $invoice->invoice_no,
             ]);
 
             // Output VAT Cr (if any)
             if ($invoice->tax_amount > 0) {
                 JournalEntryLine::create([
                     'journal_entry_id' => $journalEntry->id,
-                    'account_name' => 'Output VAT / Sales Tax Payable',
+                    'account_id' => $taxAccount ? $taxAccount->id : 1,
                     'debit' => 0.00,
                     'credit' => $invoice->tax_amount,
-                    'description' => 'Output Sales Tax Collected for Invoice #' . $invoice->invoice_no,
                 ]);
             }
         }

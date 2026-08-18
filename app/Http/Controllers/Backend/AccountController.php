@@ -654,19 +654,19 @@ class AccountController extends Controller
     }
 
     /**
-     * Show the manual payment entry page.
+     * Show the manual payment entry page (Redirect to Enterprise Customer Payments).
      */
     public function create()
     {
-        return view('backend.accounts.create');
+        return redirect()->route('admin.customer-payments.create', request()->query());
     }
 
     /**
-     * Show the vendor payment entry page.
+     * Show the vendor payment entry page (Redirect to Enterprise Purchase Payments).
      */
     public function createVendorPayment()
     {
-        return view('backend.accounts.vendor_payment_create');
+        return redirect()->route('admin.purchase-payments.create', request()->query());
     }
 
     /**

@@ -81,4 +81,22 @@ class OrderNumberService
 
         return $prefix . str_pad($nextSerial, 4, '0', STR_PAD_LEFT);
     }
+
+    public static function generateCustomerPaymentNumber(): string
+    {
+        $prefix = 'REC-' . now()->format('Ym') . '-';
+        $latest = DB::table('customer_payments')
+            ->where('payment_no', 'LIKE', $prefix . '%')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($latest) {
+            $lastSerial = (int) substr($latest->payment_no, strlen($prefix));
+            $nextSerial = $lastSerial + 1;
+        } else {
+            $nextSerial = 1;
+        }
+
+        return $prefix . str_pad($nextSerial, 4, '0', STR_PAD_LEFT);
+    }
 }

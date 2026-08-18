@@ -114,13 +114,13 @@
                                         <tr>
                                             <td colspan="3" class="text-right font-weight-bold">Discount Amount:</td>
                                             <td class="text-right">
-                                                <input type="number" step="0.01" min="0" name="discount_amount" id="discountInput" class="form-control text-right" value="0.00">
+                                                <input type="number" step="0.01" min="0" name="discount_amount" id="discountInput" class="form-control text-right" value="{{ number_format((float)(isset($preloadedOrder) ? $preloadedOrder->discount_amount : (isset($preloadedDeliveryOrder->order) ? $preloadedDeliveryOrder->order->discount_amount : 0)), 2, '.', '') }}">
                                             </td>
                                         </tr>
                                         <tr>
                                             <td colspan="3" class="text-right font-weight-bold">VAT Tax %:</td>
                                             <td class="text-right">
-                                                <input type="number" step="0.01" min="0" max="100" name="tax_rate" id="taxRateInput" class="form-control text-right" value="25.00">
+                                                <input type="number" step="0.01" min="0" max="100" name="tax_rate" id="taxRateInput" class="form-control text-right" value="{{ number_format((float)(isset($preloadedOrder) && $preloadedOrder->vat_rate > 0 ? $preloadedOrder->vat_rate : ($defaultTaxRate ?? 5.00)), 2, '.', '') }}">
                                             </td>
                                         </tr>
                                         <tr>
@@ -138,8 +138,8 @@
 
                             <div class="text-right mt-4">
                                 <a href="{{ route('admin.sales-invoices.index') }}" class="btn btn-secondary mr-2">Cancel</a>
-                                <button type="submit" class="btn btn-success btn-lg font-weight-bold">
-                                    <i class="fas fa-check-circle mr-1"></i> Generate Commercial Sales Invoice
+                                <button type="submit" class="btn btn-success font-weight-bold px-4" style="border-radius: 6px;">
+                                    <i class="fas fa-check-circle mr-1"></i> Issue Commercial Invoice
                                 </button>
                             </div>
                         </div>
@@ -161,12 +161,12 @@
             let discount = parseFloat($('#discountInput').val()) || 0;
             let taxRate = parseFloat($('#taxRateInput').val()) || 0;
 
-            let taxableAmount = Math.max(0, rawSubtotal - discount);
-            let taxAmount = taxableAmount * (taxRate / 100);
-            let finalTotal = taxableAmount + taxAmount;
+            let taxableBase = Math.max(0, rawSubtotal - discount);
+            let taxAmount = (taxableBase * taxRate) / 100;
+            let grandTotal = taxableBase + taxAmount;
 
             $('#calcSubtotal').text('kr. ' + rawSubtotal.toFixed(2));
-            $('#calcTotal').text('kr. ' + finalTotal.toFixed(2));
+            $('#calcTotal').text('kr. ' + grandTotal.toFixed(2));
         }
 
         $('#discountInput, #taxRateInput').on('input change', function() {
@@ -179,18 +179,14 @@
                 type: "GET",
                 data: params,
                 beforeSend: function() {
-                    $('#invoiceItemsBody').html('<tr><td colspan="4" class="text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i> Loading line items...</td></tr>');
+                    $('#invoiceItemsBody').html('<tr><td colspan="4" class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin mr-1"></i> Loading items...</td></tr>');
                 },
-                success: function(response) {
-                    if (response.success && response.items.length > 0) {
-                        if (response.order_id) {
-                            $('#order_id_select').val(response.order_id).trigger('change.select2');
-                        }
-
+                success: function(res) {
+                    if (res.success && res.items && res.items.length > 0) {
                         let html = '';
                         rawSubtotal = 0;
 
-                        response.items.forEach(function(item, idx) {
+                        $.each(res.items, function(idx, item) {
                             rawSubtotal += parseFloat(item.line_subtotal);
                             html += `
                                 <tr>
@@ -214,6 +210,12 @@
                         });
 
                         $('#invoiceItemsBody').html(html);
+                        if (res.discount_amount !== undefined && res.discount_amount > 0) {
+                            $('#discountInput').val(parseFloat(res.discount_amount).toFixed(2));
+                        }
+                        if (res.vat_rate !== undefined && res.vat_rate > 0) {
+                            $('#taxRateInput').val(parseFloat(res.vat_rate).toFixed(2));
+                        }
                         calculateTotals();
 
                     } else {
