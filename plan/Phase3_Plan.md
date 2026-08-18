@@ -126,11 +126,14 @@ Phase 3 implements a **Tier-1 Enterprise Sales & Commercial Distribution Engine*
 
 ---
 
-### 🔹 Step 3.12: DataTables Reports & Dashboard Widgets [Pending]
-- **Reports:**
-  - Salesperson Performance Report (Yajra DataTables).
-  - Customer AR Aging Receivables Report (0-30, 31-60, 61-90, 90+ days).
-- **Dashboard Widgets & Exports:** Real-time AJAX filters with Excel, CSV, PDF, and Print support.
+### 🔹 Step 3.12: Sales Reports & AR Aging Dashboard Engine [x] ✅ FULLY COMPLETED
+- **Controller:** `SalesReportController.php`
+- **Features:**
+  - Executive Customer AR Aging Receivables Report (`admin/reports/ar-aging`). ✅
+  - 4 Aging Buckets: Current (0-30 Days), 31-60 Days, 61-90 Days, and 90+ Days (Critical High Risk Dues). ✅
+  - Salesperson & Account Manager Performance Matrix (`admin/reports/salesperson-performance`). ✅
+  - DomPDF AR Aging Report Export (`admin/reports/ar-aging/pdf`). ✅
+  - Integrated into `navbar.blade.php` under Financial & Sales Reports. ✅
 
 ---
 

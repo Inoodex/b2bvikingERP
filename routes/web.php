@@ -592,6 +592,12 @@ Route::controller(BackendAccountController::class)->group(function () {
         Route::get('customer-payments/{customerPayment}/pdf', 'pdf')->name('customer-payments.pdf');
     });
     Route::resource('customer-payments', \App\Http\Controllers\Backend\CustomerPaymentController::class);
+    /** Phase 3 Step 3.12: Enterprise Sales Analytics & AR Aging Receivables Engine */
+    Route::controller(\App\Http\Controllers\Backend\SalesReportController::class)->group(function () {
+        Route::get('reports/ar-aging', 'arAging')->name('reports.ar-aging');
+        Route::get('reports/ar-aging/pdf', 'exportArAgingPdf')->name('reports.ar-aging.pdf');
+        Route::get('reports/salesperson-performance', 'salespersonPerformance')->name('reports.salesperson-performance');
+    });
 
 });
 });

@@ -1193,7 +1193,9 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li class="sb-submenu-header">Current Stock Report</li>
           <li><a href="{{ route('admin.reports.current-stock') }}"><i class="fas fa-cubes"></i> Current Stock Report</a></li>
 
-          <li class="sb-submenu-header">Financial</li>
+          <li class="sb-submenu-header">Financial & Sales Reports</li>
+          <li><a href="{{ route('admin.reports.ar-aging') }}"><i class="fas fa-clock"></i> AR Aging Receivables</a></li>
+          <li><a href="{{ route('admin.reports.salesperson-performance') }}"><i class="fas fa-user-tie"></i> Sales Rep Performance</a></li>
           <li><a href="{{ route('admin.reports.profit-loss') }}"><i class="fas fa-coins"></i> Profit & Loss</a></li>
           <li><a href="{{ route('admin.reports.purchase') }}"><i class="fas fa-shopping-bag"></i> Purchase History</a></li>
           <li><a href="{{ route('admin.reports.product-purchase-history') }}"><i class="fas fa-search"></i> Product Tracking</a></li>
