@@ -25,15 +25,47 @@ if (!function_exists('getSettings')) {
     {
         static $settings = null;
         if ($settings === null) {
-            $settings = \App\Models\GeneralSetting::first() ?? (object)[
-                'site_name' => config('app.name'),
-                'site_logo' => 'uploads/logo.png',
-                'base_currency_name' => 'USD',
-                'base_currency_icon' => '$',
-                'currency_name' => 'USD',
-                'currency_icon' => '$',
-                'currency_rate' => 1.0000,
-            ];
+            $dbSettings = null;
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasTable('general_settings')) {
+                    $dbSettings = \App\Models\GeneralSetting::first();
+                }
+            } catch (\Throwable $e) {
+                // Ignore DB error
+            }
+
+            if ($dbSettings) {
+                $settings = $dbSettings;
+                if (empty($settings->currency_icon)) {
+                    $settings->currency_icon = 'DKK';
+                }
+                if (empty($settings->currency_name)) {
+                    $settings->currency_name = 'DKK';
+                }
+                if (empty($settings->base_currency_icon)) {
+                    $settings->base_currency_icon = $settings->currency_icon;
+                }
+                if (empty($settings->base_currency_name)) {
+                    $settings->base_currency_name = $settings->currency_name;
+                }
+                if (empty($settings->site_name)) {
+                    $settings->site_name = config('app.name', 'B2B Viking ERP');
+                }
+            } else {
+                $settings = (object)[
+                    'site_name' => config('app.name', 'B2B Viking ERP'),
+                    'site_logo' => 'uploads/logo.png',
+                    'base_currency_name' => 'Danish Krone',
+                    'base_currency_icon' => 'kr.',
+                    'currency_name' => 'Danish Krone',
+                    'currency_icon' => 'kr.',
+                    'currency_rate' => 1.0000,
+                    'contact_email' => 'admin@b2bviking.com',
+                    'address' => '',
+                    'phone' => '',
+                    'contact_phone' => '',
+                ];
+            }
         }
         return $settings;
     }

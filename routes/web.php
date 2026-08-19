@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Backend\BookingController;
 use App\Http\Controllers\Backend\BrandController;
+use App\Http\Controllers\Backend\CategoryController;
 // use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Backend\AccountController as BackendAccountController;
 use App\Http\Controllers\Backend\CartController as BackendCartController;

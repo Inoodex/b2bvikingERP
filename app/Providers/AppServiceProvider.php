@@ -30,13 +30,15 @@ class AppServiceProvider extends ServiceProvider
                 $settings = GeneralSetting::first();
 
                 if ($settings) {
-                    // Override legacy currency with the new Master Setup Base Currency
-                    $baseCurrency = \App\Models\Currency::where('is_base', true)->first();
-                    if ($baseCurrency) {
-                        $settings->currency_name = $baseCurrency->name;
-                        $settings->currency_icon = $baseCurrency->symbol;
-                        $settings->base_currency_name = $baseCurrency->name;
-                        $settings->base_currency_icon = $baseCurrency->symbol;
+                    // Override legacy currency with the new Master Setup Base Currency if currencies table exists
+                    if (Schema::hasTable('currencies')) {
+                        $baseCurrency = \App\Models\Currency::where('is_base', true)->first();
+                        if ($baseCurrency) {
+                            $settings->currency_name = $baseCurrency->name;
+                            $settings->currency_icon = $baseCurrency->symbol;
+                            $settings->base_currency_name = $baseCurrency->name;
+                            $settings->base_currency_icon = $baseCurrency->symbol;
+                        }
                     }
 
                     config([
@@ -54,6 +56,39 @@ class AppServiceProvider extends ServiceProvider
         } catch (\Throwable $e) {
             // Keep app booting (especially artisan commands) when DB is temporarily unavailable.
         }
+
+        if (!$settings) {
+            $settings = (object) [
+                'site_name' => config('app.name', 'B2B Viking ERP'),
+                'site_logo' => 'uploads/logo.png',
+                'base_currency_name' => 'Danish Krone',
+                'base_currency_icon' => 'kr.',
+                'currency_name' => 'Danish Krone',
+                'currency_icon' => 'kr.',
+                'currency_rate' => 1.0000,
+                'contact_email' => 'admin@b2bviking.com',
+                'address' => '',
+                'phone' => '',
+                'contact_phone' => '',
+            ];
+        } else {
+            if (empty($settings->currency_icon)) {
+                $settings->currency_icon = '$';
+            }
+            if (empty($settings->currency_name)) {
+                $settings->currency_name = 'USD';
+            }
+            if (empty($settings->base_currency_icon)) {
+                $settings->base_currency_icon = $settings->currency_icon;
+            }
+            if (empty($settings->base_currency_name)) {
+                $settings->base_currency_name = $settings->currency_name;
+            }
+            if (empty($settings->site_name)) {
+                $settings->site_name = config('app.name', 'B2B Viking ERP');
+            }
+        }
+
         view()->share('settings', $settings);
 
         $this->registerGoogleDriveStorage();
