@@ -37,14 +37,14 @@
                 <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                     <div class="card card-statistic-1 shadow-sm">
                         <div class="card-icon bg-primary">
-                            <i class="fas fa-money-bill-wave"></i>
+                            <i class="fas fa-truck"></i>
                         </div>
                          <div class="card-wrap">
                             <div class="card-header">
-                                <h4>Total Issues</h4>
+                                <h4>Delivery Challans</h4>
                             </div>
                              <div class="card-body">
-                                <div>{{ $totalIssues }}</div>
+                                <div>{{ $totalDeliveryOrders ?? $totalIssues }}</div>
                             </div>
                         </div>
                     </div>

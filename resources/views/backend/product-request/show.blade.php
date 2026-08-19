@@ -373,10 +373,10 @@
 
                                 @if($productRequest->status == 'approved')
                                     <div class="border-top pt-4 mt-2">
-                                        <a href="{{ route('admin.issues.create', ['request_id' => $productRequest->id]) }}" class="btn btn-success btn-lg btn-block shadow-sm py-3 font-weight-bold">
-                                            <i class="fas fa-box-open mr-2"></i> Create Stock Issue
+                                        <a href="{{ route('admin.stock-transfers.create') }}" class="btn btn-success btn-lg btn-block shadow-sm py-3 font-weight-bold">
+                                            <i class="fas fa-truck-moving mr-2"></i> Create Stock Transfer
                                         </a>
-                                        <p class="text-center text-muted small mt-2 mb-0">Prepare items for physical issuance.</p>
+                                        <p class="text-center text-muted small mt-2 mb-0">Initiate stock transfer for this approved requisition.</p>
                                     </div>
                                 @endif
                             @else

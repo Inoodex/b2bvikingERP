@@ -90,57 +90,34 @@ class Order extends Model
 
     public function reconcileTotals(): bool
     {
-        // Check if there are any issues linked to this order
-        $issues = \App\Models\Issue::where('order_id', $this->id)->with('items')->get();
+        $this->loadMissing('items');
 
-        if ($issues->isEmpty()) {
-            // Re-calculate due amount based on current database total and paid amount
-            $due = max(0, round($this->total_amount - $this->paid_amount, 2));
-            if ($this->due_amount != $due) {
-                $this->due_amount = $due;
-                $this->save();
-                return true;
-            }
-            return false;
-        }
-
-        $issuedMap = [];
-        foreach ($issues as $issue) {
-            foreach ($issue->items as $issueItem) {
-                $key = $issueItem->product_id . '_' . ($issueItem->variant_id ?? 0);
-                $issuedMap[$key] = ($issuedMap[$key] ?? 0) + $issueItem->quantity;
-            }
-        }
-
-        // Calculate subtotal from issued quantities multiplied by original unit price in order items
         $subtotal = 0;
         foreach ($this->items as $item) {
-            $key = $item->product_id . '_' . ($item->variant_id ?? 0);
-            if (isset($issuedMap[$key])) {
-                $quantity = $issuedMap[$key];
-                $subtotal += $item->unit_price * $quantity;
-            }
+            $subtotal += ((float) $item->unit_price * (float) $item->quantity);
         }
 
-        $total = $subtotal - $this->discount_amount + $this->tax_amount;
-        $paid = (float) $this->paid_amount;
+        $discount = (float) ($this->discount_amount ?? 0);
+        $tax = (float) ($this->tax_amount ?? 0);
+        $total = max(0, round(($subtotal - $discount) + $tax, 2));
+        $paid = (float) ($this->paid_amount ?? 0);
         $due = max(0, round($total - $paid, 2));
 
         $changed = false;
-        if ($this->subtotal_amount != $subtotal) {
+        if (round((float) $this->subtotal_amount, 2) !== round((float) $subtotal, 2)) {
             $this->subtotal_amount = $subtotal;
             $changed = true;
         }
-        if ($this->total_amount != $total) {
+        if (round((float) $this->total_amount, 2) !== round((float) $total, 2)) {
             $this->total_amount = $total;
             $changed = true;
         }
-        if ($this->due_amount != $due) {
+        if (round((float) $this->due_amount, 2) !== round((float) $due, 2)) {
             $this->due_amount = $due;
             $changed = true;
         }
 
-        if ($due <= 0 && $this->payment_status !== 'paid') {
+        if ($due <= 0 && $this->payment_status !== 'paid' && $paid > 0) {
             $this->payment_status = 'paid';
             $changed = true;
         } elseif ($due > 0 && $paid > 0 && $this->payment_status !== 'partial') {

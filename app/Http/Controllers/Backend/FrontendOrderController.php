@@ -301,36 +301,6 @@ class FrontendOrderController extends Controller
 
     private function getIssuedItems(Order $order)
     {
-        // Get only items issued for THIS specific order
-        $issueItems = \App\Models\IssueItem::whereHas('issue', function($q) use ($order) {
-            $q->where('order_id', $order->id);
-        })->with(['product', 'variant'])->get();
-
-        if ($issueItems->isEmpty()) {
-            return $order->items;
-        }
-
-        // We want to return a collection that looks like OrderItems but contains the actual issued data
-        return $issueItems->map(function ($issueItem) {
-            $product = $issueItem->product;
-            $variant = $issueItem->variant;
-            
-            // Create a dynamic object that mimics OrderItem
-            return (object) [
-                'id' => $issueItem->id,
-                'product_id' => $issueItem->product_id,
-                'variant_id' => $issueItem->variant_id,
-                'product_name' => $product->name ?? 'Deleted Product',
-                'product_number' => $product->product_number ?? 'N/A',
-                'product_image' => $product->thumb_image ?? null,
-                'category_name' => optional($product->category)->name ?? 'General',
-                'variant_label' => $variant->name ?? 'Standard',
-                'quantity' => $issueItem->quantity,
-                'unit_price' => $product->outlet_price ?? 0, // Fallback to product price
-                'line_total' => $issueItem->quantity * ($product->outlet_price ?? 0),
-                'product' => $product,
-                'variant' => $variant,
-            ];
-        });
+        return $order->items;
     }
 }

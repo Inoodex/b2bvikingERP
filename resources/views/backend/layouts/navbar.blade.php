@@ -1,7 +1,7 @@
 @php
   $categoriesActive = request()->routeIs('admin.category.*', 'admin.sub-category.*', 'admin.child-category.*', 'admin.slider.*', 'admin.product-types.*');
   $productsActive   = request()->routeIs('admin.products.*', 'admin.units.*', 'admin.colors.*', 'admin.sizes.*');
-  $inventoryActive  = request()->routeIs('admin.inventory-reports.*', 'admin.issues.*', 'admin.issue-returns.*', 'admin.stock-ledger.*');
+  $inventoryActive  = request()->routeIs('admin.inventory-reports.*', 'admin.stock-adjustments.*', 'admin.stock-transfers.*', 'admin.stock-ledger.*');
   $ordersActive     = request()->routeIs('admin.orders.*', 'admin.sales-quotations.*', 'admin.custom-product-requests.*', 'admin.product-requests.*');
   $purchaseActive   = request()->routeIs('admin.bookings.*', 'admin.purchases.*');
   $procurementActive = request()->routeIs('admin.rfqs.*', 'admin.purchase-orders.*', 'admin.letters-of-credit.*', 'admin.shipments.*', 'admin.goods-receipts.*', 'admin.vendor-returns.*', 'admin.vendor-bills.*');
@@ -1109,7 +1109,8 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
         <ul class="sb-submenu">
           <li class="sb-flyout-title">Inventory</li>
           <li><a href="{{ route('admin.inventory-reports.index') }}"><i class="fas fa-clipboard-check"></i> Current Stock</a></li>
-          <li><a href="{{ route('admin.issues.index') }}"><i class="fas fa-arrow-right"></i> Stock Issues</a></li>
+          <li><a href="{{ route('admin.stock-adjustments.index') }}"><i class="fas fa-sliders-h"></i> Stock Adjustments</a></li>
+          <li><a href="{{ route('admin.stock-transfers.index') }}"><i class="fas fa-truck-moving"></i> Stock Transfers</a></li>
           <li class="sb-submenu-divider"></li>
           <li><a href="{{ route('admin.stock-ledger.index') }}"><i class="fas fa-book"></i> Stock Ledger</a></li>
         </ul>
@@ -1185,7 +1186,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li class="sb-flyout-title">Reports</li>
           <li class="sb-submenu-header">Analytics</li>
           <li><a href="{{ route('admin.reports.index') }}"><i class="fas fa-chart-pie"></i> All Reports</a></li>
-          <li><a href="{{ route('admin.reports.orders') }}"><i class="fas fa-file-invoice"></i> Order & Issue Report</a></li>
+          <li><a href="{{ route('admin.reports.orders') }}"><i class="fas fa-file-invoice"></i> Order & Sales Report</a></li>
           <li class="sb-submenu-header">Stock Reports</li>
           <li><a href="{{ route('admin.reports.stock') }}"><i class="fas fa-boxes"></i> Stock Reports</a></li>
           <li><a href="{{ route('admin.reports.low-stock') }}"><i class="fas fa-exclamation-triangle"></i> Low Stock Alert</a></li>

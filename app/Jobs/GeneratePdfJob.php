@@ -271,34 +271,6 @@ class GeneratePdfJob implements ShouldQueue
 
     private function getIssuedItems(Order $order)
     {
-        // Load issues specifically linked to this order
-        $issues = \App\Models\Issue::where('order_id', $order->id)->with('items')->get();
-
-        if ($issues->isEmpty()) {
-            return $order->items;
-        }
-
-        $issuedMap = [];
-        foreach ($issues as $issue) {
-            foreach ($issue->items as $issueItem) {
-                $key = $issueItem->product_id . '_' . ($issueItem->variant_id ?? 0);
-                $issuedMap[$key] = ($issuedMap[$key] ?? 0) + $issueItem->quantity;
-            }
-        }
-
-        // Filter order items to only include those that have been issued
-        $issuedItems = $order->items->filter(function ($item) use ($issuedMap) {
-            $key = $item->product_id . '_' . ($item->variant_id ?? 0);
-            return isset($issuedMap[$key]);
-        });
-
-        // Update the quantity of each item to match the issued quantity
-        $issuedItems->each(function ($item) use ($issuedMap) {
-            $key = $item->product_id . '_' . ($item->variant_id ?? 0);
-            $item->quantity = $issuedMap[$key];
-            $item->line_total = $item->unit_price * $item->quantity;
-        });
-
-        return $issuedItems;
+        return $order->items;
     }
 }

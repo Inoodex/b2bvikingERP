@@ -453,13 +453,22 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::post('settings/email/test', 'sendTestEmail')->name('settings.email.test');
     });
 
-    /** Inventory Plane Routes */
-    Route::controller(IssueController::class)->group(function () {
-        Route::get('issues/get-request-items', 'getRequestItems')->name('issues.get-request-items');
-        Route::get('issues/{id}/view-invoice', 'viewInvoice')->name('issues.view-invoice');
-        Route::get('issues/{id}/invoice', 'downloadInvoice')->name('issues.download-invoice');
+    /** Enterprise Inventory: Stock Adjustments & Stock Transfers */
+    Route::controller(\App\Http\Controllers\Backend\StockAdjustmentController::class)->group(function () {
+        Route::get('stock-adjustments/get-item-stock', 'getItemStock')->name('stock-adjustments.get-item-stock');
+        Route::post('stock-adjustments/{stockAdjustment}/approve', 'approve')->name('stock-adjustments.approve');
+        Route::post('stock-adjustments/{stockAdjustment}/cancel', 'cancel')->name('stock-adjustments.cancel');
     });
-    Route::resource('issues', IssueController::class);
+    Route::resource('stock-adjustments', \App\Http\Controllers\Backend\StockAdjustmentController::class);
+
+    Route::controller(\App\Http\Controllers\Backend\StockTransferController::class)->group(function () {
+        Route::post('stock-transfers/{stockTransfer}/dispatch', 'dispatchTransfer')->name('stock-transfers.dispatch');
+        Route::get('stock-transfers/{stockTransfer}/receive', 'receiveForm')->name('stock-transfers.receive-form');
+        Route::post('stock-transfers/{stockTransfer}/receive', 'receiveTransfer')->name('stock-transfers.receive');
+        Route::post('stock-transfers/{stockTransfer}/cancel', 'cancel')->name('stock-transfers.cancel');
+        Route::get('stock-transfers/{stockTransfer}/pdf', 'downloadPdf')->name('stock-transfers.pdf');
+    });
+    Route::resource('stock-transfers', \App\Http\Controllers\Backend\StockTransferController::class);
 
 
 

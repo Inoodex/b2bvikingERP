@@ -510,7 +510,7 @@
                                     @endif
                                     <select name="status" class="form-control" {{ $isLockedStatus ? 'disabled' : '' }}>
                                         <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                                        <option value="approved" {{ $order->status === 'approved' ? 'selected' : '' }} {{ $disableApproveDropdown ? 'disabled' : '' }}>Approve (Create Issue)</option>
+                                        <option value="approved" {{ $order->status === 'approved' ? 'selected' : '' }} {{ $disableApproveDropdown ? 'disabled' : '' }}>Approved (Ready for Delivery)</option>
                                         <option value="credit_hold" {{ $order->status === 'credit_hold' ? 'selected' : '' }}>Credit Hold</option>
                                         <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                                         @if(!in_array($order->status, ['pending', 'approved', 'credit_hold', 'cancelled'], true))
@@ -536,12 +536,15 @@
                             @endif
 
                             @can('Manage Inventory')
-                            @if(strtolower((string) $order->status) === 'approved')
+                            @if(in_array(strtolower((string) $order->status), ['approved', 'processing', 'completed']))
                                 <div class="border-top pt-4 mt-3">
-                                    <a href="{{ route('admin.issues.create', ['order_id' => $order->id]) }}" class="btn btn-success btn-lg btn-block shadow-sm py-3 font-weight-bold">
-                                        <i class="fas fa-box-open mr-2"></i> Create Stock Issue
+                                    <a href="{{ route('admin.delivery-orders.create', ['order_id' => $order->id]) }}" class="btn btn-primary btn-lg btn-block shadow-sm py-3 font-weight-bold mb-2">
+                                        <i class="fas fa-truck mr-2"></i> Create Delivery Challan (DO)
                                     </a>
-                                    <p class="text-center text-muted small mt-2 mb-0">Import order items to issue and confirm stock delivery.</p>
+                                    <a href="{{ route('admin.sales-invoices.create', ['order_id' => $order->id]) }}" class="btn btn-info btn-block shadow-sm py-2 font-weight-bold">
+                                        <i class="fas fa-file-invoice-dollar mr-2"></i> Generate Sales Invoice
+                                    </a>
+                                    <p class="text-center text-muted small mt-2 mb-0">Create shipment challan to dispatch goods or generate commercial invoice.</p>
                                 </div>
                             @endif
                             @endcan

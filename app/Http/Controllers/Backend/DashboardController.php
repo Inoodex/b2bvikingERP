@@ -7,7 +7,6 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductRequest;
-use App\Models\Issue;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +34,7 @@ class DashboardController extends Controller
             $totalActiveProducts = Product::where('status', 1)->count();
             $totalInactiveProducts = Product::where('status', 0)->count();
             $totalProducts = Product::count();
-            $totalIssues = Issue::count();
+            $totalIssues = \App\Models\DeliveryOrder::count();
             $pendingRequests = Order::where('status', 'pending')->count();
             $totalOutlets = User::role('Outlet User')->count();
 
@@ -48,8 +47,8 @@ class DashboardController extends Controller
             // Recent frontend orders for Admin
             $recentRequests = Order::with('user')->orderByDesc('id')->take(5)->get();
 
-            // Chart Data: Monthly Issues (Last 12 Months)
-            $monthlyIssues = Issue::select(
+            // Chart Data: Monthly Deliveries (Last 12 Months)
+            $monthlyIssues = \App\Models\DeliveryOrder::select(
                 DB::raw('count(*) as total'),
                 DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month_year"),
                 DB::raw("DATE_FORMAT(created_at, '%M') as month_name")
@@ -117,6 +116,10 @@ class DashboardController extends Controller
             }
         }
 
+        // Phase 3 Sales & Fulfillment Stats
+        $totalDeliveryOrders = \App\Models\DeliveryOrder::count();
+        $totalSalesInvoices = \App\Models\SalesInvoice::count();
+
         return view('backend.dashboard', compact(
             'totalActiveProducts',
             'totalInactiveProducts',
@@ -136,7 +139,9 @@ class DashboardController extends Controller
             'totalPurchaseOrders',
             'activeLcs',
             'totalGrns',
-            'totalPurchaseValue'
+            'totalPurchaseValue',
+            'totalDeliveryOrders',
+            'totalSalesInvoices'
         ));
     }
 }

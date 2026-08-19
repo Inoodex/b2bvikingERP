@@ -32,33 +32,6 @@ class OrderDataTable extends DataTable
                 return '<span class="badge badge-info">' . (int) $query->items_count . ' Items</span>';
             })
             ->addColumn('total_amount_label', function ($query) {
-                // If this order has issues, compute displayed total from issued items
-                try {
-                    $hasIssues = \App\Models\Issue::where('order_id', $query->id)->exists();
-                    if ($hasIssues) {
-                        $issuedTotal = 0;
-                        $issueItems = \App\Models\IssueItem::whereHas('issue', function($q) use ($query) {
-                            $q->where('order_id', $query->id);
-                        })->get();
-
-                        $orderItems = ($query->relationLoaded('items') ? $query->items : $query->items()->get())
-                            ->keyBy(function($it) {
-                                return $it->product_id . '_' . ($it->variant_id ?? 0);
-                            });
-
-                        foreach ($issueItems as $ii) {
-                            $key = $ii->product_id . '_' . ($ii->variant_id ?? 0);
-                            if (isset($orderItems[$key])) {
-                                $issuedTotal += ($orderItems[$key]->unit_price ?? 0) * $ii->quantity;
-                            }
-                        }
-
-                        return number_format((float) $issuedTotal, 2);
-                    }
-                } catch (\Throwable $e) {
-                    // Fallback to stored total on error
-                }
-
                 return number_format((float) $query->total_amount, 2);
             })
             ->editColumn('created_at', function ($query) {
@@ -94,10 +67,10 @@ class OrderDataTable extends DataTable
                 $invoice = "<a href='" . route('admin.orders.view-invoice', $query->id) . "' target='_blank' class='btn btn-warning btn-sm mr-1' title='View Invoice'><i class='fas fa-file-invoice'></i></a>";
                 $download = "<a href='" . route('admin.orders.download-invoice', $query->id) . "' class='btn btn-info btn-sm mr-1' title='Download PDF'><i class='fas fa-download'></i></a>";
                 $delete = "<a href='" . route('admin.orders.destroy', $query->id) . "' class='btn btn-danger btn-sm delete-item' title='Delete'><i class='fas fa-trash'></i></a>";
-                $issue = '';
-                $canCreateIssue = Auth::check() && Auth::user()->hasRole('Admin');
-                if ($canCreateIssue && strtolower((string) $query->status) === 'approved') {
-                    $issue = "<a href='" . route('admin.issues.create', ['order_id' => $query->id]) . "' class='btn btn-success btn-sm' title='Create Stock Issue'><i class='fas fa-box-open'></i></a>";
+                $deliveryOrder = '';
+                $canManage = Auth::check() && (Auth::user()->hasRole('Admin') || Auth::user()->can('Manage Inventory'));
+                if ($canManage && in_array(strtolower((string) $query->status), ['approved', 'processing', 'completed'])) {
+                    $deliveryOrder = "<a href='" . route('admin.delivery-orders.create', ['order_id' => $query->id]) . "' class='btn btn-outline-primary btn-sm mr-1' title='Create Delivery Challan'><i class='fas fa-truck'></i></a>";
                 }
 
                 $pay = '';
@@ -105,7 +78,7 @@ class OrderDataTable extends DataTable
                     $pay = "<a href='" . route('admin.accounts.record-payment', ['order_no' => $query->order_no]) . "' class='btn btn-dark btn-sm mr-1' title='Record Payment'><i class='fas fa-money-bill-wave'></i></a>";
                 }
 
-                return $pay . $pi_invoice . $invoice . $download . $view . $issue . ' ' . $delete;
+                return $pay . $pi_invoice . $invoice . $download . $deliveryOrder . $view . ' ' . $delete;
             })
             ->rawColumns(['customer', 'items_count', 'status_badge', 'action'])
             ->setRowId('id');

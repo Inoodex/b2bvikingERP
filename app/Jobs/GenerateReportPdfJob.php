@@ -6,8 +6,6 @@ use App\Models\GeneralSetting;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderPayment;
-use App\Models\Issue;
-use App\Models\IssueItem;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
@@ -76,11 +74,7 @@ class GenerateReportPdfJob implements ShouldQueue
                 if (!empty($this->filters['user_id'])) $q->where('issues.outlet_id', $this->filters['user_id']);
             });
 
-        if ($hasDateFilter) {
-            $totalRevenue = $summary->total_value;
-        } else {
-            $totalRevenue = (clone $issueBase)->sum(\Illuminate\Support\Facades\DB::raw('issue_items.quantity * COALESCE(issue_items.unit_price, 0)'));
-        }
+        $totalRevenue = (float) ($summary->total_value ?? 0);
 
         $issueStats = Issue::leftJoin('issue_items', 'issues.id', '=', 'issue_items.issue_id')
             ->where(function ($q) {
@@ -102,57 +96,11 @@ class GenerateReportPdfJob implements ShouldQueue
 
             $paymentStats = OrderPayment::whereIn('order_id', $orderIds)
                 ->selectRaw('COALESCE(SUM(amount),0) as total_paid')->first();
-            $totalDue = $summary->total_value - $paymentStats->total_paid;
-
-            $linkedValue = IssueItem::whereHas('issue', function ($q) use ($orderIds) {
-                    $q->whereIn('order_id', $orderIds);
-                    if (!empty($this->filters['date_from'])) $q->whereDate('issues.created_at', '>=', $this->filters['date_from']);
-                    if (!empty($this->filters['date_to'])) $q->whereDate('issues.created_at', '<=', $this->filters['date_to']);
-                    if (!empty($this->filters['month'])) $q->whereMonth('issues.created_at', $this->filters['month']);
-                    if (!empty($this->filters['year'])) $q->whereYear('issues.created_at', $this->filters['year']);
-                })
-                ->sum(DB::raw('issue_items.quantity * COALESCE(issue_items.unit_price, 0)'));
-
-            $standaloneValue = IssueItem::whereHas('issue', function ($q) {
-                    $q->whereNull('order_id')->where('outlet_id', $this->filters['user_id']);
-                    if (!empty($this->filters['date_from'])) $q->whereDate('issues.created_at', '>=', $this->filters['date_from']);
-                    if (!empty($this->filters['date_to'])) $q->whereDate('issues.created_at', '<=', $this->filters['date_to']);
-                    if (!empty($this->filters['month'])) $q->whereMonth('issues.created_at', $this->filters['month']);
-                    if (!empty($this->filters['year'])) $q->whereYear('issues.created_at', $this->filters['year']);
-                })
-                ->sum(DB::raw('issue_items.quantity * COALESCE(issue_items.unit_price, 0)'));
-
-            $issueValue = $linkedValue + $standaloneValue;
-            $pendingValue = max(0, $summary->total_value - $linkedValue);
+            $issueValue = 0;
+            $pendingValue = 0;
 
             $orders = $query->with('items')->orderByDesc('placed_at')->get();
-
-            $issues = Issue::with(['items', 'order'])
-                ->where(function ($q) use ($orderIds) {
-                    $q->whereIn('order_id', $orderIds);
-                    if (!empty($this->filters['date_from'])) $q->whereDate('issues.created_at', '>=', $this->filters['date_from']);
-                    if (!empty($this->filters['date_to'])) $q->whereDate('issues.created_at', '<=', $this->filters['date_to']);
-                    if (!empty($this->filters['month'])) $q->whereMonth('issues.created_at', $this->filters['month']);
-                    if (!empty($this->filters['year'])) $q->whereYear('issues.created_at', $this->filters['year']);
-                    $q->orWhere(function ($sq) {
-                        $sq->whereNull('order_id');
-                        if (!empty($this->filters['user_id'])) $sq->where('outlet_id', $this->filters['user_id']);
-                        if (!empty($this->filters['date_from'])) $sq->whereDate('issues.created_at', '>=', $this->filters['date_from']);
-                        if (!empty($this->filters['date_to'])) $sq->whereDate('issues.created_at', '<=', $this->filters['date_to']);
-                        if (!empty($this->filters['month'])) $sq->whereMonth('issues.created_at', $this->filters['month']);
-                        if (!empty($this->filters['year'])) $sq->whereYear('issues.created_at', $this->filters['year']);
-                    });
-                })
-                ->orderByDesc('created_at')
-                ->get()
-                ->map(function ($issue) {
-                    $value = 0;
-                    foreach ($issue->items as $item) {
-                        $value += $item->quantity * (float) ($item->unit_price ?? 0);
-                    }
-                    $issue->computed_value = $value;
-                    return $issue;
-                });
+            $issues = collect();
 
             $payments = OrderPayment::with('order')
                 ->whereIn('order_id', $orderIds)
@@ -164,11 +112,9 @@ class GenerateReportPdfJob implements ShouldQueue
                 ->groupBy('product_id', 'product_name')
                 ->orderByDesc('ordered_value')
                 ->get()
-                ->map(function ($item) use ($orderIds) {
-                    $issuedQty = IssueItem::whereHas('issue', fn($q) => $q->whereIn('order_id', $orderIds))
-                        ->where('product_id', $item->product_id)->sum('quantity');
-                    $item->issued_qty = (int) $issuedQty;
-                    $item->pending_qty = max(0, $item->ordered_qty - $item->issued_qty);
+                ->map(function ($item) {
+                    $item->issued_qty = (int) $item->ordered_qty;
+                    $item->pending_qty = 0;
                     return $item;
                 });
 
