@@ -98,4 +98,70 @@ class StockReceiveService
             }
         });
     }
+
+    /**
+     * Create Goods Receipt from validated data and trigger stock receive.
+     */
+    public function createGoodsReceipt(array $data, int $receivedBy): GoodsReceipt
+    {
+        return DB::transaction(function () use ($data, $receivedBy) {
+            $purchase = Purchase::with(['items', 'shipments'])->findOrFail($data['purchase_id']);
+
+            if (strtolower($purchase->purchase_type ?? 'local') === 'foreign') {
+                $hasClearedShipment = $purchase->shipments()->where('status', 'cleared')->exists();
+                if (!$hasClearedShipment) {
+                    throw new \DomainException('Enterprise Rule Violation: Foreign Purchase goods cannot be received until shipment status is Customs Cleared!');
+                }
+            }
+
+            $seq = GoodsReceipt::whereDate('created_at', now()->toDateString())->lockForUpdate()->count() + 1;
+            $grnNo = 'GRN-' . date('Ymd') . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+
+            $totalAccepted = 0;
+            $totalRejected = 0;
+
+            foreach ($data['items'] as $itemData) {
+                $totalAccepted += (float)($itemData['accepted_qty'] ?? 0);
+                $totalRejected += (float)($itemData['rejected_qty'] ?? 0);
+            }
+
+            $qcStatus = $data['qc_status'] ?? 'passed';
+            if ($totalAccepted > 0 && $totalRejected > 0) {
+                $qcStatus = 'partial';
+            } elseif ($totalAccepted == 0 && $totalRejected > 0) {
+                $qcStatus = 'failed';
+            }
+
+            $grn = GoodsReceipt::create([
+                'grn_no'      => $grnNo,
+                'purchase_id' => $purchase->id,
+                'outlet_id'   => $data['outlet_id'],
+                'received_by' => $receivedBy,
+                'qc_status'   => $qcStatus,
+                'remarks'     => $data['remarks'] ?? ($data['qc_remarks'] ?? null),
+            ]);
+
+            foreach ($data['items'] as $itemData) {
+                $accepted = (float)($itemData['accepted_qty'] ?? 0);
+                $rejected = (float)($itemData['rejected_qty'] ?? 0);
+
+                if ($accepted > 0 || $rejected > 0) {
+                    \App\Models\GoodsReceiptItem::create([
+                        'goods_receipt_id' => $grn->id,
+                        'product_id'       => $itemData['product_id'],
+                        'variant_id'       => $itemData['variant_id'] ?? null,
+                        'accepted_qty'     => $accepted,
+                        'rejected_qty'     => $rejected,
+                        'rejection_reason' => $itemData['rejection_reason'] ?? ($itemData['remarks'] ?? null),
+                    ]);
+                }
+            }
+
+            if (in_array($qcStatus, ['passed', 'partial'])) {
+                $this->processStockReceive($grn);
+            }
+
+            return $grn;
+        });
+    }
 }

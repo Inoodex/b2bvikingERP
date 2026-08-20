@@ -4,31 +4,35 @@ namespace App\Http\Controllers\Backend;
 
 use App\DataTables\SalesInvoiceDataTable;
 use App\Http\Controllers\Controller;
-use App\Models\ChartOfAccount;
+use App\Http\Requests\Sales\StoreSalesInvoiceRequest;
 use App\Models\DeliveryOrder;
-use App\Models\GeneralSetting;
-use App\Models\JournalEntry;
-use App\Models\JournalEntryLine;
 use App\Models\Order;
 use App\Models\SalesInvoice;
-use App\Models\SalesInvoiceItem;
 use App\Models\Tax;
-use App\Services\OrderNumberService;
+use App\Services\SalesInvoiceService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\View\View;
 
 class SalesInvoiceController extends Controller
 {
+    protected SalesInvoiceService $salesInvoiceService;
+
+    public function __construct(SalesInvoiceService $salesInvoiceService)
+    {
+        $this->salesInvoiceService = $salesInvoiceService;
+    }
+
     public function index(SalesInvoiceDataTable $dataTable)
     {
         return $dataTable->render('backend.sales_invoices.index');
     }
 
-    public function create(Request $request)
+    public function create(Request $request): View
     {
         $selectedOrderId = $request->get('order_id');
         $selectedDeliveryOrderId = $request->get('delivery_order_id');
@@ -60,22 +64,22 @@ class SalesInvoiceController extends Controller
         $defaultTax = Tax::where('is_default', 1)->first() ?: Tax::where('status', 1)->first();
         $defaultTaxRate = $defaultTax ? (float)$defaultTax->value : 5.00;
 
-        return view('backend.sales_invoices.create', compact('orders', 'deliveryOrders', 'selectedOrderId', 'selectedDeliveryOrderId', 'preloadedOrder', 'preloadedDeliveryOrder', 'defaultTaxRate'));
+        return view('backend.sales_invoices.create', compact('orders', 'deliveryOrders', 'preloadedOrder', 'preloadedDeliveryOrder', 'defaultTaxRate'));
     }
 
-    public function getItems(Request $request)
+    public function getInvoiceSourceItems(Request $request): JsonResponse
     {
         $deliveryOrderId = $request->get('delivery_order_id');
         $orderId = $request->get('order_id');
 
         if ($deliveryOrderId) {
-            $do = DeliveryOrder::with(['order.user', 'items.product', 'items.variant', 'items.orderItem'])->find($deliveryOrderId);
+            $do = DeliveryOrder::with(['order.user', 'items.product', 'items.variant'])->find($deliveryOrderId);
             if (!$do) {
                 return response()->json(['success' => false, 'message' => 'Delivery Order not found']);
             }
 
             $items = $do->items->map(function ($item) {
-                $unitPrice = (float)($item->unit_price ?: ($item->orderItem ? $item->orderItem->unit_price : $item->product->price));
+                $unitPrice = (float)($item->unit_price > 0 ? $item->unit_price : ($item->product ? $item->product->price : 0));
                 $qty = (float)$item->qty_delivered;
                 $lineSubtotal = $unitPrice * $qty;
 
@@ -147,180 +151,55 @@ class SalesInvoiceController extends Controller
         return response()->json(['success' => false, 'message' => 'Invalid parameters']);
     }
 
-    public function store(Request $request)
+    public function store(StoreSalesInvoiceRequest $request): RedirectResponse
     {
-        $request->validate([
-            'order_id' => 'required|exists:orders,id',
-            'date' => 'required|date',
-            'due_date' => 'nullable|date|after_or_equal:date',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.qty' => 'required|numeric|min:0.01',
-            'items.*.price' => 'required|numeric|min:0',
-        ]);
+        $invoice = $this->salesInvoiceService->createInvoice($request->validated(), Auth::id() ?? 1);
 
-        DB::beginTransaction();
-        try {
-            $invoiceNo = OrderNumberService::generateSalesInvoiceNumber();
-
-            $subtotal = 0;
-            foreach ($request->items as $itemData) {
-                $subtotal += ((float)$itemData['qty'] * (float)$itemData['price']);
-            }
-
-            $discountAmount = (float)($request->get('discount_amount', 0));
-            $taxRate = (float)($request->get('tax_rate', 0));
-            $taxAmount = ($subtotal - $discountAmount) * ($taxRate / 100);
-            $totalAmount = ($subtotal - $discountAmount) + $taxAmount;
-
-            $status = $request->get('status', 'draft');
-
-            $invoice = SalesInvoice::create([
-                'order_id' => $request->order_id,
-                'invoice_no' => $invoiceNo,
-                'subtotal_amount' => $subtotal,
-                'tax_amount' => $taxAmount,
-                'discount_amount' => $discountAmount,
-                'total_amount' => $totalAmount,
-                'paid_amount' => 0.00,
-                'due_amount' => $totalAmount,
-                'status' => $status,
-                'date' => $request->date,
-                'due_date' => $request->due_date ?: now()->addDays(30),
-                'notes' => $request->notes,
-                'created_by' => Auth::id(),
-            ]);
-
-            foreach ($request->items as $itemData) {
-                $lineSubtotal = (float)$itemData['qty'] * (float)$itemData['price'];
-                SalesInvoiceItem::create([
-                    'sales_invoice_id' => $invoice->id,
-                    'product_id' => $itemData['product_id'],
-                    'qty' => $itemData['qty'],
-                    'price' => $itemData['price'],
-                    'subtotal' => $lineSubtotal,
-                ]);
-            }
-
-            // If created directly in posted status, trigger GL posting
-            if ($status === 'posted') {
-                $this->postInvoiceAccounting($invoice);
-            }
-
-            DB::commit();
-
-            Toastr::success('Commercial Sales Invoice created successfully!', 'Success');
-            return redirect()->route('admin.sales-invoices.show', $invoice->id);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Sales Invoice Store Error: ' . $e->getMessage());
-            Toastr::error('Failed to create Sales Invoice: ' . $e->getMessage(), 'Error');
-            return redirect()->back()->withInput();
-        }
+        Toastr::success('Sales Invoice generated successfully.', 'Success');
+        return redirect()->route('admin.sales-invoices.show', $invoice->id);
     }
 
-    public function show($id)
+    public function show($id): View
     {
         $invoice = SalesInvoice::with([
             'order.user',
-            'items.product.unit',
-            'items.variant'
+            'deliveryOrder',
+            'items.product',
+            'items.variant',
+            'creator',
+            'journalEntries.lines.account'
         ])->findOrFail($id);
 
-        $generalSetting = GeneralSetting::first();
-
-        return view('backend.sales_invoices.show', compact('invoice', 'generalSetting'));
+        return view('backend.sales_invoices.show', compact('invoice'));
     }
 
-    public function post($id)
+    public function post($id): RedirectResponse
     {
-        $invoice = SalesInvoice::findOrFail($id);
+        $invoice = SalesInvoice::with(['order.user', 'items'])->findOrFail($id);
 
-        if ($invoice->status === 'posted' || $invoice->status === 'paid') {
-            Toastr::warning('This invoice has already been posted.', 'Warning');
+        if ($invoice->status === 'paid' || $invoice->status === 'sent') {
+            Toastr::warning('This invoice is already posted / sent.', 'Notice');
             return redirect()->back();
         }
 
-        DB::beginTransaction();
-        try {
-            $invoice->update([
-                'status' => 'posted',
-            ]);
+        $this->salesInvoiceService->postInvoiceToLedger($invoice, Auth::id() ?? 1);
 
-            $this->postInvoiceAccounting($invoice);
-
-            DB::commit();
-
-            Toastr::success('Commercial Sales Invoice posted successfully! General Ledger updated.', 'Posted');
-            return redirect()->route('admin.sales-invoices.show', $invoice->id);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Sales Invoice Post Error: ' . $e->getMessage());
-            Toastr::error('Failed to post Sales Invoice: ' . $e->getMessage(), 'Error');
-            return redirect()->back();
-        }
+        Toastr::success("Invoice #{$invoice->invoice_no} posted to General Ledger successfully.", 'Posted');
+        return redirect()->route('admin.sales-invoices.show', $invoice->id);
     }
 
-    private function postInvoiceAccounting(SalesInvoice $invoice)
-    {
-        // Check if Chart of Accounts / Journal Entries exist
-        if (class_exists(JournalEntry::class)) {
-            $journalEntry = JournalEntry::create([
-                'entry_no' => 'JE-INV-' . $invoice->invoice_no,
-                'reference_type' => SalesInvoice::class,
-                'reference_id' => $invoice->id,
-                'entry_date' => $invoice->date ?: now(),
-                'narration' => 'Commercial Sales Invoice #' . $invoice->invoice_no,
-                'created_by' => Auth::id(),
-            ]);
-
-            $arAccount = ChartOfAccount::where('account_name', 'LIKE', '%Receivable%')->first() ?: ChartOfAccount::first();
-            $revenueAccount = ChartOfAccount::where('account_type', 'revenue')->first() ?: ChartOfAccount::first();
-            $taxAccount = ChartOfAccount::where('account_name', 'LIKE', '%VAT%')->orWhere('account_name', 'LIKE', '%Tax%')->first() ?: ChartOfAccount::first();
-
-            // Accounts Receivable Dr
-            JournalEntryLine::create([
-                'journal_entry_id' => $journalEntry->id,
-                'account_id' => $arAccount ? $arAccount->id : 1,
-                'debit' => $invoice->total_amount,
-                'credit' => 0.00,
-            ]);
-
-            // Sales Revenue Cr
-            JournalEntryLine::create([
-                'journal_entry_id' => $journalEntry->id,
-                'account_id' => $revenueAccount ? $revenueAccount->id : 1,
-                'debit' => 0.00,
-                'credit' => $invoice->subtotal_amount - $invoice->discount_amount,
-            ]);
-
-            // Output VAT Cr (if any)
-            if ($invoice->tax_amount > 0) {
-                JournalEntryLine::create([
-                    'journal_entry_id' => $journalEntry->id,
-                    'account_id' => $taxAccount ? $taxAccount->id : 1,
-                    'debit' => 0.00,
-                    'credit' => $invoice->tax_amount,
-                ]);
-            }
-        }
-    }
-
-    public function downloadPdf($id)
+    public function printPdf($id)
     {
         $invoice = SalesInvoice::with([
             'order.user',
-            'items.product.unit',
+            'deliveryOrder',
+            'items.product',
             'items.variant'
         ])->findOrFail($id);
 
-        $generalSetting = GeneralSetting::first();
-
-        $pdf = Pdf::loadView('backend.pdf.sales_invoice', compact('invoice', 'generalSetting'))
+        $pdf = Pdf::loadView('backend.sales_invoices.pdf', compact('invoice'))
             ->setPaper('a4', 'portrait');
 
-        return $pdf->stream('Sales_Invoice_' . $invoice->invoice_no . '.pdf');
+        return $pdf->stream("Sales-Invoice-{$invoice->invoice_no}.pdf");
     }
 }
