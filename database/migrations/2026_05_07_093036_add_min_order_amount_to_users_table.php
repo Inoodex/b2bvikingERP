@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->decimal('min_order_amount', 12, 2)->nullable()->after('discount_value');
+            if (!Schema::hasColumn('users', 'min_order_amount')) {
+                $table->decimal('min_order_amount', 12, 2)->nullable();
+            }
         });
     }
 

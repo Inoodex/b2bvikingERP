@@ -20,6 +20,7 @@ class ApprovalService
 
         $workflow = ApprovalWorkflow::active()
             ->where('model_type', $modelType)
+            ->whereHas('steps')
             ->where(function ($q) use ($amount) {
                 $q->where('min_amount', '<=', $amount)
                   ->orWhereNull('min_amount');
@@ -29,11 +30,12 @@ class ApprovalService
                   ->orWhereNull('max_amount');
             })
             ->with('steps')
+            ->latest('id')
             ->first();
 
         if (!$workflow || $workflow->steps->isEmpty()) {
             // No approval workflow required; auto-approve
-            if (isset($model->approval_status)) {
+            if (in_array('approval_status', $model->getFillable()) || array_key_exists('approval_status', $model->getAttributes())) {
                 $model->approval_status = 'approved';
                 $model->save();
             }
@@ -41,7 +43,7 @@ class ApprovalService
         }
 
         // Set status to pending
-        if (isset($model->approval_status)) {
+        if (in_array('approval_status', $model->getFillable()) || array_key_exists('approval_status', $model->getAttributes())) {
             $model->approval_status = 'pending';
             $model->save();
         }

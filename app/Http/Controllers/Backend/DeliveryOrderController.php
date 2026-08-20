@@ -215,21 +215,20 @@ class DeliveryOrderController extends Controller
                 StockLedger::create([
                     'product_id'      => $item->product_id,
                     'variant_id'      => $item->variant_id,
+                    'outlet_id'       => $deliveryOrder->order?->outlet_id ?? null,
                     'reference_type'  => 'DeliveryOrder',
                     'reference_id'    => $deliveryOrder->id,
-                    'transaction_type'=> 'OUT',
-                    'quantity'        => (float)$item->qty_delivered,
+                    'in_qty'          => 0,
+                    'out_qty'         => (float)$item->qty_delivered,
                     'balance_qty'     => $qtyAfter,
-                    'date'            => now(),
-                    'notes'           => 'Dispatched via Delivery Order #' . $deliveryOrder->delivery_no,
-                    'created_by'      => Auth::id(),
+                    'date'            => now()->toDateString(),
                 ]);
             }
 
             // Update parent Sales Order fulfillment status
             $parentOrder = $deliveryOrder->order;
             if ($parentOrder) {
-                $totalOrdered = (float)$parentOrder->items->sum('quantity');
+                $totalOrdered = (float)$parentOrder->items()->sum('quantity');
                 $totalDelivered = (float)DeliveryOrderItem::whereHas('deliveryOrder', function ($q) use ($parentOrder) {
                     $q->where('order_id', $parentOrder->id)->whereIn('status', ['dispatched', 'shipped', 'delivered']);
                 })->sum('qty_delivered');
