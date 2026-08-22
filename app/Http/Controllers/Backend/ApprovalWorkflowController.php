@@ -29,7 +29,7 @@ class ApprovalWorkflowController extends Controller
     public function create()
     {
         $roles = Role::orderBy('name')->get();
-        $users = User::where('status', 1)->orderBy('name')->get();
+        $users = User::with('roles')->where('status', 1)->orderBy('name')->get();
         $models = [
             'App\Models\Order' => 'Commercial Sales Order (SO)',
             'App\Models\ProductRequest' => 'Requisition (SR / PR)',
@@ -58,7 +58,7 @@ class ApprovalWorkflowController extends Controller
     {
         $workflow = ApprovalWorkflow::with('steps')->findOrFail($id);
         $roles = Role::orderBy('name')->get();
-        $users = User::where('status', 1)->orderBy('name')->get();
+        $users = User::with('roles')->where('status', 1)->orderBy('name')->get();
         $models = [
             'App\Models\Order' => 'Commercial Sales Order (SO)',
             'App\Models\ProductRequest' => 'Requisition (SR / PR)',

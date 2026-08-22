@@ -92,8 +92,13 @@ class ApprovalService
 
         $firstStep = $workflow->steps->first();
 
-        if ($firstStep->approver_user_id && (int)$firstStep->approver_user_id === (int)$user->id) {
-            return true;
+        //comment if any problem 
+        // if ($firstStep->approver_user_id && (int)$firstStep->approver_user_id === (int)$user->id) {
+        //     return true;
+        // }
+
+        if ($firstStep->approver_user_id) {
+            return (int)$firstStep->approver_user_id === (int)$user->id;
         }
 
         if ($firstStep->approver_role_id) {
@@ -139,8 +144,8 @@ class ApprovalService
             return false;
         }
 
-        if ($step->approver_user_id && (int)$step->approver_user_id === (int)$user->id) {
-            return true;
+        if ($step->approver_user_id) {
+            return (int)$step->approver_user_id === (int)$user->id;
         }
 
         if ($step->approver_role_id) {

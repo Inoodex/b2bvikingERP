@@ -62,8 +62,8 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label>Approver Role</label>
-                                        <select name="steps[0][approver_role_id]" class="form-control">
-                                            <option value="">Select Role</option>
+                                        <select name="steps[0][approver_role_id]" class="form-control approver-role-select">
+                                            <option value="">Select Role (All Roles)</option>
                                             @foreach($roles as $role)
                                                 <option value="{{ $role->id }}">{{ $role->name }}</option>
                                             @endforeach
@@ -71,10 +71,14 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label>Specific User (Optional)</label>
-                                        <select name="steps[0][approver_user_id]" class="form-control">
-                                            <option value="">Any user in role</option>
+                                        <select name="steps[0][approver_user_id]" class="form-control approver-user-select">
+                                            <option value="">-- Any user in role --</option>
                                             @foreach($users as $user)
-                                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                                                <option value="{{ $user->id }}"
+                                                        data-role-id="{{ $user->role_id }}"
+                                                        data-roles="{{ $user->roles->pluck('id')->implode(',') }}">
+                                                    {{ $user->name }} ({{ $user->email }})
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -97,6 +101,44 @@
 
 @push('scripts')
 <script>
+    function filterUsersByRole(stepRow) {
+        const roleSelect = stepRow.querySelector('.approver-role-select');
+        const userSelect = stepRow.querySelector('.approver-user-select');
+        if (!roleSelect || !userSelect) return;
+
+        const selectedRoleId = roleSelect.value;
+        const currentUserId = userSelect.value;
+        let isCurrentAllowed = false;
+
+        const options = userSelect.querySelectorAll('option');
+        options.forEach(opt => {
+            if (!opt.value) {
+                opt.style.display = '';
+                opt.disabled = false;
+                return;
+            }
+
+            const primaryRoleId = opt.getAttribute('data-role-id') || '';
+            const spatieRoles = (opt.getAttribute('data-roles') || '').split(',').filter(Boolean);
+            const userRoleIds = [primaryRoleId, ...spatieRoles];
+
+            if (!selectedRoleId || userRoleIds.includes(selectedRoleId.toString())) {
+                opt.style.display = '';
+                opt.disabled = false;
+                if (opt.value === currentUserId) {
+                    isCurrentAllowed = true;
+                }
+            } else {
+                opt.style.display = 'none';
+                opt.disabled = true;
+            }
+        });
+
+        if (currentUserId && !isCurrentAllowed) {
+            userSelect.value = '';
+        }
+    }
+
     let stepCount = 1;
     document.getElementById('add-step-btn').addEventListener('click', function() {
         stepCount++;
@@ -110,8 +152,8 @@
             </div>
             <div class="col-md-4">
                 <label>Approver Role</label>
-                <select name="steps[${stepCount - 1}][approver_role_id]" class="form-control">
-                    <option value="">Select Role</option>
+                <select name="steps[${stepCount - 1}][approver_role_id]" class="form-control approver-role-select">
+                    <option value="">Select Role (All Roles)</option>
                     @foreach($roles as $role)
                         <option value="{{ $role->id }}">{{ $role->name }}</option>
                     @endforeach
@@ -119,10 +161,14 @@
             </div>
             <div class="col-md-3">
                 <label>Specific User (Optional)</label>
-                <select name="steps[${stepCount - 1}][approver_user_id]" class="form-control">
-                    <option value="">Any user in role</option>
+                <select name="steps[${stepCount - 1}][approver_user_id]" class="form-control approver-user-select">
+                    <option value="">-- Any user in role --</option>
                     @foreach($users as $user)
-                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                        <option value="{{ $user->id }}"
+                                data-role-id="{{ $user->role_id }}"
+                                data-roles="{{ $user->roles->pluck('id')->implode(',') }}">
+                            {{ $user->name }} ({{ $user->email }})
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -131,9 +177,20 @@
             </div>
         `;
         container.appendChild(row);
+        filterUsersByRole(row);
+
         row.querySelector('.remove-step').addEventListener('click', function() {
             row.remove();
         });
+    });
+
+    $(document).on('change', '.approver-role-select', function() {
+        const stepRow = this.closest('.step-row');
+        filterUsersByRole(stepRow);
+    });
+
+    $(document).ready(function() {
+        document.querySelectorAll('.step-row').forEach(row => filterUsersByRole(row));
     });
 </script>
 @endpush
