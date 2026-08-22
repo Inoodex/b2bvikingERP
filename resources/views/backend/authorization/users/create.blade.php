@@ -45,7 +45,7 @@
                                         <select id="userRoleSelect" class="form-control select2" name="user_role" required style="border-radius: 8px;">
                                             <option value="">-- Select Role --</option>
                                             @foreach ($roles as $role)
-                                                <option value="{{ $role->id }}" data-permissions-count="{{ $role->permissions_count }}" {{ old('user_role') == $role->id ? 'selected' : '' }}>
+                                                <option value="{{ $role->id }}" data-role-name="{{ strtolower($role->name) }}" data-permissions-count="{{ $role->permissions_count }}" {{ old('user_role') == $role->id ? 'selected' : '' }}>
                                                     {{ $role->name }}
                                                 </option>
                                             @endforeach
@@ -167,15 +167,16 @@
     $(document).ready(function() {
         function toggleSections() {
             let selectedOption = $('#userRoleSelect option:selected');
+            let roleName = (selectedOption.data('role-name') || '').toString().trim().toLowerCase();
             let permCount = parseInt(selectedOption.data('permissions-count')) || 0;
             let val = selectedOption.val();
 
-            if (val && permCount > 0) {
-                // Dynamic Internal Staff with backend permissions
+            if (val && roleName !== 'user' && (permCount > 0 || ['admin', 'manager', 'outlet user', 'staff'].includes(roleName))) {
+                // Internal Staff with enterprise organization
                 $('#b2bCustomerSection').hide();
                 $('#internalStaffSection').show();
             } else {
-                // Commercial Customer with 0 backend permissions
+                // Commercial B2B Customer (User role or external customer)
                 $('#b2bCustomerSection').show();
                 $('#internalStaffSection').hide();
             }

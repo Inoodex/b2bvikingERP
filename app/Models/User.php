@@ -82,22 +82,27 @@ class User extends Authenticatable
     }
 
     /**
-     * Determine purely dynamically if this user is an internal staff member.
-     * ZERO hardcoded role IDs or names: based on Spatie permissions & enterprise assignments.
+     * Determine if this user is an internal staff member.
+     * External 'User' role is always customer; staff is linked to org unit or backend roles.
      */
     public function isStaff(): bool
     {
-        // 1. If assigned to an internal enterprise unit (Company, Department, or Outlet)
+        // 1. 'User' role is explicitly external customer
+        if ($this->userRole && strtolower($this->userRole->name) === 'user') {
+            return false;
+        }
+
+        // 2. If assigned to an internal enterprise unit (Company, Department, or Outlet)
         if ($this->department_id || $this->company_id || $this->outlet_id) {
             return true;
         }
 
-        // 2. If the user's role has backend management permissions dynamically assigned
+        // 3. If the user's role has backend management permissions dynamically assigned
         if ($this->userRole && $this->userRole->permissions()->exists()) {
             return true;
         }
 
-        // 3. If direct permissions are granted
+        // 4. If direct permissions are granted
         if ($this->permissions()->exists()) {
             return true;
         }
@@ -106,7 +111,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Determine purely dynamically if this user is a commercial customer.
+     * Determine if this user is a commercial customer.
      */
     public function isCustomer(): bool
     {
@@ -114,30 +119,41 @@ class User extends Authenticatable
     }
 
     /**
-     * Dynamic Scope: query internal staff members with zero hardcoding.
+     * Dynamic Scope: query internal staff members.
      */
     public function scopeStaff(Builder $query): Builder
     {
         return $query->where(function ($q) {
-            $q->whereNotNull('department_id')
-              ->orWhereNotNull('company_id')
-              ->orWhereNotNull('outlet_id')
-              ->orWhereHas('userRole.permissions')
-              ->orWhereHas('permissions');
+            $q->where(function($sub) {
+                $sub->whereNull('role_id')
+                    ->orWhereHas('userRole', function($rq) {
+                        $rq->whereRaw('LOWER(name) != ?', ['user']);
+                    });
+            })->where(function ($inner) {
+                $inner->whereNotNull('department_id')
+                      ->orWhereNotNull('company_id')
+                      ->orWhereNotNull('outlet_id')
+                      ->orWhereHas('userRole.permissions')
+                      ->orWhereHas('permissions');
+            });
         });
     }
 
     /**
-     * Dynamic Scope: query commercial customers with zero hardcoding.
+     * Dynamic Scope: query commercial customers.
      */
     public function scopeCustomers(Builder $query): Builder
     {
         return $query->where(function ($q) {
-            $q->whereNull('department_id')
-              ->whereNull('company_id')
-              ->whereNull('outlet_id')
-              ->whereDoesntHave('userRole.permissions')
-              ->whereDoesntHave('permissions');
+            $q->whereHas('userRole', function($rq) {
+                $rq->whereRaw('LOWER(name) = ?', ['user']);
+            })->orWhere(function ($inner) {
+                $inner->whereNull('department_id')
+                      ->whereNull('company_id')
+                      ->whereNull('outlet_id')
+                      ->whereDoesntHave('userRole.permissions')
+                      ->whereDoesntHave('permissions');
+            });
         });
     }
 }

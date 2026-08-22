@@ -30,6 +30,11 @@ class StoreUserRequest extends FormRequest
             'password' => ['required', 'min:8'],
             'status' => ['required', 'boolean'],
             'user_role' => ['required', 'exists:roles,id'],
+            'company_id' => ['nullable', 'exists:companies,id'],
+            'department_id' => ['nullable', 'exists:departments,id'],
+            'outlet_id' => ['nullable', 'exists:outlets,id'],
+            'customer_segment' => ['nullable', 'in:retail,wholesale,b2b_vip,distributor'],
+            'credit_limit' => ['nullable', 'numeric', 'min:0'],
             'discount_type' => ['nullable', 'in:flat,percent'],
             'discount_value' => ['nullable', 'numeric', 'min:0'],
             'min_order_amount' => ['nullable', 'numeric', 'min:0']
