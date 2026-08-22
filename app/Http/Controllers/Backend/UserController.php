@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\DataTables\UsersDataTable;
+use App\Models\Company;
+use App\Models\Department;
+use App\Models\Outlet;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use App\Http\Requests\Backend\User\StoreUserRequest;
 use App\Http\Requests\Backend\User\UpdateUserRequest;
@@ -21,6 +22,7 @@ class UserController extends Controller
     {
         $this->userService = $userService;
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -34,8 +36,12 @@ class UserController extends Controller
      */
     public function create()
     {
-        $roles = Role::all();
-        return view('backend.authorization.users.create', compact('roles'));
+        $roles = Role::withCount('permissions')->get();
+        $companies = Company::where('status', 1)->get();
+        $departments = Department::where('status', 1)->get();
+        $outlets = Outlet::where('status', 1)->get();
+
+        return view('backend.authorization.users.create', compact('roles', 'companies', 'departments', 'outlets'));
     }
 
     /**
@@ -57,10 +63,12 @@ class UserController extends Controller
     public function edit(string $id)
     {
         $user = User::findOrFail($id);
-        $roles = Role::all();
-        // role_id is now a physical column
+        $roles = Role::withCount('permissions')->get();
+        $companies = Company::where('status', 1)->get();
+        $departments = Department::where('status', 1)->get();
+        $outlets = Outlet::where('status', 1)->get();
 
-        return view('backend.authorization.users.edit', compact('user', 'roles'));
+        return view('backend.authorization.users.edit', compact('user', 'roles', 'companies', 'departments', 'outlets'));
     }
 
     /**
@@ -84,22 +92,25 @@ class UserController extends Controller
     {
         try {
             $user = User::findOrFail($id);
+            if ($user->id === 1) {
+                return response(['status' => 'error', 'message' => 'Super Admin cannot be deleted!']);
+            }
             $this->userService->deleteUser($user);
-            return response(['status' => 'success', 'message' => 'Deleted Successfully!']);
+            return response(['status' => 'success', 'message' => 'User deleted successfully!']);
         } catch (\Throwable $e) {
-            return response(['status' => 'error', 'message' => $e->getMessage()]);
+            return response(['status' => 'error', 'message' => 'Failed to delete user: ' . $e->getMessage()]);
         }
     }
 
-    /**
-     * Change user status.
-     */
     public function changeStatus(Request $request)
     {
-        $user = User::findOrFail($request->id);
-        $user->status = $request->status == 'true' ? 1 : 0;
-        $user->save();
-
-        return response(['status' => 'success', 'message' => 'Status Updated Successfully!']);
+        try {
+            $user = User::findOrFail($request->id);
+            $user->status = $request->status == 'true' ? 1 : 0;
+            $user->save();
+            return response(['message' => 'Status has been updated!']);
+        } catch (\Throwable $e) {
+            return response(['message' => 'Failed to update status'], 500);
+        }
     }
 }

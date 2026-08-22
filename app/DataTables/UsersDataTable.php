@@ -30,17 +30,29 @@ class UsersDataTable extends DataTable
             })
             ->addColumn('image', function ($query) {
                 $url = $query->image ? asset($query->image) : 'https://ui-avatars.com/api/?name=' . urlencode($query->name);
-                return '<img width="50px" height="50px" class="rounded-circle" src="' . $url . '" alt="">';
+                return '<img width="42px" height="42px" class="rounded-circle shadow-sm" src="' . $url . '" alt="">';
             })
             ->addColumn('role', function ($query) {
-                return $query->userRole?->name ?? 'No Role';
+                $roleName = $query->userRole?->name ?? 'No Role';
+                $badgeClass = match(strtolower($roleName)) {
+                    'admin' => 'badge-danger',
+                    'manager' => 'badge-warning',
+                    'outlet user' => 'badge-info',
+                    'staff' => 'badge-dark',
+                    'user' => 'badge-primary',
+                    default => 'badge-secondary'
+                };
+                return '<span class="badge ' . $badgeClass . '">' . $roleName . '</span>';
             })
             ->addColumn('discount', function ($query) {
+                if ($query->isStaff()) {
+                    return '<span class="text-muted">—</span>';
+                }
+
                 if ($query->discount_type && $query->discount_value) {
                     $settings = GeneralSetting::first();
                     $type = $query->discount_type === 'flat' ? ($settings->currency_icon ?? 'kr') : '%';
                     
-                    // If flat, show icon before value. If percent, show % after value.
                     $label = $query->discount_type === 'flat' 
                         ? $type . number_format($query->discount_value, 2)
                         : number_format($query->discount_value, 2) . $type;
@@ -50,6 +62,10 @@ class UsersDataTable extends DataTable
                 return '<span class="text-muted">No Discount</span>';
             })
             ->addColumn('customer_segment', function ($query) {
+                if ($query->isStaff()) {
+                    return '<span class="badge badge-light text-muted font-weight-bold" style="border: 1px solid #e2e8f0;">INTERNAL STAFF</span>';
+                }
+
                 $segment = $query->customer_segment ?? 'retail';
                 $badgeMap = [
                     'retail' => 'badge-secondary',
@@ -61,6 +77,9 @@ class UsersDataTable extends DataTable
                 return '<span class="badge ' . $class . '">' . strtoupper(str_replace('_', ' ', $segment)) . '</span>';
             })
             ->addColumn('credit_limit', function ($query) {
+                if ($query->isStaff()) {
+                    return '<span class="text-muted">—</span>';
+                }
                 return 'kr. ' . number_format((float)($query->credit_limit ?? 0), 2);
             })
             ->addColumn('status', function ($query) {
@@ -70,7 +89,7 @@ class UsersDataTable extends DataTable
                             <span class="custom-switch-indicator"></span>
                         </label>';
             })
-            ->rawColumns(['image', 'action', 'customer_segment', 'credit_limit', 'discount', 'status'])
+            ->rawColumns(['image', 'action', 'role', 'customer_segment', 'credit_limit', 'discount', 'status'])
             ->setRowId('id');
     }
 
@@ -79,7 +98,7 @@ class UsersDataTable extends DataTable
      */
     public function query(User $model)
     {
-        return $model->newQuery()->with('userRole');
+        return $model->newQuery()->with(['userRole', 'company', 'department', 'outlet']);
     }
 
     /**
@@ -91,7 +110,6 @@ class UsersDataTable extends DataTable
             ->setTableId('users-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            //->dom('Bfrtip')
             ->orderBy(0)
             ->selectStyleSingle()
             ->buttons([
@@ -99,8 +117,6 @@ class UsersDataTable extends DataTable
                 Button::make('csv'),
                 Button::make('pdf'),
                 Button::make('print'),
-                // Button::make('reset'),
-                // Button::make('reload')
             ]);
     }
 
@@ -115,7 +131,7 @@ class UsersDataTable extends DataTable
             Column::make('name'),
             Column::make('email'),
             Column::make('role'),
-            Column::make('customer_segment')->title('Segment'),
+            Column::make('customer_segment')->title('Segment / Entity'),
             Column::make('credit_limit')->title('Credit Limit'),
             Column::make('discount'),
             Column::make('status'),

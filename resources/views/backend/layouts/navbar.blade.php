@@ -1060,13 +1060,16 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
   <div class="sidebar-body">
     <ul class="sb-nav">
 
+      @if(auth()->user()?->can('Manage Dashboard') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
         <a href="{{ route('admin.dashboard') }}" class="sb-link" title="Dashboard">
           <i class="fas fa-th-large"></i>
           <span class="sb-label">Dashboard</span>
         </a>
       </li>
+      @endif
 
+      @if(auth()->user()?->can('Manage Categories') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $categoriesActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Categories">
           <i class="fas fa-layer-group"></i>
@@ -1083,7 +1086,9 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.product-types.index') }}"><i class="fas fa-calendar-alt"></i> Occasion Type</a></li>
         </ul>
       </li>
+      @endif
 
+      @if(auth()->user()?->can('Manage Products') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $productsActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Products">
           <i class="fas fa-box-open"></i>
@@ -1099,7 +1104,9 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.sizes.index') }}"><i class="fas fa-ruler"></i> Sizes</a></li>
         </ul>
       </li>
+      @endif
 
+      @if(auth()->user()?->can('Manage Inventory') || auth()->user()?->can('View Product Stock') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $inventoryActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Inventory">
           <i class="fas fa-warehouse"></i>
@@ -1115,7 +1122,9 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.stock-ledger.index') }}"><i class="fas fa-book"></i> Stock Ledger</a></li>
         </ul>
       </li>
+      @endif
 
+      @if(auth()->user()?->can('Manage Orders') || auth()->user()?->can('Manage Order Place') || auth()->user()?->can('Manage Order Receive') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $ordersActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Orders">
           <i class="fas fa-shopping-bag"></i>
@@ -1140,7 +1149,9 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.product-requests.create') }}"><i class="fas fa-plus-circle"></i> Create Request</a></li>
         </ul>
       </li>
+      @endif
 
+      @if(auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $purchaseActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Purchase">
           <i class="fas fa-cart-plus"></i>
@@ -1175,7 +1186,9 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.vendor-returns.index') }}"><i class="fas fa-undo"></i> Vendor Returns</a></li>
         </ul>
       </li>
+      @endif
 
+      @if(auth()->user()?->can('Manage Reports') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $reportsActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Reports">
           <i class="fas fa-chart-bar"></i>
@@ -1211,7 +1224,9 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.reports.audit') }}"><i class="fas fa-clipboard-check"></i> Audit Report</a></li>
         </ul>
       </li>
+      @endif
 
+      @if(auth()->user()?->can('Manage Accounts') || auth()->user()?->can('Accountants') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $accountsActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Accounts">
           <i class="fas fa-file-invoice-dollar"></i>
@@ -1231,7 +1246,9 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.vendor-ledger.aging') }}"><i class="fas fa-clock"></i> AP Aging Analysis</a></li>
         </ul>
       </li>
+      @endif
 
+      @if(auth()->user()?->can('Manage Brands') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $brandsActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Brands">
           <i class="fas fa-tag"></i>
@@ -1244,7 +1261,9 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.brand.create') }}"><i class="fas fa-plus-circle"></i> Add Brand</a></li>
         </ul>
       </li>
+      @endif
 
+      @if(auth()->user()?->can('Manage Vendors') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $vendorsActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Vendors">
           <i class="fas fa-truck"></i>
@@ -1257,7 +1276,9 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.vendor.create') }}"><i class="fas fa-plus-circle"></i> Add Vendor</a></li>
         </ul>
       </li>
+      @endif
 
+      @if(auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $masterActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Enterprise Setup">
           <i class="fas fa-building"></i>
@@ -1273,7 +1294,9 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.master.approval-workflows.index') }}"><i class="fas fa-check-double"></i> Approval Workflows</a></li>
         </ul>
       </li>
+      @endif
 
+      @if(auth()->user()?->can('Manage Settings') || auth()->user()?->can('Manage Users') || auth()->user()?->can('Manage Roles') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $systemActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="System">
           <i class="fas fa-cog"></i>
@@ -1296,6 +1319,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.settings.index') }}"><i class="fas fa-sliders-h"></i> Settings</a></li>
         </ul>
       </li>
+      @endif
 
     </ul>
   </div>

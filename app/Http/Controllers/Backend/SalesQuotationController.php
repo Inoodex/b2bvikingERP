@@ -31,7 +31,7 @@ class SalesQuotationController extends Controller
 
     public function create(): View
     {
-        $customers = User::orderBy('name')->get();
+        $customers = User::customers()->where('status', 1)->orderBy('name')->get();
         $currencies = Currency::where('status', 1)->get();
         $taxes = Tax::where('status', 1)->get();
         $products = Product::where('status', 1)->with('variants')->get();

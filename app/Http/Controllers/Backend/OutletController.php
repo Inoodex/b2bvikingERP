@@ -4,76 +4,65 @@ namespace App\Http\Controllers\Backend;
 
 use App\DataTables\OutletDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Backend\Outlet\StoreOutletRequest;
+use App\Http\Requests\Backend\Outlet\UpdateOutletRequest;
 use App\Models\Company;
 use App\Models\Outlet;
 use App\Models\User;
-use Brian2694\Toastr\Facades\Toastr;
-use Illuminate\Http\Request;
-use App\Http\Requests\Backend\Outlet\StoreOutletRequest;
-use App\Http\Requests\Backend\Outlet\UpdateOutletRequest;
 use App\Services\Outlet\OutletService;
+use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class OutletController extends Controller
 {
-    protected $outletService;
+    protected OutletService $outletService;
 
     public function __construct(OutletService $outletService)
     {
         $this->outletService = $outletService;
     }
+
     public function index(OutletDataTable $dataTable)
     {
         return $dataTable->render('backend.master.outlets.index');
     }
 
-    public function create()
+    public function create(): View
     {
         $companies = Company::active()->get();
-        $users = User::where('status', 1)->get();
+        $users = User::staff()->where('status', 1)->get();
         return view('backend.master.outlets.create', compact('companies', 'users'));
     }
 
-    public function store(StoreOutletRequest $request)
+    public function store(StoreOutletRequest $request): RedirectResponse
     {
-        try {
-            $this->outletService->createOutlet($request->validated());
-            Toastr::success('Outlet / Warehouse Created Successfully!');
-            return redirect()->route('admin.master.outlets.index');
-        } catch (\Throwable $e) {
-            Toastr::error('Failed to create outlet: ' . $e->getMessage());
-            return redirect()->back()->withInput();
-        }
+        $this->outletService->createOutlet($request->validated());
+        Toastr::success('Outlet / Warehouse Created Successfully!');
+        return redirect()->route('admin.master.outlets.index');
     }
 
-    public function edit(string $id)
+    public function edit(string $id): View
     {
         $outlet = Outlet::findOrFail($id);
         $companies = Company::active()->get();
-        $users = User::where('status', 1)->get();
+        $users = User::staff()->where('status', 1)->get();
         return view('backend.master.outlets.edit', compact('outlet', 'companies', 'users'));
     }
 
-    public function update(UpdateOutletRequest $request, string $id)
+    public function update(UpdateOutletRequest $request, string $id): RedirectResponse
     {
-        try {
-            $outlet = Outlet::findOrFail($id);
-            $this->outletService->updateOutlet($outlet, $request->validated());
-            Toastr::success('Outlet / Warehouse Updated Successfully!');
-            return redirect()->route('admin.master.outlets.index');
-        } catch (\Throwable $e) {
-            Toastr::error('Failed to update outlet: ' . $e->getMessage());
-            return redirect()->back()->withInput();
-        }
+        $outlet = Outlet::findOrFail($id);
+        $this->outletService->updateOutlet($outlet, $request->validated());
+        Toastr::success('Outlet / Warehouse Updated Successfully!');
+        return redirect()->route('admin.master.outlets.index');
     }
 
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
     {
-        try {
-            $outlet = Outlet::findOrFail($id);
-            $this->outletService->deleteOutlet($outlet);
-            return response(['status' => 'success', 'message' => 'Outlet / Warehouse Deleted Successfully!']);
-        } catch (\Throwable $e) {
-            return response(['status' => 'error', 'message' => 'Failed to delete outlet.']);
-        }
+        $outlet = Outlet::findOrFail($id);
+        $this->outletService->deleteOutlet($outlet);
+        return response()->json(['status' => 'success', 'message' => 'Outlet / Warehouse Deleted Successfully!']);
     }
 }

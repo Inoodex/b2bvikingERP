@@ -11,10 +11,13 @@ use App\Models\Department;
 use App\Models\User;
 use App\Services\Department\DepartmentService;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class DepartmentController extends Controller
 {
-    protected $departmentService;
+    protected DepartmentService $departmentService;
 
     public function __construct(DepartmentService $departmentService)
     {
@@ -26,54 +29,40 @@ class DepartmentController extends Controller
         return $dataTable->render('backend.master.departments.index');
     }
 
-    public function create()
+    public function create(): View
     {
         $companies = Company::active()->get();
-        $users = User::where('status', 1)->get();
+        $users = User::staff()->where('status', 1)->get();
         return view('backend.master.departments.create', compact('companies', 'users'));
     }
 
-    public function store(StoreDepartmentRequest $request)
+    public function store(StoreDepartmentRequest $request): RedirectResponse
     {
-        try {
-            $this->departmentService->createDepartment($request->validated());
-            Toastr::success('Department Created Successfully!');
-            return redirect()->route('admin.master.departments.index');
-        } catch (\Throwable $e) {
-            Toastr::error('Failed to create department: ' . $e->getMessage());
-            return redirect()->back()->withInput();
-        }
+        $this->departmentService->createDepartment($request->validated());
+        Toastr::success('Department Created Successfully!');
+        return redirect()->route('admin.master.departments.index');
     }
 
-    public function edit(string $id)
+    public function edit(string $id): View
     {
         $department = Department::findOrFail($id);
         $companies = Company::active()->get();
-        $users = User::where('status', 1)->get();
+        $users = User::staff()->where('status', 1)->get();
         return view('backend.master.departments.edit', compact('department', 'companies', 'users'));
     }
 
-    public function update(UpdateDepartmentRequest $request, string $id)
+    public function update(UpdateDepartmentRequest $request, string $id): RedirectResponse
     {
-        try {
-            $department = Department::findOrFail($id);
-            $this->departmentService->updateDepartment($department, $request->validated());
-            Toastr::success('Department Updated Successfully!');
-            return redirect()->route('admin.master.departments.index');
-        } catch (\Throwable $e) {
-            Toastr::error('Failed to update department: ' . $e->getMessage());
-            return redirect()->back()->withInput();
-        }
+        $department = Department::findOrFail($id);
+        $this->departmentService->updateDepartment($department, $request->validated());
+        Toastr::success('Department Updated Successfully!');
+        return redirect()->route('admin.master.departments.index');
     }
 
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
     {
-        try {
-            $department = Department::findOrFail($id);
-            $this->departmentService->deleteDepartment($department);
-            return response(['status' => 'success', 'message' => 'Department Deleted Successfully!']);
-        } catch (\Throwable $e) {
-            return response(['status' => 'error', 'message' => 'Failed to delete department.']);
-        }
+        $department = Department::findOrFail($id);
+        $this->departmentService->deleteDepartment($department);
+        return response()->json(['status' => 'success', 'message' => 'Department Deleted Successfully!']);
     }
 }
