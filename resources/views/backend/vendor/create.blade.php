@@ -183,30 +183,45 @@
                                     </div>
                                 </div>
 
-                                </div>
-
-                                {{-- Description --}}
+                                {{-- Status & Additional Details --}}
                                 <div class="section-title mb-3 mb-sm-4 mt-3 mt-sm-4">
                                     <span class="font-weight-bold" style="color: #2563eb; font-size: 1rem;">
-                                        <i class="fas fa-cog mr-2"></i>Additional Details
+                                        <i class="fas fa-cog mr-2"></i>Status & Additional Details
                                     </span>
                                     <hr class="mt-1">
                                 </div>
 
                                 <div class="row">
-                                    <div class="form-group col-12">
+                                    {{-- Status --}}
+                                    <div class="form-group col-12 col-md-6">
+                                        <label class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                                            <i class="fas fa-toggle-on" style="color: #2563eb; width: 18px;"></i>
+                                            <span class="ml-1">Status</span>
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <select name="status" id="status" class="form-control @error('status') is-invalid @enderror"
+                                                style="height: 44px; font-size: 0.95rem; border-radius: 10px; border: 2px solid #e2e8f0;">
+                                            <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Active</option>
+                                            <option value="0" {{ old('status') === '0' ? 'selected' : '' }}>Inactive</option>
+                                        </select>
+                                        @error('status')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    {{-- Description --}}
+                                    <div class="form-group col-12 col-md-6">
                                         <label class="font-weight-bold text-dark" style="font-size: 0.85rem;">
                                             <i class="fas fa-align-left" style="color: #2563eb; width: 18px;"></i>
                                             <span class="ml-1">Description</span>
                                         </label>
                                         <textarea class="form-control @error('description') is-invalid @enderror" 
-                                                  style="min-height: 100px; font-size: 0.95rem; border-radius: 10px; border: 2px solid #e2e8f0; resize: vertical; padding: 0.7rem 1rem;"
-                                                  name="description" id="description" rows="4"
+                                                  style="height: 44px; min-height: 44px; font-size: 0.95rem; border-radius: 10px; border: 2px solid #e2e8f0; resize: vertical; padding: 0.5rem 1rem;"
+                                                  name="description" id="description" rows="2"
                                                   placeholder="Enter vendor description (optional)">{{ old('description') }}</textarea>
                                         @error('description')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                        <small class="text-muted" style="font-size: 0.75rem;">Brief description about the vendor (max 500 characters)</small>
                                     </div>
                                 </div>
 
