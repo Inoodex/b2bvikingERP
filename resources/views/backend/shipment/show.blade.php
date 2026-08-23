@@ -147,7 +147,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php $currencySymbol = $shipment->purchase?->currency?->symbol ?? '$'; @endphp
+                                     @php $currencySymbol = $shipment->purchase?->vendor?->currency?->symbol ?? $shipment->purchase?->currency?->symbol ?? 'kr.'; @endphp
                                     @forelse($shipment->purchase?->items ?? [] as $index => $item)
                                         @php
                                             $lineTotal = $item->total ?? ($item->qty * $item->unit_cost);

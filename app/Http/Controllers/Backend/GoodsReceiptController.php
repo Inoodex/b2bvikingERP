@@ -73,12 +73,20 @@ class GoodsReceiptController extends Controller
 
     public function store(StoreGoodsReceiptRequest $request): RedirectResponse
     {
-        $grn = $this->stockReceiveService->createGoodsReceipt($request->validated(), Auth::id() ?? 1);
+        try {
+            $grn = $this->stockReceiveService->createGoodsReceipt($request->validated(), Auth::id() ?? 1);
 
-        GenerateGrnPdfJob::dispatch($grn->id);
+            GenerateGrnPdfJob::dispatch($grn->id);
 
-        Toastr::success("GRN #{$grn->grn_no} created successfully. Stock ledgers updated.", 'Success');
-        return redirect()->route('admin.goods-receipts.show', $grn->id);
+            Toastr::success("GRN #{$grn->grn_no} created successfully. Warehouse & Catalog Stock updated.", 'Success');
+            return redirect()->route('admin.goods-receipts.show', $grn->id);
+        } catch (\DomainException $e) {
+            Toastr::error($e->getMessage(), 'Receiving Error');
+            return redirect()->back()->withInput();
+        } catch (\Throwable $e) {
+            Toastr::error($e->getMessage(), 'System Error');
+            return redirect()->back()->withInput();
+        }
     }
 
     public function show($id): View

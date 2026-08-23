@@ -138,6 +138,7 @@
                             @endif
 
                             <a href="{{ route('admin.landed-cost.show', $po->id) }}" class="btn btn-warning btn-sm font-weight-bold text-white"><i class="fas fa-calculator mr-1"></i> Landed Cost</a>
+                            <a href="{{ route('admin.vendor-bills.create', ['purchase_id' => $po->id]) }}" class="btn btn-dark btn-sm font-weight-bold"><i class="fas fa-file-invoice-dollar mr-1"></i> Vendor Bill</a>
                         </div>
                     @endif
 

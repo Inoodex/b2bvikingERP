@@ -68,6 +68,12 @@ class StockReceiveService
                 $newQty = $previousQty + $acceptedQty;
                 $stock->update(['quantity' => $newQty]);
 
+                // Also sync main products catalog table quantity
+                \App\Models\Product::where('id', $grnItem->product_id)->increment('qty', $acceptedQty);
+                if ($grnItem->variant_id && class_exists('\App\Models\ProductVariant')) {
+                    \App\Models\ProductVariant::where('id', $grnItem->variant_id)->increment('qty', $acceptedQty);
+                }
+
                 // 2. Write stock_ledgers entry
                 StockLedger::create([
                     'outlet_id'        => $outletId,
@@ -132,13 +138,21 @@ class StockReceiveService
                 $qcStatus = 'failed';
             }
 
+            $physical = !empty($data['qc_physical_check']) ? 'Passed' : 'Pending/Failed';
+            $spec = !empty($data['qc_spec_check']) ? 'Verified' : 'Unverified';
+            $doc = !empty($data['qc_doc_check']) ? 'Verified' : 'Unverified';
+            $qcSummary = "QC Check: Physical Check [{$physical}], Spec & Brand [{$spec}], Invoice & Waybill [{$doc}].";
+
+            $userRemarks = $data['remarks'] ?? '';
+            $finalRemarks = trim($qcSummary . ($userRemarks ? " Notes: " . $userRemarks : ''));
+
             $grn = GoodsReceipt::create([
                 'grn_no'      => $grnNo,
                 'purchase_id' => $purchase->id,
                 'outlet_id'   => $data['outlet_id'],
                 'received_by' => $receivedBy,
                 'qc_status'   => $qcStatus,
-                'remarks'     => $data['remarks'] ?? ($data['qc_remarks'] ?? null),
+                'remarks'     => $finalRemarks,
             ]);
 
             foreach ($data['items'] as $itemData) {

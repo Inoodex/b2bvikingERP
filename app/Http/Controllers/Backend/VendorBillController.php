@@ -39,25 +39,31 @@ class VendorBillController extends Controller
 
         $goodsReceipt = null;
         $purchase = null;
+        $pendingReturns = collect();
+        $debitNoteAmount = 0;
+
+        $purchases = Purchase::with(['vendor', 'currency'])->whereNotNull('po_no')->orWhere('approval_status', 'approved')->latest()->get();
+        $goodsReceipts = GoodsReceipt::with(['purchase.vendor'])->latest()->get();
 
         if ($grnId) {
-            $goodsReceipt = GoodsReceipt::with(['purchase.vendor', 'items.product', 'items.variant'])->findOrFail($grnId);
-            $purchase = $goodsReceipt->purchase;
+            $goodsReceipt = GoodsReceipt::with(['purchase.vendor', 'items.product', 'items.variant'])->find($grnId);
+            if ($goodsReceipt) {
+                $purchase = $goodsReceipt->purchase;
+            }
         } else if ($poId) {
-            $purchase = Purchase::with(['vendor', 'details.product', 'details.variant'])->findOrFail($poId);
-        } else {
-            toastr()->error('Please select a Purchase Order or Goods Receipt to create a bill.');
-            return redirect()->route('admin.vendor-bills.index');
+            $purchase = Purchase::with(['vendor', 'currency', 'details.product', 'details.variant'])->find($poId);
         }
 
-        // Check for pending Debit Notes on this PO / Vendor Return
-        $pendingReturns = VendorReturn::where('purchase_id', $purchase->id)
-            ->where('status', 'approved')
-            ->get();
+        if ($purchase) {
+            // Check for pending Debit Notes on this PO / Vendor Return
+            $pendingReturns = VendorReturn::where('purchase_id', $purchase->id)
+                ->where('status', 'approved')
+                ->get();
 
-        $debitNoteAmount = $pendingReturns->sum('total_claim_amount');
+            $debitNoteAmount = $pendingReturns->sum('total_claim_amount');
+        }
 
-        return view('backend.vendor_bill.create', compact('goodsReceipt', 'purchase', 'pendingReturns', 'debitNoteAmount'));
+        return view('backend.vendor_bill.create', compact('goodsReceipt', 'purchase', 'purchases', 'goodsReceipts', 'pendingReturns', 'debitNoteAmount'));
     }
 
     /**

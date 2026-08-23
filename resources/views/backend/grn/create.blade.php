@@ -71,7 +71,7 @@
                         <div class="col-md-3">
                             <small class="text-muted font-weight-bold text-uppercase d-block">PO Total Amount</small>
                             <strong class="text-success font-weight-bold" style="font-size: 16px;">
-                                {{ $purchase->currency?->symbol ?? '$' }} {{ number_format($purchase->foreign_amount ?? $purchase->total_amount, 2) }}
+                                {{ $purchase->vendor?->currency?->symbol ?? $purchase->currency?->symbol ?? 'kr.' }} {{ number_format($purchase->foreign_amount ?? $purchase->total_amount, 2) }}
                             </strong>
                         </div>
                     </div>
@@ -86,8 +86,20 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label for="outlet_id" class="font-weight-bold text-dark">Receiving Outlet / Central Warehouse <span class="text-danger">*</span></label>
+                        <div class="col-md-4 form-group">
+                            <label for="receipt_date" class="font-weight-bold text-dark">Receiving Gate Date <span class="text-danger">*</span></label>
+                            <input type="date" name="receipt_date" id="receipt_date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label for="qc_status" class="font-weight-bold text-dark">Quality Control (QC) Decision <span class="text-danger">*</span></label>
+                            <select name="qc_status" id="qc_status" class="form-control select2" required>
+                                <option value="passed" selected>🟢 Passed (100% Quality Verified)</option>
+                                <option value="conditionally_accepted">🟡 Conditionally Accepted (Partial Damage)</option>
+                                <option value="failed">🔴 Failed / Rejected (Lot Damaged)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label for="outlet_id" class="font-weight-bold text-dark">Receiving Outlet / Warehouse <span class="text-danger">*</span></label>
                             <select name="outlet_id" id="outlet_id" class="form-control select2" required>
                                 <option value="">-- Select Destination Outlet --</option>
                                 @foreach($outlets as $outlet)
@@ -95,14 +107,14 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-6 form-group">
+                        <div class="col-md-12 form-group">
                             <label for="remarks" class="font-weight-bold text-dark">Receiving Notes / Truck Gate Pass Info</label>
                             <input type="text" name="remarks" class="form-control" placeholder="e.g. Delivered via Cargo Truck #DHAKA-METRO-11-2094">
                         </div>
                     </div>
 
                     <!-- Quality Control (QC) Inspection Verification Checklist -->
-                    <div class="card bg-light border-primary mt-3 mb-3">
+                    <div class="card bg-light border-primary mt-2 mb-3">
                         <div class="card-body py-3">
                             <h6 class="font-weight-bold text-primary mb-2">
                                 <i class="fas fa-microscope mr-1"></i> Quality Control (QC) Inspection Checklist (Verify before receiving)
@@ -110,7 +122,7 @@
                             <div class="row text-dark">
                                 <div class="col-md-4">
                                     <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="qc_chk_physical" checked>
+                                        <input type="checkbox" name="qc_physical_check" value="1" class="custom-control-input" id="qc_chk_physical" checked>
                                         <label class="custom-control-label font-weight-600" for="qc_chk_physical">
                                             <i class="fas fa-shield-alt text-success mr-1"></i> Physical Damage Check Passed
                                         </label>
@@ -118,7 +130,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="qc_chk_spec" checked>
+                                        <input type="checkbox" name="qc_spec_check" value="1" class="custom-control-input" id="qc_chk_spec" checked>
                                         <label class="custom-control-label font-weight-600" for="qc_chk_spec">
                                             <i class="fas fa-tasks text-success mr-1"></i> Specification & Brand Verified
                                         </label>
@@ -126,7 +138,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="qc_chk_doc" checked>
+                                        <input type="checkbox" name="qc_doc_check" value="1" class="custom-control-input" id="qc_chk_doc" checked>
                                         <label class="custom-control-label font-weight-600" for="qc_chk_doc">
                                             <i class="fas fa-file-invoice text-success mr-1"></i> Invoice & Waybill Verified
                                         </label>
@@ -137,16 +149,17 @@
                     </div>
 
                     <div class="table-responsive mt-3">
-                        <table class="table table-bordered table-hover">
+                        <table class="table table-bordered table-hover" id="grn-items-table">
                             <thead class="bg-light text-dark">
                                 <tr>
-                                    <th class="text-center" width="4%">#</th>
-                                    <th width="26%">Product Description</th>
-                                    <th width="12%">Variant</th>
+                                    <th class="text-center" width="3%">#</th>
+                                    <th width="24%">Product Description</th>
+                                    <th width="10%">Variant</th>
                                     <th class="text-right" width="10%">PO Qty</th>
-                                    <th class="text-right" width="12%">Remaining Qty</th>
-                                    <th class="text-right" width="13%">Accepted Qty (Pass) <span class="text-danger">*</span></th>
-                                    <th class="text-right" width="13%">Rejected Qty (Fail) <span class="text-danger">*</span></th>
+                                    <th class="text-right" width="10%">Remaining</th>
+                                    <th class="text-right" width="11%">Total Delivered <span class="text-danger">*</span></th>
+                                    <th class="text-right" width="11%">Accepted Qty <span class="text-danger">*</span></th>
+                                    <th class="text-right" width="11%">Rejected Qty</th>
                                     <th width="10%">Rejection Reason</th>
                                 </tr>
                             </thead>
@@ -172,6 +185,13 @@
                                             @endif
                                         </td>
                                         <td>
+                                            <input type="number" step="0.01" min="0" 
+                                                name="items[{{ $index }}][received_qty]" 
+                                                value="{{ $remaining > 0 ? $remaining : 0 }}" 
+                                                class="form-control form-control-sm text-right font-weight-bold text-dark received-input" 
+                                                {{ $remaining <= 0 ? 'disabled' : 'required' }}>
+                                        </td>
+                                        <td>
                                             <input type="number" step="0.01" min="0" max="{{ $remaining }}" 
                                                 name="items[{{ $index }}][accepted_qty]" 
                                                 value="{{ $remaining > 0 ? $remaining : 0 }}" 
@@ -183,7 +203,7 @@
                                                 name="items[{{ $index }}][rejected_qty]" 
                                                 value="0" 
                                                 class="form-control form-control-sm text-right font-weight-bold text-danger rejected-input" 
-                                                {{ $remaining <= 0 ? 'disabled' : 'required' }}>
+                                                {{ $remaining <= 0 ? 'disabled' : '' }}>
                                         </td>
                                         <td>
                                             <input type="text" name="items[{{ $index }}][rejection_reason]" 
@@ -206,3 +226,42 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        // 1. Line Item Quantity Calculation
+        $('#grn-items-table').on('input', '.accepted-input, .rejected-input', function() {
+            var $row = $(this).closest('tr');
+            var accepted = parseFloat($row.find('.accepted-input').val()) || 0;
+            var rejected = parseFloat($row.find('.rejected-input').val()) || 0;
+            var total = accepted + rejected;
+            $row.find('.received-input').val(total.toFixed(2));
+        });
+
+        // 2. Interactive QC Checkboxes <-> QC Decision Sync
+        $('#qc_chk_physical, #qc_chk_spec, #qc_chk_doc').on('change', function() {
+            var physical = $('#qc_chk_physical').is(':checked');
+            var spec = $('#qc_chk_spec').is(':checked');
+            var doc = $('#qc_chk_doc').is(':checked');
+
+            if (physical && spec && doc) {
+                $('#qc_status').val('passed').trigger('change');
+            } else if (!physical && !spec && !doc) {
+                $('#qc_status').val('failed').trigger('change');
+            } else {
+                $('#qc_status').val('conditionally_accepted').trigger('change');
+            }
+        });
+
+        $('#qc_status').on('change', function() {
+            var val = $(this).val();
+            if (val === 'passed') {
+                $('#qc_chk_physical, #qc_chk_spec, #qc_chk_doc').prop('checked', true);
+            } else if (val === 'failed') {
+                $('#qc_chk_physical, #qc_chk_spec, #qc_chk_doc').prop('checked', false);
+            }
+        });
+    });
+</script>
+@endpush

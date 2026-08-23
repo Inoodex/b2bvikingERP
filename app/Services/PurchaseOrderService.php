@@ -73,18 +73,29 @@ class PurchaseOrderService
                     ];
                 }
 
+                $baseCurrency = \App\Models\Currency::base()->first() ?? \App\Models\Currency::where('is_base', true)->first();
+                $vendorObj = Vendor::with('currency')->find($vendorId);
+
+                $isForeign = false;
+                if ($vendorObj && $vendorObj->currency && $baseCurrency) {
+                    if ((int)$vendorObj->currency_id !== (int)$baseCurrency->id && strtoupper($vendorObj->currency->code) !== strtoupper($baseCurrency->code)) {
+                        $isForeign = true;
+                    }
+                }
+                $purchaseType = $isForeign ? 'foreign' : 'local';
+
                 $purchase = Purchase::create([
                     'po_no'            => $poNo,
                     'invoice_no'       => $invoiceNo,
                     'vendor_id'        => $vendorId,
                     'outlet_id'        => 1,
-                    'purchase_type'    => 'local',
+                    'purchase_type'    => $purchaseType,
                     'date'             => now()->toDateString(),
                     'total_amount'     => $subtotal,
                     'grand_total'      => $subtotal,
                     'paid_amount'      => 0,
                     'due_amount'       => $subtotal,
-                    'status'           => 'approved',
+                    'status'           => 1,
                     'milestone_status' => 'approved',
                     'created_by'       => $userId,
                 ]);

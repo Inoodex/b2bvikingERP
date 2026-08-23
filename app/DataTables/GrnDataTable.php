@@ -35,6 +35,7 @@ class GrnDataTable extends DataTable
             })
             ->addColumn('action', function ($row) {
                 $viewBtn = '<a href="' . route('admin.goods-receipts.show', $row->id) . '" class="btn btn-sm btn-info mr-1" title="View GRN Details"><i class="fas fa-eye"></i> View</a>';
+                $billBtn = '<a href="' . route('admin.vendor-bills.create', ['grn_id' => $row->id]) . '" class="btn btn-sm btn-success mr-1" title="Generate Vendor Bill from GRN"><i class="fas fa-file-invoice-dollar"></i> Bill</a>';
                 $pdfBtn = '<a href="' . route('admin.goods-receipts.pdf', $row->id) . '" target="_blank" class="btn btn-sm btn-secondary mr-1" title="Download PDF"><i class="fas fa-file-pdf"></i> PDF</a>';
                 
                 $returnBtn = '';
@@ -46,7 +47,7 @@ class GrnDataTable extends DataTable
                     }
                 }
 
-                return $viewBtn . $pdfBtn . $returnBtn;
+                return $viewBtn . $billBtn . $pdfBtn . $returnBtn;
             })
             ->rawColumns(['grn_no_formatted', 'po_no', 'qc_badge', 'action'])
             ->setRowId('id');
