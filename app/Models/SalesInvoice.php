@@ -77,4 +77,9 @@ class SalesInvoice extends Model
     {
         return $this->hasMany(SalesReturn::class, 'sales_invoice_id');
     }
+
+    public function journalEntries(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(JournalEntry::class, 'reference');
+    }
 }

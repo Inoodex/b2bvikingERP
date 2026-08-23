@@ -14,8 +14,18 @@ class DocumentSequenceSeeder extends Seeder
     {
         $sequences = [
             [
-                'model_type' => 'SalesQuotation',
-                'prefix' => 'SQ-',
+                'model_type' => 'WebOrder',
+                'prefix' => 'ORD-',
+                'suffix' => null,
+                'padding' => 4,
+                'next_number' => 1,
+                'reset_policy' => 'yearly',
+                'include_date' => true,
+                'date_format' => 'Ym',
+            ],
+            [
+                'model_type' => 'OutletOrder',
+                'prefix' => 'DS-',
                 'suffix' => null,
                 'padding' => 4,
                 'next_number' => 1,
@@ -26,6 +36,16 @@ class DocumentSequenceSeeder extends Seeder
             [
                 'model_type' => 'SalesOrder',
                 'prefix' => 'SO-',
+                'suffix' => null,
+                'padding' => 4,
+                'next_number' => 1,
+                'reset_policy' => 'yearly',
+                'include_date' => true,
+                'date_format' => 'Ym',
+            ],
+            [
+                'model_type' => 'SalesQuotation',
+                'prefix' => 'SQ-',
                 'suffix' => null,
                 'padding' => 4,
                 'next_number' => 1,

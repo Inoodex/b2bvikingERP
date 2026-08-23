@@ -131,10 +131,20 @@ class CustomerPaymentController extends Controller
         return view('backend.customer_payments.show', compact('payment'));
     }
 
+    public function pdf($id)
+    {
+        return $this->printPdf($id);
+    }
+
+    public function downloadPdf($id)
+    {
+        return $this->printPdf($id);
+    }
+
     public function printPdf($id)
     {
         $payment = CustomerPayment::with(['customer', 'order', 'salesInvoice', 'account', 'creator'])->findOrFail($id);
-        $pdf = Pdf::loadView('backend.customer_payments.pdf', compact('payment'))->setPaper('a4', 'portrait');
+        $pdf = Pdf::loadView('backend.pdf.customer_payment', compact('payment'))->setPaper('a4', 'portrait');
 
         return $pdf->stream("Payment-Receipt-{$payment->payment_no}.pdf");
     }

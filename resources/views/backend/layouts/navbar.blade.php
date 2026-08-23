@@ -2,7 +2,7 @@
   $categoriesActive = request()->routeIs('admin.category.*', 'admin.sub-category.*', 'admin.child-category.*', 'admin.slider.*', 'admin.product-types.*');
   $productsActive   = request()->routeIs('admin.products.*', 'admin.units.*', 'admin.colors.*', 'admin.sizes.*');
   $inventoryActive  = request()->routeIs('admin.inventory-reports.*', 'admin.stock-adjustments.*', 'admin.stock-transfers.*', 'admin.stock-ledger.*');
-  $ordersActive     = request()->routeIs('admin.orders.*', 'admin.sales-quotations.*', 'admin.custom-product-requests.*', 'admin.product-requests.*');
+  $ordersActive     = request()->routeIs('admin.orders.*', 'admin.sales-orders.*', 'admin.sales-quotations.*', 'admin.custom-product-requests.*', 'admin.product-requests.*', 'admin.delivery-orders.*', 'admin.sales-invoices.*', 'admin.customer-payments.*', 'admin.sales-returns.*', 'admin.credit-notes.*', 'admin.pricelists.*', 'admin.coupons.*', 'admin.gift-cards.*');
   $purchaseActive   = request()->routeIs('admin.bookings.*', 'admin.purchases.*');
   $procurementActive = request()->routeIs('admin.rfqs.*', 'admin.purchase-orders.*', 'admin.letters-of-credit.*', 'admin.shipments.*', 'admin.goods-receipts.*', 'admin.vendor-returns.*', 'admin.vendor-bills.*');
   $reportsActive    = request()->routeIs('admin.reports.*', 'admin.purchase-reports.*');
@@ -1132,21 +1132,24 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <i class="fas fa-chevron-down sb-arrow"></i>
         </a>
         <ul class="sb-submenu">
-          <li class="sb-flyout-title">Orders</li>
-          <li><a href="{{ route('admin.sales-quotations.index') }}"><i class="fas fa-file-signature"></i> Sales Quotations</a></li>
+          <li class="sb-flyout-title">Orders & Sales</li>
+          <li class="sb-submenu-header">Commercial Sales</li>
+          <li><a href="{{ route('admin.sales-quotations.index') }}"><i class="fas fa-file-signature"></i> Sales Quotations (SQ)</a></li>
+          <li><a href="{{ route('admin.sales-orders.index') }}"><i class="fas fa-file-invoice"></i> Sales Orders (SO)</a></li>
+          <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-globe"></i> Web / Portal Orders</a></li>
+          <li class="sb-submenu-header">Pricing & Promotions</li>
           <li><a href="{{ route('admin.pricelists.index') }}"><i class="fas fa-tags"></i> Customer Pricelists</a></li>
           <li><a href="{{ route('admin.coupons.index') }}"><i class="fas fa-ticket-alt"></i> Promo Coupons</a></li>
           <li><a href="{{ route('admin.gift-cards.index') }}"><i class="fas fa-gift"></i> Gift Cards Engine</a></li>
-          <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-store-alt"></i> Sales Orders (SO)</a></li>
-          <li><a href="{{ route('admin.delivery-orders.index') }}"><i class="fas fa-truck"></i> Delivery Orders (Challans)</a></li>
+          <li class="sb-submenu-header">Fulfillment & Invoicing</li>
+          <li><a href="{{ route('admin.delivery-orders.index') }}"><i class="fas fa-truck"></i> Delivery Orders (DO)</a></li>
           <li><a href="{{ route('admin.sales-invoices.index') }}"><i class="fas fa-file-invoice-dollar"></i> Commercial Invoices</a></li>
           <li><a href="{{ route('admin.customer-payments.index') }}"><i class="fas fa-money-check-alt"></i> Customer Payments</a></li>
           <li><a href="{{ route('admin.sales-returns.index') }}"><i class="fas fa-undo-alt"></i> Customer Returns (RMA)</a></li>
-          <li><a href="{{ route('admin.credit-notes.index') }}"><i class="fas fa-file-invoice-dollar"></i> Credit Notes</a></li>
-          <li><a href="{{ route('admin.custom-product-requests.index') }}"><i class="fas fa-sync-alt"></i> Custom Requests</a></li>
+          <li><a href="{{ route('admin.credit-notes.index') }}"><i class="fas fa-receipt"></i> Credit Notes</a></li>
           <li class="sb-submenu-divider"></li>
+          <li><a href="{{ route('admin.custom-product-requests.index') }}"><i class="fas fa-sync-alt"></i> Custom Requests</a></li>
           <li><a href="{{ route('admin.product-requests.index') }}"><i class="fas fa-history"></i> Old Requests</a></li>
-          <li><a href="{{ route('admin.product-requests.create') }}"><i class="fas fa-plus-circle"></i> Create Request</a></li>
         </ul>
       </li>
       @endif

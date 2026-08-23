@@ -62,9 +62,14 @@ class SalesInvoiceController extends Controller
         }
 
         $defaultTax = Tax::where('is_default', 1)->first() ?: Tax::where('status', 1)->first();
-        $defaultTaxRate = $defaultTax ? (float)$defaultTax->value : 5.00;
+        $defaultTaxRate = $defaultTax ? (float)$defaultTax->value : 0.00;
 
-        return view('backend.sales_invoices.create', compact('orders', 'deliveryOrders', 'preloadedOrder', 'preloadedDeliveryOrder', 'defaultTaxRate'));
+        return view('backend.sales_invoices.create', compact('orders', 'deliveryOrders', 'preloadedOrder', 'preloadedDeliveryOrder', 'defaultTaxRate', 'selectedOrderId', 'selectedDeliveryOrderId'));
+    }
+
+    public function getItems(Request $request): JsonResponse
+    {
+        return $this->getInvoiceSourceItems($request);
     }
 
     public function getInvoiceSourceItems(Request $request): JsonResponse
@@ -96,7 +101,7 @@ class SalesInvoiceController extends Controller
             });
 
             $defaultTax = Tax::where('is_default', 1)->first() ?: Tax::where('status', 1)->first();
-            $defaultTaxRate = $defaultTax ? (float)$defaultTax->value : 5.00;
+            $defaultTaxRate = $defaultTax ? (float)$defaultTax->value : 0.00;
 
             return response()->json([
                 'success' => true,
@@ -105,7 +110,7 @@ class SalesInvoiceController extends Controller
                 'order_no' => $do->order ? $do->order->order_no : '-',
                 'customer_name' => $do->order && $do->order->user ? ($do->order->user->outlet_name ?: $do->order->user->name) : 'Guest / Cash',
                 'discount_amount' => (float)($do->order ? $do->order->discount_amount : 0),
-                'vat_rate' => (float)($do->order && $do->order->vat_rate > 0 ? $do->order->vat_rate : $defaultTaxRate),
+                'vat_rate' => (float)($do->order && $do->order->vat_rate !== null ? $do->order->vat_rate : $defaultTaxRate),
                 'items' => $items,
             ]);
         }
@@ -134,7 +139,7 @@ class SalesInvoiceController extends Controller
             });
 
             $defaultTax = Tax::where('is_default', 1)->first() ?: Tax::where('status', 1)->first();
-            $defaultTaxRate = $defaultTax ? (float)$defaultTax->value : 5.00;
+            $defaultTaxRate = $defaultTax ? (float)$defaultTax->value : 0.00;
 
             return response()->json([
                 'success' => true,
@@ -143,7 +148,7 @@ class SalesInvoiceController extends Controller
                 'order_no' => $order->order_no,
                 'customer_name' => $order->user ? ($order->user->outlet_name ?: $order->user->name) : 'Guest / Cash',
                 'discount_amount' => (float)$order->discount_amount,
-                'vat_rate' => (float)($order->vat_rate > 0 ? $order->vat_rate : $defaultTaxRate),
+                'vat_rate' => (float)($order->vat_rate !== null ? $order->vat_rate : $defaultTaxRate),
                 'items' => $items,
             ]);
         }
@@ -163,9 +168,7 @@ class SalesInvoiceController extends Controller
     {
         $invoice = SalesInvoice::with([
             'order.user',
-            'deliveryOrder',
             'items.product',
-            'items.variant',
             'creator',
             'journalEntries.lines.account'
         ])->findOrFail($id);
@@ -188,16 +191,20 @@ class SalesInvoiceController extends Controller
         return redirect()->route('admin.sales-invoices.show', $invoice->id);
     }
 
+    public function downloadPdf($id)
+    {
+        return $this->printPdf($id);
+    }
+
     public function printPdf($id)
     {
         $invoice = SalesInvoice::with([
             'order.user',
-            'deliveryOrder',
             'items.product',
-            'items.variant'
+            'creator'
         ])->findOrFail($id);
 
-        $pdf = Pdf::loadView('backend.sales_invoices.pdf', compact('invoice'))
+        $pdf = Pdf::loadView('backend.pdf.sales_invoice', compact('invoice'))
             ->setPaper('a4', 'portrait');
 
         return $pdf->stream("Sales-Invoice-{$invoice->invoice_no}.pdf");

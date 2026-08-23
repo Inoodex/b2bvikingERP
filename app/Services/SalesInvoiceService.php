@@ -19,7 +19,7 @@ class SalesInvoiceService
     public function createInvoice(array $data, int $userId): SalesInvoice
     {
         return DB::transaction(function () use ($data, $userId) {
-            $invoiceNo = OrderNumberService::generateSalesInvoiceNumber();
+            $invoiceNo = \App\Models\DocumentSequence::generateNext('SalesInvoice');
 
             $subtotal = 0;
             foreach ($data['items'] as $itemData) {
@@ -35,20 +35,17 @@ class SalesInvoiceService
 
             $invoice = SalesInvoice::create([
                 'order_id'          => $data['order_id'],
-                'delivery_order_id' => $data['delivery_order_id'] ?? null,
                 'invoice_no'        => $invoiceNo,
                 'date'              => $data['date'],
                 'due_date'          => $data['due_date'] ?? null,
-                'subtotal'          => $subtotal,
+                'subtotal_amount'   => $subtotal,
                 'discount_amount'   => $discountAmount,
-                'tax_rate'          => $taxRate,
                 'tax_amount'        => $taxAmount,
                 'total_amount'      => $totalAmount,
                 'paid_amount'       => 0,
                 'due_amount'        => $totalAmount,
                 'status'            => $status,
                 'notes'             => $data['notes'] ?? null,
-                'terms'             => $data['terms'] ?? null,
                 'created_by'        => $userId,
             ]);
 
@@ -60,10 +57,9 @@ class SalesInvoiceService
                 SalesInvoiceItem::create([
                     'sales_invoice_id' => $invoice->id,
                     'product_id'       => $itemData['product_id'],
-                    'variant_id'       => $itemData['variant_id'] ?? null,
                     'qty'              => $qty,
-                    'unit_price'       => $price,
-                    'total_price'      => $lineTotal,
+                    'price'            => $price,
+                    'subtotal'         => $lineTotal,
                 ]);
             }
 
@@ -123,7 +119,7 @@ class SalesInvoiceService
             ]);
 
             // 2. Credit Sales Revenue (Subtotal - Discount)
-            $netSales = max(0, (float)$invoice->subtotal - (float)$invoice->discount_amount);
+            $netSales = max(0, (float)$invoice->subtotal_amount - (float)$invoice->discount_amount);
             JournalEntryLine::create([
                 'journal_entry_id' => $journalEntry->id,
                 'account_id'       => $salesAccount->id,
@@ -141,7 +137,7 @@ class SalesInvoiceService
                     'account_id'       => $vatAccount->id,
                     'debit_amount'     => 0,
                     'credit_amount'    => (float)$invoice->tax_amount,
-                    'description'      => "VAT Payable ({$invoice->tax_rate}%): Invoice #{$invoice->invoice_no}",
+                    'description'      => "VAT Payable: Invoice #{$invoice->invoice_no}",
                     'party_type'       => 'customer',
                     'party_id'         => $order?->user_id,
                 ]);

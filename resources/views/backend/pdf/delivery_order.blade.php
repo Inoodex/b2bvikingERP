@@ -182,9 +182,9 @@
     <table class="header-bar">
         <tr>
             <td style="vertical-align: top; width: 55%;">
-                <div class="company-name">{{ $settings['site_name'] }}</div>
-                <div class="company-sub">{{ $settings['company_address'] }}</div>
-                <div class="company-sub">Phone: {{ $settings['company_phone'] }} | Email: {{ $settings['company_email'] }}</div>
+                <div class="company-name">{{ is_array($settings ?? null) ? ($settings['site_name'] ?? 'B2B VIKING ERP') : ($settings->site_name ?? ($generalSetting->site_name ?? 'B2B VIKING ERP')) }}</div>
+                <div class="company-sub">{{ is_array($settings ?? null) ? ($settings['company_address'] ?? ($settings['address'] ?? 'Corporate Headquarters')) : ($settings->company_address ?? ($settings->address ?? ($generalSetting->address ?? 'Corporate Headquarters'))) }}</div>
+                <div class="company-sub">Phone: {{ is_array($settings ?? null) ? ($settings['company_phone'] ?? ($settings['phone'] ?? '+45 00 00 00 00')) : ($settings->company_phone ?? ($settings->phone ?? ($generalSetting->phone ?? '+45 00 00 00 00'))) }} | Email: {{ is_array($settings ?? null) ? ($settings['company_email'] ?? ($settings['email'] ?? 'logistics@b2bviking.com')) : ($settings->company_email ?? ($settings->email ?? ($generalSetting->email ?? 'logistics@b2bviking.com'))) }}</div>
             </td>
             <td style="vertical-align: top; width: 45%; text-align: right;">
                 <div class="doc-title">Outbound Delivery Challan</div>

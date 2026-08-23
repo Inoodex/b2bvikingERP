@@ -1,14 +1,14 @@
 @extends('backend.layouts.master')
-@section('title', 'Sales Orders (SO)')
+@section('title', 'Web / Portal Orders')
 
 @section('content')
     <section class="section">
         {{-- Standard Stisla Section Header --}}
         <div class="section-header">
-            <h1>Sales Orders (SO)</h1>
+            <h1><i class="fas fa-globe text-primary mr-2"></i>Web & Customer Portal Orders</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
-                <div class="breadcrumb-item">Sales Orders</div>
+                <div class="breadcrumb-item">Web / Portal Orders</div>
             </div>
         </div>
 
@@ -18,7 +18,7 @@
                     {{-- Clean Filter Card --}}
                     <div class="card card-primary mb-4">
                         <div class="card-header">
-                            <h4><i class="fas fa-filter mr-2"></i>Filter Orders</h4>
+                            <h4><i class="fas fa-filter mr-2"></i>Filter Web & Portal Orders</h4>
                         </div>
                         <div class="card-body">
                             <div class="row align-items-end">

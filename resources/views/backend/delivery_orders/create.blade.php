@@ -161,15 +161,16 @@
                                     variantText = ' <small class="text-muted">(' + parts.join(', ') + ')</small>';
                                 }
 
-                                var isDisabled = item.max_deliverable <= 0 ? 'disabled' : '';
-                                var defaultQty = item.max_deliverable > 0 ? item.max_deliverable : 0;
+                                var maxDeliverable = parseFloat(item.max_deliverable !== undefined ? item.max_deliverable : (item.remaining_qty || 0));
+                                var isDisabled = maxDeliverable <= 0 ? 'disabled' : '';
+                                var defaultQty = maxDeliverable > 0 ? maxDeliverable : 0;
 
                                 html += '<tr>';
-                                html += '<td><strong class="text-dark">' + item.product_name + '</strong>' + variantText + '<input type="hidden" name="items[' + index + '][order_item_id]" value="' + item.order_item_id + '"></td>';
+                                html += '<td><strong class="text-dark">' + item.product_name + '</strong>' + variantText + '<input type="hidden" name="items[' + index + '][order_item_id]" value="' + item.order_item_id + '"><input type="hidden" name="items[' + index + '][product_id]" value="' + item.product_id + '"></td>';
                                 html += '<td class="text-center font-weight-bold">' + item.ordered_qty + '</td>';
                                 html += '<td class="text-center text-muted">' + item.already_delivered + '</td>';
                                 html += '<td class="text-center">kr. ' + item.unit_price.toFixed(2) + '<input type="hidden" class="unit-price" value="' + item.unit_price + '"></td>';
-                                html += '<td><input type="number" step="0.01" min="0" max="' + item.max_deliverable + '" name="items[' + index + '][qty]" class="form-control form-control-sm text-center dispatch-qty" value="' + defaultQty + '" ' + isDisabled + '></td>';
+                                html += '<td><input type="number" step="0.01" min="0" max="' + maxDeliverable + '" name="items[' + index + '][qty]" class="form-control form-control-sm text-center dispatch-qty" value="' + defaultQty + '" ' + isDisabled + '></td>';
                                 html += '<td class="text-right font-weight-bold line-total">kr. ' + (defaultQty * item.unit_price).toFixed(2) + '</td>';
                                 html += '</tr>';
                             });

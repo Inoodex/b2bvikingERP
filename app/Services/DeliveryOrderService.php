@@ -20,7 +20,7 @@ class DeliveryOrderService
     {
         return DB::transaction(function () use ($data, $userId) {
             $order = Order::findOrFail($data['order_id']);
-            $deliveryNo = OrderNumberService::generate('DO', DeliveryOrder::class, 'delivery_orders');
+            $deliveryNo = \App\Models\DocumentSequence::generateNext('DeliveryOrder');
 
             $itemsToCreate = [];
             foreach ($data['items'] as $itemData) {

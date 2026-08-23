@@ -21,10 +21,10 @@ class SalesOrderDataTable extends DataTable
                 $download = "<a href='" . route('admin.orders.download-invoice', $query->id) . "' class='btn btn-info btn-sm mr-1' title='Download PDF'><i class='fas fa-download'></i></a>";
                 $delete = "<a href='" . route('admin.orders.destroy', $query->id) . "' class='btn btn-danger btn-sm delete-item mr-1' title='Delete'><i class='fas fa-trash'></i></a>";
                 
-                $issue = '';
-                $canCreateIssue = \Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->hasRole('Admin');
-                if ($canCreateIssue && strtolower((string) $query->status) === 'approved') {
-                    $issue = "<a href='" . route('admin.issues.create', ['order_id' => $query->id]) . "' class='btn btn-success btn-sm mr-1' title='Create Stock Issue'><i class='fas fa-box-open'></i></a>";
+                $deliveryOrder = '';
+                $canManage = \Illuminate\Support\Facades\Auth::check() && (\Illuminate\Support\Facades\Auth::user()->hasRole('Admin') || \Illuminate\Support\Facades\Auth::user()->can('Manage Inventory'));
+                if ($canManage && in_array(strtolower((string) $query->status), ['approved', 'processing', 'completed'])) {
+                    $deliveryOrder = "<a href='" . route('admin.delivery-orders.create', ['order_id' => $query->id]) . "' class='btn btn-outline-primary btn-sm mr-1' title='Create Delivery Challan'><i class='fas fa-truck'></i></a>";
                 }
 
                 $pay = '';
@@ -32,10 +32,10 @@ class SalesOrderDataTable extends DataTable
                     $pay = "<a href='" . route('admin.accounts.record-payment', ['order_no' => $query->order_no]) . "' class='btn btn-dark btn-sm mr-1' title='Record Payment'><i class='fas fa-money-bill-wave'></i></a>";
                 }
 
-                return $pay . $pi_invoice . $invoice . $download . $view . $issue . ' ' . $delete;
+                return $pay . $pi_invoice . $invoice . $download . $deliveryOrder . $view . ' ' . $delete;
             })
             ->addColumn('order_no_badge', function ($query) {
-                return '<span class="badge badge-dark px-3 py-1 font-weight-bold" style="font-family: monospace; font-size: 0.9rem; letter-spacing: 1px;"><i class="fas fa-shopping-cart text-warning mr-1"></i>' . e($query->order_no) . '</span>';
+                return '<span class="badge badge-dark px-3 py-1 font-weight-bold" style="font-family: monospace; font-size: 0.9rem; letter-spacing: 1px;"><i class="fas fa-file-invoice text-warning mr-1"></i>' . e($query->order_no) . '</span>';
             })
             ->addColumn('customer_info', function ($query) {
                 $name = $query->user?->name ?? $query->billing_name ?? 'Guest Customer';
@@ -86,7 +86,16 @@ class SalesOrderDataTable extends DataTable
 
     public function query(Order $model)
     {
-        $query = $model->newQuery()->with(['user'])->latest();
+        $query = $model->newQuery()
+            ->with(['user'])
+            ->where(function ($q) {
+                $q->where('order_no', 'like', 'SO-%')
+                  ->orWhere('order_no', 'like', 'DS-ORD-%')
+                  ->orWhere('order_no', 'like', 'DS-REQ-%')
+                  ->orWhere('shipping_method', 'admin_request')
+                  ->orWhereNotNull('quotation_id');
+            })
+            ->latest();
 
         $status = $this->request()->get('status') ?: $this->request()->get('status_filter');
         if (!empty($status)) {

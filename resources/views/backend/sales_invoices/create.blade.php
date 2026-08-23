@@ -120,7 +120,7 @@
                                         <tr>
                                             <td colspan="3" class="text-right font-weight-bold">VAT Tax %:</td>
                                             <td class="text-right">
-                                                <input type="number" step="0.01" min="0" max="100" name="tax_rate" id="taxRateInput" class="form-control text-right" value="{{ number_format((float)(isset($preloadedOrder) && $preloadedOrder->vat_rate > 0 ? $preloadedOrder->vat_rate : ($defaultTaxRate ?? 5.00)), 2, '.', '') }}">
+                                                <input type="number" step="0.01" min="0" max="100" name="tax_rate" id="taxRateInput" class="form-control text-right" value="{{ number_format((float)(isset($preloadedOrder) && $preloadedOrder->vat_rate !== null ? $preloadedOrder->vat_rate : ($defaultTaxRate ?? 0.00)), 2, '.', '') }}">
                                             </td>
                                         </tr>
                                         <tr>
@@ -210,11 +210,15 @@
                         });
 
                         $('#invoiceItemsBody').html(html);
-                        if (res.discount_amount !== undefined && res.discount_amount > 0) {
+                        if (res.discount_amount !== undefined && res.discount_amount !== null) {
                             $('#discountInput').val(parseFloat(res.discount_amount).toFixed(2));
+                        } else {
+                            $('#discountInput').val('0.00');
                         }
-                        if (res.vat_rate !== undefined && res.vat_rate > 0) {
+                        if (res.vat_rate !== undefined && res.vat_rate !== null) {
                             $('#taxRateInput').val(parseFloat(res.vat_rate).toFixed(2));
+                        } else {
+                            $('#taxRateInput').val('0.00');
                         }
                         calculateTotals();
 

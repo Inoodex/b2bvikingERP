@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Mail\AdminOrderNotificationMail;
 use App\Models\Cart;
+use App\Models\DocumentSequence;
 use App\Models\InventoryStock;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -1020,10 +1021,6 @@ class CartController extends Controller
 
     private function generateUniqueOrderNoForUser($user): string
     {
-        $isOutletUser = $user && ($user->hasRole('Outlet User') || $user->hasRole('Outlet'));
-        $prefix = $isOutletUser ? 'DS' : 'ORD';
-
-        return \App\Services\OrderNumberService::generate($prefix, \App\Models\Order::class);
+        return DocumentSequence::generateForOrder($user);
     }
-
-    }
+}

@@ -77,6 +77,7 @@ class DeliveryOrderController extends Controller
                 'ordered_qty'      => (float)$item->quantity,
                 'already_delivered'=> $alreadyDelivered,
                 'remaining_qty'    => $remaining,
+                'max_deliverable'  => $remaining,
                 'unit_price'       => (float)$item->unit_price,
             ];
         }
@@ -96,11 +97,16 @@ class DeliveryOrderController extends Controller
 
     public function store(StoreDeliveryOrderRequest $request): RedirectResponse
     {
-        $order = Order::findOrFail($request->order_id);
-        $deliveryOrder = $this->deliveryOrderService->createDeliveryOrder($request->validated(), Auth::id() ?? 1);
+        try {
+            $order = Order::findOrFail($request->order_id);
+            $deliveryOrder = $this->deliveryOrderService->createDeliveryOrder($request->validated(), Auth::id() ?? 1);
 
-        Toastr::success('Delivery Order Challan created successfully.', 'Success');
-        return redirect()->route('admin.delivery-orders.show', $deliveryOrder->id);
+            Toastr::success('Delivery Order Challan created successfully.', 'Success');
+            return redirect()->route('admin.delivery-orders.show', $deliveryOrder->id);
+        } catch (\Throwable $e) {
+            Toastr::error($e->getMessage(), 'Error');
+            return redirect()->back()->withInput();
+        }
     }
 
     public function show($id): View
@@ -132,6 +138,11 @@ class DeliveryOrderController extends Controller
         return redirect()->route('admin.delivery-orders.show', $deliveryOrder->id);
     }
 
+    public function downloadPdf($id)
+    {
+        return $this->printPdf($id);
+    }
+
     public function printPdf($id)
     {
         $deliveryOrder = DeliveryOrder::with([
@@ -143,7 +154,7 @@ class DeliveryOrderController extends Controller
             'dispatcher'
         ])->findOrFail($id);
 
-        $pdf = Pdf::loadView('backend.delivery_orders.pdf', compact('deliveryOrder'))
+        $pdf = Pdf::loadView('backend.pdf.delivery_order', compact('deliveryOrder'))
             ->setPaper('a4', 'portrait');
 
         return $pdf->stream("Delivery-Order-{$deliveryOrder->delivery_no}.pdf");

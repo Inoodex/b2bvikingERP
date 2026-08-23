@@ -28,11 +28,27 @@ class OrderDataTable extends DataTable
                 $name = $query->billing_outlet_name ?: ($query->user->outlet_name ?? null);
                 return e($name ?: 'N/A');
             })
+            ->editColumn('order_no', function ($query) {
+                return '<span class="badge badge-dark px-2 py-1 font-weight-bold" style="font-family: monospace; letter-spacing: 0.5px;">' . e($query->order_no) . '</span>';
+            })
+            ->editColumn('shipping_method', function ($query) {
+                $orderNo = (string) $query->order_no;
+                if ($query->shipping_method === 'frontend_checkout' || str_starts_with($orderNo, 'ORD-')) {
+                    return '<span class="badge badge-primary px-2 py-1 font-weight-bold"><i class="fas fa-globe mr-1"></i> Web Checkout</span>';
+                }
+                if ($query->shipping_method === 'frontend_reorder') {
+                    return '<span class="badge badge-info px-2 py-1 font-weight-bold"><i class="fas fa-redo mr-1"></i> Web Reorder</span>';
+                }
+                if (str_starts_with($orderNo, 'DS-') || str_starts_with($orderNo, 'DS')) {
+                    return '<span class="badge badge-success px-2 py-1 font-weight-bold"><i class="fas fa-store mr-1"></i> Outlet Order</span>';
+                }
+                return '<span class="badge badge-secondary px-2 py-1 font-weight-bold">' . e(ucfirst(str_replace('_', ' ', $query->shipping_method ?? 'Web Portal'))) . '</span>';
+            })
             ->addColumn('items_count', function ($query) {
                 return '<span class="badge badge-info">' . (int) $query->items_count . ' Items</span>';
             })
             ->addColumn('total_amount_label', function ($query) {
-                return number_format((float) $query->total_amount, 2);
+                return '<strong class="text-primary">kr. ' . number_format((float) $query->total_amount, 2) . '</strong>';
             })
             ->editColumn('created_at', function ($query) {
                 return optional($query->created_at)->format('d M, Y h:i A');
@@ -80,7 +96,7 @@ class OrderDataTable extends DataTable
 
                 return $pay . $pi_invoice . $invoice . $download . $deliveryOrder . $view . ' ' . $delete;
             })
-            ->rawColumns(['customer', 'items_count', 'status_badge', 'action'])
+            ->rawColumns(['order_no', 'shipping_method', 'customer', 'items_count', 'total_amount_label', 'status_badge', 'action'])
             ->setRowId('id');
     }
 
@@ -94,7 +110,17 @@ class OrderDataTable extends DataTable
         $query = $model->newQuery()
             ->with('user')
             ->with('items')
-            ->withCount('items');
+            ->withCount('items')
+            ->where(function ($q) {
+                $q->where('order_no', 'not like', 'SO-%')
+                  ->where('order_no', 'not like', 'DS-ORD-%')
+                  ->where('order_no', 'not like', 'DS-REQ-%')
+                  ->where(function ($sub) {
+                      $sub->whereNull('shipping_method')
+                          ->orWhere('shipping_method', '!=', 'admin_request');
+                  })
+                  ->whereNull('quotation_id');
+            });
 
         if (request()->filled('status')) {
             $query->where('status', request()->status);
