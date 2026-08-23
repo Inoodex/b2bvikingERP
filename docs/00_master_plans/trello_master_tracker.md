@@ -3,13 +3,13 @@
 
 ---
 
-## 📋 LIST: ✅ DONE (Phase 1 & Phase 2 - Step 1)
+## 📋 LIST: ✅ DONE (Phase 1, Phase 2 & Phase 3)
 
 ---
 
 ### 🃏 Module: Database & Master Data Setup (Days 1-2)
 *   **Sub-modules & Checklists:**
-    *   [x] Run 69 Initial Database Migrations
+    *   [x] Run Initial Database Migrations
     *   [x] Setup Currency CRUD
     *   [x] Setup Company CRUD
     *   [x] Setup Department CRUD
@@ -25,6 +25,7 @@
     *   [x] Create ApprovalStep Model
     *   [x] Develop ApprovalService (submit, approve, reject logic)
     *   [x] Dynamic Multi-level routing based on department hierarchy
+    *   [x] Specific User role-filtered strict approval assignment
 
 ---
 
@@ -56,102 +57,89 @@
     *   [x] CS Approval Workflow Integration
 
 ---
----
-
-## 📋 LIST: 🔄 IN PROGRESS (Phase 2 - Step 2)
-
----
 
 ### 🃏 Module: Purchase Order (PO) & PI Details (Days 14-16)
 *   **Sub-modules & Checklists (Client Specs):**
-    *   [ ] 2.9 Create Purchase Order (PO) Engine
-    *   [ ] Split PO Capability (Awarding different items to different vendors)
-    *   [ ] 2.10 PO Approval (Multi-level workflow integration)
-    *   [ ] 2.11 Edit / Cancel PO Functionality
-    *   [ ] 2.12 Email PO Document to Supplier
-    *   [ ] 2.14 Foreign Purchase — PO (Multi-currency support)
-    *   [ ] 2.15 Proforma Invoice (PI) Tracking & Document Upload
-    *   [ ] 2.17 LC Amendment & Tracking Module
-
----
----
-
-## 📋 LIST: 📝 TO DO — Phase 2 (Import, Shipping & Costing)
+    *   [x] 2.9 Create Purchase Order (PO) Engine
+    *   [x] Split PO Capability (Awarding different items to different vendors)
+    *   [x] 2.10 PO Approval (Multi-level workflow integration)
+    *   [x] 2.11 Edit / Cancel PO Functionality
+    *   [x] 2.12 Email PO Document to Supplier
+    *   [x] 2.14 Foreign Purchase — PO (Multi-currency support)
+    *   [x] 2.15 Proforma Invoice (PI) Tracking & Document Upload
+    *   [x] 2.17 LC Amendment & Tracking Module
 
 ---
 
 ### 🃏 Module: Shipment, SIT & GRN (Days 17-19)
 *   **Sub-modules & Checklists (Client Specs):**
-    *   [ ] 2.13 Foreign Purchase — PR (Import Configuration)
-    *   [ ] 2.18 Shipment Information (Track BL/AWB, Arrival, Departure, Port)
-    *   [ ] 2.19 Cost of Shipment (Stock-in-Transit / SIT Calculations before GRN)
-    *   [ ] 2.20 Store Receive Goods (GRN creation in local currency)
-    *   [ ] GRN Quality Control (QC) Checklist & Verification
+    *   [x] 2.13 Foreign Purchase — PR (Import Configuration)
+    *   [x] 2.18 Shipment Information (Track BL/AWB, Arrival, Departure, Port)
+    *   [x] 2.19 Cost of Shipment (Stock-in-Transit / SIT Calculations before GRN)
+    *   [x] 2.20 Store Receive Goods (GRN creation in local currency)
+    *   [x] GRN Quality Control (QC) Checklist & Verification
 
 ---
 
 ### 🃏 Module: Landed Cost Allocation Engine (Days 20-22)
 *   **Sub-modules & Checklists (Client Specs):**
-    *   [ ] 2.16 Track LC Related Expenses (CD, RD, SD, VAT, AIT, AT, LC Margin, Opening Charge, Doc Handling, Insurance, Transport, Freight, C&F)
-    *   [ ] 2.21 Cost Allocation Engine (Distribute overheads using Weighted Average)
-    *   [ ] 2.22 Unit Cost Configuration (Determine final True Cost)
-    *   [ ] Vendor Returns Workflow
-    *   [ ] Generate Debit Note for Rejected Goods
+    *   [x] 2.16 Track LC Related Expenses (CD, RD, SD, VAT, AIT, AT, LC Margin, Opening Charge, Doc Handling, Insurance, Transport, Freight, C&F)
+    *   [x] 2.21 Cost Allocation Engine (Distribute overheads using Weighted Average)
+    *   [x] 2.22 Unit Cost Configuration (Determine final True Cost)
+    *   [x] Vendor Returns Workflow
+    *   [x] Generate Debit Note for Rejected Goods
 
 ---
 
 ### 🃏 Module: Purchase Reporting & Client UAT (Days 23-25)
 *   **Sub-modules & Checklists (Client Specs):**
-    *   [ ] 2.23 Supplier-wise Purchase Report
-    *   [ ] 2.24 Item-wise Purchase Report
-    *   [ ] 2.25 Total Purchase Value (Periodic Report)
-    *   [ ] 2.26 Purchase Value – Item wise (Periodic Report)
-    *   [ ] 2.27 Purchase Value vs Last Year Comparison
-    *   [ ] 2.28 PR Received List/Count
-    *   [ ] 2.29 PR Pending List/Count
-    *   [ ] 2.30 Items Pending in PR List/Count
-    *   [ ] 2.31 Items Purchased List/Count
-    *   [ ] 2.32 PO Issued List/Count
-    *   [ ] 2.33 CS / PR / SR / PO Print Formats validation
-    *   [ ] 2.35 LC Register Dashboard
-    *   [ ] Client Mock Purchase & Import Costing UAT
-
----
----
-
-## 📋 LIST: 🧊 BACKLOG — Phase 3 (Sales Module Polish)
+    *   [x] 2.23 Supplier-wise Purchase Report
+    *   [x] 2.24 Item-wise Purchase Report
+    *   [x] 2.25 Total Purchase Value (Periodic Report)
+    *   [x] 2.26 Purchase Value – Item wise (Periodic Report)
+    *   [x] 2.27 Purchase Value vs Last Year Comparison
+    *   [x] 2.28 PR Received List/Count
+    *   [x] 2.29 PR Pending List/Count
+    *   [x] 2.30 Items Pending in PR List/Count
+    *   [x] 2.31 Items Purchased List/Count
+    *   [x] 2.32 PO Issued List/Count
+    *   [x] 2.33 CS / PR / SR / PO Print Formats validation
+    *   [x] 2.35 LC Register Dashboard
+    *   [x] Client Mock Purchase & Import Costing UAT
 
 ---
 
-### 🃏 Module: Quotations & Customer Pricing (Days 26-33)
+### 🃏 Module: Sales Polish, Quotations, Pricing & Fulfillment (Days 26-33)
 *   **Sub-modules & Checklists:**
-    *   [ ] Sales Quotation CRUD Engine
-    *   [ ] Dynamic Quotation Templates (PDF output)
-    *   [ ] Customer Pricelists (Specialized pricing tiers)
-    *   [ ] One-click Quote to Sales Order Conversion
-    *   [ ] Coupon Code Validation System
-    *   [ ] Gift Card Generation & Redemption Logic
-    *   [ ] Final Checkout Integration
-    *   [ ] Customer Return Process (RMA)
-    *   [ ] Credit Note Generation
-    *   [ ] Auto-adjustment of Outstanding Invoices against Credit Notes
-    *   [ ] Salesperson Performance Tracking Report
-    *   [ ] Aging Receivables Report
-    *   [ ] Polish Checkout UI based on initial client feedback
+    *   [x] Sales Quotation CRUD Engine & Streamlined UI
+    *   [x] Dynamic Quotation Templates (PDF streaming & downloads)
+    *   [x] Customer Pricelists (Specialized pricing tiers & overrides)
+    *   [x] One-click Quote to Sales Order Conversion
+    *   [x] Coupon Code Validation System
+    *   [x] Gift Card Generation & Redemption Logic
+    *   [x] Customer Checkout Integration
+    *   [x] Delivery Order (DO) Dispatch, Logistics & Tracking
+    *   [x] Customer Payments & Statement Tracking
+    *   [x] Customer Return Process (RMA) & QC Inspection
+    *   [x] Credit Note Generation
+    *   [x] Auto-adjustment of Outstanding Invoices against Credit Notes
+    *   [x] Customer Segmentation (Wholesale, B2B VIP, Distributor, Retail)
+    *   [x] Enterprise User Management (Staff vs B2B segregation & credit limits)
+    *   [x] Comprehensive Bilingual User Manuals (English & Bengali)
+    *   [x] Full Automated Test Coverage (22 Feature Tests passing)
 
 ---
 ---
 
-## 📋 LIST: 🧊 BACKLOG — Phase 4 (Inventory & Stock Controls)
+## 📋 LIST: 🔄 IN PROGRESS — Phase 4 (Inventory & Stock Controls)
 
 ---
 
-### 🃏 Module: Stock Batches & Reordering (Days 34-40)
+### 🃏 Module: Stock Batches, Transfers & Reorder Controls (Days 34-40)
 *   **Sub-modules & Checklists:**
-    *   [ ] Create `stock_batches` Model & Migration
-    *   [ ] Build FIFO (First In First Out) Depletion Engine
+    *   [ ] Build FIFO (First In First Out) Stock Batch Depletion Engine
     *   [ ] Build LIFO (Last In First Out) Option
-    *   [ ] Refactor `IssueController` to automatically decrement stock sequentially
+    *   [ ] Integrate FIFO/LIFO sequential batch consumption into Delivery Orders & Dispatches
     *   [ ] Outlet-to-Outlet Stock Transfer System
     *   [ ] Stock Transfer Approval Workflow Integration
     *   [ ] Minimum Stock Reorder Point Logic

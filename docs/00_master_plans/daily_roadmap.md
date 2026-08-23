@@ -30,23 +30,23 @@
 
 ---
 
-## Phase 3: Sales Module Polish (Days 26 - 33) [Next Step]
-* **Days 26 - 27: Quotations, Pricelists, & Templates [Pending]**
-  - Sales quotations, quotation templates, and pricelists for dynamic customer pricing.
-* **Days 28 - 29: Coupons, Gift Cards, & Sales Orders [Pending]**
-  - Convert Quote to Sales Order. Coupon/Gift card checkout application.
-* **Days 30 - 31: Sales Returns & Credit Notes [Pending]**
-  - Process customer return, generate Credit Note, and automatically adjust outstanding invoices.
-* **Days 32 - 33: Sales Reports & Client UI Polish [Pending]**
-  - Salesperson performance, aging receivables report, and client feedback adjustments on Checkout UI.
+## Phase 3: Sales Module Polish, B2B Pricing & Fulfillment (Days 26 - 33) [Completed]
+* **Days 26 - 27: Quotations, Pricelists, & Templates [Completed]**
+  - Sales quotations CRUD, dynamic PDF templates/streaming, and pricelists for dynamic customer pricing & tier rules.
+* **Days 28 - 29: Coupons, Gift Cards, B2B Tiers & Sales Orders [Completed]**
+  - One-click Quote to Sales Order conversion, customer segment pricing (Wholesale, B2B VIP, Distributor, Retail), Credit Limits, coupon/gift card validation.
+* **Days 30 - 31: Delivery Orders, Sales Returns & Credit Notes [Completed]**
+  - Delivery order dispatch & stock deduction, Sales Returns (RMA), Credit Note generation with automatic customer balance and invoice adjustments.
+* **Days 32 - 33: User Management, Comprehensive Manuals & Client UI Polish [Completed]**
+  - Enterprise User Management refactoring (Internal Staff vs B2B Customers), approval workflow role-filtered assignments, complete Bengali & English user manuals ([Phase3_User_Manual.md](file:///c:/laragon/www/b2bvikingErp/plan/phase%203/Phase3_User_Manual.md)), and 100% automated test coverage.
 
 ---
 
-## Phase 4: Inventory & Stock Controls (Days 34 - 40)
-* **Days 34 - 36: FIFO/LIFO Stock Batches Depletion Engine [Pending]**
-  - Refactor `IssueController` to decrement stock from `stock_batches` (remaining qty > 0) in sequential order.
+## Phase 4: Inventory & Stock Controls (Days 34 - 40) [Current Sprint / Next Step]
+* **Days 34 - 36: FIFO/LIFO Stock Batches Depletion Engine [Next Step]**
+  - Integrate sequential FIFO/LIFO stock batch consumption into `DeliveryOrderService` (Sales Dispatch), `StockTransferService`, and `StockAdjustmentService`.
 * **Days 37 - 38: Stock Transfer & Reorder Point Notifications [Pending]**
-  - Outlet-to-outlet transfer with approvals. Min stock dashboard notifications.
+  - Outlet-to-outlet stock transfers with approval workflows. Real-time min stock dashboard notifications & alert widgets.
 * **Days 39 - 40: Adjustments, Month-End Snapshots, & Inventory Audit [Pending]**
   - Physical stock corrections, Month-End inventory frozen snapshots, and FIFO valuation verification.
 
