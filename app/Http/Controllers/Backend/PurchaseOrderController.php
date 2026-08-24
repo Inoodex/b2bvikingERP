@@ -44,6 +44,17 @@ class PurchaseOrderController extends Controller
         }
 
         $cs = ComparisonStatement::with(['rfq', 'items.selectedQuotationItem.quotation'])->findOrFail($csId);
+
+        // Enterprise Safeguard: Prevent duplicate PO generation for the same Comparison Statement
+        $existingPos = Purchase::where('comparison_statement_id', $cs->id)->get();
+        if ($existingPos->isNotEmpty()) {
+            Toastr::warning('Purchase Order(s) have already been generated for this Comparison Statement.');
+            if ($existingPos->count() === 1) {
+                return redirect()->route('admin.purchase-orders.show', $existingPos->first()->id);
+            }
+            return redirect()->route('admin.purchase-orders.index');
+        }
+
         $generatedPos = $this->purchaseOrderService->generateFromComparisonStatement($cs, Auth::id() ?? 1);
 
         foreach ($generatedPos as $po) {
@@ -55,12 +66,29 @@ class PurchaseOrderController extends Controller
         }
 
         Toastr::success(count($generatedPos) . ' Purchase Order(s) generated successfully!');
+        if (count($generatedPos) === 1) {
+            return redirect()->route('admin.purchase-orders.show', $generatedPos[0]->id);
+        }
         return redirect()->route('admin.purchase-orders.index');
     }
 
     public function show($id): View
     {
-        $po = Purchase::with(['vendor', 'rfq', 'comparisonStatement', 'currency', 'items.product', 'items.variant', 'proformaInvoice', 'letterOfCredit.expenses', 'letterOfCredit.amendments', 'emailLogs'])->findOrFail($id);
+        $po = Purchase::with([
+            'vendor',
+            'rfq',
+            'comparisonStatement',
+            'currency',
+            'items.product',
+            'items.variant',
+            'proformaInvoice',
+            'letterOfCredit.expenses',
+            'letterOfCredit.amendments',
+            'emailLogs',
+            'shipments',
+            'goodsReceipts',
+            'vendorBills'
+        ])->findOrFail($id);
         return view('backend.purchase.po_show', compact('po'));
     }
 

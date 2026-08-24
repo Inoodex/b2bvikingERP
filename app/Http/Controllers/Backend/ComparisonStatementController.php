@@ -17,6 +17,12 @@ class ComparisonStatementController extends Controller
     {
         $rfq = Rfq::with(['items.product', 'items.variant'])->findOrFail($rfqId);
         
+        $hasPos = \App\Models\Purchase::whereHas('comparisonStatement', fn($q) => $q->where('rfq_id', $rfqId))->exists();
+        if ($hasPos) {
+            Toastr::warning('Comparison Statement evaluation is locked because Purchase Order(s) have already been issued.', 'Locked');
+            return redirect()->route('admin.rfqs.show', $rfqId);
+        }
+
         // Fetch all received quotations for this RFQ
         $quotations = VendorQuotation::with(['vendor', 'currency', 'items'])
             ->where('rfq_id', $rfqId)
@@ -39,6 +45,12 @@ class ComparisonStatementController extends Controller
             'items' => 'required_if:award_type,split|array',
             'items.*.selected_vqi_id' => 'nullable|exists:vendor_quotation_items,id',
         ]);
+
+        $hasPos = \App\Models\Purchase::whereHas('comparisonStatement', fn($q) => $q->where('rfq_id', $rfqId))->exists();
+        if ($hasPos) {
+            Toastr::error('Cannot re-evaluate or modify Comparison Statement because Purchase Order(s) have already been generated.', 'Action Locked');
+            return redirect()->route('admin.rfqs.show', $rfqId);
+        }
 
         try {
             DB::beginTransaction();

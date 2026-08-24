@@ -265,9 +265,34 @@
                                     @if($cs->approval_status === 'approved')
                                         <span class="badge badge-success px-3 py-2 font-weight-bold" style="border-radius: 6px;"><i class="fas fa-check-circle mr-1"></i> Fully Approved</span>
                                         @php
+                                            $existingPos = $cs->purchases;
                                             $canInitiatePo = (new \App\Services\ApprovalService())->canUserInitiateDocument(\App\Models\Purchase::class);
                                         @endphp
-                                        @if($canInitiatePo)
+                                        
+                                        @if($existingPos && $existingPos->isNotEmpty())
+                                            <span class="badge badge-primary px-3 py-2 font-weight-bold" style="border-radius: 6px;">
+                                                <i class="fas fa-check-double mr-1"></i> PO Generated ({{ $existingPos->count() }})
+                                            </span>
+                                            @if($existingPos->count() === 1)
+                                                @php $singlePo = $existingPos->first(); @endphp
+                                                <a href="{{ route('admin.purchase-orders.show', $singlePo->id) }}" class="btn btn-sm btn-info font-weight-bold px-3 shadow-sm">
+                                                    <i class="fas fa-eye mr-1"></i> View {{ $singlePo->po_no ?? ('PO #' . $singlePo->id) }}
+                                                </a>
+                                            @else
+                                                <div class="dropdown d-inline">
+                                                    <button class="btn btn-info btn-sm dropdown-toggle font-weight-bold shadow-sm" type="button" id="dropdownPoList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <i class="fas fa-list mr-1"></i> View POs ({{ $existingPos->count() }})
+                                                    </button>
+                                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownPoList">
+                                                        @foreach($existingPos as $genPo)
+                                                            <a class="dropdown-item font-weight-bold" href="{{ route('admin.purchase-orders.show', $genPo->id) }}">
+                                                                <i class="fas fa-file-invoice mr-2 text-primary"></i> {{ $genPo->po_no ?? ('PO #' . $genPo->id) }} ({{ $genPo->vendor->shop_name ?? 'Vendor' }})
+                                                            </a>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        @elseif($canInitiatePo)
                                             <form action="{{ route('admin.purchase-orders.generate-from-cs', $cs->id) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-success font-weight-bold px-3 shadow-sm"><i class="fas fa-file-invoice mr-1"></i> Generate PO</button>

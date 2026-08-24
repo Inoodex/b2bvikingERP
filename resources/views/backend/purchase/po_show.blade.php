@@ -8,63 +8,96 @@
         justify-content: space-between;
         background: #ffffff;
         border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 16px 24px;
+        border-radius: 12px;
+        padding: 20px 24px;
         overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
     }
     .milestone-step {
         text-align: center;
         flex: 1;
         position: relative;
+        padding: 0 4px;
     }
     .milestone-step:not(:last-child)::after {
         content: '';
         position: absolute;
-        top: 15px;
+        top: 18px;
         left: 50%;
         width: 100%;
         height: 3px;
-        background: #cbd5e1;
+        background: #e2e8f0;
         z-index: 1;
+        transition: all 0.3s ease;
     }
     .milestone-step.completed:not(:last-child)::after {
         background: #47c363;
     }
     .milestone-icon {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
-        background: #e2e8f0;
-        color: #64748b;
+        background: #f1f5f9;
+        color: #94a3b8;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         font-weight: bold;
-        font-size: 13px;
+        font-size: 14px;
         position: relative;
         z-index: 2;
+        transition: all 0.3s ease;
+        border: 2px solid #e2e8f0;
     }
     .milestone-step.active .milestone-icon {
         background: #6777ef;
         color: #ffffff;
-        box-shadow: 0 0 0 4px rgba(103,119,239,0.2);
+        border-color: #6777ef;
+        box-shadow: 0 0 0 4px rgba(103,119,239,0.25);
+        animation: pulseActive 2s infinite;
     }
     .milestone-step.completed .milestone-icon {
         background: #47c363;
         color: #ffffff;
+        border-color: #47c363;
+        box-shadow: 0 2px 6px rgba(71,195,99,0.3);
     }
     .milestone-label {
         font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
-        margin-top: 6px;
+        margin-top: 8px;
         color: #64748b;
+        letter-spacing: 0.3px;
     }
     .milestone-step.active .milestone-label {
         color: #6777ef;
+        font-weight: 800;
     }
     .milestone-step.completed .milestone-label {
-        color: #47c363;
+        color: #1e293b;
+    }
+    .milestone-subtext {
+        font-size: 10px;
+        font-weight: 600;
+        margin-top: 2px;
+        color: #94a3b8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        display: block;
+    }
+    .milestone-step.completed .milestone-subtext {
+        color: #16a34a;
+    }
+    .milestone-step.active .milestone-subtext {
+        color: #6777ef;
+    }
+    @keyframes pulseActive {
+        0% { box-shadow: 0 0 0 0 rgba(103,119,239,0.4); }
+        70% { box-shadow: 0 0 0 8px rgba(103,119,239,0); }
+        100% { box-shadow: 0 0 0 0 rgba(103,119,239,0); }
     }
 </style>
 @endpush
@@ -169,32 +202,109 @@
         </div>
 
         <div class="section-body">
-            <!-- Milestone Stepper Bar -->
+            <!-- Enterprise Milestone Stepper Bar (State Evaluation Engine) -->
             @php
-                $milestones = ['draft', 'approved', 'po_sent', 'pi_attached', 'lc_opened', 'shipped', 'goods_received'];
-                if (!$isPoApproved) {
-                    $currentIndex = 0; // Draft / Pending Approval stage
-                } else {
-                    $currentMilestone = $po->milestone_status ?? 'approved';
-                    if ($currentMilestone === 'goods_partial') {
-                        $currentIndex = 5;
+                // 1. Draft Stage: PO Record is created
+                $isDraftDone = true;
+
+                // 2. Approved Stage: Fully approved
+                $isApproved = ($po->approval_status === 'approved');
+
+                // 3. PO Sent Stage: Email sent or logged or milestone advanced
+                $emailCount = $po->emailLogs ? $po->emailLogs->count() : 0;
+                $isPoSent = ($emailCount > 0 || in_array($po->milestone_status, ['po_sent', 'pi_attached', 'lc_opened', 'shipped', 'goods_received', 'completed']));
+
+                // 4. PI Attached Stage: Proforma Invoice registered
+                $hasPI = ($po->proforma_invoice_id !== null || $po->proformaInvoice !== null);
+                $isPiAttached = ($hasPI || in_array($po->milestone_status, ['pi_attached', 'lc_opened', 'shipped', 'goods_received', 'completed']));
+
+                // 5. LC Opened Stage: Letter of Credit registered
+                $hasLC = ($po->lc_id !== null || $po->letterOfCredit !== null);
+                $isLcOpened = ($hasLC || in_array($po->milestone_status, ['lc_opened', 'shipped', 'goods_received', 'completed']));
+
+                // 6. Shipped Stage: Shipment registered
+                $shipmentCount = $po->shipments ? $po->shipments->count() : 0;
+                $isShipped = ($shipmentCount > 0 || in_array($po->milestone_status, ['shipped', 'goods_received', 'completed']));
+
+                // 7. Goods Received Stage: GRN created & QC passed
+                $grnCount = $po->goodsReceipts ? $po->goodsReceipts->where('qc_status', 'passed')->count() : 0;
+                $isGoodsReceived = ($grnCount > 0 || in_array($po->milestone_status, ['goods_received', 'completed']));
+
+                $steps = [
+                    [
+                        'key' => 'draft',
+                        'label' => '1. Draft',
+                        'icon' => 'fa-file-alt',
+                        'completed' => $isDraftDone,
+                        'subtext' => $po->date ? \Carbon\Carbon::parse($po->date)->format('d M') : 'Created',
+                    ],
+                    [
+                        'key' => 'approved',
+                        'label' => '2. Approved',
+                        'icon' => 'fa-stamp',
+                        'completed' => $isApproved,
+                        'subtext' => $isApproved ? 'Approved' : 'Pending',
+                    ],
+                    [
+                        'key' => 'po_sent',
+                        'label' => '3. PO Sent',
+                        'icon' => 'fa-paper-plane',
+                        'completed' => $isPoSent,
+                        'subtext' => $emailCount > 0 ? "Sent ({$emailCount})" : ($isPoSent ? 'Sent' : 'Pending'),
+                    ],
+                    [
+                        'key' => 'pi_attached',
+                        'label' => '4. PI Attached',
+                        'icon' => 'fa-file-invoice-dollar',
+                        'completed' => $isPiAttached,
+                        'subtext' => $po->proformaInvoice ? $po->proformaInvoice->pi_no : ($isPiAttached ? 'Attached' : 'Pending'),
+                    ],
+                    [
+                        'key' => 'lc_opened',
+                        'label' => '5. LC Opened',
+                        'icon' => 'fa-university',
+                        'completed' => $isLcOpened,
+                        'subtext' => $po->letterOfCredit ? $po->letterOfCredit->lc_no : ($isLcOpened ? 'Opened' : 'Pending'),
+                    ],
+                    [
+                        'key' => 'shipped',
+                        'label' => '6. Shipped',
+                        'icon' => 'fa-ship',
+                        'completed' => $isShipped,
+                        'subtext' => $shipmentCount > 0 ? "{$shipmentCount} Shipped" : ($isShipped ? 'In Transit' : 'Pending'),
+                    ],
+                    [
+                        'key' => 'goods_received',
+                        'label' => '7. Received',
+                        'icon' => 'fa-dolly',
+                        'completed' => $isGoodsReceived,
+                        'subtext' => $grnCount > 0 ? "{$grnCount} Received" : ($isGoodsReceived ? 'Received' : 'Pending'),
+                    ],
+                ];
+
+                // Find active (current target) step
+                $activeFound = false;
+                foreach ($steps as &$stepItem) {
+                    if (!$stepItem['completed'] && !$activeFound) {
+                        $stepItem['active'] = true;
+                        $activeFound = true;
                     } else {
-                        $currentIndex = array_search($currentMilestone, $milestones);
-                        if ($currentIndex === false || $currentIndex === 0) $currentIndex = 1;
+                        $stepItem['active'] = false;
                     }
                 }
             @endphp
             <div class="milestone-stepper mb-4">
-                @foreach($milestones as $mIndex => $mKey)
-                    @php
-                        $isCompleted = $mIndex < $currentIndex;
-                        $isActive = $mIndex === $currentIndex;
-                    @endphp
-                    <div class="milestone-step {{ $isCompleted ? 'completed' : ($isActive ? 'active' : '') }}">
+                @foreach($steps as $step)
+                    <div class="milestone-step {{ $step['completed'] ? 'completed' : ($step['active'] ? 'active' : '') }}">
                         <div class="milestone-icon">
-                            @if($isCompleted)<i class="fas fa-check"></i>@else{{ $mIndex + 1 }}@endif
+                            @if($step['completed'])
+                                <i class="fas fa-check"></i>
+                            @else
+                                <i class="fas {{ $step['icon'] }}"></i>
+                            @endif
                         </div>
-                        <div class="milestone-label">{{ str_replace('_', ' ', $mKey) }}</div>
+                        <div class="milestone-label">{{ $step['label'] }}</div>
+                        <div class="milestone-subtext">{{ $step['subtext'] }}</div>
                     </div>
                 @endforeach
             </div>

@@ -36,6 +36,11 @@ class ComparisonStatement extends Model
         return $this->morphMany(Approval::class, 'approvable');
     }
 
+    public function purchases()
+    {
+        return $this->hasMany(Purchase::class, 'comparison_statement_id');
+    }
+
     public function getTotalAmountAttribute()
     {
         $total = 0;

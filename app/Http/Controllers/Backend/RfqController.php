@@ -64,7 +64,14 @@ class RfqController extends Controller
     public function show(string $id)
     {
         $rfq = Rfq::with(['items.product', 'items.variant', 'vendors.vendor', 'source', 'quotations.items', 'quotations.currency'])->findOrFail($id);
-        $cs = \App\Models\ComparisonStatement::with(['items.product', 'items.selectedQuotationItem.quotation.vendor', 'recommendedVendor', 'approvals.step.approverRole', 'approvals.user'])
+        $cs = \App\Models\ComparisonStatement::with([
+            'items.product',
+            'items.selectedQuotationItem.quotation.vendor',
+            'recommendedVendor',
+            'approvals.step.approverRole',
+            'approvals.user',
+            'purchases.vendor'
+        ])
             ->where('rfq_id', $id)
             ->latest()
             ->first();
