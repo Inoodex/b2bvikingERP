@@ -75,14 +75,17 @@ class LandedCostService
                 // Allocated overhead for this line
                 $lineAllocatedOverhead = $totalLcExpensesBase * $weightRatio;
 
-                // Total Base Cost for this line
-                $lineBaseTotal = (float) $item->subtotal;
+                // Total Base Cost for this line (converted to Base Currency DKK if purchase is foreign)
+                $exchangeRate = (float) ($purchase->exchange_rate_used > 0 ? $purchase->exchange_rate_used : 1.0);
+                $isForeign = ($purchase->purchase_type === 'foreign') || ($purchase->foreign_amount > 0);
+                $lineBaseTotal = $isForeign ? ((float) $item->subtotal * $exchangeRate) : (float) $item->subtotal;
+                $baseUnitCost = $isForeign ? ((float) $item->unit_cost * $exchangeRate) : (float) $item->unit_cost;
 
                 // Get Total Accepted Qty across all GRNs for this PO line
                 $acceptedQty = $this->getAcceptedQtyForItem($purchase, $item->product_id, $item->variant_id);
                 $qtyToUse = $acceptedQty > 0 ? $acceptedQty : (float) $item->qty;
 
-                // True Landed Unit Cost
+                // True Landed Unit Cost in Base Currency DKK
                 $landedUnitCost = ($lineBaseTotal + $lineAllocatedOverhead) / $qtyToUse;
 
                 // Update purchase_details table
@@ -105,7 +108,7 @@ class LandedCostService
                     'purchase_detail_id' => $item->id,
                     'product_name'       => $item->product?->name ?? 'N/A',
                     'variant_name'       => $item->variant?->name ?? '',
-                    'base_unit_cost'     => (float) $item->unit_cost,
+                    'base_unit_cost'     => round($baseUnitCost, 2),
                     'allocated_overhead' => round($lineAllocatedOverhead, 2),
                     'accepted_qty'       => $qtyToUse,
                     'landed_unit_cost'   => round($landedUnitCost, 2),

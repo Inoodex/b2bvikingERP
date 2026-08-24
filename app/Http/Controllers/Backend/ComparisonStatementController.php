@@ -84,6 +84,9 @@ class ComparisonStatementController extends Controller
                 } elseif ($request->award_type === 'single' && $singleVendorQuotation) {
                     $matchingVqi = $singleVendorQuotation->items
                         ->where('product_id', $rfqItem->product_id)
+                        ->where('variant_id', $rfqItem->variant_id)
+                        ->first() ?? $singleVendorQuotation->items
+                        ->where('product_id', $rfqItem->product_id)
                         ->first();
                     if ($matchingVqi) {
                         $selectedVqiId = $matchingVqi->id;

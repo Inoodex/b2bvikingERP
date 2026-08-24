@@ -34,7 +34,7 @@ class ProformaInvoiceController extends Controller
             'pi_no' => $request->pi_no,
             'vendor_id' => $po->vendor_id,
             'rfq_id' => $po->rfq_id,
-            'currency_id' => $po->currency_id,
+            'currency_id' => $po->currency_id ?? $po->vendor?->currency_id,
             'total_amount' => $request->total_amount,
             'issue_date' => $request->issue_date,
             'status' => 'confirmed',

@@ -45,7 +45,10 @@ class ComparisonStatement extends Model
                 $vqi = VendorQuotationItem::whereHas('vendorQuotation', function ($q) {
                     $q->where('rfq_id', $this->rfq_id)
                       ->where('vendor_id', $this->recommended_vendor_id);
-                })->where('product_id', $item->product_id)->first();
+                })
+                ->where('product_id', $item->product_id)
+                ->when($item->variant_id, fn($query) => $query->where('variant_id', $item->variant_id))
+                ->first();
             }
 
             if ($vqi) {
