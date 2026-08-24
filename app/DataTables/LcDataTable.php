@@ -24,7 +24,7 @@ class LcDataTable extends \Yajra\DataTables\Services\DataTable
                 return $query->issuing_bank ?? 'N/A';
             })
             ->editColumn('amount', function ($query) {
-                $symbol = $query->currency ? $query->currency->symbol : 'USD';
+                $symbol = $query->currency ? ($query->currency->symbol ?? $query->currency->code) : ($query->vendor?->currency ? ($query->vendor->currency->symbol ?? $query->vendor->currency->code) : 'kr.');
                 return $symbol . ' ' . number_format($query->amount, 2);
             })
             ->editColumn('margin_percent', function ($query) {

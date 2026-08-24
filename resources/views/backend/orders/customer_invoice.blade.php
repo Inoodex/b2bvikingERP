@@ -106,14 +106,9 @@
                         $groupedByCategory[$categoryName][$productId]['total_qty'] += $item->quantity;
                         $groupedByCategory[$categoryName][$productId]['total_price'] += $item->line_total;
 
-                        if ($item->variant_label) {
-                            $vName = $item->variant_label;
-                            if (!isset($groupedByCategory[$categoryName][$productId]['variants'][$vName])) {
-                                $groupedByCategory[$categoryName][$productId]['variants'][$vName] = 0;
-                            }
-                            $groupedByCategory[$categoryName][$productId]['variants'][$vName] += $item->quantity;
-                        } elseif ($item->variant && $item->variant->name) {
-                            $vName = $item->variant->name;
+                        $vName = $item->variant && $item->variant->name ? $item->variant->name : ($item->variant_label ?: null);
+                        
+                        if ($vName) {
                             if (!isset($groupedByCategory[$categoryName][$productId]['variants'][$vName])) {
                                 $groupedByCategory[$categoryName][$productId]['variants'][$vName] = 0;
                             }

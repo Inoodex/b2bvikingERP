@@ -129,10 +129,8 @@
                                                     <small class="text-muted">{{ $item->category_name ?? 'General' }}</small>
                                                 </td>
                                                 <td class="text-center">
-                                                    @if($item->variant_label)
-                                                        <span class="badge badge-primary">{{ $item->variant_label }}</span>
-                                                    @elseif($item->variant && $item->variant->name)
-                                                        <span class="badge badge-primary">{{ $item->variant->name }}</span>
+                                                    @if($item->variant_label || $item->variant)
+                                                        <span class="badge badge-primary">{{ $item->variant_label ?: $item->variant->name }}</span>
                                                     @else
                                                         <span class="text-muted">Standard</span>
                                                     @endif

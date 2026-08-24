@@ -336,7 +336,7 @@
                             @if($po->letterOfCredit)
                                 <p class="mb-1"><strong>LC Number:</strong> <a href="{{ route('admin.letters-of-credit.show', $po->letterOfCredit->id) }}" class="font-weight-bold text-primary">{{ $po->letterOfCredit->lc_no }}</a></p>
                                 <p class="mb-1"><strong>Issuing Bank:</strong> {{ $po->letterOfCredit->issuing_bank }}</p>
-                                <p class="mb-1"><strong>LC Amount:</strong> {{ $po->currency ? $po->currency->symbol : 'USD' }} {{ number_format($po->letterOfCredit->amount, 2) }} (Margin: {{ $po->letterOfCredit->margin_percent }}%)</p>
+                                <p class="mb-1"><strong>LC Amount:</strong> {{ $po->currency ? ($po->currency->symbol ?? $po->currency->code) : ($po->vendor?->currency ? ($po->vendor->currency->symbol ?? $po->vendor->currency->code) : 'kr.') }} {{ number_format($po->letterOfCredit->amount, 2) }} (Margin: {{ $po->letterOfCredit->margin_percent }}%)</p>
                                 <p class="mb-3"><strong>Expiry Date:</strong> {{ $po->letterOfCredit->expiry_date ? $po->letterOfCredit->expiry_date->format('d M, Y') : 'N/A' }}</p>
                                 <a href="{{ route('admin.letters-of-credit.show', $po->letterOfCredit->id) }}" class="btn btn-sm btn-success"><i class="fas fa-external-link-alt mr-1"></i> View LC Register & Expenses</a>
                             @else

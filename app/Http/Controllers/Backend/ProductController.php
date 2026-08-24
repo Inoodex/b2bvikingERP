@@ -825,4 +825,43 @@ class ProductController extends Controller implements HasMiddleware
             ]);
         }
     }
+
+    /**
+     * Get variants for a specific product via AJAX
+     */
+    public function getVariants(Request $request, $id)
+    {
+        try {
+            $product = Product::with(['variants.color', 'variants.size', 'variants.inventoryStocks', 'inventoryStocks'])->findOrFail($id);
+            
+            $variants = $product->variants->map(function ($variant) {
+                return [
+                    'id' => $variant->id,
+                    'name' => $variant->name,
+                    'qty' => $variant->inventory_stock,
+                    'price' => $variant->price,
+                    'outlet_price' => $variant->outlet_price,
+                    'color' => optional($variant->color)->name,
+                    'size' => optional($variant->size)->name,
+                ];
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'product' => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'qty' => $product->inventory_stock,
+                    'price' => $product->price,
+                    'outlet_price' => $product->outlet_price,
+                ],
+                'variants' => $variants
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Product not found'
+            ], 404);
+        }
+    }
 }

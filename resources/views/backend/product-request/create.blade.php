@@ -25,9 +25,21 @@
                                                     <button type="button" class="btn btn-outline-danger btn-sm rounded-pill mr-2" id="clear-all-items">
                                                         <i class="fas fa-trash-alt mr-1"></i> Clear All
                                                     </button>
-                                                    <button type="button" class="btn btn-primary btn-sm rounded-pill" id="add-item">
-                                                        <i class="fas fa-plus mr-1"></i> Add Product
-                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body p-3 border-bottom">
+                                                <div class="row align-items-end">
+                                                    <div class="col-md-8">
+                                                        <div class="form-group mb-0">
+                                                            <label class="font-weight-bold text-dark" style="font-size: 0.8rem;">Select Product to Request</label>
+                                                            <select class="form-control select2" id="product_selector">
+                                                                <option value="">-- Choose Product --</option>
+                                                                @foreach($products as $product)
+                                                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="card-body p-0">
@@ -35,11 +47,12 @@
                                                     <table class="table table-hover mb-0" id="items-table">
                                                         <thead class="bg-whitesmoke text-uppercase small font-weight-bold">
                                                             <tr>
-                                                                <th width="50%">Product Details</th>
-                                                                 <th width="15%" class="text-right">Buying Price</th>
-                                                                 <th width="10%" class="text-center">Selling Price</th>
-                                                                 <th width="10%" class="text-center">Total Qty</th>
-                                                                 <th width="20%" class="text-right">Local Total Price</th>
+                                                                <th width="35%">Product Details</th>
+                                                                 <th width="10%">Stock</th>
+                                                                 <th width="12%" class="text-right">Buying Price</th>
+                                                                 <th width="13%" class="text-center">Selling Price</th>
+                                                                 <th width="10%" class="text-center">Qty</th>
+                                                                 <th width="15%" class="text-right">Total Price</th>
                                                                 <th width="5%"></th>
                                                             </tr>
                                                         </thead>
@@ -111,53 +124,45 @@
             </div>
         </div>
     </section>
-    {{-- <style>
-        /* Mobile Responsive Table Breakdown */
-        @media (max-width: 991.98px) {
-            #items-table thead { display: none; }
-            #items-table, #items-container, #items-table tr, #items-table td { 
-                display: block; 
-                width: 100%; 
-            }
-            #items-table tr.product-row { 
-                margin-bottom: 25px; 
-                border: 2px solid #e4e6fc !important; 
-                border-radius: 12px; 
-                padding: 15px; 
-                background: #fff; 
-                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            }
-            #items-table td { 
-                border: none !important; 
-                padding: 10px 0 !important; 
-                display: flex; 
-                align-items: center; 
-                justify-content: space-between;
-                text-align: right !important;
-                min-height: 45px;
-            }
-            #items-table td:before { 
-                content: attr(data-label); 
-                font-weight: 800; 
-                flex-basis: 40%; 
-                text-align: left; 
-                font-size: 11px; 
-                color: #888;
-                text-transform: uppercase;
-                padding-right: 10px;
-            }
-            #items-table td:first-child { 
-                display: block;
-                border-bottom: 2px solid #f0f0f0 !important; 
-                padding-bottom: 20px !important;
-                margin-bottom: 15px;
-                text-align: left !important;
-            }
-            #items-table td:first-child:before { display: none; }
-            #items-table td .product-image-container { margin-bottom: 15px; }
-            #items-table td .variant-price-breakdown { text-align: right; width: 100%; }
-        }
-    </style> --}}
+    <!-- Bulk Variant Modal -->
+    <div class="modal fade" id="bulkVariantModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" style="border-radius: 16px; border: none;">
+                <div class="modal-header" style="border-bottom: 2px solid #f0f0f0; padding: 1rem 1.5rem;">
+                    <h5 class="modal-title" style="font-size: 1rem;">
+                        <i class="fas fa-list mr-2" style="color: #2563eb;"></i> Select Variants
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <input type="hidden" id="modal_product_id">
+                    <input type="hidden" id="modal_product_name">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm" style="font-size: 0.8rem;">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Variant Name</th>
+                                    <th>Current Stock</th>
+                                    <th width="150">Quantity to Add</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal_variants_body">
+                                <!-- Variants will be loaded here via AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 2px solid #f0f0f0; padding: 1rem 1.5rem;">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" style="border-radius: 10px; min-height: 40px; font-size: 0.85rem;">Close</button>
+                    <button type="button" class="btn btn-primary shadow-sm" id="btn_add_selected_variants" style="background: #2563eb; border: none; border-radius: 10px; min-height: 40px; font-size: 0.85rem;">
+                        <i class="fas fa-check-circle mr-1"></i> Add Selected
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -172,13 +177,10 @@
             
             if (selectedIds && selectedIds.length > 0) {
                 selectedIds.forEach(id => {
-                    addProductRow(id);
+                    let product = products.find(p => p.id == id);
+                    if (product) appendItemRow(product, null, '', 1, product.outlet_price, product.price);
                 });
-            } else {
-                addProductRow();
             }
-
-            $('#add-item').on('click', function() { addProductRow(); });
 
             $('#clear-all-items').on('click', function() {
                 Swal.fire({
@@ -201,7 +203,6 @@
                             },
                             data: { cart_type: 'request' },
                             success: function() {
-                                addProductRow();
                                 updateGlobalSummary();
                                 toastr.info('All items and basket cleared');
                             }
@@ -210,51 +211,111 @@
                 });
             });
 
-            function addProductRow(productId = null) {
-                let options = '<option value=""></option>';
-                products.forEach(p => {
-                    options += `<option value="${p.id}">${p.name}</option>`;
+            // Auto-fetch variants when product is selected
+            $('#product_selector').on('change', function() {
+                let productId = $(this).val();
+                if (!productId) return;
+                let product = products.find(p => p.id == productId);
+
+                // Reset selector
+                $(this).val('').trigger('change.select2');
+
+                // Fetch variants
+                $.ajax({
+                    url: `/admin/products/${productId}/variants`,
+                    type: 'GET',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            let variants = response.variants;
+                            if (variants.length > 0) {
+                                // Open Modal
+                                $('#modal_product_id').val(productId);
+                                $('#modal_product_name').val(product.name);
+                                let tbody = '';
+                                variants.forEach(v => {
+                                    tbody += `<tr>
+                                        <td>${v.name}</td>
+                                        <td>${v.qty || 0}</td>
+                                        <td><input type="number" class="form-control form-control-sm variant_qty_input" data-variant-id="${v.id}" data-variant-name="${v.name}" data-price="${v.price || product.price}" data-outlet-price="${v.outlet_price || product.outlet_price}" data-stock="${v.qty || 0}" step="0.01" min="0"></td>
+                                    </tr>`;
+                                });
+                                $('#modal_variants_body').html(tbody);
+                                $('#bulkVariantModal').modal('show');
+                            } else {
+                                // Add single row without variant
+                                appendItemRow(product, null, '', 1, product.outlet_price, product.price, response.product.qty || 0);
+                            }
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Failed to fetch product variants.');
+                    }
+                });
+            });
+
+            $('#btn_add_selected_variants').click(function() {
+                let productId = $('#modal_product_id').val();
+                let product = products.find(p => p.id == productId);
+                let added = false;
+                
+                $('.variant_qty_input').each(function() {
+                    let qty = parseFloat($(this).val());
+                    if (qty > 0) {
+                        let variantId = $(this).data('variant-id');
+                        let variantName = $(this).data('variant-name');
+                        let price = $(this).data('price');
+                        let outletPrice = $(this).data('outlet-price');
+                        let stock = $(this).data('stock') || 0;
+                        appendItemRow(product, variantId, variantName, qty, outletPrice, price, stock);
+                        added = true;
+                    }
                 });
 
+                if (added) {
+                    $('#bulkVariantModal').modal('hide');
+                } else {
+                    toastr.warning('Please enter quantity for at least one variant.');
+                }
+            });
+
+            function appendItemRow(product, variantId, variantName, qty, outletPrice, sellPrice, stock = 0) {
+                let variantDisplay = variantName ? variantName : 'Standard';
+                let imageHtml = product.thumb_image 
+                    ? `<img src="/storage/${product.thumb_image}" class="rounded" style="width: 40px; height: 40px; object-fit: cover;">`
+                    : `<div class="bg-light rounded d-flex align-items-center justify-content-center text-muted small" style="width: 40px; height: 40px;"><i class="fas fa-box"></i></div>`;
+                
+                let buyPrice = parseFloat(outletPrice) || 0;
+                let sPrice = parseFloat(sellPrice) || 0;
+
                 let html = `
-                    <tr id="row-${rowCounter}" class="product-row border-bottom">
-                        <td class="p-4" style="vertical-align: top;" data-label="Product">
-                            <div class="d-flex align-items-start mb-3">
-                                <div class="product-image-container mr-3" style="width: 60px; height: 60px; border: 1px solid #e4e6fc; border-radius: 6px; overflow: hidden; background: #fbfbfb; flex-shrink: 0;">
-                                    <img src="" class="product-thumb w-100 h-100" style="object-fit: cover; display: none;">
-                                    <div class="no-image-placeholder h-100 d-flex align-items-center justify-content-center text-muted small">
-                                        <i class="fas fa-image"></i>
-                                    </div>
-                                </div>
-                                <div class="form-group mb-0 flex-grow-1">
-                                    <select class="form-control select2 product-selector" data-placeholder="Choose Product">
-                                        ${options}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="variant-entry-area mt-4" style="display:none;">
-                                <div class="variant-list d-flex flex-wrap" style="gap: 15px;">
-                                    <!-- Variants will be injected here -->
+                    <tr class="product-row border-bottom" id="row-${rowCounter}">
+                        <td class="p-3" style="vertical-align: middle;">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-3">${imageHtml}</div>
+                                <div>
+                                    <strong class="text-dark d-block" style="font-size: 0.9rem;">${product.name}</strong>
+                                    <small class="badge badge-secondary mt-1">${variantDisplay}</small>
+                                    <input type="hidden" name="items[${rowCounter}][product_id]" value="${product.id}">
+                                    ${variantId ? `<input type="hidden" name="items[${rowCounter}][variant_id]" value="${variantId}">` : ''}
                                 </div>
                             </div>
                         </td>
-                        <td class="text-left align-middle px-4" style="vertical-align: top;" data-label="Buying Price">
-                            <div class="variant-price-breakdown outlet-prices">
-                                <!-- Variant outlet prices will be shown here -->
-                            </div>
+                        <td class="text-center align-middle">
+                            <span class="badge badge-info px-2 py-1" style="font-size: 0.85rem;">${stock}</span>
                         </td>
-                        <td class="text-left align-middle px-4" style="vertical-align: top;" data-label="Selling Price">
-                            <div class="variant-price-breakdown sell-prices">
-                                <!-- Variant sell prices will be shown here -->
-                            </div>
+                        <td class="text-right align-middle font-weight-bold text-primary" style="font-size: 0.9rem;" data-val="${buyPrice}">
+                            ${currencyIcon}${buyPrice.toFixed(2)}
                         </td>
-                        <td class="text-center align-middle px-4" data-label="Total Qty">
-                            <div class="row-qty-text font-weight-bold h6 mb-0">0</div>
+                        <td class="text-center align-middle font-weight-bold text-success" style="font-size: 0.9rem;">
+                            ${currencyIcon}${sPrice.toFixed(2)}
                         </td>
-                        <td class="text-right align-middle px-4" data-label="Local Total Price">
-                            <div class="row-total-text font-weight-bold h6 mb-0 text-primary">0.00</div>
+                        <td class="text-center align-middle">
+                            <input type="number" class="form-control form-control-sm text-center variant-qty-input mx-auto" name="items[${rowCounter}][qty]" value="${qty}" min="1" style="width: 80px; font-weight: bold;">
                         </td>
-                        <td class="text-center align-middle pr-4" data-label="Action">
+                        <td class="text-right align-middle">
+                            <div class="row-total-text font-weight-bold text-dark" style="font-size: 1rem;">${(buyPrice * qty).toFixed(2)}</div>
+                        </td>
+                        <td class="text-center align-middle">
                             <button type="button" class="btn btn-light btn-sm text-danger remove-row" data-id="${rowCounter}">
                                 <i class="fas fa-times"></i>
                             </button>
@@ -263,204 +324,41 @@
                 `;
                 
                 $('#items-container').append(html);
-                const newRow = $(`#row-${rowCounter}`);
-                const selector = newRow.find('.product-selector');
-                
-                selector.select2({ width: '100%', dropdownAutoWidth: true });
-                
-                if (productId) {
-                    selector.val(productId);
-                    // Triggering change after a tiny timeout to ensure select2 is completely ready
-                    setTimeout(() => {
-                        selector.trigger('change');
-                    }, 50);
-                }
-
                 rowCounter++;
                 updateGlobalSummary();
             }
-
 
             $(document).on('click', '.remove-row', function() {
                 const id = $(this).data('id');
                 $(`#row-${id}`).fadeOut(200, function() {
                     $(this).remove();
-                    reindexFormInputs();
                     updateGlobalSummary();
                 });
             });
 
-            $(document).on('change', '.product-selector', function() {
-                const productId = $(this).val();
-                const row = $(this).closest('tr');
-                const product = products.find(p => p.id == productId);
-                const variantArea = row.find('.variant-entry-area');
-                const variantList = row.find('.variant-list');
-                const imageTag = row.find('.product-thumb');
-                const noImagePlaceholder = row.find('.no-image-placeholder');
-                const outletPricesDiv = row.find('.outlet-prices');
-                const sellPricesDiv = row.find('.sell-prices');
-                
-                variantList.empty();
-                outletPricesDiv.empty();
-                sellPricesDiv.empty();
-                
-                if (product) {
-                    // Update Image
-                    if (product.thumb_image) {
-                        imageTag.attr('src', `/storage/${product.thumb_image}`).show();
-                        noImagePlaceholder.hide();
-                    } else {
-                        imageTag.hide();
-                        noImagePlaceholder.show();
-                    }
-
-                    if (product.variants && product.variants.length > 0) {
-                        product.variants.forEach((v, index) => {
-                            const stocks = v.inventory_stocks || v.inventory_stock || [];
-                            const stockObj = Array.isArray(stocks) ? stocks.find(s => s.outlet_id == 1) : null;
-                            const stock = stockObj ? (stockObj.quantity || 0) : 0;
-                            
-                            // Get variant prices with fallback to product prices
-                            const variantOutletPrice = parseFloat((v.outlet_price && v.outlet_price > 0) ? v.outlet_price : product.outlet_price) || 0;
-                            const variantSellPrice = parseFloat((v.price && v.price > 0) ? v.price : product.price) || 0;
-                            
-                            // Add to price breakdown columns
-                            outletPricesDiv.append(`
-                                <div class="mb-1">
-                                    <small class="badge badge-secondary mr-1" style="font-size: 9px;">${v.name}</small>
-                                    <span class="font-weight-bold text-primary">${variantOutletPrice.toFixed(2)}</span>
-                                </div>
-                            `);
-                            
-                            sellPricesDiv.append(`
-                                <div class="mb-1">
-                                    <small class="badge badge-secondary mr-1" style="font-size: 9px;">${v.name}</small>
-                                    <span class="font-weight-bold text-success">${variantSellPrice.toFixed(2)}</span>
-                                </div>
-                            `);
-                            
-                            variantList.append(`
-                                <div class="variant-item bg-white p-2 border rounded text-center shadow-sm" style="min-width: 120px;">
-                                    <div class="small font-weight-bold text-dark mb-1">${v.name}</div>
-                                    <div class="text-muted small mb-1">Stock: ${stock}</div>
-                                    <div class="mb-1">
-                                        <small class="text-primary d-block" style="font-size: 10px;">Buy: ${variantOutletPrice.toFixed(2)}</small>
-                                        <small class="text-success d-block" style="font-size: 10px;">Sell: ${variantSellPrice.toFixed(2)}</small>
-                                    </div>
-                                    <input type="number" class="form-control form-control-sm variant-qty-input text-center mx-auto" 
-                                           style="width: 70px; height: 32px;"
-                                           data-product-id="${product.id}" 
-                                           data-variant-id="${v.id}" 
-                                           data-variant-outlet-price="${variantOutletPrice}"
-                                           data-variant-sell-price="${variantSellPrice}"
-                                           data-max="${stock}" 
-                                           min="0" max="${stock}" value="0">
-                                </div>
-                            `);
-                        });
-                        
-                        variantArea.show();
-                    } else {
-                        const stocks = product.inventory_stocks || product.inventory_stock || [];
-                        const stockObj = Array.isArray(stocks) ? stocks.find(s => s.outlet_id == 1) : null;
-                        const stock = stockObj ? (stockObj.quantity || 0) : 0;
-                        
-                        const productOutletPrice = parseFloat(product.outlet_price) || 0;
-                        const productSellPrice = parseFloat(product.price) || 0;
-                        
-                        // Add to price breakdown columns
-                        outletPricesDiv.append(`
-                            <div class="mb-1">
-                                <small class="badge badge-secondary mr-1" style="font-size: 9px;">Standard</small>
-                                <span class="font-weight-bold text-primary">${productOutletPrice.toFixed(2)}</span>
-                            </div>
-                        `);
-                        
-                        sellPricesDiv.append(`
-                            <div class="mb-1">
-                                <small class="badge badge-secondary mr-1" style="font-size: 9px;">Standard</small>
-                                <span class="font-weight-bold text-success">${productSellPrice.toFixed(2)}</span>
-                            </div>
-                        `);
-
-                        variantList.append(`
-                            <div class="variant-item bg-white p-2 border rounded text-center shadow-sm" style="min-width: 120px;">
-                                <div class="small font-weight-bold text-dark mb-1">Standard</div>
-                                <div class="text-muted small mb-1">Stock: ${stock}</div>
-                                <div class="mb-1">
-                                    <small class="text-primary d-block" style="font-size: 10px;">Buy: ${productOutletPrice.toFixed(2)}</small>
-                                    <small class="text-success d-block" style="font-size: 10px;">Sell: ${productSellPrice.toFixed(2)}</small>
-                                </div>
-                                <input type="number" class="form-control form-control-sm variant-qty-input text-center mx-auto" 
-                                       style="width: 70px; height: 32px;"
-                                       data-product-id="${product.id}" 
-                                       data-variant-id="" 
-                                       data-variant-outlet-price="${productOutletPrice}"
-                                       data-variant-sell-price="${productSellPrice}"
-                                       data-max="${stock}" 
-                                       min="0" max="${stock}" value="0">
-                            </div>
-                        `);
-                        variantArea.show();
-                    }
-                } else {
-                    outletPricesDiv.empty();
-                    sellPricesDiv.empty();
-                    variantArea.hide();
-                }
-                calculateRowTotals(row);
-            });
-
             $(document).on('input', '.variant-qty-input', function() {
-                const val = parseInt($(this).val()) || 0;
-                const max = parseInt($(this).data('max')) || 0;
-                
-                if (val > max) {
-                    $(this).addClass('border-danger text-danger');
-                } else {
-                    $(this).removeClass('border-danger text-danger');
+                const val = parseFloat($(this).val()) || 0;
+                if (val < 0) {
+                    $(this).val(0);
                 }
-                
                 const row = $(this).closest('.product-row');
-                calculateRowTotals(row);
-            });
-
-            function calculateRowTotals(row) {
-                let totalQty = 0;
-                let totalAmount = 0;
-                
-                // Calculate using variant-specific prices
-                row.find('.variant-qty-input').each(function() {
-                    const qty = parseInt($(this).val()) || 0;
-                    const variantOutletPrice = parseFloat($(this).data('variant-outlet-price')) || 0;
-                    
-                    totalQty += qty;
-                    totalAmount += (qty * variantOutletPrice);
-                });
-                
-                row.find('.row-qty-text').text(totalQty);
-                row.find('.row-total-text').text(totalAmount.toFixed(2));
+                const buyPrice = parseFloat(row.find('td:eq(1)').data('val')) || 0;
+                row.find('.row-total-text').text((val * buyPrice).toFixed(2));
                 
                 updateGlobalSummary();
-            }
+            });
 
             function updateGlobalSummary() {
                 let grandTotal = 0;
                 let grandTotalQty = 0;
-                let hasInvalid = false;
                 let hasItems = false;
 
                 $('.product-row').each(function() {
-                    let qty = parseInt($(this).find('.row-qty-text').text()) || 0;
+                    let qty = parseFloat($(this).find('.variant-qty-input').val()) || 0;
                     let total = parseFloat($(this).find('.row-total-text').text()) || 0;
                     
                     if (qty > 0) hasItems = true;
                     
-                    $(this).find('.variant-qty-input').each(function() {
-                        if (parseInt($(this).val()) > parseInt($(this).data('max'))) hasInvalid = true;
-                    });
-
                     grandTotalQty += qty;
                     grandTotal += total;
                 });
@@ -469,33 +367,7 @@
                 $('#total-qty-display').text(grandTotalQty);
                 $('#grand-total-display').text(grandTotal.toFixed(2));
                 
-                $('#submit-btn').prop('disabled', hasInvalid || !hasItems);
-                
-                // Regenerate hidden inputs for submission
-                reindexFormInputs();
-            }
-
-            function reindexFormInputs() {
-                // Remove all previous hidden inputs
-                $('#hidden-inputs-container').remove();
-                
-                const container = $('<div id="hidden-inputs-container"></div>');
-                let index = 0;
-                
-                $('.variant-qty-input').each(function() {
-                    const qty = parseInt($(this).val()) || 0;
-                    if (qty > 0) {
-                        const pid = $(this).data('product-id');
-                        const vid = $(this).data('variant-id');
-                        
-                        container.append(`<input type="hidden" name="items[${index}][product_id]" value="${pid}">`);
-                        if (vid) container.append(`<input type="hidden" name="items[${index}][variant_id]" value="${vid}">`);
-                        container.append(`<input type="hidden" name="items[${index}][qty]" value="${qty}">`);
-                        index++;
-                    }
-                });
-                
-                $('form').append(container);
+                $('#submit-btn').prop('disabled', !hasItems);
             }
         });
     </script>

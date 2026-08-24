@@ -37,7 +37,7 @@ class SendPoEmailJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            Mail::to($this->recipientEmail)->send(new PoNotificationMail($this->purchase, $this->notes));
+            Mail::to($this->recipientEmail)->send(new PoNotificationMail($this->purchase, $this->purchase->vendor));
 
             PoEmailLog::create([
                 'purchase_id' => $this->purchase->id,

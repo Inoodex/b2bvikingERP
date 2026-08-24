@@ -63,45 +63,37 @@
                         <div class="card card-primary border-0 shadow-sm mb-4" style="border-radius: 16px;">
                             <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0 font-weight-bold text-dark"><i class="fas fa-boxes mr-2 text-primary"></i> Order Line Items</h6>
-                                <button type="button" class="btn btn-primary btn-sm font-weight-bold px-3" id="addItemBtn" style="border-radius: 8px;">
-                                    <i class="fas fa-plus mr-1"></i> Add Product Line
-                                </button>
+                            </div>
+                            <div class="card-body p-3 border-bottom bg-light">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group mb-0">
+                                            <label class="font-weight-bold text-dark" style="font-size: 0.8rem;">Select Product to Add</label>
+                                            <select class="form-control select2" id="product_selector">
+                                                <option value="">-- Choose Product --</option>
+                                                @foreach($products as $product)
+                                                    <option value="{{ $product->id }}" data-price="{{ $product->price }}">{{ $product->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
                                     <table class="table table-hover mb-0" id="itemsTable">
                                         <thead class="bg-light" style="font-size: 0.8rem; text-transform: uppercase; color: #64748b;">
                                             <tr>
-                                                <th style="width: 45%;" class="pl-4">Product <span class="text-danger">*</span></th>
-                                                <th style="width: 15%;">Quantity</th>
+                                                <th style="width: 35%;" class="pl-4">Product Details <span class="text-danger">*</span></th>
+                                                <th style="width: 10%;">Stock</th>
+                                                <th style="width: 10%;">Quantity</th>
                                                 <th style="width: 20%;">Unit Price (kr.)</th>
                                                 <th style="width: 15%;" class="text-right pr-4">Subtotal</th>
-                                                <th style="width: 5%;" class="text-center">Action</th>
+                                                <th style="width: 10%;" class="text-center">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="itemsTableBody">
-                                            <tr class="item-row">
-                                                <td class="pl-4">
-                                                    <select name="items[0][product_id]" class="form-control product-select" required style="border-radius: 8px;">
-                                                        <option value="">-- Select Product --</option>
-                                                        @foreach($products as $product)
-                                                            <option value="{{ $product->id }}" data-price="{{ $product->price }}">
-                                                                {{ $product->name }} (kr. {{ number_format($product->price, 2) }})
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </td>
-                                                <td>
-                                                    <input type="number" step="1" min="1" name="items[0][qty]" class="form-control qty-input" value="1" required style="border-radius: 8px;">
-                                                </td>
-                                                <td>
-                                                    <input type="number" step="0.01" min="0" name="items[0][unit_price]" class="form-control price-input" value="0.00" required style="border-radius: 8px;">
-                                                </td>
-                                                <td class="text-right pr-4 font-weight-bold text-dark line-subtotal">kr. 0.00</td>
-                                                <td class="text-center">
-                                                    <button type="button" class="btn btn-sm btn-link text-danger remove-row-btn"><i class="fas fa-times"></i></button>
-                                                </td>
-                                            </tr>
+                                            <!-- Dynamic Rows -->
                                         </tbody>
                                     </table>
                                 </div>
@@ -175,6 +167,45 @@
             </form>
         </div>
     </section>
+    <!-- Bulk Variant Modal -->
+    <div class="modal fade" id="bulkVariantModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" style="border-radius: 16px; border: none;">
+                <div class="modal-header" style="border-bottom: 2px solid #f0f0f0; padding: 1rem 1.5rem;">
+                    <h5 class="modal-title" style="font-size: 1rem;">
+                        <i class="fas fa-list mr-2" style="color: #2563eb;"></i> Select Variants
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <input type="hidden" id="modal_product_id">
+                    <input type="hidden" id="modal_product_name">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm" style="font-size: 0.8rem;">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Variant Name</th>
+                                    <th>Current Stock</th>
+                                    <th width="150">Quantity to Add</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal_variants_body">
+                                <!-- Variants will be loaded here via AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 2px solid #f0f0f0; padding: 1rem 1.5rem;">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" style="border-radius: 10px; min-height: 40px; font-size: 0.85rem;">Close</button>
+                    <button type="button" class="btn btn-primary shadow-sm" id="btn_add_selected_variants" style="background: #2563eb; border: none; border-radius: 10px; min-height: 40px; font-size: 0.85rem;">
+                        <i class="fas fa-check-circle mr-1"></i> Add Selected
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @push('scripts')
     <script>
@@ -243,13 +274,106 @@
                 calculateTotals();
             });
 
-            $(document).on('change', '.product-select', function() {
-                let row = $(this).closest('.item-row');
+            // Auto-fetch variants when product is selected
+            $('#product_selector').on('change', function() {
                 let productId = $(this).val();
-                let customerId = $('#customerSelect').val();
-                let defaultPrice = parseFloat($(this).find('option:selected').data('price')) || 0;
+                if (!productId) return;
+                let productName = $(this).find('option:selected').text();
+                let productPrice = parseFloat($(this).find('option:selected').data('price')) || 0;
 
-                if (productId) {
+                // Reset selector
+                $(this).val('').trigger('change.select2');
+
+                // Fetch variants
+                $.ajax({
+                    url: `/admin/products/${productId}/variants`,
+                    type: 'GET',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            let variants = response.variants;
+                            if (variants.length > 0) {
+                                // Open Modal
+                                $('#modal_product_id').val(productId);
+                                $('#modal_product_name').val(productName);
+                                let tbody = '';
+                                variants.forEach(v => {
+                                    tbody += `<tr>
+                                        <td>${v.name}</td>
+                                        <td>${v.qty || 0}</td>
+                                        <td><input type="number" class="form-control form-control-sm variant_qty_input" data-variant-id="${v.id}" data-variant-name="${v.name}" data-price="${v.price || productPrice}" data-stock="${v.qty || 0}" step="1" min="0"></td>
+                                    </tr>`;
+                                });
+                                $('#modal_variants_body').html(tbody);
+                                $('#bulkVariantModal').modal('show');
+                            } else {
+                                // Add single row without variant
+                                appendItemRow(productId, productName, null, '', 1, productPrice, response.product.qty || 0);
+                            }
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Failed to fetch product variants.');
+                    }
+                });
+            });
+
+            $('#btn_add_selected_variants').click(function() {
+                let productId = $('#modal_product_id').val();
+                let productName = $('#modal_product_name').val();
+                let added = false;
+                
+                $('.variant_qty_input').each(function() {
+                    let qty = parseFloat($(this).val());
+                    if (qty > 0) {
+                        let variantId = $(this).data('variant-id');
+                        let variantName = $(this).data('variant-name');
+                        let price = $(this).data('price');
+                        let stock = $(this).data('stock') || 0;
+                        appendItemRow(productId, productName, variantId, variantName, qty, price, stock);
+                        added = true;
+                    }
+                });
+
+                if (added) {
+                    $('#bulkVariantModal').modal('hide');
+                } else {
+                    toastr.warning('Please enter quantity for at least one variant.');
+                }
+            });
+
+            function appendItemRow(productId, productName, variantId, variantName, qty, price, stock = 0) {
+                let variantDisplay = variantName ? variantName : 'Standard';
+                
+                let newRow = `
+                    <tr class="item-row">
+                        <td class="pl-4">
+                            <strong class="text-dark d-block" style="font-size: 0.9rem;">${productName}</strong>
+                            <small class="badge badge-secondary mt-1">${variantDisplay}</small>
+                            <input type="hidden" name="items[${rowIndex}][product_id]" value="${productId}" class="product-id-input">
+                            ${variantId ? `<input type="hidden" name="items[${rowIndex}][variant_id]" value="${variantId}">` : ''}
+                        </td>
+                        <td>
+                            <span class="badge badge-info px-2 py-1" style="font-size: 0.85rem;">${stock}</span>
+                        </td>
+                        <td>
+                            <input type="number" step="1" min="1" name="items[${rowIndex}][qty]" class="form-control qty-input" value="${qty}" required style="border-radius: 8px;">
+                        </td>
+                        <td>
+                            <input type="number" step="0.01" min="0" name="items[${rowIndex}][unit_price]" class="form-control price-input" value="${parseFloat(price).toFixed(2)}" required style="border-radius: 8px;" data-default-price="${price}">
+                        </td>
+                        <td class="text-right pr-4 font-weight-bold text-dark line-subtotal">kr. 0.00</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-link text-danger remove-row-btn"><i class="fas fa-times"></i></button>
+                        </td>
+                    </tr>
+                `;
+                $('#itemsTableBody').append(newRow);
+                let row = $('#itemsTableBody .item-row').last();
+                rowIndex++;
+                
+                // Resolve customer specific price if customer is selected
+                let customerId = $('#customerSelect').val();
+                if (customerId) {
                     $.ajax({
                         url: "{{ route('admin.pricelists.resolve-price') }}",
                         method: 'GET',
@@ -257,17 +381,12 @@
                         success: function(res) {
                             row.find('.price-input').val(parseFloat(res.price).toFixed(2));
                             calculateTotals();
-                        },
-                        error: function() {
-                            row.find('.price-input').val(defaultPrice.toFixed(2));
-                            calculateTotals();
                         }
                     });
-                } else {
-                    row.find('.price-input').val('0.00');
-                    calculateTotals();
                 }
-            });
+                
+                calculateTotals();
+            }
 
             $(document).on('input', '.qty-input, .price-input, #discountInput', function() {
                 calculateTotals();
@@ -277,40 +396,9 @@
                 calculateTotals();
             });
 
-            $('#addItemBtn').on('click', function() {
-                let newRow = `
-                    <tr class="item-row">
-                        <td class="pl-4">
-                            <select name="items[${rowIndex}][product_id]" class="form-control product-select" required style="border-radius: 8px;">
-                                <option value="">-- Select Product --</option>
-                                @foreach($products as $product)
-                                    <option value="{{ $product->id }}" data-price="{{ $product->price }}">
-                                        {{ $product->name }} (kr. {{ number_format($product->price, 2) }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </td>
-                        <td>
-                            <input type="number" step="1" min="1" name="items[${rowIndex}][qty]" class="form-control qty-input" value="1" required style="border-radius: 8px;">
-                        </td>
-                        <td>
-                            <input type="number" step="0.01" min="0" name="items[${rowIndex}][unit_price]" class="form-control price-input" value="0.00" required style="border-radius: 8px;">
-                        </td>
-                        <td class="text-right pr-4 font-weight-bold text-dark line-subtotal">kr. 0.00</td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-link text-danger remove-row-btn"><i class="fas fa-times"></i></button>
-                        </td>
-                    </tr>
-                `;
-                $('#itemsTableBody').append(newRow);
-                rowIndex++;
-            });
-
             $(document).on('click', '.remove-row-btn', function() {
-                if ($('.item-row').length > 1) {
-                    $(this).closest('.item-row').remove();
-                    calculateTotals();
-                }
+                $(this).closest('.item-row').remove();
+                calculateTotals();
             });
         });
     </script>

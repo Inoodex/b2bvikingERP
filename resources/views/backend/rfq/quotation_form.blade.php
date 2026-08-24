@@ -79,6 +79,9 @@
                                                 <tr>
                                                     <td>
                                                         {{ $item->product->name }}
+                                                        @if($item->variant)
+                                                            <br><small class="badge badge-info mt-1">{{ $item->variant->name }}</small>
+                                                        @endif
                                                         <input type="hidden" name="items[{{ $index }}][product_id]" value="{{ $item->product_id }}">
                                                         <input type="hidden" name="items[{{ $index }}][variant_id]" value="{{ $item->variant_id }}">
                                                     </td>

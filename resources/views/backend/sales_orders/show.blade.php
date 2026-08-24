@@ -100,7 +100,7 @@
                                                         <small class="text-muted">Item #: {{ $item->product_number }}</small>
                                                     </td>
                                                     <td class="text-center align-middle">
-                                                        <span class="badge badge-light border">{{ $item->variant_label }}</span>
+                                                        <span class="badge badge-light border">{{ $item->variant_label ?: ($item->variant->name ?? 'Standard') }}</span>
                                                     </td>
                                                     <td class="text-center align-middle font-weight-bold">{{ $item->quantity }}</td>
                                                     <td class="text-right align-middle">{{ number_format($item->unit_price, 2) }}</td>

@@ -112,7 +112,7 @@
                         <div style="font-size: 11px; color: #666;">product no: {{ $item->product->product_number ?? 'N/A' }}</div>
                         <div style="font-size: 11px; color: #777;">{{ $item->category_name ?: 'General' }}</div>
                     </td>
-                    <td>{{ $item->variant_label ?: 'Standard' }}</td>
+                    <td>{{ $item->variant_label ?: ($item->variant->name ?? 'Standard') }}</td>
                     <td class="text-right">{{ $item->quantity }}</td>
                     <td class="text-right">{{ $currency }}{{ number_format($item->unit_price, 2) }}</td>
                     <td class="text-right">{{ $currency }}{{ number_format($item->line_total, 2) }}</td>

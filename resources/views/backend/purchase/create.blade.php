@@ -142,12 +142,27 @@
                                     <hr style="border-top: 2px solid #e2e8f0; opacity: 0.5; margin-top: 0.3rem;">
                                 </div>
 
+                                <div class="row align-items-end mb-3">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-0">
+                                            <label class="font-weight-bold" style="font-size: 0.8rem;">Select Product to Add</label>
+                                            <select class="form-control select2" id="product_selector">
+                                                <option value="">-- Choose Product --</option>
+                                                @foreach($products as $product)
+                                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                                     <table class="table table-bordered table-sm" id="product_table" style="min-width: 800px; font-size: 0.8rem;">
                                         <thead class="bg-light text-center">
                                             <tr>
                                                 <th style="width: 4%; font-size: 0.65rem; padding: 0.4rem 0.3rem;">Image</th>
-                                                <th style="width: 22%; font-size: 0.65rem; padding: 0.4rem 0.3rem;">Product Details</th>
+                                                <th style="width: 17%; font-size: 0.65rem; padding: 0.4rem 0.3rem;">Product Details</th>
+                                                <th style="width: 5%; font-size: 0.65rem; padding: 0.4rem 0.3rem;">Stock</th>
                                                 <th style="width: 8%; font-size: 0.65rem; padding: 0.4rem 0.3rem;" id="vendor_unit_cost_header">Cost (Vendor)</th>
                                                 <th style="width: 6%; font-size: 0.65rem; padding: 0.4rem 0.3rem;">Qty</th>
                                                 <th style="width: 10%; font-size: 0.65rem; padding: 0.4rem 0.3rem;" id="vendor_subtotal_header">Total (Vendor)</th>
@@ -161,15 +176,9 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <!-- Items will be appended here -->
                                         </tbody>
                                         <tfoot>
-                                            <tr>
-                                                <td colspan="12" class="p-0">
-                                                    <button type="button" class="btn btn-block btn-outline-primary border-dashed py-2" id="add_row_btn" style="border-radius: 0; font-size: 0.85rem; border-style: dashed !important;">
-                                                        <i class="fas fa-plus-circle mr-2"></i> Add Another Product Line
-                                                    </button>
-                                                </td>
-                                            </tr>
                                         </tfoot>
                                     </table>
                                 </div>
@@ -253,6 +262,45 @@
                 <div class="modal-footer" style="border-top: 2px solid #f0f0f0; padding: 1rem 1.5rem;">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius: 10px; min-height: 40px; font-size: 0.85rem;">
                         <i class="fas fa-times mr-1"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Bulk Variant Modal -->
+    <div class="modal fade" id="bulkVariantModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" style="border-radius: 16px; border: none;">
+                <div class="modal-header" style="border-bottom: 2px solid #f0f0f0; padding: 1rem 1.5rem;">
+                    <h5 class="modal-title" style="font-size: 1rem;">
+                        <i class="fas fa-list mr-2" style="color: #2563eb;"></i> Select Variants
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <input type="hidden" id="modal_product_id">
+                    <input type="hidden" id="modal_product_name">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm" style="font-size: 0.8rem;">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Variant Name</th>
+                                    <th>Current Stock</th>
+                                    <th width="150">Quantity to Add</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal_variants_body">
+                                <!-- Variants will be loaded here via AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 2px solid #f0f0f0; padding: 1rem 1.5rem;">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" style="border-radius: 10px; min-height: 40px; font-size: 0.85rem;">Close</button>
+                    <button type="button" class="btn btn-primary shadow-sm" id="btn_add_selected_variants" style="background: #2563eb; border: none; border-radius: 10px; min-height: 40px; font-size: 0.85rem;">
+                        <i class="fas fa-check-circle mr-1"></i> Add Selected
                     </button>
                 </div>
             </div>
@@ -822,14 +870,7 @@
             selectedIds.forEach((productId, index) => {
                 let product = products.find(p => p.id == productId);
                 if (product) {
-                    addRow();
-                    setTimeout(() => {
-                        let rows = $('#product_table tbody tr');
-                        let targetRow = rows.eq(index);
-                        if (targetRow.length) {
-                            targetRow.find('.product_select').val(product.id).trigger('change');
-                        }
-                    }, 200 * (index + 1));
+                    appendItemRow(product, null, '', 1);
                 }
             });
             
@@ -876,9 +917,7 @@
                         $('#importModal').modal('hide');
                     }
                 });
-            } else {
                 $('#booking_id_hidden').val('');
-                addRow();
             }
         });
 
@@ -906,59 +945,75 @@
             }
         });
 
-        if (!selectedIds || selectedIds.length === 0) {
-            addRow();
-        }
-        
-        $('#add_row_btn').on('click', function() { addRow(); });
+        // $('#add_row_btn').on('click', function() { addRow(); });
         
         $(document).on('click', '.remove_row', function() {
             $(this).closest('tr').remove();
             calculateGrandTotal();
         });
 
-        $(document).on('change', '.product_select', function() {
-            let id = $(this).val();
-            let row = $(this).closest('tr');
-            let product = products.find(p => p.id == id);
-            if(product) {
-                row.find('.unit_cost').val(product.purchase_price); 
-                
-                let imgContainer = row.find('td:first-child');
-                if(product.thumb_image) {
-                    imgContainer.html(`<img src="{{ asset('storage') }}/${product.thumb_image}" class="rounded" style="width: 35px; height: 35px; object-fit: cover;">`);
-                } else {
-                    imgContainer.html(`<div class="bg-light rounded d-flex align-items-center justify-content-center text-muted small" style="width: 35px; height: 35px;"><i class="fas fa-box"></i></div>`);
-                }
+        // Auto-fetch variants when product is selected
+        $('#product_selector').on('change', function() {
+            let productId = $(this).val();
+            if (!productId) return;
+            let product = products.find(p => p.id == productId);
 
-                let productInfo = `<strong style="font-size: 0.8rem;">${product.name}</strong>`;
-                if(product.product_number) productInfo += `<br><small class="text-muted" style="font-size: 0.65rem;">Item #: ${product.product_number}</small>`;
-                if(product.category && product.category.name) productInfo += `<br><small class="text-muted" style="font-size: 0.65rem;">Category: ${product.category.name}</small>`;
-                row.find('.product-info').html(productInfo);
-                
-                row.find('.raw_material_cost').val(product.raw_material_cost || 0);
-                row.find('.tax_cost').val(product.tax || 0);
-                row.find('.transport_cost').val(product.transport_cost || 0);
-                row.find('.sale_price').val(product.price || 0);
-                row.find('.outlet_price').val(product.outlet_price || 0);
-                
-                let variantHtml = '';
-                if(product.variants && product.variants.length > 0) {
-                    variantHtml += '<div class="mt-1"><table class="table table-sm table-bordered mb-0" style="font-size: 11px; background: white;"><tbody>';
-                    product.variants.forEach(v => {
-                        let colorName = v.color ? v.color.name : '';
-                        let sizeName = v.size ? v.size.name : '';
-                        let name = (colorName + ' ' + sizeName).trim() || 'Default';
-                        variantHtml += `<tr><td class="p-1" style="font-size: 11px;">${name}</td><td class="p-1" width="60"><input type="number" class="form-control form-control-sm variant-qty-input p-0 text-center" data-key="${name}" value="0" min="0" style="height: 20px; font-size: 10px;"></td></tr>`;
-                    });
-                    variantHtml += '</tbody></table></div>';
+            // Reset selector
+            $(this).val('').trigger('change.select2');
+
+            // Fetch variants
+            $.ajax({
+                url: `/admin/products/${productId}/variants`,
+                type: 'GET',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        let variants = response.variants;
+                        if (variants.length > 0) {
+                            // Open Modal
+                            $('#modal_product_id').val(productId);
+                            $('#modal_product_name').val(product.name);
+                            let tbody = '';
+                            variants.forEach(v => {
+                                tbody += `<tr>
+                                    <td>${v.name}</td>
+                                    <td>${v.qty || 0}</td>
+                                    <td><input type="number" class="form-control form-control-sm variant_qty_input" data-variant-id="${v.id}" data-variant-name="${v.name}" data-stock="${v.qty || 0}" step="0.01" min="0"></td>
+                                </tr>`;
+                            });
+                            $('#modal_variants_body').html(tbody);
+                            $('#bulkVariantModal').modal('show');
+                        } else {
+                            // Add single row without variant
+                            appendItemRow(product, null, '', 1, response.product.qty || 0);
+                        }
+                    }
+                },
+                error: function() {
+                    toastr.error('Failed to fetch product variants.');
                 }
-                row.find('.variant-container').html(variantHtml);
-                row.find('.variant_info_hidden').val('');
-                
-                calculateLocalUnitCost(row);
-                calculateRowTotal(row);
-                applyPricingToRow(row);
+            });
+        });
+
+        $('#btn_add_selected_variants').click(function() {
+            let productId = $('#modal_product_id').val();
+            let product = products.find(p => p.id == productId);
+            let added = false;
+            
+            $('.variant_qty_input').each(function() {
+                let qty = parseFloat($(this).val());
+                if (qty > 0) {
+                    let variantId = $(this).data('variant-id');
+                    let variantName = $(this).data('variant-name');
+                    let stock = $(this).data('stock') || 0;
+                    appendItemRow(product, variantId, variantName, qty, stock);
+                    added = true;
+                }
+            });
+
+            if (added) {
+                $('#bulkVariantModal').modal('hide');
+            } else {
+                toastr.warning('Please enter quantity for at least one variant.');
             }
         });
 
@@ -984,24 +1039,6 @@
             calculateLocalUnitCost(row);
             calculateRowTotal(row);
             applyPricingToRow(row);
-        });
-        
-        $(document).on('input', '.variant-qty-input', function() {
-            let row = $(this).closest('.main-row');
-            let container = row.find('.variant-container');
-            let totalQty = 0;
-            let newVariantInfo = {};
-            
-            container.find('.variant-qty-input').each(function() {
-                let val = parseInt($(this).val()) || 0;
-                let key = $(this).data('key');
-                totalQty += val;
-                if(val > 0) newVariantInfo[key] = val;
-            });
-            
-            row.find('.qty').val(totalQty);
-            row.find('.variant_info_hidden').val(JSON.stringify(newVariantInfo));
-            calculateRowTotal(row);
         });
     });
 
@@ -1103,47 +1140,53 @@
         rowCount++;
     }
 
-    function addRow() {
+    function appendItemRow(product, variantId, variantName, qty, stock = 0) {
+        let imageHtml = product.thumb_image 
+            ? `<img src="{{ asset('storage') }}/${product.thumb_image}" class="rounded" style="width: 35px; height: 35px; object-fit: cover;">`
+            : `<div class="bg-light rounded d-flex align-items-center justify-content-center text-muted small" style="width: 35px; height: 35px;"><i class="fas fa-box"></i></div>`;
+
+        let productInfo = `<strong style="font-size: 0.8rem;">${product.name}</strong>`;
+        if(product.product_number) productInfo += `<br><small class="text-muted" style="font-size: 0.65rem;">Item #: ${product.product_number}</small>`;
+        if(product.category && product.category.name) productInfo += `<br><small class="text-muted" style="font-size: 0.65rem;">Category: ${product.category.name}</small>`;
+        if(variantName) productInfo += `<br><span class="badge badge-info mt-1">${variantName}</span>`;
+
         let html = `
             <tr class="main-row">
-                <td class="align-middle text-center">
-                    <div class="bg-light rounded d-flex align-items-center justify-content-center text-muted small" style="width: 35px; height: 35px;"><i class="fas fa-box"></i></div>
-                </td>
+                <td class="align-middle text-center">${imageHtml}</td>
                 <td class="align-middle product_select_col">
-                    <select class="form-control form-control-sm product_select select2" name="items[${rowCount}][product_id]" required style="font-size: 0.8rem; height: 32px;">
-                        <option value="">Select Product...</option>
-                        ${products.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
-                    </select>
-                    <div class="product-info mt-1" style="font-size: 11px; line-height: 1.4; color: #666;"></div>
-                    <div class="variant-container"></div>
-                    <input type="hidden" class="variant_info_hidden" name="items[${rowCount}][variant_info]">
+                    <input type="hidden" name="items[${rowCount}][product_id]" value="${product.id}">
+                    ${variantId ? `<input type="hidden" name="items[${rowCount}][variant_id]" value="${variantId}">` : ''}
+                    <div class="product-info mt-1" style="font-size: 11px; line-height: 1.4; color: #666;">${productInfo}</div>
                 </td>
                 <td class="align-middle text-center">
-                    <input type="number" class="form-control form-control-sm unit_cost text-center" name="items[${rowCount}][unit_cost]" step="any" required placeholder="0.00" style="font-size: 0.8rem; height: 32px;">
+                    <span class="badge badge-info px-2 py-1" style="font-size: 0.75rem;">${stock}</span>
                 </td>
                 <td class="align-middle text-center">
-                    <input type="number" class="form-control form-control-sm qty text-center" name="items[${rowCount}][qty]" value="1" min="1" required style="font-weight: bold; font-size: 0.8rem; height: 32px;">
+                    <input type="number" class="form-control form-control-sm unit_cost text-center" name="items[${rowCount}][unit_cost]" value="${product.purchase_price || 0}" step="any" required placeholder="0.00" style="font-size: 0.8rem; height: 32px;">
+                </td>
+                <td class="align-middle text-center">
+                    <input type="number" class="form-control form-control-sm qty text-center" name="items[${rowCount}][qty]" value="${qty}" min="1" required style="font-weight: bold; font-size: 0.8rem; height: 32px;">
                 </td>
                 <td class="align-middle text-right">
                     <input type="text" class="form-control-plaintext form-control-sm subtotal mb-0 text-dark text-right font-weight-bold pr-2" readonly value="0.00" style="font-size: 0.8rem;">
                 </td>
                 <td class="align-middle text-center">
-                    <input type="number" class="form-control form-control-sm raw_material_cost text-center" name="items[${rowCount}][raw_material_cost]" placeholder="0.00" step="any" value="0" style="font-size: 0.8rem; height: 32px;">
+                    <input type="number" class="form-control form-control-sm raw_material_cost text-center" name="items[${rowCount}][raw_material_cost]" value="${product.raw_material_cost || 0}" step="any" style="font-size: 0.8rem; height: 32px;">
                 </td>
                 <td class="align-middle text-center">
-                    <input type="number" class="form-control form-control-sm tax_cost text-center" name="items[${rowCount}][tax_cost]" placeholder="0.00" step="any" value="0" style="font-size: 0.8rem; height: 32px;">
+                    <input type="number" class="form-control form-control-sm tax_cost text-center" name="items[${rowCount}][tax_cost]" value="${product.tax || 0}" step="any" style="font-size: 0.8rem; height: 32px;">
                 </td>
                 <td class="align-middle text-center">
-                    <input type="number" class="form-control form-control-sm transport_cost text-center" name="items[${rowCount}][transport_cost]" placeholder="0.00" step="any" value="0" style="font-size: 0.8rem; height: 32px;">
+                    <input type="number" class="form-control form-control-sm transport_cost text-center" name="items[${rowCount}][transport_cost]" value="${product.transport_cost || 0}" step="any" style="font-size: 0.8rem; height: 32px;">
                 </td>
                 <td class="align-middle text-center">
                     <div class="form-control-plaintext form-control-sm local_unit_cost mb-0 text-primary text-center font-weight-bold pr-2" style="font-size: 0.8rem;">0.00</div>
                 </td>
                 <td class="align-middle text-center">
-                    <input type="number" class="form-control form-control-sm sale_price text-center" name="items[${rowCount}][sale_price]" placeholder="0.00" step="any" style="font-size: 0.8rem; height: 32px;">
+                    <input type="number" class="form-control form-control-sm sale_price text-center" name="items[${rowCount}][sale_price]" value="${product.price || 0}" step="any" style="font-size: 0.8rem; height: 32px;">
                 </td>
                 <td class="align-middle text-center">
-                    <input type="number" class="form-control form-control-sm outlet_price text-center" name="items[${rowCount}][outlet_price]" placeholder="0.00" step="any" style="font-size: 0.8rem; height: 32px;">
+                    <input type="number" class="form-control form-control-sm outlet_price text-center" name="items[${rowCount}][outlet_price]" value="${product.outlet_price || 0}" step="any" style="font-size: 0.8rem; height: 32px;">
                 </td>
                 <td class="align-middle text-center">
                     <button type="button" class="btn btn-outline-danger btn-sm remove_row" style="padding: 1px 5px; font-size: 0.7rem; min-height: 28px;"><i class="fas fa-trash"></i></button>
@@ -1151,7 +1194,6 @@
             </tr>
         `;
         $('#product_table tbody').append(html);
-        $('.select2').select2(); 
         let newRow = $('#product_table tbody tr').last();
         calculateLocalUnitCost(newRow);
         calculateRowTotal(newRow);

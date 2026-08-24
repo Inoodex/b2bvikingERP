@@ -252,6 +252,7 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::post('products/import', 'importStore')->name('products.import.store');
         Route::get('products/announcement', 'announcementIndex')->name('products.announcement.index');
         Route::post('products/announcement/send', 'sendAnnouncement')->name('products.announcement.send');
+        Route::get('products/{id}/variants', 'getVariants')->name('products.variants');
     });
     Route::resource('products', ProductController::class);
 

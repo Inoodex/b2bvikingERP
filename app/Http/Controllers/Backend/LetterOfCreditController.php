@@ -41,7 +41,7 @@ class LetterOfCreditController extends Controller
             'issuing_bank' => $request->issuing_bank,
             'margin_percent' => $request->margin_percent ?? 0,
             'amount' => $request->amount,
-            'currency_id' => $po->currency_id,
+            'currency_id' => $po->currency_id ?? $po->vendor?->currency_id,
             'issue_date' => $request->issue_date,
             'expiry_date' => $request->expiry_date,
             'status' => 'open',
@@ -55,7 +55,7 @@ class LetterOfCreditController extends Controller
                         'lc_id' => $lc->id,
                         'cost_element' => $costElement,
                         'amount' => $amount,
-                        'currency_id' => $po->currency_id,
+                        'currency_id' => $po->currency_id ?? $po->vendor?->currency_id,
                         'goes_to_unit_cost' => true,
                     ]);
                 }

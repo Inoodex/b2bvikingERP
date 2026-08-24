@@ -39,7 +39,7 @@
                     <div class="card border shadow-sm text-center">
                         <div class="card-body">
                             <small class="text-muted font-weight-bold d-block">LC AMOUNT</small>
-                            <h4 class="font-weight-bold text-primary mb-0">{{ $lc->currency ? $lc->currency->symbol : 'USD' }} {{ number_format($lc->amount, 2) }}</h4>
+                            <h4 class="font-weight-bold text-primary mb-0">{{ $lc->currency ? ($lc->currency->symbol ?? $lc->currency->code) : ($lc->vendor?->currency ? ($lc->vendor->currency->symbol ?? $lc->vendor->currency->code) : 'kr.') }} {{ number_format($lc->amount, 2) }}</h4>
                         </div>
                     </div>
                 </div>

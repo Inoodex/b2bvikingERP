@@ -105,35 +105,34 @@
 
                                 <hr>
                                 <h5>RFQ Items</h5>
+                                <div class="row align-items-end mb-3">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-0">
+                                            <label>Select Product to Add</label>
+                                            <select class="form-control select2" id="product_selector">
+                                                <option value="">-- Choose Product --</option>
+                                                @foreach($products as $product)
+                                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="table-responsive">
                                     <table class="table table-bordered" id="items_table">
                                         <thead>
                                             <tr>
                                                 <th>Product</th>
+                                                <th>Variant</th>
+                                                <th>Current Stock</th>
                                                 <th>Qty</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="items_body">
-                                            <tr>
-                                                <td>
-                                                    <select name="items[0][product_id]" class="form-control select2" required>
-                                                        <option value="">Select Product</option>
-                                                        @foreach($products as $product)
-                                                            <option value="{{ $product->id }}">{{ $product->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </td>
-                                                <td>
-                                                    <input type="number" name="items[0][qty]" class="form-control" step="0.01" required>
-                                                </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-danger btn-sm remove_row"><i class="fas fa-trash"></i></button>
-                                                </td>
-                                            </tr>
+                                            <!-- Items will be appended here -->
                                         </tbody>
                                     </table>
-                                    <button type="button" class="btn btn-info btn-sm mt-2" id="add_row"><i class="fas fa-plus"></i> Add Item</button>
                                 </div>
 
                                 <div class="mt-4">
@@ -147,32 +146,137 @@
             </div>
         </div>
     </section>
+
+    <!-- Bulk Variant Modal -->
+    <div class="modal fade" id="bulkVariantModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Variants</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="modal_product_id">
+                    <input type="hidden" id="modal_product_name">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Variant Name</th>
+                                    <th>Current Stock</th>
+                                    <th width="150">Quantity to Add</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal_variants_body">
+                                <!-- Variants will be loaded here via AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btn_add_selected_variants">Add Selected</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
 <script>
     let rowIndex = 1;
-    $('#add_row').click(function() {
+    
+    // Auto-fetch variants when product is selected
+    $('#product_selector').on('change', function() {
+        let productId = $(this).val();
+        let productName = $(this).find('option:selected').text();
+        if (!productId) return;
+
+        // Reset selector
+        $(this).val('').trigger('change.select2');
+
+        // Fetch variants
+        $.ajax({
+            url: `/admin/products/${productId}/variants`,
+            type: 'GET',
+            success: function(response) {
+                if (response.status === 'success') {
+                    let variants = response.variants;
+                    if (variants.length > 0) {
+                        // Open Modal
+                        $('#modal_product_id').val(productId);
+                        $('#modal_product_name').val(productName);
+                        let tbody = '';
+                        variants.forEach(v => {
+                            tbody += `<tr>
+                                <td>${v.name}</td>
+                                <td>${v.qty || 0}</td>
+                                <td><input type="number" class="form-control variant_qty_input" data-variant-id="${v.id}" data-variant-name="${v.name}" data-stock="${v.qty || 0}" step="0.01" min="0"></td>
+                            </tr>`;
+                        });
+                        $('#modal_variants_body').html(tbody);
+                        $('#bulkVariantModal').modal('show');
+                    } else {
+                        // Add single row without variant
+                        appendItemRow(productId, productName, null, '', 1, response.product.qty || 0);
+                    }
+                }
+            },
+            error: function() {
+                toastr.error('Failed to fetch product variants.');
+            }
+        });
+    });
+
+    $('#btn_add_selected_variants').click(function() {
+        let productId = $('#modal_product_id').val();
+        let productName = $('#modal_product_name').val();
+        let added = false;
+        
+        $('.variant_qty_input').each(function() {
+            let qty = parseFloat($(this).val());
+            if (qty > 0) {
+                let variantId = $(this).data('variant-id');
+                let variantName = $(this).data('variant-name');
+                let stock = $(this).data('stock') || 0;
+                appendItemRow(productId, productName, variantId, variantName, qty, stock);
+                added = true;
+            }
+        });
+
+        if (added) {
+            $('#bulkVariantModal').modal('hide');
+        } else {
+            toastr.warning('Please enter quantity for at least one variant.');
+        }
+    });
+
+    function appendItemRow(productId, productName, variantId, variantName, qty, stock = 0) {
+        let variantInput = variantId ? `<input type="hidden" name="items[${rowIndex}][variant_id]" value="${variantId}">` : '';
+        let variantDisplay = variantName ? variantName : '-';
+        
         let row = `<tr>
             <td>
-                <select name="items[${rowIndex}][product_id]" class="form-control select2" required>
-                    <option value="">Select Product</option>
-                    @foreach($products as $product)
-                        <option value="{{ $product->id }}">{{ $product->name }}</option>
-                    @endforeach
-                </select>
+                <input type="hidden" name="items[${rowIndex}][product_id]" value="${productId}">
+                ${productName}
+                ${variantInput}
+            </td>
+            <td>${variantDisplay}</td>
+            <td>
+                <span class="badge badge-info px-2 py-1">${stock}</span>
             </td>
             <td>
-                <input type="number" name="items[${rowIndex}][qty]" class="form-control" step="0.01" required>
+                <input type="number" name="items[${rowIndex}][qty]" class="form-control" step="0.01" value="${qty}" required>
             </td>
             <td>
                 <button type="button" class="btn btn-danger btn-sm remove_row"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`;
         $('#items_body').append(row);
-        $('.select2').select2();
         rowIndex++;
-    });
+    }
 
     $(document).on('click', '.remove_row', function() {
         $(this).closest('tr').remove();
@@ -232,17 +336,13 @@
                     rowIndex = 0; // Reset row index
                     
                     response.items.forEach(function(item) {
-                        let options = '<option value="">Select Product</option>';
-                        @foreach($products as $product)
-                            options += `<option value="{{ $product->id }}" ${item.product_id == {{ $product->id }} ? 'selected' : ''}>{{ $product->name }}</option>`;
-                        @endforeach
-
                         let row = `<tr>
                             <td>
-                                <select name="items[${rowIndex}][product_id]" class="form-control select2" required>
-                                    ${options}
-                                </select>
+                                <input type="hidden" name="items[${rowIndex}][product_id]" value="${item.product_id}">
+                                ${item.product_name}
+                                ${item.variant_id ? `<input type="hidden" name="items[${rowIndex}][variant_id]" value="${item.variant_id}">` : ''}
                             </td>
+                            <td>${item.variant_name ? item.variant_name : '-'}</td>
                             <td>
                                 <input type="number" name="items[${rowIndex}][qty]" class="form-control" step="0.01" value="${item.qty}" required>
                             </td>

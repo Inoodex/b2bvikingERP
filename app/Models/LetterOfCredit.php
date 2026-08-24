@@ -65,4 +65,9 @@ class LetterOfCredit extends Model
     {
         return $this->expenses->sum('amount');
     }
+
+    public function getCurrencySymbolAttribute(): string
+    {
+        return $this->currency?->symbol ?? $this->vendor?->currency?->symbol ?? 'kr.';
+    }
 }
