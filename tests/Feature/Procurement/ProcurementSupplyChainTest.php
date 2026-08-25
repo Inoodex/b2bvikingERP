@@ -305,4 +305,124 @@ class ProcurementSupplyChainTest extends TestCase
         ]);
         $this->assertEquals('goods_received', $po->fresh()->milestone_status);
     }
+
+    public function test_05_duplicate_po_generation_is_prevented(): void
+    {
+        $user = $this->getOrCreateUser();
+        $dept = $this->getOrCreateDepartment($user);
+        $product = $this->getOrCreateProduct();
+        $vendor = $this->getOrCreateVendor('Guard Vendor');
+
+        $pr = ProductRequest::create([
+            'request_no' => 'PR-' . uniqid(),
+            'department_id' => $dept->id,
+            'user_id' => $user->id,
+            'status' => 'approved',
+        ]);
+
+        $rfq = Rfq::create([
+            'rfq_no' => 'RFQ-' . uniqid(),
+            'source_type' => ProductRequest::class,
+            'source_id' => $pr->id,
+            'status' => 'open',
+        ]);
+
+        $cs = ComparisonStatement::create([
+            'cs_no' => 'CS-' . uniqid(),
+            'rfq_id' => $rfq->id,
+            'recommended_vendor_id' => $vendor->id,
+            'approval_status' => 'approved',
+        ]);
+
+        // Mock an item for this CS
+        $quote = VendorQuotation::create(['rfq_id' => $rfq->id, 'vendor_id' => $vendor->id, 'status' => 'received']);
+        $qi = VendorQuotationItem::create(['vendor_quotation_id' => $quote->id, 'product_id' => $product->id, 'qty' => 10, 'unit_price' => 10, 'total_price' => 100]);
+        \App\Models\ComparisonStatementItem::create([
+            'comparison_statement_id' => $cs->id, 
+            'product_id' => $product->id,
+            'selected_vendor_quotation_item_id' => $qi->id,
+        ]);
+        $cs->refresh();
+
+        // First generation should succeed
+        $poService = app(\App\Services\PurchaseOrderService::class);
+        $generatedPos = $poService->generateFromComparisonStatement($cs, $user->id);
+        
+        $this->assertCount(1, $generatedPos);
+        $this->assertDatabaseHas('purchases', ['comparison_statement_id' => $cs->id]);
+
+        // Second generation should fail/prevent duplicate
+        $response = $this->actingAs($user)->post(route('admin.purchase-orders.generate-from-cs', $cs->id));
+        
+        $response->assertRedirect();
+        $this->assertEquals(1, Purchase::where('comparison_statement_id', $cs->id)->count());
+    }
+
+    public function test_06_split_award_generates_multiple_pos_correctly(): void
+    {
+        $user = $this->getOrCreateUser();
+        $vendor1 = $this->getOrCreateVendor('Split Vendor 1');
+        $vendor2 = $this->getOrCreateVendor('Split Vendor 2');
+        $product1 = $this->getOrCreateProduct();
+        $product2 = Product::create(['name' => 'Item 2', 'slug' => 'item-2', 'price' => 10, 'cost' => 5, 'status' => 1]);
+
+        $rfq = Rfq::create(['rfq_no' => 'RFQ-SPLIT', 'status' => 'open']);
+        
+        $cs = ComparisonStatement::create([
+            'cs_no' => 'CS-SPLIT',
+            'rfq_id' => $rfq->id,
+            'approval_status' => 'approved',
+        ]);
+
+        // Mocking the awarded items for split
+        $quote1 = VendorQuotation::create(['rfq_id' => $rfq->id, 'vendor_id' => $vendor1->id, 'status' => 'received']);
+        $qi1 = VendorQuotationItem::create(['vendor_quotation_id' => $quote1->id, 'product_id' => $product1->id, 'qty' => 10, 'unit_price' => 100, 'total_price' => 1000]);
+
+        $quote2 = VendorQuotation::create(['rfq_id' => $rfq->id, 'vendor_id' => $vendor2->id, 'status' => 'received']);
+        $qi2 = VendorQuotationItem::create(['vendor_quotation_id' => $quote2->id, 'product_id' => $product2->id, 'qty' => 20, 'unit_price' => 50, 'total_price' => 1000]);
+
+        // Attach winning items to CS
+        \App\Models\ComparisonStatementItem::create(['comparison_statement_id' => $cs->id, 'product_id' => $product1->id, 'selected_vendor_quotation_item_id' => $qi1->id]);
+        \App\Models\ComparisonStatementItem::create(['comparison_statement_id' => $cs->id, 'product_id' => $product2->id, 'selected_vendor_quotation_item_id' => $qi2->id]);
+        $cs->refresh();
+
+        $poService = app(\App\Services\PurchaseOrderService::class);
+        $generatedPos = $poService->generateFromComparisonStatement($cs, $user->id);
+
+        $this->assertCount(2, $generatedPos);
+        $this->assertDatabaseHas('purchases', ['comparison_statement_id' => $cs->id, 'vendor_id' => $vendor1->id]);
+        $this->assertDatabaseHas('purchases', ['comparison_statement_id' => $cs->id, 'vendor_id' => $vendor2->id]);
+    }
+
+    public function test_07_milestone_status_downgrade_prevention(): void
+    {
+        $vendor = $this->getOrCreateVendor('Guard Vendor');
+        $po = Purchase::create([
+            'po_no' => 'PO-GUARD-' . uniqid(),
+            'invoice_no' => 'INV-GUARD-' . uniqid(),
+            'vendor_id' => $vendor->id,
+            'purchase_type' => 'local',
+            'date' => now()->toDateString(),
+            'total_amount' => 100,
+            'grand_total' => 100,
+            'milestone_status' => 'shipped',
+        ]);
+
+        $pi = \App\Models\ProformaInvoice::create([
+            'pi_no' => 'PI-999',
+            'purchase_id' => $po->id,
+            'vendor_id' => $vendor->id,
+            'date' => now()->toDateString(),
+            'status' => 'pending',
+            'total_amount' => 100,
+        ]);
+
+        // Simulate attaching a PI late
+        $po->proforma_invoice_id = $pi->id; 
+        $po->save();
+        $po->advanceMilestone('pi_attached');
+
+        // Should STILL be shipped, not pi_attached
+        $this->assertEquals('shipped', $po->fresh()->milestone_status);
+    }
 }
