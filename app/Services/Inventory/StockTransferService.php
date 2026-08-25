@@ -7,7 +7,9 @@ use App\Models\Product;
 use App\Models\StockLedger;
 use App\Models\StockTransfer;
 use App\Models\StockTransferItem;
+use App\Models\StockBatch;
 use App\Services\OrderNumberService;
+use App\Services\Inventory\FifoDepletionService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -74,32 +76,22 @@ class StockTransferService
         return DB::transaction(function () use ($transfer) {
             $transfer->loadMissing('items');
 
+            $fifoService = app(FifoDepletionService::class);
+
             foreach ($transfer->items as $item) {
-                $stock = InventoryStock::where([
-                    'product_id' => $item->product_id,
-                    'variant_id' => $item->variant_id,
-                    'outlet_id' => $transfer->from_outlet_id,
-                ])->first();
+                // Use FIFO Engine to deplete source stock
+                $depletionResult = $fifoService->depleteStock(
+                    $transfer->from_outlet_id,
+                    null,
+                    $item->product_id,
+                    $item->variant_id,
+                    $item->qty,
+                    'transfer_out',
+                    $transfer->id
+                );
 
-                $available = $stock ? (float) $stock->quantity : 0.00;
-                if ($available < (float) $item->qty) {
-                    $productName = $item->product ? $item->product->name : "Product #{$item->product_id}";
-                    throw new \Exception("Insufficient stock at source warehouse for '{$productName}'. Available: {$available}, Required: {$item->qty}");
-                }
-
-                $stock->decrement('quantity', $item->qty);
-
-                StockLedger::create([
-                    'product_id' => $item->product_id,
-                    'variant_id' => $item->variant_id,
-                    'outlet_id' => $transfer->from_outlet_id,
-                    'reference_type' => 'stock_transfer_out',
-                    'reference_id' => $transfer->id,
-                    'in_qty' => 0,
-                    'out_qty' => $item->qty,
-                    'balance_qty' => $stock->quantity,
-                    'date' => now(),
-                ]);
+                // Update the transfer item with the true FIFO average cost
+                $item->update(['unit_cost' => $depletionResult['avg_unit_cost']]);
             }
 
             $transfer->update([
@@ -143,11 +135,25 @@ class StockTransferService
 
                 $destStock->increment('quantity', $receivedQty);
 
+                // Replicate Batch for FIFO costing at destination
+                $batchNo = 'TRN-' . $transfer->id . '-' . $item->id;
+                $batch = StockBatch::create([
+                    'product_id' => $item->product_id,
+                    'variant_id' => $item->variant_id,
+                    'outlet_id' => $transfer->to_outlet_id,
+                    'batch_no' => $batchNo,
+                    'qty_received' => $receivedQty,
+                    'qty_remaining' => $receivedQty,
+                    'unit_cost' => $item->unit_cost, // Preserved exact FIFO average cost
+                    'received_date' => now()->format('Y-m-d'),
+                ]);
+
                 StockLedger::create([
                     'product_id' => $item->product_id,
                     'variant_id' => $item->variant_id,
                     'outlet_id' => $transfer->to_outlet_id,
-                    'reference_type' => 'stock_transfer_in',
+                    'batch_id' => $batch->id,
+                    'reference_type' => 'transfer_in',
                     'reference_id' => $transfer->id,
                     'in_qty' => $receivedQty,
                     'out_qty' => 0,

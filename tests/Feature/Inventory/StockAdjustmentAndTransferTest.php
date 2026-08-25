@@ -6,6 +6,7 @@ use App\Models\InventoryStock;
 use App\Models\Outlet;
 use App\Models\Product;
 use App\Models\StockAdjustment;
+use App\Models\StockBatch;
 use App\Models\StockLedger;
 use App\Models\StockTransfer;
 use App\Models\User;
@@ -71,6 +72,14 @@ class StockAdjustmentAndTransferTest extends TestCase
         );
         $stock->update(['quantity' => 50]);
 
+        // Create the corresponding batch to prevent FIFO corruption
+        StockBatch::factory()->create([
+            'outlet_id' => $outlet->id,
+            'product_id' => $product->id,
+            'qty_remaining' => 50,
+            'unit_cost' => 15.00,
+        ]);
+
         $service = app(StockAdjustmentService::class);
 
         // Adjust -10 due to physical damage
@@ -122,6 +131,14 @@ class StockAdjustmentAndTransferTest extends TestCase
         );
         $sourceStock->update(['quantity' => 100]);
 
+        // Create the corresponding batch
+        StockBatch::factory()->create([
+            'outlet_id' => $sourceOutlet->id,
+            'product_id' => $product->id,
+            'qty_remaining' => 100,
+            'unit_cost' => 20.00,
+        ]);
+
         $destStock = InventoryStock::firstOrCreate(
             ['outlet_id' => $destOutlet->id, 'product_id' => $product->id, 'variant_id' => null],
             ['quantity' => 0]
@@ -164,7 +181,7 @@ class StockAdjustmentAndTransferTest extends TestCase
         $this->assertDatabaseHas('stock_ledgers', [
             'outlet_id' => $sourceOutlet->id,
             'product_id' => $product->id,
-            'reference_type' => 'stock_transfer_out',
+            'reference_type' => 'transfer_out',
             'out_qty' => 30,
             'balance_qty' => 70,
         ]);
@@ -172,7 +189,7 @@ class StockAdjustmentAndTransferTest extends TestCase
         $this->assertDatabaseHas('stock_ledgers', [
             'outlet_id' => $destOutlet->id,
             'product_id' => $product->id,
-            'reference_type' => 'stock_transfer_in',
+            'reference_type' => 'transfer_in',
             'in_qty' => 30,
             'balance_qty' => 30,
         ]);

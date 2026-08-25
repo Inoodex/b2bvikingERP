@@ -74,11 +74,28 @@ class StockReceiveService
                     \App\Models\ProductVariant::where('id', $grnItem->variant_id)->increment('qty', $acceptedQty);
                 }
 
-                // 2. Write stock_ledgers entry
+                // 2. Create StockBatch for FIFO Costing
+                $batchNo = 'BCH-' . date('Ymd') . '-' . str_pad($grn->id, 4, '0', STR_PAD_LEFT) . '-' . str_pad($grnItem->id, 4, '0', STR_PAD_LEFT);
+
+                $batch = \App\Models\StockBatch::create([
+                    'product_id'         => $grnItem->product_id,
+                    'variant_id'         => $grnItem->variant_id,
+                    'outlet_id'          => $outletId,
+                    'goods_receipt_id'   => $grn->id,
+                    'purchase_detail_id' => $poDetail ? $poDetail->id : null,
+                    'batch_no'           => $batchNo,
+                    'qty_received'       => $acceptedQty,
+                    'qty_remaining'      => $acceptedQty,
+                    'unit_cost'          => $unitLandedCost,
+                    'received_date'      => now()->format('Y-m-d'),
+                ]);
+
+                // 3. Write stock_ledgers entry
                 StockLedger::create([
                     'outlet_id'        => $outletId,
                     'product_id'       => $grnItem->product_id,
                     'variant_id'       => $grnItem->variant_id,
+                    'batch_id'         => $batch->id,
                     'reference_type'   => 'goods_receipt',
                     'reference_id'     => $grn->id,
                     'in_qty'           => $acceptedQty,

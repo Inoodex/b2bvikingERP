@@ -31,6 +31,10 @@ use App\Http\Controllers\Backend\PricingRuleController;
 use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\SizeController;
 use App\Http\Controllers\Backend\SliderController;
+use App\Http\Controllers\Backend\StockBatchController;
+use App\Http\Controllers\Backend\MonthEndSnapshotController;
+use App\Http\Controllers\Backend\WarehouseZoneController;
+use App\Http\Controllers\Backend\WarehouseBinController;
 use App\Http\Controllers\Backend\StockLedgerController;
 use App\Http\Controllers\Backend\UnitController;
 use App\Http\Controllers\Backend\UserController;
@@ -474,6 +478,10 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
 
 
     Route::get('stock-ledger', [StockLedgerController::class, 'index'])->name('stock-ledger.index');
+    Route::get('stock-batches', [StockBatchController::class, 'index'])->name('stock-batches.index');
+    Route::get('month-end-snapshots', [MonthEndSnapshotController::class, 'index'])->name('month-end-snapshots.index');
+    Route::resource('warehouse-zones', WarehouseZoneController::class);
+    Route::resource('warehouse-bins', WarehouseBinController::class);
     Route::controller(InventoryReportController::class)->group(function () {
         Route::get('inventory-reports/export-pdf', 'exportPdf')->name('inventory-reports.export-pdf');
         Route::get('inventory-reports', 'index')->name('inventory-reports.index');

@@ -1,7 +1,7 @@
 @php
   $categoriesActive = request()->routeIs('admin.category.*', 'admin.sub-category.*', 'admin.child-category.*', 'admin.slider.*', 'admin.product-types.*');
   $productsActive   = request()->routeIs('admin.products.*', 'admin.units.*', 'admin.colors.*', 'admin.sizes.*');
-  $inventoryActive  = request()->routeIs('admin.inventory-reports.*', 'admin.stock-adjustments.*', 'admin.stock-transfers.*', 'admin.stock-ledger.*');
+  $inventoryActive  = request()->routeIs('admin.inventory-reports.*', 'admin.stock-adjustments.*', 'admin.stock-transfers.*', 'admin.stock-ledger.*', 'admin.stock-batches.*', 'admin.month-end-snapshots.*');
   $ordersActive     = request()->routeIs('admin.orders.*', 'admin.sales-orders.*', 'admin.sales-quotations.*', 'admin.custom-product-requests.*', 'admin.product-requests.*', 'admin.delivery-orders.*', 'admin.sales-invoices.*', 'admin.customer-payments.*', 'admin.sales-returns.*', 'admin.credit-notes.*', 'admin.pricelists.*', 'admin.coupons.*', 'admin.gift-cards.*');
   $purchaseActive   = request()->routeIs('admin.bookings.*', 'admin.purchases.*');
   $procurementActive = request()->routeIs('admin.rfqs.*', 'admin.purchase-orders.*', 'admin.letters-of-credit.*', 'admin.shipments.*', 'admin.goods-receipts.*', 'admin.vendor-returns.*', 'admin.vendor-bills.*');
@@ -1120,6 +1120,10 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.stock-transfers.index') }}"><i class="fas fa-truck-moving"></i> Stock Transfers</a></li>
           <li class="sb-submenu-divider"></li>
           <li><a href="{{ route('admin.stock-ledger.index') }}"><i class="fas fa-book"></i> Stock Ledger</a></li>
+          <li><a href="{{ route('admin.stock-batches.index') }}"><i class="fas fa-boxes"></i> Stock Batches</a></li>
+          <li><a href="{{ route('admin.month-end-snapshots.index') }}"><i class="fas fa-calendar-check"></i> Month-End Valuation</a></li>
+          <li><a href="{{ route('admin.warehouse-zones.index') }}"><i class="fas fa-th-large"></i> Warehouse Zones</a></li>
+          <li><a href="{{ route('admin.warehouse-bins.index') }}"><i class="fas fa-th"></i> Warehouse Bins</a></li>
         </ul>
       </li>
       @endif

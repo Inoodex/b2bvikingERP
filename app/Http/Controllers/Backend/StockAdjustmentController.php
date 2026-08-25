@@ -8,6 +8,7 @@ use App\Models\InventoryStock;
 use App\Models\Outlet;
 use App\Models\Product;
 use App\Models\StockAdjustment;
+use App\Http\Requests\Backend\StockAdjustment\StoreRequest;
 use App\Models\User;
 use App\Services\Inventory\StockAdjustmentService;
 use Brian2694\Toastr\Facades\Toastr;
@@ -42,25 +43,10 @@ class StockAdjustmentController extends Controller
         return view('backend.stock_adjustments.create', compact('outlets', 'products'));
     }
 
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
-        $validated = $request->validate([
-            'outlet_id' => 'required',
-            'adjustment_type' => 'required|in:increase,decrease,reconciliation',
-            'reason_code' => 'required|in:damage,physical_count,expired,sample_marketing,theft_loss,internal_use,other',
-            'reason' => 'nullable|string|max:255',
-            'note' => 'nullable|string|max:1000',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.variant_id' => 'nullable',
-            'items.*.adjusted_qty' => 'required|numeric|gt:0',
-            'items.*.counted_qty' => 'nullable|numeric',
-            'items.*.unit_cost' => 'nullable|numeric|min:0',
-            'items.*.item_note' => 'nullable|string|max:255',
-        ]);
-
         try {
-            $adjustment = $this->adjustmentService->createAdjustment($validated, $request->items);
+            $adjustment = $this->adjustmentService->createAdjustment($request->validated(), $request->items);
             Toastr::success('Stock Adjustment created successfully in Draft state.');
             return redirect()->route('admin.stock-adjustments.show', $adjustment->id);
         } catch (\Exception $e) {

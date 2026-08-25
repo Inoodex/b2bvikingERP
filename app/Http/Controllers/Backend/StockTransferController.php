@@ -8,6 +8,8 @@ use App\Models\GeneralSetting;
 use App\Models\Outlet;
 use App\Models\Product;
 use App\Models\StockTransfer;
+use App\Http\Requests\Backend\StockTransfer\StoreRequest;
+use App\Http\Requests\Backend\StockTransfer\ReceiveRequest;
 use App\Models\User;
 use App\Services\Inventory\StockTransferService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -43,27 +45,10 @@ class StockTransferController extends Controller
         return view('backend.stock_transfers.create', compact('outlets', 'products'));
     }
 
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
-        $validated = $request->validate([
-            'from_outlet_id' => 'required',
-            'to_outlet_id' => 'required|different:from_outlet_id',
-            'transfer_date' => 'required|date',
-            'challan_no' => 'nullable|string|max:100',
-            'vehicle_no' => 'nullable|string|max:100',
-            'driver_name' => 'nullable|string|max:150',
-            'driver_phone' => 'nullable|string|max:50',
-            'note' => 'nullable|string|max:1000',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.variant_id' => 'nullable',
-            'items.*.qty' => 'required|numeric|gt:0',
-            'items.*.unit_cost' => 'nullable|numeric|min:0',
-            'items.*.item_note' => 'nullable|string|max:255',
-        ]);
-
         try {
-            $transfer = $this->transferService->createTransfer($validated, $request->items);
+            $transfer = $this->transferService->createTransfer($request->validated(), $request->items);
             Toastr::success('Stock Transfer created successfully in Draft state.');
             return redirect()->route('admin.stock-transfers.show', $transfer->id);
         } catch (\Exception $e) {
@@ -111,15 +96,10 @@ class StockTransferController extends Controller
         return view('backend.stock_transfers.receive', compact('stockTransfer'));
     }
 
-    public function receiveTransfer(Request $request, StockTransfer $stockTransfer)
+    public function receiveTransfer(ReceiveRequest $request, StockTransfer $stockTransfer)
     {
-        $request->validate([
-            'received_items' => 'required|array',
-            'received_items.*' => 'required|numeric|min:0',
-        ]);
-
         try {
-            $this->transferService->receiveTransfer($stockTransfer, $request->received_items);
+            $this->transferService->receiveTransfer($stockTransfer, $request->validated('received_items'));
             Toastr::success('Stock Transfer received and verified! Stock has been added to destination warehouse.');
         } catch (\Exception $e) {
             Toastr::error('Receive Failed: ' . $e->getMessage());
