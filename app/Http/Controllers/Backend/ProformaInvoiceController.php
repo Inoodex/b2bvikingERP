@@ -44,8 +44,8 @@ class ProformaInvoiceController extends Controller
 
         $po->update([
             'proforma_invoice_id' => $pi->id,
-            'milestone_status' => 'pi_attached',
         ]);
+        $po->advanceMilestone('pi_attached');
 
         Toastr::success('Proforma Invoice (PI) attached successfully!');
         return redirect()->back();

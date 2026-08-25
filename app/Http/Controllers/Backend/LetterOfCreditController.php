@@ -64,8 +64,8 @@ class LetterOfCreditController extends Controller
 
         $po->update([
             'lc_id' => $lc->id,
-            'milestone_status' => 'lc_opened',
         ]);
+        $po->advanceMilestone('lc_opened');
 
         Toastr::success('Letter of Credit (LC) registered successfully!');
         return redirect()->route('admin.letters-of-credit.show', $lc->id);

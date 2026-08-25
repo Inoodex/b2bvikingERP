@@ -141,4 +141,58 @@ class Purchase extends Model
             'milestone_status' => 'completed',
         ]);
     }
+
+    public function advanceMilestone(string $newMilestone): bool
+    {
+        if ($this->milestone_status === 'cancelled' && $newMilestone !== 'cancelled') {
+            return false;
+        }
+
+        $hierarchy = [
+            'draft'          => 1,
+            'approved'       => 2,
+            'po_sent'        => 3,
+            'pi_attached'    => 4,
+            'lc_opened'      => 5,
+            'shipped'        => 6,
+            'goods_partial'  => 6,
+            'goods_received' => 7,
+            'completed'      => 8,
+        ];
+
+        $currentRank = $hierarchy[$this->milestone_status ?? 'draft'] ?? 1;
+        $newRank = $hierarchy[$newMilestone] ?? 1;
+
+        if ($newRank >= $currentRank) {
+            return $this->update(['milestone_status' => $newMilestone]);
+        }
+
+        return true;
+    }
+
+    public function getEvaluatedMilestoneAttribute(): string
+    {
+        if ($this->milestone_status === 'cancelled') {
+            return 'cancelled';
+        }
+        if ($this->relationLoaded('goodsReceipts') ? $this->goodsReceipts->where('qc_status', 'passed')->isNotEmpty() : $this->goodsReceipts()->where('qc_status', 'passed')->exists()) {
+            return 'goods_received';
+        }
+        if ($this->relationLoaded('shipments') ? $this->shipments->isNotEmpty() : $this->shipments()->exists()) {
+            return 'shipped';
+        }
+        if ($this->lc_id || ($this->relationLoaded('letterOfCredit') ? $this->letterOfCredit !== null : $this->letterOfCredit()->exists())) {
+            return 'lc_opened';
+        }
+        if ($this->proforma_invoice_id || ($this->relationLoaded('proformaInvoice') ? $this->proformaInvoice !== null : $this->proformaInvoice()->exists())) {
+            return 'pi_attached';
+        }
+        if ($this->relationLoaded('emailLogs') ? $this->emailLogs->isNotEmpty() : $this->emailLogs()->exists()) {
+            return 'po_sent';
+        }
+        if ($this->approval_status === 'approved') {
+            return 'approved';
+        }
+        return $this->milestone_status ?? 'draft';
+    }
 }

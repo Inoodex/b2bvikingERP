@@ -59,10 +59,10 @@ class ShipmentController extends Controller
             'document_path'     => $documentPath,
         ]);
 
-        // Update PO milestone_status to shipped if in_transit
+        // Update PO milestone_status to shipped
         $purchase = Purchase::find($request->purchase_id);
-        if ($purchase && in_array($purchase->milestone_status, ['lc_opened', 'po_sent', 'approved'])) {
-            $purchase->update(['milestone_status' => 'shipped']);
+        if ($purchase) {
+            $purchase->advanceMilestone('shipped');
         }
 
         Toastr::success('Shipment tracking registered successfully.', 'Success');

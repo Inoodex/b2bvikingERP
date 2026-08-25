@@ -45,14 +45,16 @@ class PoDataTable extends \Yajra\DataTables\Services\DataTable
                 return '<span class="badge ' . $class . '">' . ucfirst(str_replace('_', ' ', $status)) . '</span>';
             })
             ->editColumn('milestone_status', function ($query) {
-                $milestone = $query->milestone_status ?? 'draft';
+                $milestone = $query->evaluated_milestone;
                 $class = match ($milestone) {
-                    'approved' => 'badge-success',
-                    'po_sent' => 'badge-info',
-                    'pi_attached' => 'badge-primary',
-                    'lc_opened' => 'badge-purple',
-                    'cancelled' => 'badge-danger',
-                    default => 'badge-light border',
+                    'completed', 'goods_received' => 'badge-success',
+                    'shipped', 'goods_partial'   => 'badge-primary',
+                    'lc_opened'                   => 'badge-purple',
+                    'pi_attached'                 => 'badge-info',
+                    'po_sent'                     => 'badge-warning text-dark',
+                    'approved'                    => 'badge-success',
+                    'cancelled'                   => 'badge-danger',
+                    default                       => 'badge-light border',
                 };
                 return '<span class="badge ' . $class . '">' . ucfirst(str_replace('_', ' ', $milestone)) . '</span>';
             })
@@ -72,7 +74,21 @@ class PoDataTable extends \Yajra\DataTables\Services\DataTable
 
     public function query(Purchase $model): QueryBuilder
     {
-        return $model->newQuery()->with(['vendor', 'currency', 'comparisonStatement'])->whereNotNull('po_no')->orWhereNotNull('comparison_statement_id')->orderByDesc('id');
+        return $model->newQuery()
+            ->with([
+                'vendor',
+                'currency',
+                'comparisonStatement',
+                'shipments',
+                'goodsReceipts',
+                'letterOfCredit',
+                'proformaInvoice',
+                'emailLogs'
+            ])
+            ->where(function ($q) {
+                $q->whereNotNull('po_no')->orWhereNotNull('comparison_statement_id');
+            })
+            ->orderByDesc('id');
     }
 
     public function html(): HtmlBuilder

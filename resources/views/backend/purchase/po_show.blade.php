@@ -9,20 +9,19 @@
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
-        padding: 20px 24px;
+        padding: 24px 30px;
         overflow: hidden;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
     .milestone-step {
         text-align: center;
         flex: 1;
         position: relative;
-        padding: 0 4px;
     }
     .milestone-step:not(:last-child)::after {
         content: '';
         position: absolute;
-        top: 18px;
+        top: 17px;
         left: 50%;
         width: 100%;
         height: 3px;
@@ -37,67 +36,39 @@
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background: #f1f5f9;
-        color: #94a3b8;
+        background: #e2e8f0;
+        color: #64748b;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-weight: bold;
-        font-size: 14px;
+        font-weight: 700;
+        font-size: 13px;
         position: relative;
         z-index: 2;
         transition: all 0.3s ease;
-        border: 2px solid #e2e8f0;
     }
     .milestone-step.active .milestone-icon {
         background: #6777ef;
         color: #ffffff;
-        border-color: #6777ef;
-        box-shadow: 0 0 0 4px rgba(103,119,239,0.25);
-        animation: pulseActive 2s infinite;
+        box-shadow: 0 0 0 6px rgba(103,119,239,0.22);
     }
     .milestone-step.completed .milestone-icon {
         background: #47c363;
         color: #ffffff;
-        border-color: #47c363;
-        box-shadow: 0 2px 6px rgba(71,195,99,0.3);
     }
     .milestone-label {
         font-size: 11px;
-        font-weight: 700;
+        font-weight: 800;
         text-transform: uppercase;
         margin-top: 8px;
         color: #64748b;
-        letter-spacing: 0.3px;
+        letter-spacing: 0.4px;
     }
     .milestone-step.active .milestone-label {
         color: #6777ef;
-        font-weight: 800;
     }
     .milestone-step.completed .milestone-label {
-        color: #1e293b;
-    }
-    .milestone-subtext {
-        font-size: 10px;
-        font-weight: 600;
-        margin-top: 2px;
-        color: #94a3b8;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
-        display: block;
-    }
-    .milestone-step.completed .milestone-subtext {
-        color: #16a34a;
-    }
-    .milestone-step.active .milestone-subtext {
-        color: #6777ef;
-    }
-    @keyframes pulseActive {
-        0% { box-shadow: 0 0 0 0 rgba(103,119,239,0.4); }
-        70% { box-shadow: 0 0 0 8px rgba(103,119,239,0); }
-        100% { box-shadow: 0 0 0 0 rgba(103,119,239,0); }
+        color: #47c363;
     }
 </style>
 @endpush
@@ -233,52 +204,45 @@
                 $steps = [
                     [
                         'key' => 'draft',
-                        'label' => '1. Draft',
-                        'icon' => 'fa-file-alt',
+                        'label' => 'DRAFT',
+                        'step_no' => 1,
                         'completed' => $isDraftDone,
-                        'subtext' => $po->date ? \Carbon\Carbon::parse($po->date)->format('d M') : 'Created',
                     ],
                     [
                         'key' => 'approved',
-                        'label' => '2. Approved',
-                        'icon' => 'fa-stamp',
+                        'label' => 'APPROVED',
+                        'step_no' => 2,
                         'completed' => $isApproved,
-                        'subtext' => $isApproved ? 'Approved' : 'Pending',
                     ],
                     [
                         'key' => 'po_sent',
-                        'label' => '3. PO Sent',
-                        'icon' => 'fa-paper-plane',
+                        'label' => 'PO SENT',
+                        'step_no' => 3,
                         'completed' => $isPoSent,
-                        'subtext' => $emailCount > 0 ? "Sent ({$emailCount})" : ($isPoSent ? 'Sent' : 'Pending'),
                     ],
                     [
                         'key' => 'pi_attached',
-                        'label' => '4. PI Attached',
-                        'icon' => 'fa-file-invoice-dollar',
+                        'label' => 'PI ATTACHED',
+                        'step_no' => 4,
                         'completed' => $isPiAttached,
-                        'subtext' => $po->proformaInvoice ? $po->proformaInvoice->pi_no : ($isPiAttached ? 'Attached' : 'Pending'),
                     ],
                     [
                         'key' => 'lc_opened',
-                        'label' => '5. LC Opened',
-                        'icon' => 'fa-university',
+                        'label' => 'LC OPENED',
+                        'step_no' => 5,
                         'completed' => $isLcOpened,
-                        'subtext' => $po->letterOfCredit ? $po->letterOfCredit->lc_no : ($isLcOpened ? 'Opened' : 'Pending'),
                     ],
                     [
                         'key' => 'shipped',
-                        'label' => '6. Shipped',
-                        'icon' => 'fa-ship',
+                        'label' => 'SHIPPED',
+                        'step_no' => 6,
                         'completed' => $isShipped,
-                        'subtext' => $shipmentCount > 0 ? "{$shipmentCount} Shipped" : ($isShipped ? 'In Transit' : 'Pending'),
                     ],
                     [
                         'key' => 'goods_received',
-                        'label' => '7. Received',
-                        'icon' => 'fa-dolly',
+                        'label' => 'GOODS RECEIVED',
+                        'step_no' => 7,
                         'completed' => $isGoodsReceived,
-                        'subtext' => $grnCount > 0 ? "{$grnCount} Received" : ($isGoodsReceived ? 'Received' : 'Pending'),
                     ],
                 ];
 
@@ -300,11 +264,10 @@
                             @if($step['completed'])
                                 <i class="fas fa-check"></i>
                             @else
-                                <i class="fas {{ $step['icon'] }}"></i>
+                                {{ $step['step_no'] }}
                             @endif
                         </div>
                         <div class="milestone-label">{{ $step['label'] }}</div>
-                        <div class="milestone-subtext">{{ $step['subtext'] }}</div>
                     </div>
                 @endforeach
             </div>
