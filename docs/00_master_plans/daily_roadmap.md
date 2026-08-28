@@ -30,29 +30,29 @@
 
 ---
 
-## Phase 3: Sales Module Polish, B2B Pricing & Fulfillment (Days 26 - 33) [Completed]
+## Phase 3: Sales Module Polish (Days 26 - 33) [Completed]
 * **Days 26 - 27: Quotations, Pricelists, & Templates [Completed]**
-  - Sales quotations CRUD, dynamic PDF templates/streaming, and pricelists for dynamic customer pricing & tier rules.
-* **Days 28 - 29: Coupons, Gift Cards, B2B Tiers & Sales Orders [Completed]**
-  - One-click Quote to Sales Order conversion, customer segment pricing (Wholesale, B2B VIP, Distributor, Retail), Credit Limits, coupon/gift card validation.
-* **Days 30 - 31: Delivery Orders, Sales Returns & Credit Notes [Completed]**
-  - Delivery order dispatch & stock deduction, Sales Returns (RMA), Credit Note generation with automatic customer balance and invoice adjustments.
-* **Days 32 - 33: User Management, Comprehensive Manuals & Client UI Polish [Completed]**
-  - Enterprise User Management refactoring (Internal Staff vs B2B Customers), approval workflow role-filtered assignments, complete Bengali & English user manuals ([Phase3_User_Manual.md](file:///c:/laragon/www/b2bvikingErp/plan/phase%203/Phase3_User_Manual.md)), and 100% automated test coverage.
+  - Sales quotations, quotation templates, and pricelists for dynamic customer pricing.
+* **Days 28 - 29: Coupons, Gift Cards, & Sales Orders [Completed]**
+  - Convert Quote to Sales Order. Coupon/Gift card checkout application.
+* **Days 30 - 31: Sales Returns & Credit Notes [Completed]**
+  - Process customer return, generate Credit Note, and automatically adjust outstanding invoices.
+* **Days 32 - 33: Sales Reports & Client UI Polish [Completed]**
+  - Salesperson performance, aging receivables report, and client feedback adjustments on Checkout UI.
 
 ---
 
-## Phase 4: Inventory & Stock Controls (Days 34 - 40) [Current Sprint / Next Step]
-* **Days 34 - 36: FIFO/LIFO Stock Batches Depletion Engine [Next Step]**
-  - Integrate sequential FIFO/LIFO stock batch consumption into `DeliveryOrderService` (Sales Dispatch), `StockTransferService`, and `StockAdjustmentService`.
-* **Days 37 - 38: Stock Transfer & Reorder Point Notifications [Pending]**
-  - Outlet-to-outlet stock transfers with approval workflows. Real-time min stock dashboard notifications & alert widgets.
-* **Days 39 - 40: Adjustments, Month-End Snapshots, & Inventory Audit [Pending]**
-  - Physical stock corrections, Month-End inventory frozen snapshots, and FIFO valuation verification.
+## Phase 4: Inventory & Stock Controls (Days 34 - 40) [Completed]
+* **Days 34 - 36: FIFO Stock Batches & Costing Engine [Completed]**
+  - Batch tracking with exact Landed Cost and automatic sequential FIFO depletion on delivery.
+* **Days 37 - 38: 3-Stage Stock Transfer & Barcode Generator [Completed]**
+  - Outlet-to-outlet transfer with Draft -> Dispatched -> Received states, PDF waybill, and bin barcodes.
+* **Days 39 - 40: Adjustments, Month-End Snapshots, & Auto-Replenishment [Completed]**
+  - Physical stock corrections, Month-End inventory frozen snapshots, and Auto-Replenish cron.
 
 ---
 
-## Phase 5: Core Financial Accounting (Days 41 - 50)
+## Phase 5: Core Financial Accounting (Days 41 - 50) [Next Step]
 * **Days 41 - 42: Chart of Accounts & Fiscal Years Configuration [Pending]**
   - Chart of accounts setup (nested accounts tree) and Fiscal Year periods.
 * **Days 43 - 45: Automated Journal Posting (Laravel Observers) [Pending]**
@@ -69,7 +69,8 @@
 ## Phase 6: PayPal, Advanced Settings & Testing (Days 51 - 54)
 * **Day 51: PayPal API Integration & IPN Webhook [Pending]**
   - Integrate PayPal Express Checkout for Sales Orders. Set up Webhook to listen for payments and auto-reconcile invoices.
-* **Day 52: Advanced System Settings (Enterprise Level) [Pending]**
+* **Day 52: Advanced System Settings & Master Feature Toggles [Pending]**
+  - **Enterprise Feature Toggles Center** (`plan/enterprise_feature_toggles_plan.md`): Centralized Admin ON/OFF switches for Auto-Replenish, Vendor Emails, Quote Reminders, Credit Lock, and Auto-Journals.
   - Implement "Clear Cache" UI for optimization.
   - Integrate `spatie/laravel-backup` for DB & File Backup downloads from Admin Panel.
   - Setup "Recycle Bin" for Soft Deletes (view/restore/force delete).
