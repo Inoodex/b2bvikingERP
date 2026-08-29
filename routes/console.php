@@ -38,3 +38,10 @@ Schedule::call(function () {
 
 // Clean up old report PDFs every minute (auto-refresh)
 Schedule::command('reports:clean')->everyMinute()->name('clean-old-reports')->withoutOverlapping();
+
+// Phase 4: Auto-Replenishment - Checks low stock & drafts POs daily at 01:00 AM
+Schedule::command('inventory:auto-replenish')->dailyAt('01:00')->name('inventory-auto-replenish')->withoutOverlapping();
+
+// Phase 4: Month-End Valuation Snapshot - Freezes monthly inventory valuation on last day of month at 23:59
+Schedule::command('inventory:take-snapshot')->lastDayOfMonth('23:59')->name('inventory-snapshot-month-end')->withoutOverlapping();
+

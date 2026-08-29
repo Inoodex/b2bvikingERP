@@ -13,8 +13,8 @@ class StockBatchController extends Controller
     public function index(StockBatchDataTable $dataTable)
     {
         $products = Product::query()
-            ->select('products.id', 'products.name')
-            ->whereIn('products.id', StockBatch::query()->select('product_id')->distinct())
+            ->select('products.id', 'products.name', 'products.product_number')
+            ->where('status', 1)
             ->orderByDesc('products.id')
             ->get();
 

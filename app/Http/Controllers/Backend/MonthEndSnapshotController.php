@@ -19,8 +19,8 @@ class MonthEndSnapshotController extends Controller
             ->pluck('period');
 
         $products = Product::query()
-            ->select('products.id', 'products.name')
-            ->whereIn('products.id', MonthEndSnapshot::query()->select('product_id')->distinct())
+            ->select('products.id', 'products.name', 'products.product_number')
+            ->where('status', 1)
             ->orderByDesc('products.id')
             ->get();
 

@@ -85,13 +85,14 @@
                                     </div>
                                     @if(isset($vendors) && $vendors->count() > 0)
                                     <div class="form-group col-md-4">
-                                        <label>Vendor</label>
+                                        <label>Primary / Preferred Supplier <small class="text-muted">(Optional)</small></label>
                                         <select class="form-control select2" name="vendor_id">
-                                            <option value="">Select Vendor</option>
+                                            <option value="">Select Preferred Supplier</option>
                                             @foreach ($vendors as $vendor)
                                                 <option {{ $vendor->id == $product->vendor_id ? 'selected' : '' }} value="{{ $vendor->id }}">{{ $vendor->shop_name }}</option>
                                             @endforeach
                                         </select>
+                                        <small class="form-text text-muted">Used for automatic replenishment & draft PO generation.</small>
                                     </div>
                                     @endif
                                 </div>
@@ -114,9 +115,10 @@
                                             value="{{ $product->price }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Shelve Number</label>
-                                        <input type="text" class="form-control" name="self_number"
+                                        <label>Shelf / Storage Note <small class="text-muted">(Optional)</small></label>
+                                        <input type="text" class="form-control" name="self_number" placeholder="e.g. Rack-A / General Note"
                                             value="{{ $product->self_number }}">
+                                        <small class="form-text text-muted">General reference. Dynamic bins are managed in WMS.</small>
                                     </div>
                                 </div>
 

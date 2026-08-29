@@ -7,12 +7,12 @@ use App\Models\Outlet;
 use App\Models\User;
 use App\Models\WarehouseZone;
 use App\Models\WarehouseBin;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class WarehouseBinControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     protected function getOrCreateUser(): User
     {
@@ -28,8 +28,6 @@ class WarehouseBinControllerTest extends TestCase
         $company = Company::first() ?? Company::create([
             'name' => 'Test Company',
             'code' => 'TC-' . uniqid(),
-            'email' => 'tc@example.com',
-            'phone' => '+123456789',
             'status' => 1,
         ]);
 

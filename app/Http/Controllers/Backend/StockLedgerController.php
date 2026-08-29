@@ -109,10 +109,9 @@ class StockLedgerController extends Controller
 
         $products = Product::query()
             ->select('products.id', 'products.name')
-            ->whereIn('products.id', StockLedger::query()->select('product_id')->whereNotNull('product_id')->distinct())
+            ->where('status', 1)
             ->with(['variants' => function ($query) {
-                $query->select('id', 'product_id', 'name', 'color', 'size')
-                    ->whereIn('id', StockLedger::query()->select('variant_id')->whereNotNull('variant_id')->distinct());
+                $query->select('id', 'product_id', 'name', 'color', 'size');
             }])
             ->orderByDesc('products.id')
             ->get();

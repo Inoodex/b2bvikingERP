@@ -23,22 +23,27 @@ class WarehouseZoneDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function($row){
-                return '
-                    <a href="'.route('admin.warehouse-zones.edit', $row->id).'" class="btn btn-sm btn-primary">Edit</a>
-                    <form action="'.route('admin.warehouse-zones.destroy', $row->id).'" method="POST" style="display:inline;" onsubmit="return confirm(\'Delete?\');">
-                        '.csrf_field().'
-                        '.method_field("DELETE").'
-                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                    </form>
-                ';
+                $editBtn = '<a href="'.route('admin.warehouse-zones.edit', $row->id).'" class="btn btn-sm btn-primary mr-1" title="Edit"><i class="fas fa-edit"></i></a>';
+                $deleteBtn = '<a href="'.route('admin.warehouse-zones.destroy', $row->id).'" class="btn btn-sm btn-danger delete-item" title="Delete"><i class="fas fa-trash"></i></a>';
+                return '<div class="btn-group" role="group">' . $editBtn . $deleteBtn . '</div>';
             })
             ->addColumn('outlet', function($row){
-                return $row->outlet->name ?? 'N/A';
+                return '<span class="font-weight-bold text-dark">' . e($row->outlet->name ?? 'N/A') . '</span>';
+            })
+            ->editColumn('type', function($row){
+                if ($row->type === 'quarantine') {
+                    return '<span class="badge badge-warning"><i class="fas fa-shield-alt mr-1"></i> Quarantine</span>';
+                } elseif ($row->type === 'scrap') {
+                    return '<span class="badge badge-danger"><i class="fas fa-exclamation-triangle mr-1"></i> Scrap / Damage</span>';
+                }
+                return '<span class="badge badge-primary"><i class="fas fa-check-circle mr-1"></i> Active Storage</span>';
             })
             ->editColumn('status', function($row){
-                return $row->status ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>';
+                return $row->status 
+                    ? '<span class="badge badge-success">Active</span>' 
+                    : '<span class="badge badge-secondary">Inactive</span>';
             })
-            ->rawColumns(['action', 'status'])
+            ->rawColumns(['outlet', 'type', 'status', 'action'])
             ->setRowId('id');
     }
 
@@ -61,15 +66,13 @@ class WarehouseZoneDataTable extends DataTable
                     ->setTableId('warehousezone-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
-                    ->orderBy(1)
+                    ->orderBy(0, 'desc')
                     ->selectStyleSingle()
                     ->buttons([
-                        Button::make('excel'),
-            Button::make('csv'),
-            Button::make('pdf'),
-            Button::make('print'),
-            Button::make('reset'),
-            Button::make('reload')
+                        Button::make('excel')->className('btn btn-primary btn-sm'),
+                        Button::make('csv')->className('btn btn-primary btn-sm'),
+                        Button::make('pdf')->className('btn btn-primary btn-sm'),
+                        Button::make('print')->className('btn btn-primary btn-sm'),
                     ]);
     }
 
@@ -79,15 +82,15 @@ class WarehouseZoneDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id'),
-            Column::make('outlet')->name('outlet.name')->title('Outlet'),
-            Column::make('name'),
-            Column::make('type'),
-            Column::make('status'),
+            Column::make('id')->title('#ID')->width(60)->addClass('text-center'),
+            Column::make('outlet')->name('outlet.name')->title('Warehouse / Outlet'),
+            Column::make('name')->title('Zone Name'),
+            Column::make('type')->title('Zone Type')->addClass('text-center'),
+            Column::make('status')->title('Status')->addClass('text-center'),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)
-                  ->width(150)
+                  ->width(120)
                   ->addClass('text-center'),
         ];
     }

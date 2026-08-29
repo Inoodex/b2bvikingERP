@@ -12,18 +12,21 @@ class BarcodeGeneratorService
      * Generate barcode string for a warehouse bin.
      * Format: BIN-{outlet_id}-{zone_id}-{bin_id}
      */
-    public function generateBinBarcode(WarehouseBin $bin): string
+    public function generateBinBarcode(WarehouseBin|int $binOrOutlet, ?int $zoneId = null, ?int $binId = null): string
     {
-        // Require the bin to have its zone loaded
-        if (!$bin->relationLoaded('zone')) {
-            $bin->load('zone');
+        if ($binOrOutlet instanceof WarehouseBin) {
+            if (!$binOrOutlet->relationLoaded('zone')) {
+                $binOrOutlet->load('zone');
+            }
+
+            $outletId = $binOrOutlet->zone->outlet_id ?? 1;
+            $zoneId = $binOrOutlet->zone_id;
+            $binId = $binOrOutlet->id;
+
+            return "BIN-{$outletId}-{$zoneId}-{$binId}";
         }
 
-        $outletId = $bin->zone->outlet_id;
-        $zoneId = $bin->zone_id;
-        $binId = $bin->id;
-
-        return "BIN-{$outletId}-{$zoneId}-{$binId}";
+        return "BIN-{$binOrOutlet}-{$zoneId}-{$binId}";
     }
 
     /**
@@ -38,11 +41,9 @@ class BarcodeGeneratorService
             'product_id' => $batch->product_id,
             'landed_cost' => $batch->unit_cost,
             'received_date' => $batch->received_date,
-            'timestamp' => now()->timestamp, // ensures uniqueness even if other params are same
+            'timestamp' => now()->timestamp,
         ];
 
-        // We can just encode it in base64 to store in DB as the barcode string.
-        // A QR code scanner will read this string, and the system can decode it.
         return base64_encode(json_encode($payload));
     }
 
@@ -51,7 +52,6 @@ class BarcodeGeneratorService
      */
     public function generateProductBarcode(Product $product): string
     {
-        // Format: PRD-{category_id}-{product_id}-{random}
         $catId = $product->category_id ?? 0;
         $prodId = $product->id;
         $rand = strtoupper(substr(md5(uniqid()), 0, 4));

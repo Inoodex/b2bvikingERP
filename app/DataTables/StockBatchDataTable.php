@@ -62,7 +62,22 @@ class StockBatchDataTable extends DataTable
 
     public function query(StockBatch $model): QueryBuilder
     {
-        return $model->newQuery()->with(['product', 'variant', 'outlet', 'goodsReceipt']);
+        $query = $model->newQuery()->with(['product', 'variant', 'outlet', 'goodsReceipt']);
+
+        if (request()->filled('product_id')) {
+            $query->where('product_id', request()->get('product_id'));
+        }
+
+        if (request()->filled('status')) {
+            $status = request()->get('status');
+            if ($status === 'active') {
+                $query->where('qty_remaining', '>', 0);
+            } elseif ($status === 'depleted') {
+                $query->where('qty_remaining', '<=', 0);
+            }
+        }
+
+        return $query;
     }
 
     public function html(): HtmlBuilder

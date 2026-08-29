@@ -43,7 +43,6 @@ class TakeInventorySnapshot extends Command
 
                 // Group active stock batches by outlet, product, and variant to get the exact FIFO valuation
                 $batchValuations = StockBatch::where('qty_remaining', '>', 0)
-                    ->where('status', 'active')
                     ->select(
                         'outlet_id',
                         'product_id',
@@ -58,7 +57,7 @@ class TakeInventorySnapshot extends Command
                     });
 
                 // Fetch physical inventory stocks
-                $stocks = InventoryStock::where('quantity', '>', 0)->get();
+                $stocks = InventoryStock::with('product')->where('quantity', '>', 0)->get();
 
                 $snapshotData = [];
                 $now = now();
@@ -70,14 +69,15 @@ class TakeInventorySnapshot extends Command
                     if ($batchValuations->has($key)) {
                         $batchData = $batchValuations->get($key);
                         
-                        // In a perfect system, total_batch_qty == stock->quantity. 
-                        // If there is a slight mismatch (e.g. manual physical adjustments without batch),
-                        // we calculate the average cost from the active batches and extrapolate it.
                         $avgUnitCost = $batchData->total_batch_qty > 0 
                             ? ($batchData->total_valuation / $batchData->total_batch_qty) 
                             : 0;
 
                         $valuation = $stock->quantity * $avgUnitCost;
+                    } else {
+                        // Fallback to product purchase price for legacy opening stock
+                        $purchasePrice = (float) ($stock->product->purchase_price ?? 0);
+                        $valuation = $stock->quantity * $purchasePrice;
                     }
 
                     $snapshotData[] = [

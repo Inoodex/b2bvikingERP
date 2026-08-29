@@ -8,8 +8,6 @@ use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class WarehouseBinDataTable extends DataTable
@@ -23,23 +21,25 @@ class WarehouseBinDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function($row){
-                return '
-                    <a href="'.route('admin.warehouse-bins.show', $row->id).'" class="btn btn-sm btn-info" target="_blank">Print Barcode</a>
-                    <a href="'.route('admin.warehouse-bins.edit', $row->id).'" class="btn btn-sm btn-primary">Edit</a>
-                    <form action="'.route('admin.warehouse-bins.destroy', $row->id).'" method="POST" style="display:inline;" onsubmit="return confirm(\'Delete?\');">
-                        '.csrf_field().'
-                        '.method_field("DELETE").'
-                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                    </form>
-                ';
+                $printBtn = '<a href="'.route('admin.warehouse-bins.show', $row->id).'" class="btn btn-sm btn-info mr-1" target="_blank" title="Print Barcode"><i class="fas fa-barcode mr-1"></i> Print</a>';
+                $editBtn = '<a href="'.route('admin.warehouse-bins.edit', $row->id).'" class="btn btn-sm btn-primary mr-1" title="Edit"><i class="fas fa-edit"></i></a>';
+                $deleteBtn = '<a href="'.route('admin.warehouse-bins.destroy', $row->id).'" class="btn btn-sm btn-danger delete-item" title="Delete"><i class="fas fa-trash"></i></a>';
+                return '<div class="btn-group" role="group">' . $printBtn . $editBtn . $deleteBtn . '</div>';
             })
             ->addColumn('zone', function($row){
-                return $row->zone->name ?? 'N/A';
+                $zoneName = $row->zone->name ?? 'N/A';
+                $outletName = $row->zone->outlet->name ?? '';
+                return '<span class="font-weight-bold text-dark">' . e($zoneName) . '</span>' . ($outletName ? ' <br><small class="text-muted"><i class="fas fa-warehouse mr-1"></i>' . e($outletName) . '</small>' : '');
+            })
+            ->editColumn('barcode', function($row){
+                return '<span class="badge badge-light border text-dark font-weight-bold px-2 py-1"><i class="fas fa-barcode text-primary mr-1"></i>' . e($row->barcode) . '</span>';
             })
             ->editColumn('status', function($row){
-                return $row->status ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>';
+                return $row->status 
+                    ? '<span class="badge badge-success">Active</span>' 
+                    : '<span class="badge badge-secondary">Inactive</span>';
             })
-            ->rawColumns(['action', 'status'])
+            ->rawColumns(['zone', 'barcode', 'status', 'action'])
             ->setRowId('id');
     }
 
@@ -50,7 +50,7 @@ class WarehouseBinDataTable extends DataTable
      */
     public function query(WarehouseBin $model): QueryBuilder
     {
-        return $model->newQuery()->with('zone');
+        return $model->newQuery()->with(['zone.outlet']);
     }
 
     /**
@@ -62,15 +62,13 @@ class WarehouseBinDataTable extends DataTable
                     ->setTableId('warehousebin-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
-                    ->orderBy(1)
+                    ->orderBy(0, 'desc')
                     ->selectStyleSingle()
                     ->buttons([
-                        Button::make('excel'),
-            Button::make('csv'),
-            Button::make('pdf'),
-            Button::make('print'),
-            Button::make('reset'),
-            Button::make('reload')
+                        Button::make('excel')->className('btn btn-primary btn-sm'),
+                        Button::make('csv')->className('btn btn-primary btn-sm'),
+                        Button::make('pdf')->className('btn btn-primary btn-sm'),
+                        Button::make('print')->className('btn btn-primary btn-sm'),
                     ]);
     }
 
@@ -80,15 +78,15 @@ class WarehouseBinDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id'),
-            Column::make('zone')->name('zone.name')->title('Zone'),
-            Column::make('name'),
-            Column::make('barcode'),
-            Column::make('status'),
+            Column::make('id')->title('#ID')->width(60)->addClass('text-center'),
+            Column::make('zone')->name('zone.name')->title('Warehouse Zone & Outlet'),
+            Column::make('name')->title('Bin / Shelf Name'),
+            Column::make('barcode')->title('Location Barcode')->addClass('text-center'),
+            Column::make('status')->title('Status')->addClass('text-center'),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)
-                  ->width(250)
+                  ->width(180)
                   ->addClass('text-center'),
         ];
     }

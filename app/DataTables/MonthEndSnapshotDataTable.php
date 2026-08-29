@@ -51,7 +51,17 @@ class MonthEndSnapshotDataTable extends DataTable
 
     public function query(MonthEndSnapshot $model): QueryBuilder
     {
-        return $model->newQuery()->with(['product', 'variant', 'outlet']);
+        $query = $model->newQuery()->with(['product', 'variant', 'outlet']);
+
+        if (request()->filled('period')) {
+            $query->where('period', request()->get('period'));
+        }
+
+        if (request()->filled('product_id')) {
+            $query->where('product_id', request()->get('product_id'));
+        }
+
+        return $query;
     }
 
     public function html(): HtmlBuilder
