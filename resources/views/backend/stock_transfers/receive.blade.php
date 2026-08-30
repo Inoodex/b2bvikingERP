@@ -60,7 +60,7 @@
                 </div>
                 <div class="card-footer bg-light border-top text-right py-3">
                     <a href="{{ route('admin.stock-transfers.show', $stockTransfer->id) }}" class="btn btn-secondary mr-2">Cancel</a>
-                    <button type="submit" class="btn btn-success px-4 font-weight-bold shadow-sm" onclick="return confirm('Confirm receipt of these items? This will increment destination warehouse stock.');">
+                    <button type="button" class="btn btn-success px-4 font-weight-bold shadow-sm" id="btn_confirm_receipt">
                         <i class="fas fa-check-double mr-1"></i> Confirm & Add to Destination Stock
                     </button>
                 </div>
@@ -69,3 +69,28 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#btn_confirm_receipt').on('click', function(e) {
+            e.preventDefault();
+            const $form = $(this).closest('form');
+            Swal.fire({
+                title: "Confirm Goods Receipt?",
+                text: "This will add the verified received quantities into the destination warehouse stock.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#47c363",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Yes, Confirm Receipt!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $form.submit();
+                }
+            });
+        });
+    });
+</script>
+@endpush

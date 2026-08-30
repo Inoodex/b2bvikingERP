@@ -158,7 +158,7 @@
                             <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('send-po-email-form').submit();"><i class="fas fa-paper-plane text-info mr-2"></i> Send PO Email</a>
                             @if($po->milestone_status !== 'cancelled')
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); if(confirm('Cancel this PO?')) document.getElementById('cancel-po-form').submit();"><i class="fas fa-ban mr-2"></i> Cancel PO</a>
+                                <a class="dropdown-item text-danger" href="#" id="btn_cancel_po"><i class="fas fa-ban mr-2"></i> Cancel PO</a>
                             @endif
                         </div>
                     </div>
@@ -507,6 +507,27 @@
                 chevron.classList.toggle('fa-chevron-down', !isHidden);
                 chevron.classList.toggle('fa-chevron-up', isHidden);
                 toggleBtn.innerHTML = (isHidden ? '<i class="fas fa-chevron-up" id="expenseChevron"></i> Hide Expenses' : '<i class="fas fa-chevron-down" id="expenseChevron"></i> Show Expenses');
+            });
+        }
+
+        const cancelPoBtn = document.getElementById('btn_cancel_po');
+        if (cancelPoBtn) {
+            cancelPoBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: "Cancel this Purchase Order?",
+                    text: "Are you sure you want to cancel this Purchase Order?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#fc544b",
+                    cancelButtonColor: "#6c757d",
+                    confirmButtonText: "Yes, Cancel PO!",
+                    cancelButtonText: "Keep Active"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('cancel-po-form').submit();
+                    }
+                });
             });
         }
     });

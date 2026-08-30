@@ -467,11 +467,14 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     Route::resource('stock-adjustments', \App\Http\Controllers\Backend\StockAdjustmentController::class);
 
     Route::controller(\App\Http\Controllers\Backend\StockTransferController::class)->group(function () {
+        Route::get('stock-transfers/get-product-stock', 'getProductStock')->name('stock-transfers.get-product-stock');
         Route::post('stock-transfers/{stockTransfer}/dispatch', 'dispatchTransfer')->name('stock-transfers.dispatch');
         Route::get('stock-transfers/{stockTransfer}/receive', 'receiveForm')->name('stock-transfers.receive-form');
         Route::post('stock-transfers/{stockTransfer}/receive', 'receiveTransfer')->name('stock-transfers.receive');
         Route::post('stock-transfers/{stockTransfer}/cancel', 'cancel')->name('stock-transfers.cancel');
         Route::get('stock-transfers/{stockTransfer}/pdf', 'downloadPdf')->name('stock-transfers.pdf');
+        Route::delete('stock-transfers/{stockTransfer}/items/{item}', 'removeItem')->name('stock-transfers.items.remove');
+        Route::put('stock-transfers/{stockTransfer}/items/{item}', 'updateItemQty')->name('stock-transfers.items.update-qty');
     });
     Route::resource('stock-transfers', \App\Http\Controllers\Backend\StockTransferController::class);
 
@@ -505,13 +508,16 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
 
     /** Cart Routes (Database Cart System) */
     Route::controller(BackendCartController::class)->group(function () {
+        Route::get('cart/all-state', 'getAllState')->name('cart.all-state');
         Route::get('cart/count', 'getCount')->name('cart.count');
         Route::get('cart/items', 'getItems')->name('cart.items');
         Route::get('cart/product-ids', 'getProductIds')->name('cart.product-ids');
         Route::get('cart/vendor', 'getVendor')->name('cart.vendor');
         Route::post('cart/add', 'add')->name('cart.add');
+        Route::post('cart/bulk-add-products', 'bulkAddProducts')->name('cart.bulk-add-products');
         Route::post('cart/remove', 'remove')->name('cart.remove');
         Route::post('cart/clear', 'clear')->name('cart.clear');
+        Route::post('cart/update-quantity', 'updateQuantity')->name('cart.update-quantity');
     });
     /** Accounts & Payments */
 Route::controller(BackendAccountController::class)->group(function () {

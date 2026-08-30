@@ -1,10 +1,24 @@
+<style>
+    .add-to-basket.added, .add-to-request-basket.added {
+        background: #28a745 !important;
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+        color: #fff !important;
+    }
+</style>
 <div class="row" style="margin: 0 -6px;">
     @foreach ($products as $key => $product)
     <div class="col-6 col-md-4 col-lg-5th col-xl-5th mb-3" style="padding: 0 6px;">
         <div class="card h-100 border-0 shadow-sm pp-card">
             <div class="pp-card-img-wrap d-flex align-items-center justify-content-center">
+                @php
+                    $imgSrc = $product->thumb_image 
+                        ? (strpos($product->thumb_image, 'http') === 0 ? $product->thumb_image : asset('storage/'.$product->thumb_image)) 
+                        : asset('uploads/no-image.svg');
+                @endphp
                 <img alt="{{ $product->name }}" 
-                     src="{{ $product->thumb_image ? asset('storage/'.$product->thumb_image) : asset('uploads/default.jpg') }}" 
+                     src="{{ $imgSrc }}" 
+                     onerror="this.onerror=null; this.src='{{ asset('uploads/no-image.svg') }}';"
                      class="img-fluid" 
                      loading="{{ $key < 4 ? 'eager' : 'lazy' }}"
                      style="max-height: 100%; max-width: 100%; object-fit: contain;">
@@ -139,15 +153,15 @@
                         @endif
                     @endif
 
-                    <div class="mt-2" style="display: flex; flex-direction: column; gap: 4px;">
+                    <div class="mt-2 d-flex" style="gap: 6px;">
                         @can('Manage Order Place')
-                        <button type="button" class="btn btn-sm pp-btn-card pp-btn-amber add-to-basket" data-id="{{ $product->id }}">
-                            <i class="fas fa-shopping-basket mr-1"></i> Basket
+                        <button type="button" class="btn btn-sm pp-btn-card pp-btn-amber flex-fill add-to-basket" data-id="{{ $product->id }}" data-has-variants="{{ $hasVariants ? 1 : 0 }}" title="Procurement Basket" style="padding: 7px 0; font-size: 13px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-shopping-basket"></i>
                         </button>
                         @endcan
                         @can('Create Product Requests')
-                        <button type="button" class="btn btn-sm pp-btn-card pp-btn-outline add-to-request-basket" data-id="{{ $product->id }}">
-                            <i class="fas fa-file-import mr-1"></i> Request
+                        <button type="button" class="btn btn-sm pp-btn-card pp-btn-outline flex-fill add-to-request-basket" data-id="{{ $product->id }}" data-has-variants="{{ $hasVariants ? 1 : 0 }}" title="Stock Transfer Basket" style="padding: 7px 0; font-size: 13px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-file-import"></i>
                         </button>
                         @endcan
                     </div>

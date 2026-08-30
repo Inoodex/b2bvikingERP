@@ -47,6 +47,13 @@ class RfqService
                 }
             }
 
+            // Clear user's procurement cart upon creating RFQ
+            if (auth()->check()) {
+                \App\Models\Cart::where('user_id', auth()->id())
+                    ->where('cart_type', 'booking')
+                    ->delete();
+            }
+
             return $rfq;
         });
     }

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 240" width="100%" height="100%">
+  <rect width="300" height="240" fill="#f8fafc"/>
+  <g transform="translate(110, 55)" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="0" y="0" width="80" height="60" rx="8" fill="#f1f5f9"/>
+    <circle cx="26" cy="20" r="7" fill="#cbd5e1" stroke="none"/>
+    <path d="M6 52 L26 30 L46 48 L56 38 L74 52" fill="#cbd5e1" stroke="none"/>
+    <path d="M6 52 L26 30 L46 48 L56 38 L74 52"/>
+  </g>
+  <text x="150" y="150" text-anchor="middle" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" letter-spacing="0.5">NO IMAGE</text>
+</svg>

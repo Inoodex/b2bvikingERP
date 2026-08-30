@@ -42,11 +42,23 @@ class RfqController extends Controller
         $selectedSourceType = $request->query('source_type');
         $selectedSourceId = $request->query('source_id');
 
+        $cartItems = collect();
+        $defaultVendorIds = [];
+        if ($request->query('source') === 'basket') {
+            $cartItems = \App\Models\Cart::where('user_id', auth()->id())
+                ->where('cart_type', 'booking')
+                ->with(['product.variants', 'vendor', 'variant.color', 'variant.size'])
+                ->get();
+            $defaultVendorIds = $cartItems->map(function($ci) {
+                return $ci->vendor_id ?: ($ci->product?->vendor_id ?? null);
+            })->filter()->unique()->values()->toArray();
+        }
+
         $latestRfq = Rfq::latest('id')->first();
         $nextId = $latestRfq ? $latestRfq->id + 1 : 1;
         $rfqNo = 'RFQ-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
-        return view('backend.rfq.create', compact('orders', 'customRequests', 'productRequests', 'vendors', 'products', 'selectedSourceType', 'selectedSourceId', 'rfqNo'));
+        return view('backend.rfq.create', compact('orders', 'customRequests', 'productRequests', 'vendors', 'products', 'selectedSourceType', 'selectedSourceId', 'rfqNo', 'cartItems', 'defaultVendorIds'));
     }
 
     public function store(StoreRfqRequest $request)

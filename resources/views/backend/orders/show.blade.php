@@ -327,7 +327,7 @@
                                                 <div class="mt-2 d-flex">
                                                     <form action="{{ route('admin.orders.approve', $order->id) }}" method="POST" class="mr-2">
                                                         @csrf
-                                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this order?')"><i class="fas fa-check"></i> Approve</button>
+                                                        <button type="button" class="btn btn-sm btn-success btn-approve-order"><i class="fas fa-check"></i> Approve</button>
                                                     </form>
                                                     <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#rejectModal"><i class="fas fa-times"></i> Reject</button>
                                                 </div>
@@ -585,3 +585,28 @@
         </div>
     @endif
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('.btn-approve-order').on('click', function(e) {
+            e.preventDefault();
+            const $form = $(this).closest('form');
+            Swal.fire({
+                title: "Approve this Order?",
+                text: "Are you sure you want to approve this order for the current workflow stage?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#47c363",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Yes, Approve!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $form.submit();
+                }
+            });
+        });
+    });
+</script>
+@endpush

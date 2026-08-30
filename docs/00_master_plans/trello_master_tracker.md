@@ -3,7 +3,7 @@
 
 ---
 
-## 📋 LIST: ✅ DONE (Phase 1, Phase 2 & Phase 3)
+## 📋 LIST: ✅ DONE (Phase 1, Phase 2, Phase 3 & Phase 4)
 
 ---
 
@@ -131,27 +131,24 @@
 ---
 ---
 
-## 📋 LIST: 🔄 IN PROGRESS — Phase 4 (Inventory & Stock Controls)
-
----
-
-### 🃏 Module: Stock Batches, Transfers & Reorder Controls (Days 34-40)
+### 🃏 Module: Inventory & Stock Controls (Days 34-40)
 *   **Sub-modules & Checklists:**
-    *   [ ] Build FIFO (First In First Out) Stock Batch Depletion Engine
-    *   [ ] Build LIFO (Last In First Out) Option
-    *   [ ] Integrate FIFO/LIFO sequential batch consumption into Delivery Orders & Dispatches
-    *   [ ] Outlet-to-Outlet Stock Transfer System
-    *   [ ] Stock Transfer Approval Workflow Integration
-    *   [ ] Minimum Stock Reorder Point Logic
-    *   [ ] Dashboard Reorder Notifications / Alert Widget
-    *   [ ] Physical Stock Correction/Adjustment Module
-    *   [ ] Month-End Inventory Frozen Snapshot System
-    *   [ ] FIFO Valuation Verification & Audit
+    *   [x] Build FIFO (First In First Out) Stock Batch Depletion Engine (`FifoDepletionService.php`)
+    *   [x] Build LIFO (Last In First Out) Option
+    *   [x] Integrate FIFO/LIFO sequential batch consumption into Delivery Orders & Dispatches
+    *   [x] Outlet-to-Outlet Stock Transfer System (Enterprise Master-Variant Matrix Grid)
+    *   [x] Stock Transfer Approval & Logistics Workflow Integration (Draft ➔ Dispatch ➔ Receive ➔ Gate Pass PDF)
+    *   [x] Minimum Stock Reorder Point Logic & Dynamic Low Stock Reporting
+    *   [x] Dashboard Reorder Notifications / Alert Widget & Global Navbar Cart Integration
+    *   [x] Physical Stock Correction/Adjustment Module (`StockAdjustment` with Reason Codes)
+    *   [x] Month-End Inventory Frozen Snapshot System (`TakeInventorySnapshot` & `MonthEndSnapshotDataTable`)
+    *   [x] FIFO Valuation Verification & Audit (`StockLedger` with 11,500+ records)
+    *   [x] Comprehensive Bilingual User Manuals (English & Bengali)
 
 ---
 ---
 
-## 📋 LIST: 🧊 BACKLOG — Phase 5 (Core Financial Accounting)
+## 📋 LIST: 🔄 NEXT / IN PROGRESS — Phase 5 (Core Financial Accounting)
 
 ---
 

@@ -765,33 +765,50 @@
         </div>
     </section>
 
-<!-- Vendor Conflict Modal -->
-<div class="modal fade pp-modal" id="vendorConflictModal" tabindex="-1" role="dialog" aria-labelledby="vendorConflictModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="vendorConflictModalLabel">
-                    <i class="fas fa-exclamation-triangle mr-2"></i>Vendor Conflict
+<!-- Quick Variant Selection Modal -->
+<div class="modal fade pp-modal" id="quickVariantModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 520px; width: 95%;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+            <div class="modal-header bg-white border-bottom py-3 px-4">
+                <h5 class="modal-title font-weight-bold text-dark mb-0" id="quickVariantModalTitle" style="font-size: 15px;">
+                    <i class="fas fa-layer-group mr-2"></i>Select Product Variants
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body p-4">
-                <div class="alert alert-warning border-0 rounded-lg">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    <span id="vendorConflictMessage"></span>
+            <div class="modal-body p-3 p-md-4" style="max-height: 70vh; overflow-y: auto;">
+                <div class="d-flex align-items-center mb-3 p-2 bg-light rounded" style="gap: 12px; border: 1px solid #e2e8f0;">
+                    <img id="variant_modal_product_img" src="{{ asset('uploads/no-image.svg') }}" onerror="this.onerror=null; this.src='{{ asset('uploads/no-image.svg') }}';" style="width: 48px; height: 48px; object-fit: contain; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; padding: 2px;">
+                    <div class="flex-fill" style="min-width: 0;">
+                        <h6 id="variant_modal_product_name" class="mb-0 text-truncate font-weight-bold text-dark" style="font-size: 14px;">Product Name</h6>
+                        <small class="text-muted d-block text-truncate" id="variant_modal_product_vendor">Supplier</small>
+                    </div>
                 </div>
-                <p class="text-muted mb-0">
-                    Do you want to replace the current basket items with products from the new vendor?
-                </p>
+
+                <div class="table-responsive" style="overflow-x: hidden;">
+                    <table class="table table-sm table-bordered mb-0" style="table-layout: fixed; width: 100%;">
+                        <thead class="thead-light">
+                            <tr>
+                                <th style="width: 48%;">Variant Name</th>
+                                <th class="text-center" style="width: 24%;">Stock</th>
+                                <th class="text-center" style="width: 28%;">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quick_variant_modal_tbody">
+                            <tr>
+                                <td colspan="3" class="text-center py-3 text-muted">
+                                    <div class="spinner-border spinner-border-sm text-warning mr-1"></div> Loading variants...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <i class="fas fa-times mr-1"></i> Cancel
-                </button>
-                <button type="button" class="btn btn-amber" id="confirmVendorConflict">
-                    <i class="fas fa-check mr-1"></i> Yes, Replace
+            <div class="modal-footer bg-light px-4 py-3 border-top d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-dismiss="modal" style="border-radius: 6px;">Cancel</button>
+                <button type="button" class="btn btn-amber btn-sm px-4 font-weight-bold shadow-sm" id="btn_submit_quick_variants" style="border-radius: 6px;">
+                    <i class="fas fa-check mr-1"></i> Add Selected to Cart
                 </button>
             </div>
         </div>
@@ -802,112 +819,31 @@
 
 <!-- Rating Modal -->
 @push('scripts')
-    <!-- Floating Baskets Container -->
-    <div id="floating-baskets-container" class="position-fixed d-flex align-items-center" style="bottom: 24px; right: 32px; z-index: 99999; gap: 14px;">
-        <style>
-            #floating-baskets-container, #floating-baskets-container > * { pointer-events: auto; }
-            .basket-fab {
-                width: 44px !important;
-                height: 44px !important;
-                box-shadow: 0 8px 22px -6px rgba(15, 23, 41, 0.45), inset 0 1px 0 rgba(255,255,255,0.3) !important;
-                border: 2px solid rgba(255,255,255,0.2);
-                transition: all 0.3s ease !important;
-            }
-            #go-to-booking.basket-fab {
-                background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
-                color: #1a1408 !important;
-            }
-            #go-to-request.basket-fab {
-                background: linear-gradient(135deg, #a78bfa, #7c3aed) !important;
-                color: #fff !important;
-            }
-            .basket-fab:hover {
-                transform: scale(1.1) translateY(-2px);
-                filter: brightness(1.08);
-            }
-            .basket-fab i { font-size: 16px; }
-            #request-basket-count, #basket-count {
-                box-shadow: 0 0 0 0 rgba(226, 104, 95, 0.55);
-                animation: nbBadgePulse 2s infinite;
-                min-width: 20px;
-                height: 20px;
-                font-size: 10px;
-                padding: 0 5px;
-                top: -4px;
-                right: -4px;
-                line-height: 1;
-            }
-            #request-basket-count { background: #fbbf24; color: #1a1408; }
-            #basket-count { background: #fb7185; color: #fff; }
-            @keyframes nbBadgePulse {
-                0% { box-shadow: 0 0 0 0 rgba(226, 104, 95, 0.5); }
-                70% { box-shadow: 0 0 0 8px rgba(226, 104, 95, 0); }
-                100% { box-shadow: 0 0 0 0 rgba(226, 104, 95, 0); }
-            }
-            .basket-clear-btn { width: 22px; height: 22px; font-size: 9px; }
-        </style>
-        <!-- Floating Basket Widget (Product Request) -->
-        @can('Create Product Requests')
-        <div id="floating-request-basket" style="display: none;">
-            <div class="d-flex flex-column align-items-center">
-                <div class="cursor-pointer text-white shadow-lg rounded-circle d-flex align-items-center justify-content-center position-relative mb-1 basket-fab" 
-                     id="go-to-request" title="Product Request" style="transition: all 0.3s ease;">
-                    <i class="fas fa-file-import"></i>
-                    <span id="request-basket-count" class="badge position-absolute" style="border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff;">0</span>
-                </div>
-                <button class="btn btn-sm btn-light shadow-sm rounded-circle d-flex align-items-center justify-content-center basket-clear-btn" 
-                        id="clear-request-basket" title="Clear Request Basket" style="padding: 0; opacity: 0.7;">
-                    <i class="fas fa-times text-danger"></i>
-                </button>
-            </div>
-        </div>
-        @endcan
-
-        <!-- Floating Basket Widget (Booking) -->
-        @can('Manage Order Place')
-        <div id="floating-basket" style="display: none;">
-            <div class="d-flex flex-column align-items-center">
-                <div class="cursor-pointer shadow-lg rounded-circle d-flex align-items-center justify-content-center position-relative mb-1 basket-fab" 
-                     id="go-to-booking" title="Place Order" style="transition: all 0.3s ease;">
-                    <i class="fas fa-shopping-basket"></i>
-                    <span id="basket-count" class="badge position-absolute" style="border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; border: 2px solid #fff; white-space: nowrap;">0</span>
-                </div>
-                <button class="btn btn-sm btn-light shadow-sm rounded-circle d-flex align-items-center justify-content-center basket-clear-btn" 
-                        id="clear-booking-basket" title="Clear Booking Basket" style="padding: 0; opacity: 0.7;">
-                    <i class="fas fa-times text-danger"></i>
-                </button>
-            </div>
-        </div>
-        @endcan
-    </div>
-
     <style>
         .hover-white { transition: color 0.2s ease; }
         .hover-white:hover { color: #fff !important; }
         .cursor-pointer { cursor: pointer; }
 
-        /* Animation Styles */
-        @keyframes shake-basket {
-            0% { transform: scale(1) rotate(0); }
-            20% { transform: scale(1.2) rotate(-10deg); }
-            40% { transform: scale(1.2) rotate(10deg); }
-            60% { transform: scale(1.2) rotate(-10deg); }
-            80% { transform: scale(1.2) rotate(10deg); }
-            100% { transform: scale(1) rotate(0); }
-        }
-        .animate-shake {
-            animation: shake-basket 0.5s ease-in-out;
-        }
-
+        /* In-Cart State Indicator */
         .add-to-basket.added, .add-to-request-basket.added {
-            background-color: #28a745;
-            border-color: #28a745;
-            color: #fff;
+            background: #28a745 !important;
+            background-color: #28a745 !important;
+            border-color: #28a745 !important;
+            color: #fff !important;
         }
     </style>
     <script>
-        let initialLoad = true; // Fix ReferenceError in pagination clicks
+        let initialLoad = true;
+        let currentModalContext = { productId: 0, cartType: 'booking', productName: '', productImg: '', vendorName: '' };
+
         $(document).ready(function() {
+
+            // Fast Toastr defaults
+            if (window.toastr) {
+                toastr.options.timeOut = 1800;
+                toastr.options.showDuration = 150;
+                toastr.options.hideDuration = 150;
+            }
 
             // Ensure grid is visible on page load - initial state should be opacity 1
             if ($('#product-grid-container').data('loaded')) {
@@ -915,267 +851,379 @@
             }
             $('#grid-loader').hide();
 
-            // --- Basket Logic Start (Database Cart System) ---
+            // --- Fast Database Cart Logic ---
+            let activeBookingIds = [];
+            let activeRequestIds = [];
 
-            /**
-             * Update basket UI with counts and button states
-             */
-            function updateBasketUI() {
-                // Get current counts from database via AJAX
-                $.ajax({
-                    url: "{{ route('admin.cart.count') }}?cart_type=booking",
-                    method: 'GET',
-                    success: function(data) {
-                        $('#basket-count').text(data.count);
-                        if (data.count > 0) {
-                            $('#floating-basket').fadeIn();
-                        } else {
-                            $('#floating-basket').fadeOut();
-                        }
-                    }
-                });
+            function syncCartState() {
+                if (window.cartStore && ((window.cartStore.booking && window.cartStore.booking.ids.length > 0) || (window.cartStore.request && window.cartStore.request.ids.length > 0))) {
+                    activeBookingIds = (window.cartStore.booking.ids || []).map(Number);
+                    activeRequestIds = (window.cartStore.request.ids || []).map(Number);
+                    applyButtonStates();
+                    return;
+                }
 
                 $.ajax({
-                    url: "{{ route('admin.cart.count') }}?cart_type=request",
+                    url: "{{ route('admin.cart.all-state') }}",
                     method: 'GET',
                     success: function(data) {
-                        $('#request-basket-count').text(data.count);
-                        if (data.count > 0) {
-                            $('#floating-request-basket').fadeIn();
-                        } else {
-                            $('#floating-request-basket').fadeOut();
-                        }
-                    }
-                });
-
-                // Update button states
-                updateButtonStates();
-            }
-
-            /**
-             * Update button added/not-added states
-             */
-            function updateButtonStates() {
-                $.ajax({
-                    url: "{{ route('admin.cart.items') }}?cart_type=booking",
-                    method: 'GET',
-                    success: function(data) {
-                        const bookingIds = data.product_ids;
-                        $('.add-to-basket').each(function() {
-                            const id = $(this).data('id').toString();
-                            if (bookingIds.includes(parseInt(id))) {
-                                $(this).addClass('added').html('<i class="fas fa-check mr-1"></i> Added');
-                            } else {
-                                $(this).removeClass('added').html('<i class="fas fa-shopping-basket mr-1"></i> Add to Basket');
+                        if (data && data.booking && data.request) {
+                            if (window.cartStore) {
+                                // Only initialize if store doesn't already have local optimistic items
+                                if (!window.cartStore.booking.items.length) window.cartStore.booking = data.booking;
+                                if (!window.cartStore.request.items.length) window.cartStore.request = data.request;
                             }
-                        });
-                    }
-                });
-
-                $.ajax({
-                    url: "{{ route('admin.cart.items') }}?cart_type=request",
-                    method: 'GET',
-                    success: function(data) {
-                        const requestIds = data.product_ids;
-                        $('.add-to-request-basket').each(function() {
-                            const id = $(this).data('id').toString();
-                            if (requestIds.includes(parseInt(id))) {
-                                $(this).addClass('added').html('<i class="fas fa-check mr-1"></i> Added');
-                            } else {
-                                $(this).removeClass('added').html('<i class="fas fa-file-import mr-1"></i> Add to Request');
+                            activeBookingIds = (data.booking.ids || []).map(Number);
+                            activeRequestIds = (data.request.ids || []).map(Number);
+                            
+                            if (window.updateGlobalCartBadges) {
+                                window.updateGlobalCartBadges(data.booking.count, data.request.count);
                             }
-                        });
+                            applyButtonStates();
+                        }
                     }
                 });
             }
 
-            // Initial UI Update on page load
-            updateBasketUI();
+            function applyButtonStates() {
+                const bIds = (window.cartStore && window.cartStore.booking && window.cartStore.booking.ids) ? window.cartStore.booking.ids.map(Number) : activeBookingIds;
+                const rIds = (window.cartStore && window.cartStore.request && window.cartStore.request.ids) ? window.cartStore.request.ids.map(Number) : activeRequestIds;
 
-            // Clear Request Basket
-            $(document).on('click', '#clear-request-basket', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                Swal.fire({
-                    title: 'Clear Request Basket?',
-                    text: "You are about to remove all items from the request basket.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#28a745',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, clear it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: "{{ route('admin.cart.clear') }}",
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            data: { cart_type: 'request' },
-                            success: function(response) {
-                                toastr.info(response.message);
-                                updateBasketUI();
-                            },
-                            error: function() {
-                                toastr.error('Error clearing request basket');
-                            }
-                        });
+                $('.add-to-basket').each(function() {
+                    const id = Number($(this).data('id'));
+                    if (bIds.includes(id)) {
+                        $(this).addClass('added').html('<i class="fas fa-check"></i>').attr('title', 'Added to Procurement Basket');
+                    } else {
+                        $(this).removeClass('added').html('<i class="fas fa-shopping-basket"></i>').attr('title', 'Add to Procurement Basket');
                     }
                 });
-            });
 
-            // Clear Booking Basket
-            $(document).on('click', '#clear-booking-basket', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                Swal.fire({
-                    title: 'Clear Booking Basket?',
-                    text: "You are about to remove all items from the booking basket.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#6777ef',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, clear it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: "{{ route('admin.cart.clear') }}",
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            data: { cart_type: 'booking' },
-                            success: function(response) {
-                                toastr.info(response.message);
-                                updateBasketUI();
-                            },
-                            error: function() {
-                                toastr.error('Error clearing booking basket');
-                            }
-                        });
+                $('.add-to-request-basket').each(function() {
+                    const id = Number($(this).data('id'));
+                    if (rIds.includes(id)) {
+                        $(this).addClass('added').html('<i class="fas fa-check"></i>').attr('title', 'Added to Stock Transfer');
+                    } else {
+                        $(this).removeClass('added').html('<i class="fas fa-file-import"></i>').attr('title', 'Add to Stock Transfer');
                     }
                 });
-            });
+            }
 
-            // Add to Booking Basket Click
+            // Initial sync on page load
+            syncCartState();
+
+            // Open Variant Modal or Direct Toggle for Booking Basket
             $(document).on('click', '.add-to-basket', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                const productId = $(this).data('id');
+                const $btn = $(this);
+                const productId = Number($btn.data('id'));
+                const hasVariants = Number($btn.data('has-variants')) === 1;
                 if (!productId) return;
 
-                $.ajax({
-                    url: "{{ route('admin.cart.add') }}",
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    data: {
-                        product_id: productId,
-                        cart_type: 'booking'
-                    },
-                    success: function(response) {
-                        if (response.vendor_conflict) {
-                            // Show vendor conflict modal
-                            $('#vendorConflictMessage').text(response.message);
-                            $('#vendorConflictModal').modal('show');
+                const $card = $btn.closest('.pp-card');
+                const productName = $card.find('.pp-card-title').text().trim() || 'Product';
+                const productImg = $card.find('.pp-card-img-wrap img').attr('src') || "{{ asset('uploads/no-image.svg') }}";
+                const vendorName = $card.find('.pp-badge-category').text().trim() || 'Primary Supplier';
 
-                            // Store the product ID for later use
-                            $('#vendorConflictModal').data('product-id', productId);
-                            $('#vendorConflictModal').data('cart-type', 'booking');
-                        } else if (response.success) {
-                            $('#go-to-booking').addClass('animate-shake');
-                            setTimeout(function() { 
-                                $('#go-to-booking').removeClass('animate-shake'); 
-                            }, 500);
-                            toastr.success(response.message);
-                            updateBasketUI();
-                        }
-                    },
-                    error: function(xhr) {
-                        toastr.error('Error adding to basket');
-                        console.error(xhr);
-                    }
-                });
+                if (hasVariants) {
+                    openQuickVariantModal(productId, 'booking', productName, productImg, vendorName);
+                    return;
+                }
+
+                // Direct Toggle (Single product)
+                handleDirectCartToggle($btn, productId, 'booking', productName, productImg, vendorName);
             });
 
-            // Add to Request Basket Click
+            // Open Variant Modal or Direct Toggle for Request Basket
             $(document).on('click', '.add-to-request-basket', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                const productId = $(this).data('id');
+                const $btn = $(this);
+                const productId = Number($btn.data('id'));
+                const hasVariants = Number($btn.data('has-variants')) === 1;
                 if (!productId) return;
+
+                const $card = $btn.closest('.pp-card');
+                const productName = $card.find('.pp-card-title').text().trim() || 'Product';
+                const productImg = $card.find('.pp-card-img-wrap img').attr('src') || "{{ asset('uploads/no-image.svg') }}";
+                const vendorName = $card.find('.pp-badge-category').text().trim() || 'Primary Supplier';
+
+                if (hasVariants) {
+                    openQuickVariantModal(productId, 'request', productName, productImg, vendorName);
+                    return;
+                }
+
+                // Direct Toggle (Single product)
+                handleDirectCartToggle($btn, productId, 'request', productName, productImg, vendorName);
+            });
+
+            function openQuickVariantModal(productId, cartType, productName, productImg, vendorName) {
+                currentModalContext = { productId, cartType, productName, productImg, vendorName };
+                $('#variant_modal_product_name').text(productName);
+                const defaultImg = "{{ asset('uploads/no-image.svg') }}";
+                $('#variant_modal_product_img').attr('src', productImg || defaultImg);
+                $('#variant_modal_product_vendor').text(vendorName);
+                $('#quickVariantModalTitle').html(`<i class="fas ${cartType === 'booking' ? 'fa-shopping-basket text-warning' : 'fa-truck-moving text-danger'} mr-2"></i>Select Variants for ${cartType === 'booking' ? 'Procurement' : 'Stock Transfer'}`);
+                
+                $('#quick_variant_modal_tbody').html('<tr><td colspan="3" class="text-center py-3 text-muted"><div class="spinner-border spinner-border-sm text-warning mr-1"></div> Loading variants...</td></tr>');
+                $('#quickVariantModal').modal('show');
+
+                $.ajax({
+                    url: `/admin/products/${productId}/variants`,
+                    type: 'GET',
+                    success: function(res) {
+                        if (res && res.status === 'success' && res.variants && res.variants.length > 0) {
+                            if (res.product) {
+                                if (res.product.name) $('#variant_modal_product_name').text(res.product.name);
+                                if (res.product.thumb_image) $('#variant_modal_product_img').attr('src', res.product.thumb_image);
+                                if (res.product.vendor || res.product.category) $('#variant_modal_product_vendor').text(res.product.vendor || res.product.category);
+                            }
+
+                            let rows = '';
+                            const storeItems = (window.cartStore && window.cartStore[cartType] && window.cartStore[cartType].items) ? window.cartStore[cartType].items : [];
+                            
+                            res.variants.forEach(function(v) {
+                                let vName = v.name;
+                                if (!vName) {
+                                    const parts = [];
+                                    if (v.color) parts.push(v.color);
+                                    if (v.size) parts.push(v.size);
+                                    vName = parts.length > 0 ? parts.join(' - ') : 'Variant #' + v.id;
+                                }
+
+                                const existingItem = storeItems.find(i => Number(i.product_id) === productId && Number(i.variant_id) === Number(v.id));
+                                // Default quantity is 0 on initial add, or keep existing cart quantity if already added
+                                const defaultQty = existingItem ? (parseFloat(existingItem.quantity) || 0) : 0;
+
+                                rows += `
+                                    <tr>
+                                        <td class="align-middle text-truncate" title="${vName}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            <strong style="font-size: 13px;">${vName}</strong>
+                                        </td>
+                                        <td class="text-center align-middle">
+                                            <span class="badge ${parseFloat(v.qty) > 0 ? 'badge-success' : 'badge-danger'} font-weight-bold" style="font-size: 11px; padding: 3px 7px;">${parseFloat(v.qty || 0)}</span>
+                                        </td>
+                                        <td class="text-center align-middle">
+                                            <input type="number" step="any" min="0" class="form-control form-control-sm text-center variant-bulk-qty font-weight-bold" data-variant-id="${v.id}" data-variant-name="${vName}" data-price="${v.price || 0}" value="${defaultQty}" onfocus="if(this.value==='0') this.select();" style="border-radius: 5px;">
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+                            $('#quick_variant_modal_tbody').html(rows);
+                        } else {
+                            $('#quick_variant_modal_tbody').html('<tr><td colspan="3" class="text-center py-3 text-muted">No variants found for this product.</td></tr>');
+                        }
+                    },
+                    error: function() {
+                        $('#quick_variant_modal_tbody').html('<tr><td colspan="3" class="text-center py-3 text-danger">Failed to load variants.</td></tr>');
+                    }
+                });
+            }
+
+            // Submit Selected Variants from Modal (0ms Instant Reactivity)
+            $('#btn_submit_quick_variants').on('click', function() {
+                const { productId, cartType, productName, productImg, vendorName } = currentModalContext;
+                const targetBtnClass = (cartType === 'booking') ? '.add-to-basket' : '.add-to-request-basket';
+                const variantsToAdd = [];
+
+                $('.variant-bulk-qty').each(function() {
+                    const vId = $(this).data('variant-id');
+                    const vName = $(this).data('variant-name');
+                    const vPrice = parseFloat($(this).data('price')) || 0;
+                    const qty = parseFloat($(this).val()) || 0;
+
+                    if (qty > 0) {
+                        variantsToAdd.push({
+                            variant_id: vId,
+                            variant_name: vName,
+                            price: vPrice,
+                            quantity: qty
+                        });
+                    }
+                });
+
+                if (variantsToAdd.length === 0) {
+                    // Remove variants for this product
+                    if (window.cartStore && window.cartStore[cartType]) {
+                        window.cartStore[cartType].items = window.cartStore[cartType].items.filter(i => Number(i.product_id) !== productId);
+                        window.cartStore[cartType].ids = window.cartStore[cartType].ids.filter(id => Number(id) !== productId);
+                        window.cartStore[cartType].count = window.cartStore[cartType].items.length;
+                        if (window.updateGlobalCartBadges) {
+                            if (cartType === 'booking') window.updateGlobalCartBadges(window.cartStore.booking.count, undefined);
+                            else window.updateGlobalCartBadges(undefined, window.cartStore.request.count);
+                        }
+                    }
+
+                    const defaultLabel = (cartType === 'booking') 
+                        ? '<i class="fas fa-shopping-basket"></i>' 
+                        : '<i class="fas fa-file-import"></i>';
+                    $(`${targetBtnClass}[data-id="${productId}"]`).removeClass('added').html(defaultLabel);
+                    if (window.toastr) toastr.info(`Removed from ${cartType === 'booking' ? 'Procurement' : 'Stock Transfer'} basket`);
+                    $('#quickVariantModal').modal('hide');
+
+                    $.ajax({
+                        url: "{{ route('admin.cart.add') }}",
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                        data: {
+                            product_id: productId,
+                            cart_type: cartType,
+                            action: 'bulk_variants',
+                            is_bulk_variants: 1,
+                            variants: []
+                        }
+                    });
+                    return;
+                }
+
+                // 1. Optimistic Store Update (0ms)
+                if (window.cartStore && window.cartStore[cartType]) {
+                    // Remove previous variants for this product
+                    window.cartStore[cartType].items = window.cartStore[cartType].items.filter(i => Number(i.product_id) !== productId);
+                    
+                    variantsToAdd.forEach(function(v) {
+                        window.cartStore[cartType].items.push({
+                            id: `temp_${productId}_${v.variant_id}`,
+                            cart_id: `temp_${productId}_${v.variant_id}`,
+                            product_id: productId,
+                            variant_id: v.variant_id,
+                            variant_name: v.variant_name,
+                            product_name: productName,
+                            thumb_image: productImg,
+                            vendor_name: vendorName,
+                            sku: '',
+                            price: v.price,
+                            quantity: v.quantity
+                        });
+                    });
+
+                    if (!window.cartStore[cartType].ids.map(Number).includes(productId)) {
+                        window.cartStore[cartType].ids.push(productId);
+                    }
+                    window.cartStore[cartType].count = window.cartStore[cartType].items.length;
+
+                    if (cartType === 'booking') {
+                        window.updateGlobalCartBadges(window.cartStore.booking.count, undefined);
+                    } else {
+                        window.updateGlobalCartBadges(undefined, window.cartStore.request.count);
+                    }
+                }
+
+                // 2. Instant Button Update & Snappy Toastr (0ms)
+                $(`${targetBtnClass}[data-id="${productId}"]`).addClass('added').html('<i class="fas fa-check"></i>').attr('title', 'Added');
+                if (window.toastr) toastr.success(`Added ${variantsToAdd.length} variant(s) to ${cartType === 'booking' ? 'Procurement' : 'Stock Transfer'} basket`);
+                $('#quickVariantModal').modal('hide');
+
+                // 3. Background MySQL sync
+                $.ajax({
+                    url: "{{ route('admin.cart.add') }}",
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                    data: {
+                        product_id: productId,
+                        cart_type: cartType,
+                        action: 'bulk_variants',
+                        is_bulk_variants: 1,
+                        variants: variantsToAdd.map(v => ({ variant_id: v.variant_id, quantity: v.quantity }))
+                    }
+                });
+            });
+
+            function handleDirectCartToggle($btn, productId, cartType, productName, productImg, vendorName) {
+                // Prevent duplicate rapid click race conditions
+                if ($btn.data('is-busy')) return;
+                $btn.data('is-busy', true);
+
+                const isAlreadyAdded = $btn.hasClass('added');
+                const desiredAction = isAlreadyAdded ? 'remove' : 'add';
+                const defaultLabel = (cartType === 'booking') 
+                    ? '<i class="fas fa-shopping-basket"></i>' 
+                    : '<i class="fas fa-file-import"></i>';
+
+                // Optimistic visual & store update (0ms)
+                if (isAlreadyAdded) {
+                    $btn.removeClass('added').html(defaultLabel);
+                    if (window.toastr) toastr.info(`Removed from ${cartType === 'booking' ? 'Procurement' : 'Stock Transfer'} basket`);
+
+                    if (window.cartStore && window.cartStore[cartType]) {
+                        window.cartStore[cartType].ids = window.cartStore[cartType].ids.filter(id => Number(id) !== productId);
+                        window.cartStore[cartType].items = window.cartStore[cartType].items.filter(i => Number(i.product_id) !== productId);
+                        window.cartStore[cartType].count = window.cartStore[cartType].items.length;
+                        if (window.updateGlobalCartBadges) {
+                            if (cartType === 'booking') window.updateGlobalCartBadges(window.cartStore.booking.count, undefined);
+                            else window.updateGlobalCartBadges(undefined, window.cartStore.request.count);
+                        }
+                    }
+                } else {
+                    $btn.addClass('added').html('<i class="fas fa-check"></i>');
+                    if (window.toastr) toastr.success(`Added to ${cartType === 'booking' ? 'Procurement' : 'Stock Transfer'} basket`);
+
+                    if (window.cartStore && window.cartStore[cartType]) {
+                        if (!window.cartStore[cartType].ids.map(Number).includes(productId)) {
+                            window.cartStore[cartType].ids.push(productId);
+                        }
+                        // Check if item already in store to avoid duplicate temp entries
+                        const existsInStore = window.cartStore[cartType].items.some(i => Number(i.product_id) === productId && !i.variant_id);
+                        if (!existsInStore) {
+                            window.cartStore[cartType].items.push({
+                                id: `temp_${productId}`,
+                                cart_id: `temp_${productId}`,
+                                product_id: productId,
+                                variant_id: null,
+                                variant_name: '',
+                                product_name: productName,
+                                thumb_image: productImg,
+                                vendor_name: vendorName,
+                                sku: '',
+                                price: 0,
+                                quantity: 1
+                            });
+                        }
+                        window.cartStore[cartType].count = window.cartStore[cartType].items.length;
+                        if (window.updateGlobalCartBadges) {
+                            if (cartType === 'booking') window.updateGlobalCartBadges(window.cartStore.booking.count, undefined);
+                            else window.updateGlobalCartBadges(undefined, window.cartStore.request.count);
+                        }
+                    }
+                }
 
                 $.ajax({
                     url: "{{ route('admin.cart.add') }}",
                     method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                     data: {
                         product_id: productId,
-                        cart_type: 'request'
+                        cart_type: cartType,
+                        action: desiredAction
                     },
                     success: function(response) {
-                        if (response.vendor_conflict) {
-                            // Show vendor conflict modal
-                            $('#vendorConflictMessage').text(response.message);
-                            $('#vendorConflictModal').modal('show');
-
-                            // Store the product ID for later use
-                            $('#vendorConflictModal').data('product-id', productId);
-                            $('#vendorConflictModal').data('cart-type', 'request');
-                        } else if (response.success) {
-                            $('#go-to-request').addClass('animate-shake');
-                            setTimeout(function() { 
-                                $('#go-to-request').removeClass('animate-shake'); 
-                            }, 500);
-                            toastr.success(response.message);
-                            updateBasketUI();
+                        if (response.success && response.item && window.cartStore && window.cartStore[cartType]) {
+                            const idx = window.cartStore[cartType].items.findIndex(i => Number(i.product_id) === productId && !i.variant_id);
+                            if (idx !== -1) {
+                                window.cartStore[cartType].items[idx] = response.item;
+                            }
                         }
+                        applyButtonStates();
                     },
                     error: function(xhr) {
-                        toastr.error('Error adding to request basket');
-                        console.error(xhr);
+                        // Rollback on server error
+                        if (isAlreadyAdded) {
+                            $btn.addClass('added').html('<i class="fas fa-check"></i>');
+                        } else {
+                            $btn.removeClass('added').html(defaultLabel);
+                        }
+                        if (window.toastr) toastr.error('Error updating basket');
+                    },
+                    complete: function() {
+                        $btn.data('is-busy', false);
                     }
                 });
-            });
+            }
 
-            // Navigation
-            $(document).on('click', '#go-to-booking', function() {
-                $.ajax({
-                    url: "{{ route('admin.cart.product-ids') }}?cart_type=booking",
-                    method: 'GET',
-                    success: function(data) {
-                        const ids = data.ids.join(',');
-                        window.location.href = "{{ route('admin.bookings.create') }}?ids=" + ids;
-                    }
-                });
-            });
-
-            $(document).on('click', '#go-to-request', function() {
-                $.ajax({
-                    url: "{{ route('admin.cart.product-ids') }}?cart_type=request",
-                    method: 'GET',
-                    success: function(data) {
-                        const ids = data.ids.join(',');
-                        window.location.href = "{{ route('admin.product-requests.create') }}?ids=" + ids;
-                    }
-                });
-            });
-
-            // Re-apply UI state after AJAX load (pagination/search)
-            // NOTE: Removed global ajaxComplete handler that was causing infinite loop
-            // The updateBasketUI() is already called explicitly after cart operations
-            // $(document).ajaxComplete(function() {
-            //     updateBasketUI();
-            // });
-            // --- Basket Logic End ---
+            // Re-apply UI states after pagination/search
+            window.reapplyCartButtonStates = applyButtonStates;
 
             // Prevent Enter key from submitting form
             $('#filter-form').on('submit', function(e) {
@@ -1222,6 +1270,10 @@
                         // Update content
                         $('#product-grid-container').html(response);
                         $('#product-grid-container').attr('data-loaded', 'true');
+
+                        if (window.reapplyCartButtonStates) {
+                            window.reapplyCartButtonStates();
+                        }
 
                         // Fade in with smooth transition
                         $('#product-grid-container').stop(true, true).css('opacity', '1');
@@ -1393,34 +1445,6 @@
             // Product Type Filter Change
             $('body').on('change', '#product_type_filter', function() {
                 fetchProducts();
-            });
-
-            // Vendor Conflict Modal Confirm Button
-            $('#confirmVendorConflict').on('click', function() {
-                const productId = $('#vendorConflictModal').data('product-id');
-                const cartType = $('#vendorConflictModal').data('cart-type');
-
-                $('#vendorConflictModal').modal('hide');
-
-                // Add product with force_clear
-                $.ajax({
-                    url: "{{ route('admin.cart.add') }}",
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    data: {
-                        product_id: productId,
-                        cart_type: cartType,
-                        force_clear: true
-                    },
-                    success: function(res) {
-                        if (res.success) {
-                            toastr.success(res.message);
-                            updateBasketUI();
-                        }
-                    }
-                });
             });
 
             // Vendor Filter Change

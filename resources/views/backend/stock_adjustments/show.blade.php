@@ -84,15 +84,15 @@
 
                     @if($stockAdjustment->status === 'draft')
                         <div class="card-footer bg-light border-top py-3">
-                            <form action="{{ route('admin.stock-adjustments.approve', $stockAdjustment->id) }}" method="POST" class="mb-2" onsubmit="return confirm('Are you sure you want to approve this adjustment? This will update warehouse inventory balances.');">
+                            <form id="approve_adjustment_form" action="{{ route('admin.stock-adjustments.approve', $stockAdjustment->id) }}" method="POST" class="mb-2">
                                 @csrf
-                                <button type="submit" class="btn btn-success btn-block font-weight-bold shadow-sm py-2">
+                                <button type="button" class="btn btn-success btn-block font-weight-bold shadow-sm py-2" id="btn_approve_adjustment">
                                     <i class="fas fa-check-circle mr-1"></i> Approve & Apply Adjustment
                                 </button>
                             </form>
-                            <form action="{{ route('admin.stock-adjustments.cancel', $stockAdjustment->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this adjustment?');">
+                            <form id="cancel_adjustment_form" action="{{ route('admin.stock-adjustments.cancel', $stockAdjustment->id) }}" method="POST">
                                 @csrf
-                                <button type="submit" class="btn btn-outline-danger btn-block font-weight-bold py-2">
+                                <button type="button" class="btn btn-outline-danger btn-block font-weight-bold py-2" id="btn_cancel_adjustment">
                                     <i class="fas fa-times-circle mr-1"></i> Cancel Adjustment
                                 </button>
                             </form>
@@ -160,3 +160,45 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#btn_approve_adjustment').on('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: "Approve this Stock Adjustment?",
+                text: "This will update warehouse inventory balances according to the adjusted quantities.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#47c363",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Yes, Approve & Apply!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#approve_adjustment_form').submit();
+                }
+            });
+        });
+
+        $('#btn_cancel_adjustment').on('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: "Cancel Adjustment?",
+                text: "Are you sure you want to cancel this draft stock adjustment?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#fc544b",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Yes, Cancel Adjustment!",
+                cancelButtonText: "Keep Draft"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#cancel_adjustment_form').submit();
+                }
+            });
+        });
+    });
+</script>
+@endpush

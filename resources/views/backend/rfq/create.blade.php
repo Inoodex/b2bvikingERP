@@ -97,18 +97,29 @@
                                     <label>Select Vendors to Invite *</label>
                                     <select name="vendors[]" class="form-control select2" multiple required>
                                         @foreach($vendors as $vendor)
-                                            <option value="{{ $vendor->id }}">{{ $vendor->shop_name }} ({{ $vendor->email }})</option>
+                                            <option value="{{ $vendor->id }}" {{ (isset($defaultVendorIds) && in_array($vendor->id, (array)$defaultVendorIds)) ? 'selected' : '' }}>{{ $vendor->shop_name }} ({{ $vendor->email }})</option>
                                         @endforeach
                                     </select>
                                     <small class="text-muted">These vendors will receive the RFQ.</small>
                                 </div>
 
                                 <hr>
-                                <h5>RFQ Items</h5>
+                                <div class="d-flex align-items-center justify-content-between flex-wrap mb-3" style="gap: 12px;">
+                                    <div class="d-flex align-items-center" style="gap: 12px;">
+                                        <h5 class="mb-0 font-weight-bold" style="color: #1e293b;">RFQ Items</h5>
+                                        <span class="badge badge-primary px-3 py-1 font-weight-bold" id="rfq_items_count_badge" style="font-size: 13px; border-radius: 20px; background-color: #3b82f6;">
+                                            Total: <span id="rfq_items_count_num">{{ (isset($cartItems) && $cartItems->count() > 0) ? $cartItems->count() : 0 }}</span> items
+                                        </span>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-danger btn-sm font-weight-bold px-3 py-1" id="btn_clear_all_rfq_items" style="border-radius: 6px;" {{ (!isset($cartItems) || $cartItems->count() === 0) ? 'disabled' : '' }}>
+                                        <i class="fas fa-trash-alt mr-1"></i> Clear All Items
+                                    </button>
+                                </div>
+
                                 <div class="row align-items-end mb-3">
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
-                                            <label>Select Product to Add</label>
+                                            <label class="font-weight-600">Select Product to Add</label>
                                             <select class="form-control select2" id="product_selector">
                                                 <option value="">-- Choose Product --</option>
                                                 @foreach($products as $product)
@@ -130,7 +141,41 @@
                                             </tr>
                                         </thead>
                                         <tbody id="items_body">
-                                            <!-- Items will be appended here -->
+                                            @if(isset($cartItems) && $cartItems->count() > 0)
+                                                @foreach($cartItems as $cIndex => $ci)
+                                                    @php
+                                                        $cp = $ci->product;
+                                                        $vName = $ci->variant ? ($ci->variant->name ?: (optional($ci->variant->color)->name . ' ' . optional($ci->variant->size)->name)) : '-';
+                                                    @endphp
+                                                    <tr data-product-id="{{ $ci->product_id }}" data-variant-id="{{ $ci->variant_id ?: '' }}" data-cart-id="{{ $ci->id }}">
+                                                        <td>
+                                                            <strong>{{ $cp ? $cp->name : 'Product' }}</strong>
+                                                            <input type="hidden" name="items[{{ $cIndex }}][product_id]" value="{{ $ci->product_id }}">
+                                                            @if($ci->variant_id)
+                                                                <input type="hidden" name="items[{{ $cIndex }}][variant_id]" value="{{ $ci->variant_id }}">
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if($ci->variant_id)
+                                                                <span class="badge badge-warning text-dark font-weight-bold">{{ $vName }}</span>
+                                                            @else
+                                                                -
+                                                            @endif
+                                                        </td>
+                                                        <td>{{ $ci->variant ? ($ci->variant->qty ?? 0) : ($cp ? $cp->qty : 0) }}</td>
+                                                        <td style="width: 160px;">
+                                                            <input type="number" name="items[{{ $cIndex }}][qty]" class="form-control font-weight-bold" value="{{ (float)($ci->quantity ?: 1) }}" min="0.01" step="any" required>
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-danger btn-sm btn_remove_row"><i class="fas fa-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            @else
+                                                <tr id="no_items_row">
+                                                    <td colspan="5" class="text-center py-4 text-muted"><i class="fas fa-box-open mr-1"></i> No items added yet. Select a product above to add items.</td>
+                                                </tr>
+                                            @endif
                                         </tbody>
                                     </table>
                                 </div>
@@ -253,14 +298,80 @@
         }
     });
 
+    function updateRfqItemCount() {
+        let count = $('#items_body tr:not(#no_items_row)').length;
+        $('#rfq_items_count_num').text(count);
+        if (count === 0) {
+            $('#btn_clear_all_rfq_items').prop('disabled', true);
+            if ($('#items_body tr').length === 0) {
+                $('#items_body').html('<tr id="no_items_row"><td colspan="5" class="text-center py-4 text-muted"><i class="fas fa-box-open mr-1"></i> No items added yet. Select a product above to add items.</td></tr>');
+            }
+        } else {
+            $('#btn_clear_all_rfq_items').prop('disabled', false);
+            $('#no_items_row').remove();
+        }
+    }
+
+    $('#btn_clear_all_rfq_items').on('click', function() {
+        let count = $('#items_body tr:not(#no_items_row)').length;
+        if (count === 0) return;
+
+        Swal.fire({
+            title: "Clear All Items?",
+            text: "This will remove all items from this RFQ and empty your procurement cart!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#fc544b",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, clear all!",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                performClearAllRfqItems();
+            }
+        });
+    });
+
+    function performClearAllRfqItems() {
+        $('#items_body').empty();
+        updateRfqItemCount();
+
+        // 1. Optimistic cartStore and Topbar Badge clear
+        if (window.cartStore && window.cartStore.booking) {
+            window.cartStore.booking.items = [];
+            window.cartStore.booking.ids = [];
+            window.cartStore.booking.count = 0;
+            if (window.updateGlobalCartBadges) {
+                window.updateGlobalCartBadges(0, undefined);
+            }
+        }
+
+        // 2. Clear backend booking cart
+        $.ajax({
+            url: "{{ route('admin.cart.clear') }}",
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            data: { cart_type: 'booking' },
+            success: function(res) {
+                if (window.updateGlobalCartBadges) {
+                    window.updateGlobalCartBadges(0, undefined);
+                }
+                toastr.success('All items removed and procurement cart cleared.');
+            },
+            error: function() {
+                toastr.info('Items removed from table.');
+            }
+        });
+    }
+
     function appendItemRow(productId, productName, variantId, variantName, qty, stock = 0) {
         let variantInput = variantId ? `<input type="hidden" name="items[${rowIndex}][variant_id]" value="${variantId}">` : '';
         let variantDisplay = variantName ? variantName : '-';
         
-        let row = `<tr>
+        let row = `<tr data-product-id="${productId}" data-variant-id="${variantId || ''}">
             <td>
                 <input type="hidden" name="items[${rowIndex}][product_id]" value="${productId}">
-                ${productName}
+                <strong>${productName}</strong>
                 ${variantInput}
             </td>
             <td>${variantDisplay}</td>
@@ -268,18 +379,62 @@
                 <span class="badge badge-info px-2 py-1">${stock}</span>
             </td>
             <td>
-                <input type="number" name="items[${rowIndex}][qty]" class="form-control" step="0.01" value="${qty}" required>
+                <input type="number" name="items[${rowIndex}][qty]" class="form-control font-weight-bold" step="0.01" value="${qty}" required>
             </td>
             <td>
                 <button type="button" class="btn btn-danger btn-sm remove_row"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`;
+        $('#no_items_row').remove();
         $('#items_body').append(row);
         rowIndex++;
+        updateRfqItemCount();
     }
 
-    $(document).on('click', '.remove_row', function() {
-        $(this).closest('tr').remove();
+    $(document).on('click', '.btn_remove_row, .remove_row', function() {
+        const $tr = $(this).closest('tr');
+        const productId = $tr.data('product-id') || $tr.find('input[name*="[product_id]"]').val();
+        const variantId = $tr.data('variant-id') || $tr.find('input[name*="[variant_id]"]').val() || null;
+        const cartId = $tr.data('cart-id') || null;
+
+        $tr.fadeOut(150, function() {
+            $(this).remove();
+            updateRfqItemCount();
+        });
+
+        // 1. Optimistic cartStore and Topbar Badge decrement (0ms)
+        if (window.cartStore && window.cartStore.booking) {
+            const store = window.cartStore.booking;
+            store.items = store.items.filter(i => !((cartId && i.id == cartId) || (i.product_id == productId && (i.variant_id == variantId || (!i.variant_id && !variantId)))));
+            const otherVariants = store.items.filter(i => i.product_id == productId);
+            if (otherVariants.length === 0) {
+                store.ids = store.ids.filter(id => id != productId);
+            }
+            store.count = store.items.length;
+            if (window.updateGlobalCartBadges) {
+                window.updateGlobalCartBadges(store.count, undefined);
+            }
+        }
+
+        // 2. Background MySQL cart remove
+        if (productId) {
+            $.ajax({
+                url: "{{ route('admin.cart.remove') }}",
+                type: 'POST',
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                data: {
+                    cart_id: cartId,
+                    product_id: productId,
+                    variant_id: variantId,
+                    cart_type: 'booking'
+                },
+                success: function(res) {
+                    if (window.updateGlobalCartBadges && res && res.count !== undefined) {
+                        window.updateGlobalCartBadges(res.count, undefined);
+                    }
+                }
+            });
+        }
     });
 
     // Handle Source Type Dropdown Change
@@ -336,15 +491,15 @@
                     rowIndex = 0; // Reset row index
                     
                     response.items.forEach(function(item) {
-                        let row = `<tr>
+                        let row = `<tr data-product-id="${item.product_id}" data-variant-id="${item.variant_id || ''}">
                             <td>
                                 <input type="hidden" name="items[${rowIndex}][product_id]" value="${item.product_id}">
-                                ${item.product_name}
+                                <strong>${item.product_name}</strong>
                                 ${item.variant_id ? `<input type="hidden" name="items[${rowIndex}][variant_id]" value="${item.variant_id}">` : ''}
                             </td>
                             <td>${item.variant_name ? item.variant_name : '-'}</td>
                             <td>
-                                <input type="number" name="items[${rowIndex}][qty]" class="form-control" step="0.01" value="${item.qty}" required>
+                                <input type="number" name="items[${rowIndex}][qty]" class="form-control font-weight-bold" step="0.01" value="${item.qty}" required>
                             </td>
                             <td>
                                 <button type="button" class="btn btn-danger btn-sm remove_row"><i class="fas fa-trash"></i></button>
@@ -355,20 +510,24 @@
                     });
                     
                     $('.select2').select2(); // Re-initialize select2
+                    updateRfqItemCount();
                     toastr.success('Items auto-fetched successfully!');
                 } else {
                     $('#items_body').empty();
+                    updateRfqItemCount();
                     toastr.info('No products found or it is a custom request.');
                 }
             },
             error: function() {
                 $('#items_body').empty();
+                updateRfqItemCount();
                 toastr.error('Failed to fetch items.');
             }
         });
     });
 
-    // Trigger on load for pre-selected values
+    // Trigger on load for pre-selected values and item count badge
     handleSourceTypeChange();
+    updateRfqItemCount();
 </script>
 @endpush

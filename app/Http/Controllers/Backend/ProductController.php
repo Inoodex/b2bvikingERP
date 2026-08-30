@@ -832,7 +832,7 @@ class ProductController extends Controller implements HasMiddleware
     public function getVariants(Request $request, $id)
     {
         try {
-            $product = Product::with(['variants.color', 'variants.size', 'variants.inventoryStocks', 'inventoryStocks'])->findOrFail($id);
+            $product = Product::with(['variants.color', 'variants.size', 'variants.inventoryStocks', 'inventoryStocks', 'vendor', 'category'])->findOrFail($id);
             
             $variants = $product->variants->map(function ($variant) {
                 return [
@@ -846,6 +846,15 @@ class ProductController extends Controller implements HasMiddleware
                 ];
             });
 
+            $imagePath = $product->thumb_image;
+            $thumbImage = $imagePath 
+                ? ((strpos($imagePath, 'http') === 0) 
+                    ? $imagePath 
+                    : (file_exists(public_path($imagePath)) 
+                        ? asset($imagePath) 
+                        : asset('storage/' . $imagePath))) 
+                : asset('uploads/no-image.svg');
+
             return response()->json([
                 'status' => 'success',
                 'product' => [
@@ -854,6 +863,9 @@ class ProductController extends Controller implements HasMiddleware
                     'qty' => $product->inventory_stock,
                     'price' => $product->price,
                     'outlet_price' => $product->outlet_price,
+                    'thumb_image' => $thumbImage,
+                    'category' => optional($product->category)->name ?? 'CLOTHS',
+                    'vendor' => optional($product->vendor)->shop_name ?? 'Primary Supplier',
                 ],
                 'variants' => $variants
             ]);

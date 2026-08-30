@@ -91,6 +91,11 @@
     backface-visibility: hidden;
     perspective: 1000px;
   }
+
+  /* Ensure SweetAlert2 is always on top of all modals, offcanvas drawers & backdrops */
+  .swal2-container {
+    z-index: 10000000 !important;
+  }
   </style>
   <!-- DataTables CSS for Bootstrap 4 -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
