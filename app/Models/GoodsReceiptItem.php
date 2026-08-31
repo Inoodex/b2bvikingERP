@@ -14,6 +14,7 @@ class GoodsReceiptItem extends Model
         'goods_receipt_id',
         'product_id',
         'variant_id',
+        'bin_id',
         'accepted_qty',
         'rejected_qty',
         'rejection_reason',
@@ -37,6 +38,11 @@ class GoodsReceiptItem extends Model
     public function variant(): BelongsTo
     {
         return $this->belongsTo(ProductVariant::class, 'variant_id');
+    }
+
+    public function bin(): BelongsTo
+    {
+        return $this->belongsTo(WarehouseBin::class, 'bin_id');
     }
 
     public function getReceivedQtyAttribute(): float

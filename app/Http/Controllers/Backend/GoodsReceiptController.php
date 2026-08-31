@@ -67,8 +67,9 @@ class GoodsReceiptController extends Controller
             ->get();
 
         $outlets = Outlet::all();
+        $bins = \App\Models\WarehouseBin::with('zone.outlet')->where('status', 1)->get();
 
-        return view('backend.grn.create', compact('purchases', 'purchase', 'outlets', 'remainingQtyMap'));
+        return view('backend.grn.create', compact('purchases', 'purchase', 'outlets', 'bins', 'remainingQtyMap'));
     }
 
     public function store(StoreGoodsReceiptRequest $request): RedirectResponse

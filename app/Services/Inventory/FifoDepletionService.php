@@ -82,6 +82,9 @@ class FifoDepletionService
                 $depletionLog[] = [
                     'batch_id' => $batch->id,
                     'batch_no' => $batch->batch_no,
+                    'bin_id' => $batch->bin_id,
+                    'bin_name' => $batch->bin?->name ?? 'Default Staging Bin',
+                    'bin_barcode' => $batch->bin?->barcode ?? 'N/A',
                     'qty_taken' => $qtyToTake,
                     'unit_cost' => $batch->unit_cost,
                     'total_cost' => $costForThisTake
@@ -93,6 +96,7 @@ class FifoDepletionService
 
                 StockLedger::create([
                     'outlet_id' => $outletId,
+                    'bin_id' => $batch->bin_id ?? $binId,
                     'product_id' => $productId,
                     'variant_id' => $variantId,
                     'batch_id' => $batch->id,

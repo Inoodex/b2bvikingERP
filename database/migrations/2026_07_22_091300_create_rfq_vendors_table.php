@@ -8,13 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('rfq_vendors', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('rfq_id')->constrained('rfqs')->cascadeOnDelete();
-            $table->foreignId('vendor_id')->constrained('vendors');
-            $table->timestamp('invited_at')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('rfq_vendors')) {
+            Schema::create('rfq_vendors', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('rfq_id');
+                $table->unsignedBigInteger('vendor_id');
+                $table->timestamp('invited_at')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void

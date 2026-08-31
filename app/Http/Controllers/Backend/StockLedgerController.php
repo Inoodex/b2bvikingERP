@@ -13,7 +13,7 @@ class StockLedgerController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = StockLedger::with(['product', 'variant', 'outlet'])->select('stock_ledgers.*');
+            $data = StockLedger::with(['product', 'variant', 'outlet', 'bin'])->select('stock_ledgers.*');
 
             if ($request->filled('product_id')) {
                 $data->where('product_id', $request->integer('product_id'));
@@ -83,6 +83,12 @@ class StockLedgerController extends Controller
                     $query->where('reference_id', 'like', "%{$keyword}%")
                           ->orWhere('reference_type', 'like', "%{$keyword}%");
                 })
+                ->addColumn('bin_location', function($row){
+                    if ($row->bin) {
+                        return '<span class="badge badge-light border text-dark font-weight-bold"><i class="fas fa-boxes text-primary mr-1"></i>' . e($row->bin->name) . ' (' . e($row->bin->barcode) . ')</span>';
+                    }
+                    return '<span class="badge badge-light border text-muted">Unassigned</span>';
+                })
                 ->addColumn('outlet', function($row){
                     if ($row->outlet) {
                         $name = $row->outlet->name;
@@ -103,7 +109,7 @@ class StockLedgerController extends Controller
                     else
                         return '<div class="badge badge-danger">OUT</div>';
                 })
-                ->rawColumns(['image', 'type', 'outlet'])
+                ->rawColumns(['image', 'type', 'outlet', 'bin_location'])
                 ->make(true);
         }
 

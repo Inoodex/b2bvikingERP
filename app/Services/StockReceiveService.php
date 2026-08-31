@@ -44,6 +44,8 @@ class StockReceiveService
                     continue;
                 }
 
+                $binId = $grnItem->bin_id ?? $grn->bin_id ?? null;
+
                 // Find corresponding purchase_detail line to get Landed Unit Cost
                 $poDetail = $purchase->items
                     ->where('product_id', $grnItem->product_id)
@@ -56,6 +58,7 @@ class StockReceiveService
                 $stock = InventoryStock::firstOrCreate(
                     [
                         'outlet_id'  => $outletId,
+                        'bin_id'     => $binId,
                         'product_id' => $grnItem->product_id,
                         'variant_id' => $grnItem->variant_id,
                     ],
@@ -81,6 +84,7 @@ class StockReceiveService
                     'product_id'         => $grnItem->product_id,
                     'variant_id'         => $grnItem->variant_id,
                     'outlet_id'          => $outletId,
+                    'bin_id'             => $binId,
                     'goods_receipt_id'   => $grn->id,
                     'purchase_detail_id' => $poDetail ? $poDetail->id : null,
                     'batch_no'           => $batchNo,
@@ -93,6 +97,7 @@ class StockReceiveService
                 // 3. Write stock_ledgers entry
                 StockLedger::create([
                     'outlet_id'        => $outletId,
+                    'bin_id'           => $binId,
                     'product_id'       => $grnItem->product_id,
                     'variant_id'       => $grnItem->variant_id,
                     'batch_id'         => $batch->id,
@@ -167,6 +172,7 @@ class StockReceiveService
                 'grn_no'      => $grnNo,
                 'purchase_id' => $purchase->id,
                 'outlet_id'   => $data['outlet_id'],
+                'bin_id'      => $data['bin_id'] ?? null,
                 'received_by' => $receivedBy,
                 'qc_status'   => $qcStatus,
                 'remarks'     => $finalRemarks,
@@ -181,6 +187,7 @@ class StockReceiveService
                         'goods_receipt_id' => $grn->id,
                         'product_id'       => $itemData['product_id'],
                         'variant_id'       => $itemData['variant_id'] ?? null,
+                        'bin_id'           => $itemData['bin_id'] ?? ($data['bin_id'] ?? null),
                         'accepted_qty'     => $accepted,
                         'rejected_qty'     => $rejected,
                         'rejection_reason' => $itemData['rejection_reason'] ?? ($itemData['remarks'] ?? null),

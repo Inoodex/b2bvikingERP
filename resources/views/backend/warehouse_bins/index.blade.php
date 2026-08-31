@@ -18,6 +18,9 @@
                     <div class="card-header">
                         <h4>All Warehouse Bins</h4>
                         <div class="card-header-action">
+                            <a href="{{ route('admin.bin-transfers.create') }}" class="btn btn-warning mr-2">
+                                <i class="fas fa-exchange-alt mr-1"></i> Relocate Stock
+                            </a>
                             <a href="{{ route('admin.warehouse-bins.create') }}" class="btn btn-primary">
                                 <i class="fas fa-plus mr-1"></i> Create New
                             </a>

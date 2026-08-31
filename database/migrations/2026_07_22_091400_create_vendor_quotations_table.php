@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('vendor_quotations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('rfq_id')->constrained('rfqs')->cascadeOnDelete();
-            $table->foreignId('vendor_id')->constrained('vendors');
+            $table->unsignedBigInteger('rfq_id');
+            $table->unsignedBigInteger('vendor_id');
             $table->string('quotation_no', 50)->nullable();
             $table->foreignId('currency_id')->nullable()->constrained('currencies')->nullOnDelete();
             $table->string('delivery_terms')->nullable();

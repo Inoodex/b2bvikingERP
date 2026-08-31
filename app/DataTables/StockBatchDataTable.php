@@ -37,6 +37,12 @@ class StockBatchDataTable extends DataTable
                 }
                 return '<span class="badge badge-dark">Main Warehouse</span>';
             })
+            ->addColumn('bin_location', function ($query) {
+                if ($query->bin) {
+                    return '<span class="badge badge-light border text-dark font-weight-bold"><i class="fas fa-boxes text-primary mr-1"></i>' . e($query->bin->name) . ' (' . e($query->bin->barcode) . ')</span>';
+                }
+                return '<span class="badge badge-light border text-muted">Unassigned</span>';
+            })
             ->addColumn('qty_received', function ($query) {
                 return number_format($query->qty_received, 2);
             })
@@ -56,13 +62,13 @@ class StockBatchDataTable extends DataTable
                     $q->where('name', 'like', "%{$keyword}%");
                 });
             })
-            ->rawColumns(['image', 'batch_no', 'outlet', 'qty_remaining'])
+            ->rawColumns(['image', 'batch_no', 'outlet', 'bin_location', 'qty_remaining'])
             ->setRowId('id');
     }
 
     public function query(StockBatch $model): QueryBuilder
     {
-        $query = $model->newQuery()->with(['product', 'variant', 'outlet', 'goodsReceipt']);
+        $query = $model->newQuery()->with(['product', 'variant', 'outlet', 'bin', 'goodsReceipt']);
 
         if (request()->filled('product_id')) {
             $query->where('product_id', request()->get('product_id'));
@@ -104,6 +110,7 @@ class StockBatchDataTable extends DataTable
             Column::make('product_name')->title('Product')->name('product.name'),
             Column::make('batch_no')->title('Batch No'),
             Column::make('outlet')->title('Warehouse'),
+            Column::computed('bin_location')->title('Bin Location'),
             Column::make('qty_received')->title('Qty Rcvd')->addClass('text-center'),
             Column::make('qty_remaining')->title('Qty Remain')->addClass('text-center'),
             Column::make('unit_cost')->title('Unit Cost')->addClass('text-right'),

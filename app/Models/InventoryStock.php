@@ -12,6 +12,7 @@ class InventoryStock extends Model
         'product_id',
         'variant_id',
         'outlet_id',
+        'bin_id',
         'quantity'
     ];
 
@@ -23,5 +24,15 @@ class InventoryStock extends Model
     public function variant()
     {
         return $this->belongsTo(ProductVariant::class, 'variant_id');
+    }
+
+    public function outlet()
+    {
+        return $this->belongsTo(Outlet::class);
+    }
+
+    public function bin()
+    {
+        return $this->belongsTo(WarehouseBin::class, 'bin_id');
     }
 }

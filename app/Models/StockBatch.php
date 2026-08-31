@@ -14,9 +14,11 @@ class StockBatch extends Model
         'product_id',
         'variant_id',
         'outlet_id',
+        'bin_id',
         'goods_receipt_id',
         'purchase_detail_id',
         'batch_no',
+        'barcode',
         'qty_received',
         'qty_remaining',
         'unit_cost',
@@ -43,6 +45,11 @@ class StockBatch extends Model
     public function outlet()
     {
         return $this->belongsTo(Outlet::class);
+    }
+
+    public function bin()
+    {
+        return $this->belongsTo(WarehouseBin::class, 'bin_id');
     }
 
     public function goodsReceipt()

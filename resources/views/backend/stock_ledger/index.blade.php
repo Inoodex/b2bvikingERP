@@ -91,6 +91,7 @@
                                     <th>Product</th>
                                     <th>Variant</th>
                                     <th>Reference</th>
+                                    <th>Bin Location</th>
                                     <th class="text-center">Type</th>
                                     <th class="text-center">In Qty</th>
                                     <th class="text-center">Out Qty</th>
@@ -172,6 +173,7 @@
             {data: 'product_name', name: 'product_name'},
             {data: 'variant_name', name: 'variant_name'},
             {data: 'reference', name: 'reference'},
+            {data: 'bin_location', name: 'bin_location'},
             {data: 'type', name: 'type', orderable: false, searchable: false, className: 'text-center'},
             {data: 'in_qty', name: 'in_qty', className: 'text-center'},
             {data: 'out_qty', name: 'out_qty', className: 'text-center'},

@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('stock_batches') && !Schema::hasColumn('stock_batches', 'barcode')) {
+        if (Schema::hasTable('stock_batches') && !Schema::hasColumn('stock_batches', 'bin_id')) {
             Schema::table('stock_batches', function (Blueprint $table) {
-                $table->string('barcode', 1000)->nullable()->after('batch_no');
+                $table->unsignedBigInteger('bin_id')->nullable()->after('outlet_id');
             });
         }
 
-        if (Schema::hasTable('inventory_stocks') && !Schema::hasColumn('inventory_stocks', 'bin_id')) {
-            Schema::table('inventory_stocks', function (Blueprint $table) {
+        if (Schema::hasTable('stock_ledgers') && !Schema::hasColumn('stock_ledgers', 'bin_id')) {
+            Schema::table('stock_ledgers', function (Blueprint $table) {
                 $table->unsignedBigInteger('bin_id')->nullable()->after('outlet_id');
             });
         }
@@ -29,14 +29,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (Schema::hasTable('stock_batches') && Schema::hasColumn('stock_batches', 'barcode')) {
+        if (Schema::hasTable('stock_batches') && Schema::hasColumn('stock_batches', 'bin_id')) {
             Schema::table('stock_batches', function (Blueprint $table) {
-                $table->dropColumn('barcode');
+                $table->dropColumn('bin_id');
             });
         }
 
-        if (Schema::hasTable('inventory_stocks') && Schema::hasColumn('inventory_stocks', 'bin_id')) {
-            Schema::table('inventory_stocks', function (Blueprint $table) {
+        if (Schema::hasTable('stock_ledgers') && Schema::hasColumn('stock_ledgers', 'bin_id')) {
+            Schema::table('stock_ledgers', function (Blueprint $table) {
                 $table->dropColumn('bin_id');
             });
         }

@@ -98,7 +98,7 @@
                                 <option value="failed">🔴 Failed / Rejected (Lot Damaged)</option>
                             </select>
                         </div>
-                        <div class="col-md-4 form-group">
+                        <div class="col-md-3 form-group">
                             <label for="outlet_id" class="font-weight-bold text-dark">Receiving Outlet / Warehouse <span class="text-danger">*</span></label>
                             <select name="outlet_id" id="outlet_id" class="form-control select2" required>
                                 <option value="">-- Select Destination Outlet --</option>
@@ -106,6 +106,22 @@
                                     <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <label for="bin_id" class="font-weight-bold text-dark"><i class="fas fa-boxes text-primary mr-1"></i> Put-Away Staging Bin</label>
+                            <div class="input-group">
+                                <select name="bin_id" id="bin_id" class="form-control select2">
+                                    <option value="">-- Select Default Put-Away Bin --</option>
+                                    @foreach($bins as $b)
+                                        <option value="{{ $b->id }}">{{ $b->name }} ({{ $b->barcode }} — {{ $b->zone?->name }})</option>
+                                    @endforeach
+                                </select>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-primary font-weight-bold" id="btn-apply-header-bin" title="Apply this Bin to all table items">
+                                        <i class="fas fa-arrow-down"></i> Apply All
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-12 form-group">
                             <label for="remarks" class="font-weight-bold text-dark">Receiving Notes / Truck Gate Pass Info</label>
@@ -153,20 +169,26 @@
                             <thead class="bg-light text-dark">
                                 <tr>
                                     <th class="text-center" width="3%">#</th>
-                                    <th width="24%">Product Description</th>
-                                    <th width="10%">Variant</th>
-                                    <th class="text-right" width="10%">PO Qty</th>
-                                    <th class="text-right" width="10%">Remaining</th>
-                                    <th class="text-right" width="11%">Total Delivered <span class="text-danger">*</span></th>
-                                    <th class="text-right" width="11%">Accepted Qty <span class="text-danger">*</span></th>
-                                    <th class="text-right" width="11%">Rejected Qty</th>
-                                    <th width="10%">Rejection Reason</th>
+                                    <th width="20%">Product Description</th>
+                                    <th width="8%">Variant</th>
+                                    <th width="16%">Put-Away Bin / Rack</th>
+                                    <th class="text-right" width="8%">PO Qty</th>
+                                    <th class="text-right" width="8%">Remaining</th>
+                                    <th class="text-right" width="9%">Delivered <span class="text-danger">*</span></th>
+                                    <th class="text-right" width="9%">Accepted <span class="text-danger">*</span></th>
+                                    <th class="text-right" width="9%">Rejected</th>
+                                    <th width="10%">Reason</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($purchase->items as $index => $item)
                                     @php
                                         $remaining = $remainingQtyMap[$item->id] ?? (float)$item->qty;
+                                        $existingBinId = \App\Models\InventoryStock::where('outlet_id', $purchase->outlet_id)
+                                            ->where('product_id', $item->product_id)
+                                            ->where('variant_id', $item->variant_id)
+                                            ->whereNotNull('bin_id')
+                                            ->value('bin_id');
                                     @endphp
                                     <tr class="{{ $remaining <= 0 ? 'bg-light text-muted' : '' }}">
                                         <td class="text-center">{{ $index + 1 }}</td>
@@ -176,6 +198,16 @@
                                             <input type="hidden" name="items[{{ $index }}][variant_id]" value="{{ $item->variant_id }}">
                                         </td>
                                         <td>{{ $item->variant?->name ?? 'N/A' }}</td>
+                                        <td>
+                                            <select name="items[{{ $index }}][bin_id]" class="form-control form-control-sm item-bin-select">
+                                                <option value="">-- Default Bin --</option>
+                                                @foreach($bins as $b)
+                                                    <option value="{{ $b->id }}" {{ $existingBinId == $b->id ? 'selected' : '' }}>
+                                                        {{ $b->name }} ({{ $b->barcode }}) {{ $existingBinId == $b->id ? '★ Existing' : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </td>
                                         <td class="text-right font-weight-bold text-muted">{{ number_format($item->qty, 2) }}</td>
                                         <td class="text-right font-weight-bold {{ $remaining > 0 ? 'text-primary' : 'text-success' }}">
                                             @if($remaining > 0)
@@ -230,7 +262,17 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        // 1. Line Item Quantity Calculation
+        // 1. Apply Header Bin to all table rows
+        $('#btn-apply-header-bin').on('click', function() {
+            var headerBinId = $('#bin_id').val();
+            if (!headerBinId) {
+                alert('Please first select a Put-Away Staging Bin from the header dropdown.');
+                return;
+            }
+            $('.item-bin-select').val(headerBinId).trigger('change');
+        });
+
+        // 2. Line Item Quantity Calculation
         $('#grn-items-table').on('input', '.accepted-input, .rejected-input', function() {
             var $row = $(this).closest('tr');
             var accepted = parseFloat($row.find('.accepted-input').val()) || 0;
@@ -239,7 +281,7 @@
             $row.find('.received-input').val(total.toFixed(2));
         });
 
-        // 2. Interactive QC Checkboxes <-> QC Decision Sync
+        // 3. Interactive QC Checkboxes <-> QC Decision Sync
         $('#qc_chk_physical, #qc_chk_spec, #qc_chk_doc').on('change', function() {
             var physical = $('#qc_chk_physical').is(':checked');
             var spec = $('#qc_chk_spec').is(':checked');

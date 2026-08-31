@@ -16,6 +16,7 @@ class GoodsReceipt extends Model
         'grn_no',
         'purchase_id',
         'outlet_id',
+        'bin_id',
         'received_by',
         'qc_status',
         'remarks',
@@ -35,6 +36,14 @@ class GoodsReceipt extends Model
     public function outlet(): BelongsTo
     {
         return $this->belongsTo(Outlet::class, 'outlet_id');
+    }
+
+    /**
+     * Relationship: GRN belongs to Warehouse Bin
+     */
+    public function bin(): BelongsTo
+    {
+        return $this->belongsTo(WarehouseBin::class, 'bin_id');
     }
 
     /**

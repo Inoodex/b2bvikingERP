@@ -21,10 +21,19 @@ class WarehouseBinDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function($row){
+                $viewBtn = '<a href="'.route('admin.warehouse-bins.stocks', $row->id).'" class="btn btn-sm btn-success mr-1" title="View Bin Inventory"><i class="fas fa-boxes mr-1"></i> Stock</a>';
                 $printBtn = '<a href="'.route('admin.warehouse-bins.show', $row->id).'" class="btn btn-sm btn-info mr-1" target="_blank" title="Print Barcode"><i class="fas fa-barcode mr-1"></i> Print</a>';
                 $editBtn = '<a href="'.route('admin.warehouse-bins.edit', $row->id).'" class="btn btn-sm btn-primary mr-1" title="Edit"><i class="fas fa-edit"></i></a>';
                 $deleteBtn = '<a href="'.route('admin.warehouse-bins.destroy', $row->id).'" class="btn btn-sm btn-danger delete-item" title="Delete"><i class="fas fa-trash"></i></a>';
-                return '<div class="btn-group" role="group">' . $printBtn . $editBtn . $deleteBtn . '</div>';
+                return '<div class="btn-group" role="group">' . $viewBtn . $printBtn . $editBtn . $deleteBtn . '</div>';
+            })
+            ->addColumn('stored_items', function($row){
+                $count = \App\Models\InventoryStock::where('bin_id', $row->id)->where('quantity', '>', 0)->count();
+                $totalQty = \App\Models\InventoryStock::where('bin_id', $row->id)->sum('quantity');
+                if ($count > 0) {
+                    return '<span class="badge badge-success font-weight-bold px-2 py-1"><i class="fas fa-cubes mr-1"></i>' . $count . ' Products (' . number_format($totalQty, 0) . ' pcs)</span>';
+                }
+                return '<span class="badge badge-light border text-muted px-2 py-1"><i class="fas fa-box-open mr-1"></i> Empty</span>';
             })
             ->addColumn('zone', function($row){
                 $zoneName = $row->zone->name ?? 'N/A';
@@ -39,7 +48,7 @@ class WarehouseBinDataTable extends DataTable
                     ? '<span class="badge badge-success">Active</span>' 
                     : '<span class="badge badge-secondary">Inactive</span>';
             })
-            ->rawColumns(['zone', 'barcode', 'status', 'action'])
+            ->rawColumns(['zone', 'barcode', 'stored_items', 'status', 'action'])
             ->setRowId('id');
     }
 
@@ -82,11 +91,12 @@ class WarehouseBinDataTable extends DataTable
             Column::make('zone')->name('zone.name')->title('Warehouse Zone & Outlet'),
             Column::make('name')->title('Bin / Shelf Name'),
             Column::make('barcode')->title('Location Barcode')->addClass('text-center'),
+            Column::make('stored_items')->title('Stored Inventory')->addClass('text-center'),
             Column::make('status')->title('Status')->addClass('text-center'),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)
-                  ->width(180)
+                  ->width(240)
                   ->addClass('text-center'),
         ];
     }

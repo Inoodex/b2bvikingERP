@@ -483,7 +483,12 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     Route::get('stock-ledger', [StockLedgerController::class, 'index'])->name('stock-ledger.index');
     Route::get('stock-batches', [StockBatchController::class, 'index'])->name('stock-batches.index');
     Route::get('month-end-snapshots', [MonthEndSnapshotController::class, 'index'])->name('month-end-snapshots.index');
+    Route::get('bin-transfers/create', [\App\Http\Controllers\Backend\BinTransferController::class, 'create'])->name('bin-transfers.create');
+    Route::post('bin-transfers', [\App\Http\Controllers\Backend\BinTransferController::class, 'store'])->name('bin-transfers.store');
+    Route::get('bin-transfers/get-bin-products', [\App\Http\Controllers\Backend\BinTransferController::class, 'getBinProducts'])->name('bin-transfers.get-bin-products');
+
     Route::resource('warehouse-zones', WarehouseZoneController::class);
+    Route::get('warehouse-bins/{warehouse_bin}/stocks', [WarehouseBinController::class, 'stocks'])->name('warehouse-bins.stocks');
     Route::resource('warehouse-bins', WarehouseBinController::class);
     Route::controller(InventoryReportController::class)->group(function () {
         Route::get('inventory-reports/export-pdf', 'exportPdf')->name('inventory-reports.export-pdf');
