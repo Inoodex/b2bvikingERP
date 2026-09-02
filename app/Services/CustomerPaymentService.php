@@ -2,23 +2,52 @@
 
 namespace App\Services;
 
-use App\Models\ChartOfAccount;
 use App\Models\CustomerPayment;
-use App\Models\JournalEntry;
-use App\Models\JournalEntryLine;
 use App\Models\Order;
 use App\Models\SalesInvoice;
+use App\Services\Accounting\JournalEntryService;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class CustomerPaymentService
 {
+    protected JournalEntryService $journalService;
+
+    public function __construct(JournalEntryService $journalService)
+    {
+        $this->journalService = $journalService;
+    }
+
     /**
      * Record customer payment, knockdown invoice/order balance, and post GL journal.
+     * Supports single-invoice, single-order, and smart multi-invoice allocations.
      */
     public function recordPayment(array $data, int $userId): CustomerPayment
     {
         return DB::transaction(function () use ($data, $userId) {
+            $amount = (float) $data['amount'];
+            if ($amount <= 0) {
+                throw new Exception("Payment amount must be greater than zero.");
+            }
+
+            $allocations = $data['allocations'] ?? [];
+            if (empty($allocations) && !empty($data['allocations_json'])) {
+                $allocations = is_array($data['allocations_json']) ? $data['allocations_json'] : json_decode($data['allocations_json'], true);
+            }
+
+            // 1. Overpayment Guard for Single Sales Invoice
+            if (empty($allocations) && !empty($data['sales_invoice_id']) && !($data['allow_advance'] ?? false)) {
+                $invoice = SalesInvoice::lockForUpdate()->find($data['sales_invoice_id']);
+                if ($invoice) {
+                    $due = (float)$invoice->due_amount;
+                    if ($amount > ($due + 0.01)) {
+                        throw new Exception("Payment amount (kr. {$amount}) exceeds outstanding invoice due balance (kr. {$due}).");
+                    }
+                }
+            }
+
             $paymentNo = OrderNumberService::generateCustomerPaymentNumber();
+            $paymentDate = !empty($data['payment_date']) ? date('Y-m-d', strtotime($data['payment_date'])) : now()->toDateString();
 
             $payment = CustomerPayment::create([
                 'payment_no'       => $paymentNo,
@@ -26,29 +55,66 @@ class CustomerPaymentService
                 'sales_invoice_id' => $data['sales_invoice_id'] ?? null,
                 'order_id'         => $data['order_id'] ?? null,
                 'account_id'       => $data['account_id'] ?? ($data['bank_account_id'] ?? null),
-                'amount'           => $data['amount'],
+                'amount'           => $amount,
                 'payment_method'   => $data['payment_method'],
                 'reference_no'     => $data['reference_no'] ?? ($data['transaction_id'] ?? null),
-                'payment_date'     => $data['payment_date'],
+                'payment_date'     => $paymentDate,
                 'notes'            => $data['notes'] ?? null,
                 'created_by'       => $userId,
                 'status'           => 'posted',
             ]);
 
-            // 1. Auto-Knockdown Sales Invoice & Order Due Amount
-            if ($payment->sales_invoice_id) {
-                $invoice = SalesInvoice::with('order')->find($payment->sales_invoice_id);
+            $totalSettled = 0.00;
+
+            // 2. Multi-Invoice Allocation Engine
+            if (!empty($allocations) && is_array($allocations)) {
+                foreach ($allocations as $alloc) {
+                    $allocAmount = (float) ($alloc['amount'] ?? 0);
+                    $invId = $alloc['sales_invoice_id'] ?? ($alloc['invoice_id'] ?? null);
+                    if ($allocAmount <= 0 || !$invId) continue;
+
+                    $invoice = SalesInvoice::with('order')->lockForUpdate()->find($invId);
+                    if ($invoice) {
+                        $newPaid = round((float)$invoice->paid_amount + $allocAmount, 2);
+                        $newDue = max(0, round((float)$invoice->total_amount - $newPaid, 2));
+                        $invoice->update([
+                            'paid_amount' => $newPaid,
+                            'due_amount'  => $newDue,
+                            'status'      => $newDue <= 0 ? 'paid' : 'partial',
+                        ]);
+
+                        if ($invoice->order) {
+                            $orderPaid = round((float)$invoice->order->paid_amount + $allocAmount, 2);
+                            $orderDue = max(0, round((float)$invoice->order->total_amount - $orderPaid, 2));
+                            $paymentStatus = $orderDue <= 0 ? 'paid' : ($orderPaid > 0 ? 'partially_paid' : 'unpaid');
+                            $invoice->order->update([
+                                'paid_amount'    => $orderPaid,
+                                'due_amount'     => $orderDue,
+                                'payment_status' => $paymentStatus,
+                            ]);
+                        }
+                        $totalSettled += $allocAmount;
+                    }
+                }
+            } elseif ($payment->sales_invoice_id) {
+                // Single Invoice Knockdown
+                $invoice = SalesInvoice::with('order')->lockForUpdate()->find($payment->sales_invoice_id);
                 if ($invoice) {
-                    $newPaid = (float)$invoice->paid_amount + (float)$payment->amount;
-                    $newDue = max(0, (float)$invoice->total_amount - $newPaid);
+                    $actualKnockdown = ($data['allow_advance'] ?? false) 
+                        ? min($amount, (float)$invoice->due_amount) 
+                        : $amount;
+
+                    $newPaid = round((float)$invoice->paid_amount + $actualKnockdown, 2);
+                    $newDue = max(0, round((float)$invoice->total_amount - $newPaid, 2));
                     $invoice->update([
                         'paid_amount' => $newPaid,
                         'due_amount'  => $newDue,
+                        'status'      => $newDue <= 0 ? 'paid' : 'partial',
                     ]);
 
                     if ($invoice->order) {
-                        $orderPaid = (float)$invoice->order->paid_amount + (float)$payment->amount;
-                        $orderDue = max(0, (float)$invoice->order->total_amount - $orderPaid);
+                        $orderPaid = round((float)$invoice->order->paid_amount + $actualKnockdown, 2);
+                        $orderDue = max(0, round((float)$invoice->order->total_amount - $orderPaid, 2));
                         $paymentStatus = $orderDue <= 0 ? 'paid' : ($orderPaid > 0 ? 'partially_paid' : 'unpaid');
                         $invoice->order->update([
                             'paid_amount'    => $orderPaid,
@@ -56,85 +122,61 @@ class CustomerPaymentService
                             'payment_status' => $paymentStatus,
                         ]);
                     }
+                    $totalSettled += $actualKnockdown;
                 }
             } elseif ($payment->order_id) {
-                $order = Order::find($payment->order_id);
+                // Single Order Knockdown
+                $order = Order::lockForUpdate()->find($payment->order_id);
                 if ($order) {
-                    $orderPaid = (float)$order->paid_amount + (float)$payment->amount;
-                    $orderDue = max(0, (float)$order->total_amount - $orderPaid);
+                    $orderPaid = round((float)$order->paid_amount + $amount, 2);
+                    $orderDue = max(0, round((float)$order->total_amount - $orderPaid, 2));
                     $paymentStatus = $orderDue <= 0 ? 'paid' : ($orderPaid > 0 ? 'partially_paid' : 'unpaid');
                     $order->update([
                         'paid_amount'    => $orderPaid,
                         'due_amount'     => $orderDue,
                         'payment_status' => $paymentStatus,
                     ]);
+                    $totalSettled += $amount;
                 }
             }
 
-            // 2. Double-Entry General Ledger Journal Posting
-            $this->postJournalEntry($payment, $userId);
+            // Calculate unallocated excess / advance deposit
+            $unallocatedAmount = max(0, round($amount - $totalSettled, 2));
+            $isAdvance = ($totalSettled <= 0 && $amount > 0);
+
+            $payment->update([
+                'unallocated_amount' => $unallocatedAmount,
+                'is_advance'         => $isAdvance,
+            ]);
+
+            // 3. Double-Entry General Ledger Journal Posting
+            $cashBankCode = in_array(strtolower((string)$payment->payment_method), ['cash']) ? '1010' : '1020';
+            $lines = [
+                ['account_code' => $cashBankCode, 'debit' => $amount, 'credit' => 0], // DR Cash/Bank
+            ];
+
+            if ($totalSettled > 0) {
+                $lines[] = ['account_code' => '1030', 'debit' => 0, 'credit' => $totalSettled]; // CR Accounts Receivable
+            }
+
+            if ($unallocatedAmount > 0) {
+                $lines[] = ['account_code' => '2040', 'debit' => 0, 'credit' => $unallocatedAmount]; // CR Customer Advances & Deposits
+            }
+
+            $customerName = $payment->user ? ($payment->user->outlet_name ?: $payment->user->name) : 'Customer';
+            $narration = $isAdvance 
+                ? "Customer Advance Deposit Receipt #{$payment->payment_no} ({$customerName})" 
+                : "Customer Payment Receipt #{$payment->payment_no} ({$customerName})";
+
+            $this->journalService->postJournal(
+                'Customer Payment Received',
+                $payment,
+                $lines,
+                $paymentDate,
+                $narration
+            );
 
             return $payment;
         });
-    }
-
-    /**
-     * Post Double-Entry Journal for Customer Payment (DR Cash/Bank, CR Accounts Receivable).
-     */
-    protected function postJournalEntry(CustomerPayment $payment, int $userId): void
-    {
-        $cashBankCode = in_array($payment->payment_method, ['cash']) ? '1010' : '1020';
-        $cashBankAccount = ChartOfAccount::firstOrCreate(
-            ['code' => $cashBankCode],
-            [
-                'name'   => $cashBankCode === '1010' ? 'Cash on Hand' : 'Bank Main Account',
-                'type'   => 'asset',
-                'status' => 'active'
-            ]
-        );
-
-        $arAccount = ChartOfAccount::firstOrCreate(
-            ['code' => '1030'],
-            [
-                'name'   => 'Accounts Receivable (Trade Debtors)',
-                'type'   => 'asset',
-                'status' => 'active'
-            ]
-        );
-
-        $entryNo = OrderNumberService::generate('JV', JournalEntry::class, 'journal_entries');
-        $customerName = $payment->customer ? ($payment->customer->outlet_name ?: $payment->customer->name) : 'Customer';
-
-        $journalEntry = JournalEntry::create([
-            'entry_no'       => $entryNo,
-            'date'           => $payment->payment_date,
-            'reference_type' => CustomerPayment::class,
-            'reference_id'   => $payment->id,
-            'description'    => "Customer Payment Receipt #{$payment->payment_no} ({$customerName})",
-            'status'         => 'posted',
-            'created_by'     => $userId,
-        ]);
-
-        // DR Cash/Bank Account
-        JournalEntryLine::create([
-            'journal_entry_id' => $journalEntry->id,
-            'account_id'       => $cashBankAccount->id,
-            'debit_amount'     => $payment->amount,
-            'credit_amount'    => 0,
-            'description'      => "Receipt #{$payment->payment_no} - {$payment->payment_method}",
-            'party_type'       => 'customer',
-            'party_id'         => $payment->user_id,
-        ]);
-
-        // CR Accounts Receivable
-        JournalEntryLine::create([
-            'journal_entry_id' => $journalEntry->id,
-            'account_id'       => $arAccount->id,
-            'debit_amount'     => 0,
-            'credit_amount'    => $payment->amount,
-            'description'      => "Payment for AR: {$customerName}",
-            'party_type'       => 'customer',
-            'party_id'         => $payment->user_id,
-        ]);
     }
 }

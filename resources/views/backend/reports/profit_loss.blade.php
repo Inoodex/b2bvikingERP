@@ -22,11 +22,11 @@
                                 <div class="row">
                                     <div class="col-md-3">
                                         <label>Start Date</label>
-                                        <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
+                                        <input type="date" name="start_date" class="form-control" value="{{ request()->filled('start_date') ? request('start_date') : '' }}">
                                     </div>
                                     <div class="col-md-3">
                                         <label>End Date</label>
-                                        <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
+                                        <input type="date" name="end_date" class="form-control" value="{{ request()->filled('end_date') ? request('end_date') : '' }}">
                                     </div>
                                     <div class="col-md-4">
                                         <label>&nbsp;</label>
@@ -154,33 +154,3 @@
         </div>
     </section>
 @endsection
-
-@push('styles')
-<style>
-    /* Hover effect for the blue alert */
-    .alert-primary.mt-3 {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .alert-primary.mt-3:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 30px rgba(78, 115, 223, 0.5) !important;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 576px) {
-        .alert-primary.mt-3 {
-            padding: 14px 16px !important;
-        }
-        .alert-primary.mt-3 div {
-            flex-wrap: wrap;
-            gap: 10px !important;
-        }
-        .alert-primary.mt-3 strong {
-            font-size: 14px !important;
-        }
-        .alert-primary.mt-3 span {
-            font-size: 12px !important;
-        }
-    }
-</style>
-@endpush

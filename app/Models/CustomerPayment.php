@@ -24,6 +24,8 @@ class CustomerPayment extends Model
         'notes',
         'created_by',
         'status',
+        'unallocated_amount',
+        'is_advance',
     ];
 
     protected $casts = [

@@ -30,15 +30,15 @@ class VendorBill extends Model
     ];
 
     protected $casts = [
-        'bill_date' => 'date',
-        'due_date' => 'date',
-        'subtotal' => 'float',
-        'tax_amount' => 'float',
-        'discount_amount' => 'float',
+        'bill_date'             => 'date',
+        'due_date'              => 'date',
+        'subtotal'              => 'float',
+        'tax_amount'            => 'float',
+        'discount_amount'       => 'float',
         'debit_note_adjustment' => 'float',
-        'grand_total' => 'float',
-        'paid_amount' => 'float',
-        'due_amount' => 'float',
+        'grand_total'           => 'float',
+        'paid_amount'           => 'float',
+        'due_amount'            => 'float',
     ];
 
     public function purchase()
@@ -76,13 +76,23 @@ class VendorBill extends Model
         return $this->hasMany(DebitNoteSettlement::class);
     }
 
+    public function journalEntries()
+    {
+        return $this->morphMany(JournalEntry::class, 'reference', 'reference_type', 'reference_id');
+    }
+
+    public function journalEntry()
+    {
+        return $this->morphOne(JournalEntry::class, 'reference', 'reference_type', 'reference_id');
+    }
+
     public function getFormattedStatusAttribute(): string
     {
         return match ($this->payment_status) {
-            'paid' => '<span class="badge badge-success">Paid</span>',
-            'partial' => '<span class="badge badge-warning">Partial</span>',
+            'paid'     => '<span class="badge badge-success">Paid</span>',
+            'partial'  => '<span class="badge badge-warning">Partial</span>',
             'overpaid' => '<span class="badge badge-info">Overpaid</span>',
-            default => '<span class="badge badge-danger">Unpaid</span>',
+            default    => '<span class="badge badge-danger">Unpaid</span>',
         };
     }
 }

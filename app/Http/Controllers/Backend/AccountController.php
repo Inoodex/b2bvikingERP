@@ -778,68 +778,70 @@ class AccountController extends Controller
         }
 
         $before = [
-            'paid_amount' => (float) $order->paid_amount,
-            'due_amount' => (float) $order->due_amount,
+            'paid_amount'    => (float) $order->paid_amount,
+            'due_amount'     => (float) $order->due_amount,
             'payment_status' => (string) $order->payment_status,
         ];
 
-        $payment = OrderPayment::create([
-            'order_id' => $order->id,
-            'amount' => $amount,
-            'payment_method' => $request->payment_method,
-            'transaction_id' => $request->transaction_id,
-            'note' => $request->note,
-        ]);
-
-        if ($request->hasFile('receipts')) {
-            foreach ($request->file('receipts') as $file) {
-                if (!$file || !$file->isValid()) {
-                    continue;
-                }
-
-                $filename = 'receipt_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $storedPath = StoredFileSupport::storePrivateFile($file, "order-payments/{$payment->id}", $filename);
-                OrderPaymentReceipt::create([
-                    'order_payment_id' => $payment->id,
-                    'file_path' => $storedPath,
-                    'original_name' => $file->getClientOriginalName(),
-                    'mime_type' => $file->getClientMimeType(),
-                    'file_size' => $file->getSize(),
-                ]);
-            }
-        }
-
-        // Update the order totals
-        $order->paid_amount += $amount;
-        $order->due_amount -= $amount;
-
-        if ($order->due_amount <= 0) {
-            $order->payment_status = 'paid';
-        } else {
-            $order->payment_status = 'partial';
-        }
-
-        $order->save();
-
-        AuditLogSupport::log([
-            'module' => 'accounts',
-            'action' => 'customer_payment_created',
-            'entity_type' => 'order_payment',
-            'entity_id' => $payment->id,
-            'reference_no' => $order->order_no,
-            'description' => 'Customer payment recorded.',
-            'old_values' => $before,
-            'new_values' => [
-                'payment_id' => $payment->id,
+        DB::transaction(function () use ($order, $amount, $request, $before) {
+            $payment = OrderPayment::create([
+                'order_id' => $order->id,
                 'amount' => $amount,
-                'payment_method' => $payment->payment_method,
-                'transaction_id' => $payment->transaction_id,
-                'receipt_count' => $payment->receipts()->count(),
-                'paid_amount' => (float) $order->paid_amount,
-                'due_amount' => (float) $order->due_amount,
-                'payment_status' => (string) $order->payment_status,
-            ],
-        ]);
+                'payment_method' => $request->payment_method,
+                'transaction_id' => $request->transaction_id,
+                'note' => $request->note,
+            ]);
+
+            if ($request->hasFile('receipts')) {
+                foreach ($request->file('receipts') as $file) {
+                    if (!$file || !$file->isValid()) {
+                        continue;
+                    }
+
+                    $filename = 'receipt_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $storedPath = StoredFileSupport::storePrivateFile($file, "order-payments/{$payment->id}", $filename);
+                    OrderPaymentReceipt::create([
+                        'order_payment_id' => $payment->id,
+                        'file_path' => $storedPath,
+                        'original_name' => $file->getClientOriginalName(),
+                        'mime_type' => $file->getClientMimeType(),
+                        'file_size' => $file->getSize(),
+                    ]);
+                }
+            }
+
+            // Update the order totals
+            $order->paid_amount += $amount;
+            $order->due_amount -= $amount;
+
+            if ($order->due_amount <= 0) {
+                $order->payment_status = 'paid';
+            } else {
+                $order->payment_status = 'partial';
+            }
+
+            $order->save();
+
+            AuditLogSupport::log([
+                'module' => 'accounts',
+                'action' => 'customer_payment_created',
+                'entity_type' => 'order_payment',
+                'entity_id' => $payment->id,
+                'reference_no' => $order->order_no,
+                'description' => 'Customer payment recorded.',
+                'old_values' => $before,
+                'new_values' => [
+                    'payment_id' => $payment->id,
+                    'amount' => $amount,
+                    'payment_method' => $payment->payment_method,
+                    'transaction_id' => $payment->transaction_id,
+                    'receipt_count' => $payment->receipts()->count(),
+                    'paid_amount' => (float) $order->paid_amount,
+                    'due_amount' => (float) $order->due_amount,
+                    'payment_status' => (string) $order->payment_status,
+                ],
+            ]);
+        });
 
         Toastr::success('Payment recorded successfully!');
 

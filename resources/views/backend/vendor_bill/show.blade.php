@@ -17,6 +17,55 @@
     </div>
 
     <div class="section-body">
+        <!-- 3-Way Matching Executive Audit Banner -->
+        <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #fff;">
+            <div class="card-body p-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="font-weight-bold mb-1 text-white">
+                            <i class="fas fa-shield-alt text-warning mr-2"></i> 3-Way Match Audit Verification
+                        </h5>
+                        <p class="text-muted small mb-0" style="color: #94a3b8 !important;">Cross-verifying Purchase Order, Goods Receipt Note (GRN), and Supplier Billed Totals.</p>
+                    </div>
+                    <div>
+                        @if($bill->goods_receipt_id || $bill->goodsReceipt)
+                            <span class="badge badge-success px-3 py-2 font-weight-bold" style="font-size: 13px; border-radius: 20px;">
+                                <i class="fas fa-check-double mr-1"></i> 3-Way Matched & Cleared
+                            </span>
+                        @else
+                            <span class="badge badge-info px-3 py-2 font-weight-bold" style="font-size: 13px; border-radius: 20px;">
+                                <i class="fas fa-file-invoice mr-1"></i> 2-Way Matched (Direct PO)
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <div class="row text-center mt-3 pt-3" style="border-top: 1px solid rgba(255,255,255,0.1);">
+                    <div class="col-md-4 mb-2 mb-md-0">
+                        <div class="small text-uppercase font-weight-bold" style="color: #94a3b8;">1. Purchase Order</div>
+                        <div class="font-weight-bold text-white mt-1">
+                            <i class="fas fa-check-circle text-success mr-1"></i> {{ $bill->purchase?->po_no ?? 'PO #'.$bill->purchase_id }}
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2 mb-md-0">
+                        <div class="small text-uppercase font-weight-bold" style="color: #94a3b8;">2. Goods Receipt (GRN)</div>
+                        <div class="font-weight-bold text-white mt-1">
+                            @if($bill->goodsReceipt)
+                                <i class="fas fa-check-circle text-success mr-1"></i> {{ $bill->goodsReceipt->grn_no }} (Received)
+                            @else
+                                <i class="fas fa-info-circle text-info mr-1"></i> Direct PO Invoiced
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="small text-uppercase font-weight-bold" style="color: #94a3b8;">3. Vendor Invoice</div>
+                        <div class="font-weight-bold text-white mt-1">
+                            <i class="fas fa-check-circle text-success mr-1"></i> {{ $bill->bill_no }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-4">
                 <div class="card card-primary">

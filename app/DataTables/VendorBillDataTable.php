@@ -48,16 +48,22 @@ class VendorBillDataTable extends DataTable
                 $symbol = $row->currency ? $row->currency->symbol : (getSettings()->currency_icon ?? 'Kr.');
                 return $symbol . ' ' . number_format($row->due_amount, 2);
             })
+            ->addColumn('vendor_name', function ($row) {
+                return $row->vendor ? '<strong>' . e($row->vendor->name) . '</strong>' : '<span class="text-muted">N/A</span>';
+            })
+            ->addColumn('po_no', function ($row) {
+                return $row->purchase ? '<span class="badge badge-light border font-monospace">' . e($row->purchase->po_no) . '</span>' : '<span class="text-muted">N/A</span>';
+            })
             ->addColumn('payment_status_badge', function ($row) {
                 return $row->formatted_status;
             })
-            ->addColumn('vendor_name', function ($row) {
-                return $row->vendor ? $row->vendor->name : 'N/A';
+            ->addColumn('match_status', function ($row) {
+                if ($row->goods_receipt_id || $row->goodsReceipt) {
+                    return '<span class="badge badge-success px-2 py-1 font-weight-bold" title="PO, Goods Receipt & Bill 3-Way Matched"><i class="fas fa-check-double mr-1"></i> 3-Way Matched</span>';
+                }
+                return '<span class="badge badge-info px-2 py-1 font-weight-bold" title="Direct Purchase Order Invoicing"><i class="fas fa-file-invoice mr-1"></i> PO Invoiced</span>';
             })
-            ->addColumn('po_no', function ($row) {
-                return $row->purchase ? $row->purchase->po_no : 'N/A';
-            })
-            ->rawColumns(['action', 'payment_status_badge']);
+            ->rawColumns(['action', 'vendor_name', 'po_no', 'payment_status_badge', 'match_status']);
     }
 
     /**
@@ -103,6 +109,7 @@ class VendorBillDataTable extends DataTable
             Column::make('paid_amount')->title('Paid'),
             Column::make('due_amount')->title('Due'),
             Column::make('payment_status_badge')->title('Status'),
+            Column::computed('match_status')->title('3-Way Match')->width(130)->addClass('text-center'),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)

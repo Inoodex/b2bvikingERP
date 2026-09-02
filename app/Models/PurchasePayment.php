@@ -25,10 +25,10 @@ class PurchasePayment extends Model
     ];
 
     protected $casts = [
-        'payment_date' => 'date',
-        'amount' => 'float',
+        'payment_date'  => 'date',
+        'amount'        => 'float',
         'exchange_rate' => 'float',
-        'base_amount' => 'float',
+        'base_amount'   => 'float',
     ];
 
     public function purchase()
@@ -54,5 +54,15 @@ class PurchasePayment extends Model
     public function receipts()
     {
         return $this->hasMany(PurchasePaymentReceipt::class, 'purchase_payment_id');
+    }
+
+    public function journalEntries()
+    {
+        return $this->morphMany(JournalEntry::class, 'reference', 'reference_type', 'reference_id');
+    }
+
+    public function journalEntry()
+    {
+        return $this->morphOne(JournalEntry::class, 'reference', 'reference_type', 'reference_id');
     }
 }

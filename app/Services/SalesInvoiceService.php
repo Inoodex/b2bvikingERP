@@ -2,61 +2,73 @@
 
 namespace App\Services;
 
-use App\Models\ChartOfAccount;
-use App\Models\GeneralSetting;
-use App\Models\JournalEntry;
-use App\Models\JournalEntryLine;
 use App\Models\Order;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
+use App\Services\Accounting\JournalEntryService;
 use Illuminate\Support\Facades\DB;
 
 class SalesInvoiceService
 {
-    /**
-     * Create a Sales Invoice from validated payload.
-     */
-    public function createInvoice(array $data, int $userId): SalesInvoice
-    {
-        return DB::transaction(function () use ($data, $userId) {
-            $invoiceNo = \App\Models\DocumentSequence::generateNext('SalesInvoice');
+    protected JournalEntryService $journalService;
 
-            $subtotal = 0;
-            foreach ($data['items'] as $itemData) {
-                $subtotal += ((float)$itemData['qty'] * (float)$itemData['price']);
+    public function __construct(JournalEntryService $journalService)
+    {
+        $this->journalService = $journalService;
+    }
+
+    /**
+     * Generate a new Sales Invoice from an approved / placed Order.
+     */
+    public function createInvoiceFromOrder(Order $order, array $customData = []): SalesInvoice
+    {
+        return DB::transaction(function () use ($order, $customData) {
+            $invoiceNo = OrderNumberService::generateSalesInvoiceNumber();
+            $issueDate = $customData['date'] ?? ($customData['issue_date'] ?? now()->toDateString());
+            $dueDate = $customData['due_date'] ?? now()->addDays(30)->toDateString();
+
+            $subtotal = (float)$order->subtotal_amount;
+            $taxAmount = (float)$order->tax_amount;
+            $discountAmount = (float)$order->discount_amount;
+            $totalAmount = (float)$order->total_amount;
+            $paidAmount = (float)$order->paid_amount;
+            $dueAmount = max(0, $totalAmount - $paidAmount);
+
+            $status = 'posted';
+            if ($dueAmount <= 0) {
+                $status = 'paid';
+            } elseif ($paidAmount > 0) {
+                $status = 'partial';
             }
 
-            $discountAmount = (float)($data['discount_amount'] ?? 0);
-            $taxRate = (float)($data['tax_rate'] ?? 0);
-            $taxAmount = ($subtotal - $discountAmount) * ($taxRate / 100);
-            $totalAmount = ($subtotal - $discountAmount) + $taxAmount;
-
-            $status = $data['status'] ?? 'draft';
-
             $invoice = SalesInvoice::create([
-                'order_id'          => $data['order_id'],
-                'invoice_no'        => $invoiceNo,
-                'date'              => $data['date'],
-                'due_date'          => $data['due_date'] ?? null,
-                'subtotal_amount'   => $subtotal,
-                'discount_amount'   => $discountAmount,
-                'tax_amount'        => $taxAmount,
-                'total_amount'      => $totalAmount,
-                'paid_amount'       => 0,
-                'due_amount'        => $totalAmount,
-                'status'            => $status,
-                'notes'             => $data['notes'] ?? null,
-                'created_by'        => $userId,
+                'invoice_no'       => $invoiceNo,
+                'order_id'         => $order->id,
+                'date'             => $issueDate,
+                'due_date'         => $dueDate,
+                'subtotal_amount'  => $subtotal,
+                'tax_amount'       => $taxAmount,
+                'discount_amount'  => $discountAmount,
+                'total_amount'     => $totalAmount,
+                'paid_amount'      => $paidAmount,
+                'due_amount'       => $dueAmount,
+                'status'           => $status,
+                'notes'            => $customData['notes'] ?? "Invoice generated for Order #{$order->order_no}",
+                'created_by'       => auth()->id() ?? 1,
             ]);
 
-            foreach ($data['items'] as $itemData) {
-                $qty = (float)$itemData['qty'];
-                $price = (float)$itemData['price'];
-                $lineTotal = $qty * $price;
+            // Copy items from order to invoice items
+            $order->loadMissing('items.product');
+            foreach ($order->items as $item) {
+                $qty = (float)$item->quantity;
+                $price = (float)$item->unit_price;
+                $lineTotal = round($qty * $price, 2);
 
                 SalesInvoiceItem::create([
                     'sales_invoice_id' => $invoice->id,
-                    'product_id'       => $itemData['product_id'],
+                    'product_id'       => $item->product_id,
+                    'variant_id'       => $item->variant_id ?? null,
+                    'description'      => $item->product ? $item->product->name : 'Item',
                     'qty'              => $qty,
                     'price'            => $price,
                     'subtotal'         => $lineTotal,
@@ -72,79 +84,33 @@ class SalesInvoiceService
      */
     public function postInvoiceToLedger(SalesInvoice $invoice, int $userId): SalesInvoice
     {
-        if ($invoice->status === 'paid' || $invoice->status === 'sent') {
-            return $invoice;
-        }
-
         return DB::transaction(function () use ($invoice, $userId) {
             $order = $invoice->order;
             $customerName = $order && $order->user ? ($order->user->outlet_name ?: $order->user->name) : 'Customer';
 
-            $arAccount = ChartOfAccount::firstOrCreate(
-                ['code' => '1030'],
-                ['name' => 'Accounts Receivable (Trade Debtors)', 'type' => 'asset', 'status' => 'active']
-            );
-
-            $salesAccount = ChartOfAccount::firstOrCreate(
-                ['code' => '4010'],
-                ['name' => 'Sales Revenue', 'type' => 'income', 'status' => 'active']
-            );
-
-            $vatAccount = ChartOfAccount::firstOrCreate(
-                ['code' => '2030'],
-                ['name' => 'VAT / Tax Payable', 'type' => 'liability', 'status' => 'active']
-            );
-
-            $entryNo = OrderNumberService::generate('JV', JournalEntry::class, 'journal_entries');
-
-            $journalEntry = JournalEntry::create([
-                'entry_no'       => $entryNo,
-                'date'           => $invoice->date,
-                'reference_type' => SalesInvoice::class,
-                'reference_id'   => $invoice->id,
-                'description'    => "Automated Journal for Sales Invoice #{$invoice->invoice_no} ({$customerName})",
-                'status'         => 'posted',
-                'created_by'     => $userId,
-            ]);
-
-            // 1. Debit AR (Total Invoice Amount)
-            JournalEntryLine::create([
-                'journal_entry_id' => $journalEntry->id,
-                'account_id'       => $arAccount->id,
-                'debit_amount'     => $invoice->total_amount,
-                'credit_amount'    => 0,
-                'description'      => "AR: Invoice #{$invoice->invoice_no} - {$customerName}",
-                'party_type'       => 'customer',
-                'party_id'         => $order?->user_id,
-            ]);
-
-            // 2. Credit Sales Revenue (Subtotal - Discount)
             $netSales = max(0, (float)$invoice->subtotal_amount - (float)$invoice->discount_amount);
-            JournalEntryLine::create([
-                'journal_entry_id' => $journalEntry->id,
-                'account_id'       => $salesAccount->id,
-                'debit_amount'     => 0,
-                'credit_amount'    => $netSales,
-                'description'      => "Sales Revenue: Invoice #{$invoice->invoice_no}",
-                'party_type'       => 'customer',
-                'party_id'         => $order?->user_id,
-            ]);
+            $taxAmount = (float)$invoice->tax_amount;
+            $totalAmount = (float)$invoice->total_amount;
 
-            // 3. Credit Tax/VAT Payable
-            if ((float)$invoice->tax_amount > 0) {
-                JournalEntryLine::create([
-                    'journal_entry_id' => $journalEntry->id,
-                    'account_id'       => $vatAccount->id,
-                    'debit_amount'     => 0,
-                    'credit_amount'    => (float)$invoice->tax_amount,
-                    'description'      => "VAT Payable: Invoice #{$invoice->invoice_no}",
-                    'party_type'       => 'customer',
-                    'party_id'         => $order?->user_id,
-                ]);
+            $lines = [
+                ['account_code' => '1030', 'debit' => $totalAmount, 'credit' => 0],         // DR Accounts Receivable
+                ['account_code' => '4010', 'debit' => 0,            'credit' => $netSales],    // CR Sales Revenue
+            ];
+
+            if ($taxAmount > 0) {
+                $lines[] = ['account_code' => '2030', 'debit' => 0, 'credit' => $taxAmount]; // CR Sales Tax Payable
             }
 
-            $invoice->update(['status' => 'sent']);
-            return $invoice->fresh();
+            $date = $invoice->date ? date('Y-m-d', strtotime($invoice->date)) : now()->toDateString();
+            $this->journalService->postJournal(
+                'Sales Invoice Posted',
+                $invoice,
+                $lines,
+                $date,
+                "Sales Invoice #{$invoice->invoice_no} ({$customerName})"
+            );
+
+            return $invoice;
         });
     }
 }

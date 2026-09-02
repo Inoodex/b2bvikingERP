@@ -70,9 +70,17 @@ class CheckPermission
             'Manage Order Place' => ['BookingController', 'FrontendOrderController'],
             'Manage Order Receive' => ['PurchaseController'],
             'Manage Product Requests' => [],
-            'Manage Reports' => ['ReportController'],
             'Manage Notification' => ['NotificationController'],
-            'Accountants' => ['AccountController'],
+            'Accountants' => [
+                'AccountController',
+                'CustomerPaymentController',
+                'VendorBillController',
+                'PurchasePaymentController',
+                'VendorLedgerController',
+                'ChartOfAccountController',
+                'FiscalYearController',
+                'FinancialReportController'
+            ],
         ];
 
         foreach ($map as $permission => $controllers) {

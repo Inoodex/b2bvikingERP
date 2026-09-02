@@ -26,7 +26,28 @@ class VendorBillController extends Controller
      */
     public function index(VendorBillDataTable $dataTable)
     {
-        return $dataTable->render('backend.vendor_bill.index');
+        // 4 Live Executive AP KPI Metrics
+        $totalApPayable = (float) VendorBill::where('due_amount', '>', 0)->sum('due_amount');
+        if ($totalApPayable <= 0) {
+            $totalApPayable = (float) Purchase::where('due_amount', '>', 0)->sum('due_amount');
+        }
+
+        $dueInNext7Days = (float) VendorBill::where('due_amount', '>', 0)
+            ->whereBetween('due_date', [now()->toDateString(), now()->addDays(7)->toDateString()])
+            ->sum('due_amount');
+
+        $criticalOverdueAp = (float) VendorBill::where('due_amount', '>', 0)
+            ->where('due_date', '<', now()->toDateString())
+            ->sum('due_amount');
+
+        $totalBillsCount = VendorBill::count();
+
+        return $dataTable->render('backend.vendor_bill.index', compact(
+            'totalApPayable',
+            'dueInNext7Days',
+            'criticalOverdueAp',
+            'totalBillsCount'
+        ));
     }
 
     /**

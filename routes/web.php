@@ -554,6 +554,33 @@ Route::controller(BackendAccountController::class)->group(function () {
     Route::delete('accounts/vendor-payments/receipts/{receipt}', 'destroyPurchaseReceipt')->name('accounts.vendor-payments.receipts.destroy');
 });
 
+    /** Phase 5 Core Financial Accounting Routes */
+    Route::resource('chart-of-accounts', \App\Http\Controllers\Backend\ChartOfAccountController::class);
+    Route::resource('fiscal-years', \App\Http\Controllers\Backend\FiscalYearController::class)->only(['index', 'store', 'update']);
+    Route::post('fiscal-years/{fiscalYear}/toggle-close', [\App\Http\Controllers\Backend\FiscalYearController::class, 'toggleClose'])->name('fiscal-years.toggle-close');
+
+    /** Banking & Treasury Routes */
+    Route::post('bank-accounts/{bankAccount}/toggle-status', [\App\Http\Controllers\Backend\BankAccountController::class, 'toggleStatus'])->name('bank-accounts.toggle-status');
+    Route::resource('bank-accounts', \App\Http\Controllers\Backend\BankAccountController::class)->except(['create', 'show', 'destroy']);
+    Route::get('bank-reconciliation', [\App\Http\Controllers\Backend\BankReconciliationController::class, 'index'])->name('bank-reconciliation.index');
+    Route::post('bank-reconciliation', [\App\Http\Controllers\Backend\BankReconciliationController::class, 'reconcile'])->name('bank-reconciliation.reconcile');
+
+    /** Petty Cash Register Routes */
+    Route::resource('petty-cash', \App\Http\Controllers\Backend\PettyCashController::class)->only(['index', 'store']);
+
+    /** Fund Transfers (Contra) Routes */
+    Route::resource('fund-transfers', \App\Http\Controllers\Backend\FundTransferController::class)->only(['index', 'store']);
+
+    /** Fixed Assets & Depreciation Routes */
+    Route::post('assets/run-depreciation', [\App\Http\Controllers\Backend\AssetController::class, 'runDepreciation'])->name('assets.run-depreciation');
+    Route::resource('assets', \App\Http\Controllers\Backend\AssetController::class)->only(['index', 'store']);
+
+    /** Financial Reports Routes */
+    Route::get('reports/general-ledger', [\App\Http\Controllers\Backend\FinancialReportController::class, 'generalLedger'])->name('reports.general-ledger');
+    Route::get('reports/trial-balance', [\App\Http\Controllers\Backend\FinancialReportController::class, 'trialBalance'])->name('reports.trial-balance');
+    Route::get('reports/profit-loss', [\App\Http\Controllers\Backend\FinancialReportController::class, 'profitAndLoss'])->name('reports.profit-loss');
+    Route::get('reports/balance-sheet', [\App\Http\Controllers\Backend\FinancialReportController::class, 'balanceSheet'])->name('reports.balance-sheet');
+
     /** Enterprise Master Data Routes */
     Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
         Route::resource('currencies', CurrencyController::class);
@@ -619,6 +646,7 @@ Route::controller(BackendAccountController::class)->group(function () {
     /** Phase 3 Step 3.10: Customer Payment Collection & Receipt Vouchers Engine */
     Route::controller(\App\Http\Controllers\Backend\CustomerPaymentController::class)->group(function () {
         Route::get('customer-payments/get-invoice-details', 'getInvoiceDetails')->name('customer-payments.get-invoice-details');
+        Route::get('customer-payments/get-customer-invoices', 'getCustomerInvoices')->name('customer-payments.get-customer-invoices');
         Route::get('customer-payments/{customerPayment}/pdf', 'pdf')->name('customer-payments.pdf');
     });
     Route::resource('customer-payments', \App\Http\Controllers\Backend\CustomerPaymentController::class);

@@ -99,6 +99,10 @@ class AppServiceProvider extends ServiceProvider
         // });
 
         Paginator::useBootstrapFour();
+
+        // Register Enterprise Financial Accounting Observers
+        \App\Models\GoodsReceipt::observe(\App\Observers\AccountingObserver::class);
+        \App\Models\OrderPayment::observe(\App\Observers\AccountingObserver::class);
     }
 
     private function registerGoogleDriveStorage(): void

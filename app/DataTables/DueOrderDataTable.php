@@ -36,10 +36,7 @@ class DueOrderDataTable extends DataTable
                 return $query->created_at->format('d M, Y');
             })
             ->addColumn('action', function ($query) {
-                if ($query->status === 'completed') {
-                    return '<a href="' . route('admin.accounts.record-payment', ['order_no' => $query->order_no]) . '" class="btn btn-dark btn-sm" title="Record Payment"><i class="fas fa-money-bill-wave"></i> Pay Now</a>';
-                }
-                return '<span class="text-danger small">create issue</span>';
+                return '<a href="' . route('admin.customer-payments.create', ['order_id' => $query->id, 'order_no' => $query->order_no]) . '" class="btn btn-dark btn-sm font-weight-bold shadow-sm" title="Record Payment"><i class="fas fa-money-bill-wave mr-1"></i> Pay Now</a>';
             })
             ->rawColumns(['customer', 'paid_amount', 'due_amount', 'action'])
             ->setRowId('id');

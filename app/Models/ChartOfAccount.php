@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class ChartOfAccount extends Model
@@ -20,7 +21,7 @@ class ChartOfAccount extends Model
     ];
 
     protected $casts = [
-        'is_group' => 'boolean',
+        'is_group'  => 'boolean',
         'is_active' => 'boolean',
     ];
 
@@ -32,5 +33,38 @@ class ChartOfAccount extends Model
     public function children()
     {
         return $this->hasMany(ChartOfAccount::class, 'parent_id');
+    }
+
+    public function journalLines()
+    {
+        return $this->hasMany(JournalEntryLine::class, 'account_id');
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopePostingAccounts(Builder $query): Builder
+    {
+        return $query->where('is_group', false)->where('is_active', true);
+    }
+
+    public function getBalanceAttribute(): float
+    {
+        $debit = (float) $this->journalLines()->sum('debit');
+        $credit = (float) $this->journalLines()->sum('credit');
+
+        if ($this->normal_balance === 'debit') {
+            return round($debit - $credit, 2);
+        }
+
+        return round($credit - $debit, 2);
+    }
+
+    public function isSystemProtected(): bool
+    {
+        $protectedCodes = ['1010', '1020', '1030', '1050', '2010', '2020', '2030', '3010', '3020', '4010', '5010'];
+        return in_array($this->account_code, $protectedCodes);
     }
 }
