@@ -18,6 +18,7 @@ class VendorReturn extends Model
         'debit_note_no',
         'reason',
         'status',
+        'approval_status',
         'settlement_type',
         'replacement_product_id',
         'replacement_variant_id',
@@ -97,5 +98,15 @@ class VendorReturn extends Model
             'cash_refund'         => '<span class="badge badge-success"><i class="fas fa-hand-holding-usd"></i> Money Refunded</span>',
             default               => '<span class="badge badge-secondary">' . ucfirst(str_replace('_', ' ', $this->settlement_type)) . '</span>',
         };
+    }
+
+    public function approvals()
+    {
+        return $this->morphMany(Approval::class, 'approvable');
+    }
+
+    public function isFullyApproved(): bool
+    {
+        return $this->approval_status === 'approved';
     }
 }

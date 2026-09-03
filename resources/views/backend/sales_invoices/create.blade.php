@@ -259,8 +259,7 @@
 
         $('#order_id_select').on('change', function() {
             let orderId = $(this).val();
-            let doId = $('#delivery_order_id_select').val();
-            if (orderId && !doId) {
+            if (orderId) {
                 fetchInvoiceItems({ order_id: orderId });
             }
         });

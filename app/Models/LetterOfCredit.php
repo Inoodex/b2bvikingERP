@@ -22,6 +22,7 @@ class LetterOfCredit extends Model
         'issue_date',
         'expiry_date',
         'status',
+        'approval_status',
     ];
 
     protected $casts = [
@@ -69,5 +70,15 @@ class LetterOfCredit extends Model
     public function getCurrencySymbolAttribute(): string
     {
         return $this->currency?->symbol ?? $this->vendor?->currency?->symbol ?? 'kr.';
+    }
+
+    public function approvals()
+    {
+        return $this->morphMany(Approval::class, 'approvable');
+    }
+
+    public function isFullyApproved(): bool
+    {
+        return $this->approval_status === 'approved';
     }
 }

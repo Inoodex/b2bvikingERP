@@ -44,7 +44,8 @@ class LetterOfCreditController extends Controller
             'currency_id' => $po->currency_id ?? $po->vendor?->currency_id,
             'issue_date' => $request->issue_date,
             'expiry_date' => $request->expiry_date,
-            'status' => 'open',
+            'status' => 'draft',
+            'approval_status' => 'pending',
         ]);
 
         // Save 13 Normalized LC Expenses if present
@@ -65,16 +66,73 @@ class LetterOfCreditController extends Controller
         $po->update([
             'lc_id' => $lc->id,
         ]);
-        $po->advanceMilestone('lc_opened');
 
-        Toastr::success('Letter of Credit (LC) registered successfully!');
+        // Submit for multi-step approval
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $approvalService->submitForApproval($lc, (float)$lc->amount);
+
+        if ($lc->approval_status === 'approved') {
+            $lc->update(['status' => 'open']);
+            $po->advanceMilestone('lc_opened');
+            Toastr::success('Letter of Credit (LC) registered and approved successfully!');
+        } else {
+            Toastr::info("Letter of Credit (LC) #{$lc->lc_no} registered and submitted for managerial approval.", 'Pending Approval');
+        }
+
         return redirect()->route('admin.letters-of-credit.show', $lc->id);
     }
 
     public function show($id): View
     {
         $lc = LetterOfCredit::with(['vendor', 'currency', 'proformaInvoice', 'purchases', 'expenses', 'amendments'])->findOrFail($id);
-        return view('backend.purchase.lc_show', compact('lc'));
+
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $canApprove = $approvalService->canUserApproveCurrentStep($lc);
+        $activeApproval = \App\Models\Approval::with('step.approverRole')
+            ->where('approvable_type', get_class($lc))
+            ->where('approvable_id', $lc->id)
+            ->where('status', 'pending')
+            ->first();
+
+        return view('backend.purchase.lc_show', compact('lc', 'canApprove', 'activeApproval'));
+    }
+
+    public function approve(Request $request, $id)
+    {
+        $lc = LetterOfCredit::findOrFail($id);
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $success = $approvalService->approveStep($lc, auth()->id(), $request->comments);
+
+        if ($success) {
+            if ($lc->approval_status === 'approved') {
+                $lc->update(['status' => 'open']);
+                foreach ($lc->purchases as $po) {
+                    $po->advanceMilestone('lc_opened');
+                }
+            }
+            Toastr::success('Letter of Credit approval step approved successfully!');
+        } else {
+            Toastr::error('Unauthorized or failed to approve Letter of Credit step.');
+        }
+
+        return redirect()->back();
+    }
+
+    public function reject(Request $request, $id)
+    {
+        $request->validate(['reason' => 'required|string|max:1000']);
+        $lc = LetterOfCredit::findOrFail($id);
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $success = $approvalService->rejectStep($lc, auth()->id(), $request->reason);
+
+        if ($success) {
+            $lc->update(['status' => 'rejected']);
+            Toastr::warning('Letter of Credit application rejected.');
+        } else {
+            Toastr::error('Unauthorized or failed to reject Letter of Credit step.');
+        }
+
+        return redirect()->back();
     }
 
     public function addAmendment(Request $request, $id): RedirectResponse

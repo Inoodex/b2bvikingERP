@@ -44,7 +44,21 @@
                                     @elseif($stockTransfer->status === 'cancelled')
                                         <span class="badge badge-danger"><i class="fas fa-times-circle mr-1"></i> Cancelled</span>
                                     @else
-                                        <span class="badge badge-warning"><i class="fas fa-clock mr-1"></i> Draft (Pending Dispatch)</span>
+                                        <span class="badge badge-warning"><i class="fas fa-clock mr-1"></i> Draft</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Approval:</th>
+                                <td>
+                                    @if($stockTransfer->approval_status === 'approved')
+                                        <span class="badge badge-success"><i class="fas fa-check-circle mr-1"></i> Approved</span>
+                                    @elseif($stockTransfer->approval_status === 'rejected')
+                                        <span class="badge badge-danger"><i class="fas fa-times-circle mr-1"></i> Rejected</span>
+                                    @elseif($stockTransfer->approval_status === 'level1_approved')
+                                        <span class="badge badge-info"><i class="fas fa-tasks mr-1"></i> Multi-Step In Progress</span>
+                                    @else
+                                        <span class="badge badge-warning"><i class="fas fa-hourglass-half mr-1"></i> Pending Approval</span>
                                     @endif
                                 </td>
                             </tr>
@@ -91,12 +105,19 @@
 
                     <div class="card-footer bg-light border-top py-3">
                         @if($stockTransfer->status === 'draft')
-                            <form id="dispatch_transfer_form" action="{{ route('admin.stock-transfers.dispatch', $stockTransfer->id) }}" method="POST" class="mb-2">
-                                @csrf
-                                <button type="button" class="btn btn-primary btn-block font-weight-bold shadow-sm py-2" id="btn_dispatch_transfer">
-                                    <i class="fas fa-truck mr-1"></i> Dispatch Transfer (Deduct Source Stock)
+                            @if($stockTransfer->approval_status !== 'approved')
+                                <button type="button" class="btn btn-secondary btn-block font-weight-bold py-2 mb-2 disabled" title="Dispatch is locked until all approval steps are completed" disabled>
+                                    <i class="fas fa-lock mr-1"></i> Dispatch Locked (Approval In Progress)
                                 </button>
-                            </form>
+                            @else
+                                <form id="dispatch_transfer_form" action="{{ route('admin.stock-transfers.dispatch', $stockTransfer->id) }}" method="POST" class="mb-2">
+                                    @csrf
+                                    <button type="button" class="btn btn-primary btn-block font-weight-bold shadow-sm py-2" id="btn_dispatch_transfer">
+                                        <i class="fas fa-truck mr-1"></i> Dispatch Transfer (Deduct Source Stock)
+                                    </button>
+                                </form>
+                            @endif
+
                             <form id="cancel_transfer_form" action="{{ route('admin.stock-transfers.cancel', $stockTransfer->id) }}" method="POST">
                                 @csrf
                                 <button type="button" class="btn btn-outline-danger btn-block font-weight-bold py-2" id="btn_cancel_transfer">
@@ -117,6 +138,14 @@
                         @endif
                     </div>
                 </div>
+
+                {{-- Visual Multi-Step Approval Chain & Audit Stepper --}}
+                @include('backend.components.approval_chain', [
+                    'model' => $stockTransfer,
+                    'approveRoute' => 'admin.stock-transfers.approve',
+                    'rejectRoute' => 'admin.stock-transfers.reject',
+                    'rejectModalId' => 'rejectTransferModal'
+                ])
             </div>
 
             <div class="col-lg-8">
@@ -353,6 +382,32 @@
                     </div>
                 </div>
             </div>
+        </div>
+    <!-- Reject Transfer Modal -->
+    <div class="modal fade" id="rejectTransferModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <form method="POST" action="{{ route('admin.stock-transfers.reject', $stockTransfer->id) }}">
+                @csrf
+                <div class="modal-content border-0 shadow" style="border-radius: 12px;">
+                    <div class="modal-header bg-danger text-white py-3">
+                        <h5 class="modal-title font-weight-bold"><i class="fas fa-times-circle mr-2"></i> Reject Stock Transfer</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="mb-3">Are you sure you want to reject Stock Transfer <strong>#{{ $stockTransfer->transfer_no }}</strong>? The transfer will be cancelled and cannot be dispatched.</p>
+                        <div class="form-group mb-0">
+                            <label class="font-weight-bold small text-danger">Reason for Rejection *</label>
+                            <textarea name="reason" class="form-control" rows="3" required placeholder="State exact reason for rejection..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light py-2">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger font-weight-bold px-4"><i class="fas fa-times mr-1"></i> Reject & Cancel</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </section>

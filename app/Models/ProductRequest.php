@@ -17,6 +17,7 @@ class ProductRequest extends Model
         'total_qty',
         'total_amount',
         'order_id',
+        'approval_status',
         'note',
         'admin_note'
     ];
@@ -48,5 +49,15 @@ class ProductRequest extends Model
     public function items()
     {
         return $this->hasMany(ProductRequestItem::class);
+    }
+
+    public function approvals()
+    {
+        return $this->morphMany(Approval::class, 'approvable');
+    }
+
+    public function isFullyApproved(): bool
+    {
+        return $this->approval_status === 'approved';
     }
 }

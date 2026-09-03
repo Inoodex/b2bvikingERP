@@ -226,15 +226,31 @@ class AccountController extends Controller
         $summaryQuery = clone $query;
 
         $summary = [
-            'count' => (clone $summaryQuery)->count(),
-            'total_due' => (clone $summaryQuery)->sum('due_amount'),
+            'count'        => (clone $summaryQuery)->count(),
+            'total_due'    => (clone $summaryQuery)->sum('due_amount'),
             'total_amount' => (clone $summaryQuery)->sum('total_amount'),
         ];
 
+        // Aging buckets — all unpaid purchases (no pagination)
+        $allDuePurchases = Purchase::query()->where('due_amount', '>', 0)->get(['date', 'due_amount']);
+        $today = now()->startOfDay();
+        $aging = ['current' => 0, 'days_30' => 0, 'days_60' => 0, 'days_90' => 0];
+        $agingAmt = ['current' => 0, 'days_30' => 0, 'days_60' => 0, 'days_90' => 0];
+        foreach ($allDuePurchases as $p) {
+            $daysOverdue = (int) $today->diffInDays(\Carbon\Carbon::parse($p->date), false) * -1;
+            $due = (float) $p->due_amount;
+            if ($daysOverdue <= 30)      { $aging['current']++; $agingAmt['current'] += $due; }
+            elseif ($daysOverdue <= 60)  { $aging['days_30']++; $agingAmt['days_30'] += $due; }
+            elseif ($daysOverdue <= 90)  { $aging['days_60']++; $agingAmt['days_60'] += $due; }
+            else                         { $aging['days_90']++; $agingAmt['days_90'] += $due; }
+        }
+
         return view('backend.accounts.vendor_due_purchases', [
-            'purchases' => $purchases,
-            'vendors' => $vendors,
-            'summary' => $summary,
+            'purchases'  => $purchases,
+            'vendors'    => $vendors,
+            'summary'    => $summary,
+            'aging'      => $aging,
+            'agingAmt'   => $agingAmt,
         ]);
     }
 

@@ -70,7 +70,30 @@
                                 </td>
                                 <td class="text-right font-weight-bold text-primary">kr. {{ number_format($tr->amount, 2) }}</td>
                                 <td class="text-center">
-                                    <span class="badge badge-success px-2 py-1"><i class="fas fa-check-circle mr-1"></i> Posted GL</span>
+                                    @if($tr->approval_status === 'approved')
+                                        <span class="badge badge-success px-2 py-1"><i class="fas fa-check-circle mr-1"></i> Posted GL</span>
+                                    @elseif($tr->approval_status === 'rejected')
+                                        <span class="badge badge-danger px-2 py-1"><i class="fas fa-times-circle mr-1"></i> Rejected</span>
+                                    @else
+                                        <span class="badge badge-warning px-2 py-1"><i class="fas fa-hourglass-half mr-1"></i> Pending Approval</span>
+                                        @php
+                                            $approvalService = app(\App\Services\ApprovalService::class);
+                                            $canApproveTransfer = $approvalService->canUserApproveCurrentStep($tr);
+                                        @endphp
+                                        @if($canApproveTransfer)
+                                            <div class="mt-1">
+                                                <form action="{{ route('admin.fund-transfers.approve', $tr->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-success py-0 px-2" title="Approve Transfer & Post to GL">
+                                                        <i class="fas fa-check mr-1"></i> Approve
+                                                    </button>
+                                                </form>
+                                                <button type="button" class="btn btn-sm btn-danger py-0 px-2 btn-reject-ft" data-id="{{ $tr->id }}" title="Reject Transfer">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        @endif
+                                    @endif
                                 </td>
                             </tr>
                         @empty
@@ -134,9 +157,49 @@
                 <div class="modal-footer bg-light border-top p-3">
                     <button type="button" class="btn btn-light font-weight-bold border" data-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary font-weight-bold shadow-sm"><i class="fas fa-check mr-1"></i> Execute Transfer</button>
-                </div>
+                </div><!-- /.modal-footer -->
             </form>
-        </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /#modalCreateTransfer -->
+
+<!-- Modal: Reject Fund Transfer -->
+<div class="modal fade" id="modalRejectTransfer" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <form method="POST" id="rejectTransferForm" action="">
+            @csrf
+            <div class="modal-content border-0 shadow" style="border-radius: 12px;">
+                <div class="modal-header bg-danger text-white py-3">
+                    <h5 class="modal-title font-weight-bold text-white"><i class="fas fa-times-circle mr-2"></i> Reject Fund Transfer</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="mb-3">Are you sure you want to reject this Inter-Account Fund Transfer request? The transfer will not be posted to General Ledger.</p>
+                    <div class="form-group mb-0">
+                        <label class="font-weight-bold small text-danger">Reason for Rejection *</label>
+                        <textarea name="reason" class="form-control" rows="3" required placeholder="State exact reason for rejection..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top p-3">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger font-weight-bold px-4"><i class="fas fa-times mr-1"></i> Reject Transfer</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    $('.btn-reject-ft').on('click', function() {
+        var id = $(this).data('id');
+        $('#rejectTransferForm').attr('action', '{{ url("admin/fund-transfers") }}/' + id + '/reject');
+        $('#modalRejectTransfer').modal('show');
+    });
+});
+</script>
+@endpush

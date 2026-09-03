@@ -70,13 +70,17 @@ class VendorReturnController extends Controller
                 'goods_receipt_id' => $grn->id,
                 'debit_note_no'    => $debitNoteNo,
                 'reason'           => $request->reason,
-                'status'           => 'approved', // Auto-approve upon QC return creation
-                'approved_by'      => Auth::id(),
+                'status'           => 'pending',
+                'approval_status'  => 'pending',
+                'approved_by'      => null,
             ]);
 
+            $totalClaim = 0;
             foreach ($request->items as $itemData) {
                 $qty = (float) $itemData['qty'];
                 $price = (float) $itemData['unit_price'];
+                $lineTotal = round($qty * $price, 2);
+                $totalClaim += $lineTotal;
 
                 VendorReturnItem::create([
                     'vendor_return_id' => $vendorReturn->id,
@@ -84,8 +88,20 @@ class VendorReturnController extends Controller
                     'variant_id'       => $itemData['variant_id'] ?? null,
                     'qty'              => $qty,
                     'unit_price'       => $price,
-                    'total_amount'     => round($qty * $price, 2),
+                    'total_amount'     => $lineTotal,
                     'reason'           => $itemData['reason'] ?? 'QC Rejection',
+                ]);
+            }
+
+            // Submit for multi-step approval
+            $approvalService = app(\App\Services\ApprovalService::class);
+            $approvalService->submitForApproval($vendorReturn, (float)$totalClaim);
+
+            // If auto-approved by workflow engine (no workflow exists or under threshold)
+            if ($vendorReturn->approval_status === 'approved') {
+                $vendorReturn->update([
+                    'status'      => 'approved',
+                    'approved_by' => Auth::id(),
                 ]);
             }
 
@@ -112,7 +128,53 @@ class VendorReturnController extends Controller
 
         $allProducts = \App\Models\Product::where('status', 1)->get();
 
-        return view('backend.vendor_return.show', compact('vendorReturn', 'allProducts'));
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $canApprove = $approvalService->canUserApproveCurrentStep($vendorReturn);
+        $activeApproval = \App\Models\Approval::with('step.approverRole')
+            ->where('approvable_type', get_class($vendorReturn))
+            ->where('approvable_id', $vendorReturn->id)
+            ->where('status', 'pending')
+            ->first();
+
+        return view('backend.vendor_return.show', compact('vendorReturn', 'allProducts', 'canApprove', 'activeApproval'));
+    }
+
+    public function approve(Request $request, $id)
+    {
+        $vendorReturn = VendorReturn::findOrFail($id);
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $success = $approvalService->approveStep($vendorReturn, Auth::id(), $request->comments);
+
+        if ($success) {
+            if ($vendorReturn->approval_status === 'approved') {
+                $vendorReturn->update([
+                    'status'      => 'approved',
+                    'approved_by' => Auth::id(),
+                ]);
+            }
+            Toastr::success('Vendor Return approval step approved successfully!');
+        } else {
+            Toastr::error('Unauthorized or failed to approve vendor return step.');
+        }
+
+        return redirect()->back();
+    }
+
+    public function reject(Request $request, $id)
+    {
+        $request->validate(['reason' => 'required|string|max:1000']);
+        $vendorReturn = VendorReturn::findOrFail($id);
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $success = $approvalService->rejectStep($vendorReturn, Auth::id(), $request->reason);
+
+        if ($success) {
+            $vendorReturn->update(['status' => 'rejected']);
+            Toastr::warning('Vendor Return claim rejected.');
+        } else {
+            Toastr::error('Unauthorized or failed to reject vendor return step.');
+        }
+
+        return redirect()->back();
     }
 
     /**

@@ -194,78 +194,81 @@
                 </div>
             </div>
         </form>
-    <!-- Customer Credit Profile Drawer / Modal -->
-    <div class="modal fade" id="customerCreditDrawerModal" tabindex="-1" role="dialog" aria-labelledby="creditDrawerLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content" style="border-radius: 16px; overflow: hidden;">
-                <div class="modal-header bg-dark text-white py-3 px-4">
-                    <h5 class="modal-title font-weight-bold" id="creditDrawerLabel">
-                        <i class="fas fa-id-card text-warning mr-2"></i> B2B Customer Credit Profile & Risk Analysis
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <div class="p-3 border rounded bg-light text-center">
-                                <small class="text-uppercase text-muted font-weight-bold">Current Receivables</small>
-                                <h4 class="font-weight-bold text-danger mb-0 mt-1" id="drawer-total-due">kr. 0.00</h4>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-3 border rounded bg-light text-center">
-                                <small class="text-uppercase text-muted font-weight-bold">Open Invoices</small>
-                                <h4 class="font-weight-bold text-primary mb-0 mt-1" id="drawer-open-count">0</h4>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-3 border rounded bg-light text-center">
-                                <small class="text-uppercase text-muted font-weight-bold">Credit Standing</small>
-                                <h4 class="font-weight-bold text-success mb-0 mt-1" id="drawer-credit-status">Standard Tier</h4>
-                            </div>
+    </div><!-- /.section-body -->
+</section>
+
+<!-- Customer Credit Profile Modal -->
+<div class="modal fade" id="customerCreditDrawerModal" tabindex="-1" role="dialog" aria-labelledby="creditDrawerLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+            <div class="modal-header text-white py-3 px-4 d-flex justify-content-between align-items-center" style="background: #0f172a;">
+                <h5 class="modal-title font-weight-bold text-white mb-0" id="creditDrawerLabel">
+                    <i class="fas fa-id-card text-warning mr-2"></i> B2B Customer Credit Profile & Risk Analysis
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85; text-shadow: none;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4 bg-white">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded bg-light text-center">
+                            <small class="text-uppercase text-muted font-weight-bold" style="font-size: 11px;">Current Receivables</small>
+                            <h4 class="font-weight-bold text-danger mb-0 mt-1" id="drawer-total-due">kr. 0.00</h4>
                         </div>
                     </div>
-                    <div class="card border mb-3">
-                        <div class="card-header bg-white font-weight-bold">
-                            <i class="fas fa-info-circle text-primary mr-1"></i> Customer Financial Credentials
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded bg-light text-center">
+                            <small class="text-uppercase text-muted font-weight-bold" style="font-size: 11px;">Open Invoices</small>
+                            <h4 class="font-weight-bold text-primary mb-0 mt-1" id="drawer-open-count">0</h4>
                         </div>
-                        <div class="card-body p-3">
-                            <table class="table table-sm table-borderless mb-0">
-                                <tr>
-                                    <th style="width: 35%;">Customer Name:</th>
-                                    <td id="drawer-name" class="font-weight-bold text-dark">-</td>
-                                </tr>
-                                <tr>
-                                    <th>Contact Phone:</th>
-                                    <td id="drawer-phone">-</td>
-                                </tr>
-                                <tr>
-                                    <th>Billing Email:</th>
-                                    <td id="drawer-email">-</td>
-                                </tr>
-                                <tr>
-                                    <th>Unallocated Advance Balance:</th>
-                                    <td><span class="badge badge-success px-2 py-1 font-weight-bold">Credited to GL 2040</span></td>
-                                </tr>
-                            </table>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded bg-light text-center">
+                            <small class="text-uppercase text-muted font-weight-bold" style="font-size: 11px;">Credit Standing</small>
+                            <h4 class="font-weight-bold text-success mb-0 mt-1" id="drawer-credit-status">Standard Tier</h4>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light px-4 py-3">
-                    <button type="button" class="btn btn-secondary font-weight-bold" data-dismiss="modal">Close Profile Drawer</button>
+                <div class="card border mb-0 shadow-none">
+                    <div class="card-header bg-light font-weight-bold text-dark py-2">
+                        <i class="fas fa-info-circle text-primary mr-1"></i> Customer Financial Credentials
+                    </div>
+                    <div class="card-body p-3">
+                        <table class="table table-sm table-borderless mb-0">
+                            <tr>
+                                <th style="width: 35%;">Customer Name:</th>
+                                <td id="drawer-name" class="font-weight-bold text-dark">-</td>
+                            </tr>
+                            <tr>
+                                <th>Contact Phone:</th>
+                                <td id="drawer-phone">-</td>
+                            </tr>
+                            <tr>
+                                <th>Billing Email:</th>
+                                <td id="drawer-email">-</td>
+                            </tr>
+                            <tr>
+                                <th>Unallocated Advance Balance:</th>
+                                <td><span class="badge badge-success px-2 py-1 font-weight-bold">Credited to GL 2040</span></td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
+            </div>
+            <div class="modal-footer bg-light px-4 py-3 d-flex justify-content-end">
+                <button type="button" class="btn btn-secondary font-weight-bold px-4" data-dismiss="modal" style="border-radius: 6px;">Close</button>
             </div>
         </div>
     </div>
-</section>
+</div>
 @endsection
 
 @push('scripts')
 <script>
 $(document).ready(function() {
     let customerInvoices = [];
+    const preloadedInvoiceId = "{{ $selectedInvoiceId ?? '' }}";
 
     function formatMoney(amount) {
         return 'kr. ' + parseFloat(amount || 0).toLocaleString('da-DK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -331,7 +334,7 @@ $(document).ready(function() {
                                 <span class="badge badge-warning text-dark font-weight-bold">${res.invoices.length} Invoices</span>
                             </div>
                             <button type="button" class="btn btn-sm btn-outline-primary btn-block font-weight-bold shadow-sm" data-toggle="modal" data-target="#customerCreditDrawerModal">
-                                <i class="fas fa-id-card-alt mr-1"></i> Open Customer Credit Profile Drawer
+                                <i class="fas fa-id-card-alt mr-1"></i> View Full Credit Profile & Risk Analysis
                             </button>
                         </div>
                     `;
@@ -347,7 +350,11 @@ $(document).ready(function() {
                             rows += `
                                 <tr>
                                     <td class="text-center font-weight-bold text-muted">${idx + 1}</td>
-                                    <td><strong>${inv.invoice_no}</strong></td>
+                                    <td>
+                                        <strong class="text-dark">${inv.invoice_no}</strong>
+                                        <div class="small text-muted font-weight-bold"><i class="fas fa-shopping-bag mr-1"></i> ${inv.order_no}</div>
+                                        <div class="small text-primary mt-1" style="font-size: 11px;"><i class="fas fa-boxes mr-1"></i> ${inv.items_summary}</div>
+                                    </td>
                                     <td>${inv.date || 'N/A'}</td>
                                     <td><span class="badge badge-light border text-danger font-weight-bold">${inv.due_date || 'N/A'}</span></td>
                                     <td class="text-right">${formatMoney(inv.total_amount)}</td>
@@ -363,7 +370,16 @@ $(document).ready(function() {
                         $('#invoices-tbody').html(rows);
 
                         // If opened for specific invoice or auto prefilled, run auto-allocate
-                        if ($('#total_amount_input').val() > 0) {
+                        if (preloadedInvoiceId) {
+                            const targetInput = $(`.alloc-input[data-invoice-id="${preloadedInvoiceId}"]`);
+                            if (targetInput.length) {
+                                const due = parseFloat(targetInput.data('due')) || 0;
+                                const initialAmt = parseFloat($('#total_amount_input').val()) || due;
+                                targetInput.val(Math.min(initialAmt, due).toFixed(2));
+                            } else if ($('#total_amount_input').val() > 0) {
+                                runAutoAllocate();
+                            }
+                        } else if ($('#total_amount_input').val() > 0) {
                             runAutoAllocate();
                         }
                     }

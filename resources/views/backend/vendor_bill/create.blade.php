@@ -97,7 +97,6 @@
                             </div>
                         </div>
                     </div>
-                    </div>
 
                     @if($debitNoteAmount > 0)
                     <div class="card card-warning">
@@ -204,6 +203,16 @@
                                                     </td>
                                                 </tr>
                                             @endforeach
+                                        @endif
+
+                                        @if($calculatedSubtotal <= 0)
+                                            <tr>
+                                                <td colspan="5" class="text-center py-4 text-warning">
+                                                    <i class="fas fa-exclamation-triangle fa-2x mb-2 d-block"></i>
+                                                    <strong>No line items available to bill.</strong>
+                                                    <p class="small text-muted mb-0">Please verify that the source Goods Receipt has accepted items or select another document.</p>
+                                                </td>
+                                            </tr>
                                         @endif
                                     </tbody>
                                 </table>

@@ -38,6 +38,8 @@ class ApprovalWorkflowController extends Controller
             'App\Models\LetterOfCredit' => 'Import Letter of Credit (LC)',
             'App\Models\VendorReturn' => 'Vendor Return / Debit Note',
             'App\Models\StockTransfer' => 'Internal Stock Transfer',
+            'App\Models\VendorBill' => 'Vendor Bill (AP Invoice)',
+            'App\Models\FundTransfer' => 'Inter-Account Bank Transfer (Contra)',
         ];
         return view('backend.master.approval_workflows.create', compact('roles', 'users', 'models'));
     }
@@ -67,6 +69,8 @@ class ApprovalWorkflowController extends Controller
             'App\Models\LetterOfCredit' => 'Import Letter of Credit (LC)',
             'App\Models\VendorReturn' => 'Vendor Return / Debit Note',
             'App\Models\StockTransfer' => 'Internal Stock Transfer',
+            'App\Models\VendorBill' => 'Vendor Bill (AP Invoice)',
+            'App\Models\FundTransfer' => 'Inter-Account Bank Transfer (Contra)',
         ];
         return view('backend.master.approval_workflows.edit', compact('workflow', 'roles', 'users', 'models'));
     }

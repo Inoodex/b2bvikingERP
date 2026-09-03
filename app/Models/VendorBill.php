@@ -25,6 +25,7 @@ class VendorBill extends Model
         'paid_amount',
         'due_amount',
         'payment_status',
+        'approval_status',
         'notes',
         'created_by',
     ];
@@ -94,5 +95,15 @@ class VendorBill extends Model
             'overpaid' => '<span class="badge badge-info">Overpaid</span>',
             default    => '<span class="badge badge-danger">Unpaid</span>',
         };
+    }
+
+    public function approvals()
+    {
+        return $this->morphMany(Approval::class, 'approvable');
+    }
+
+    public function isFullyApproved(): bool
+    {
+        return $this->approval_status === 'approved';
     }
 }

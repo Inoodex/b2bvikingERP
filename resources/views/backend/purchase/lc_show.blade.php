@@ -22,9 +22,18 @@
             <div class="pt-3 border-top d-flex justify-content-between align-items-center flex-wrap">
                 <div>
                     <span class="badge badge-success py-2 px-3 mr-2"><i class="fas fa-university mr-1"></i> {{ $lc->issuing_bank }}</span>
-                    <span class="badge badge-info py-2 px-3"><i class="fas fa-flag mr-1"></i> Status: {{ strtoupper($lc->status) }}</span>
+                    <span class="badge badge-info py-2 px-3 mr-2"><i class="fas fa-flag mr-1"></i> Status: {{ strtoupper($lc->status) }}</span>
+                    @if($lc->approval_status === 'approved')
+                        <span class="badge badge-success py-2 px-3"><i class="fas fa-check-circle mr-1"></i> Approved</span>
+                    @elseif($lc->approval_status === 'rejected')
+                        <span class="badge badge-danger py-2 px-3"><i class="fas fa-times-circle mr-1"></i> Rejected</span>
+                    @elseif($lc->approval_status === 'level1_approved')
+                        <span class="badge badge-info py-2 px-3"><i class="fas fa-tasks mr-1"></i> Multi-Step In Progress</span>
+                    @else
+                        <span class="badge badge-warning py-2 px-3"><i class="fas fa-hourglass-half mr-1"></i> Pending Approval</span>
+                    @endif
                 </div>
-                <div class="mt-2 mt-sm-0">
+                <div class="mt-2 mt-sm-0 d-flex">
                     <button type="button" class="btn btn-primary btn-sm font-weight-bold" data-toggle="modal" data-target="#amendmentModal">
                         <i class="fas fa-edit mr-1"></i> Record LC Amendment
                     </button>
@@ -33,6 +42,14 @@
         </div>
 
         <div class="section-body">
+            {{-- Visual Multi-Step Approval Chain & Audit Stepper --}}
+            @include('backend.components.approval_chain', [
+                'model' => $lc,
+                'approveRoute' => 'admin.letters-of-credit.approve',
+                'rejectRoute' => 'admin.letters-of-credit.reject',
+                'rejectModalId' => 'rejectLcModal'
+            ])
+
             <!-- Meta KPI Cards -->
             <div class="row mb-4">
                 <div class="col-md-3">
@@ -169,6 +186,31 @@
                     </div>
                 </form>
             </div>
+    <!-- Reject LC Modal -->
+    <div class="modal fade" id="rejectLcModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <form method="POST" action="{{ route('admin.letters-of-credit.reject', $lc->id) }}">
+                @csrf
+                <div class="modal-content border-0 shadow" style="border-radius: 12px;">
+                    <div class="modal-header bg-danger text-white py-3">
+                        <h5 class="modal-title font-weight-bold"><i class="fas fa-times-circle mr-2"></i> Reject Letter of Credit</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="mb-3">Are you sure you want to reject Letter of Credit <strong>#{{ $lc->lc_no }}</strong>? The LC application will be marked as rejected.</p>
+                        <div class="form-group mb-0">
+                            <label class="font-weight-bold small text-danger">Reason for Rejection *</label>
+                            <textarea name="reason" class="form-control" rows="3" required placeholder="State exact reason for rejection..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light py-2">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger font-weight-bold px-4"><i class="fas fa-times mr-1"></i> Reject LC</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 @endsection

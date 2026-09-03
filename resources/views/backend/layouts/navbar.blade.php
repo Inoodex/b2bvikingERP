@@ -5,8 +5,8 @@
   $ordersActive     = request()->routeIs('admin.orders.*', 'admin.sales-orders.*', 'admin.sales-quotations.*', 'admin.custom-product-requests.*', 'admin.product-requests.*', 'admin.delivery-orders.*', 'admin.sales-returns.*', 'admin.credit-notes.*', 'admin.pricelists.*', 'admin.coupons.*', 'admin.gift-cards.*');
   $purchaseActive   = request()->routeIs('admin.bookings.*', 'admin.purchases.*');
   $procurementActive = request()->routeIs('admin.rfqs.*', 'admin.purchase-orders.*', 'admin.letters-of-credit.*', 'admin.shipments.*', 'admin.goods-receipts.*', 'admin.vendor-returns.*');
-  $reportsActive    = request()->routeIs('admin.reports.*', 'admin.purchase-reports.*');
-  $accountsActive   = request()->routeIs('admin.accounts.*', 'admin.sales-invoices.*', 'admin.customer-payments.*', 'admin.vendor-bills.*', 'admin.purchase-payments.*', 'admin.vendor-ledger.*', 'admin.chart-of-accounts.*', 'admin.fiscal-years.*', 'admin.bank-accounts.*', 'admin.bank-reconciliation.*', 'admin.petty-cash.*', 'admin.fund-transfers.*', 'admin.assets.*');
+  $reportsActive    = request()->routeIs('admin.reports.*', 'admin.purchase-reports.*', 'admin.vendor-ledger.*');
+  $accountsActive   = request()->routeIs('admin.accounts.*', 'admin.sales-invoices.*', 'admin.customer-payments.*', 'admin.vendor-bills.*', 'admin.purchase-payments.*', 'admin.chart-of-accounts.*', 'admin.fiscal-years.*', 'admin.bank-accounts.*', 'admin.bank-reconciliation.*', 'admin.petty-cash.*', 'admin.fund-transfers.*', 'admin.assets.*', 'admin.journal-vouchers.*');
   $brandsActive     = request()->routeIs('admin.brand.*');
   $vendorsActive    = request()->routeIs('admin.vendor.*');
   $masterActive     = request()->routeIs('admin.master.*');
@@ -995,6 +995,17 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
   z-index: 10000000 !important;
 }
 
+/* Ensure Bootstrap Modals & Backdrops sit above the glass sidebar (1050) & topbar (1030) */
+.modal-backdrop {
+  z-index: 10500 !important;
+}
+.modal {
+  z-index: 10550 !important;
+}
+.select2-container--open {
+  z-index: 10600 !important;
+}
+
 .cart-drawer-backdrop {
   position: fixed;
   inset: 0;
@@ -1261,6 +1272,71 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
       </a>
     </li>
 
+    {{-- Topbar Pending Approvals Hub (Rich Dropdown) --}}
+    @php
+      $topbarPendingApprovals = \App\Models\Approval::with(['step.approverRole', 'user'])
+        ->where('status', 'pending')
+        ->latest()
+        ->take(5)
+        ->get();
+      $pendingApprovalsCount = \App\Models\Approval::where('status', 'pending')->count();
+    @endphp
+    <li class="dropdown dropdown-list-toggle">
+      <a href="javascript:void(0)" data-toggle="dropdown" class="notification-toggle" title="Pending Approvals ({{ $pendingApprovalsCount }})">
+        <i class="fas fa-check-double text-warning"></i>
+        @if($pendingApprovalsCount > 0)
+          <span class="badge" style="background: #10b981; color: #fff; font-weight: 700; font-size: 10px; border-radius: 999px;">{{ $pendingApprovalsCount }}</span>
+        @endif
+      </a>
+      <div class="dropdown-menu dropdown-menu-right dropdown-list notif-dropdown" style="width: 360px;">
+        <div class="notif-header d-flex justify-content-between align-items-center py-2 px-3 border-bottom" style="background: #1e293b; color: #fff;">
+          <span class="font-weight-bold" style="font-size: 13px;">
+            <i class="fas fa-tasks text-warning mr-1"></i> Pending Approvals ({{ $pendingApprovalsCount }})
+          </span>
+          <a href="{{ route('admin.approvals.index') }}" class="small font-weight-bold text-warning" style="text-decoration: underline;">
+            Open Inbox
+          </a>
+        </div>
+        <div class="notif-body py-1" style="max-height: 280px; overflow-y: auto;">
+          @forelse($topbarPendingApprovals as $tba)
+            @php
+              $tbaDoc = $tba->approvable;
+              $tbaType = class_basename($tba->approvable_type);
+              $tbaNo = '-';
+              if ($tbaDoc) {
+                if ($tbaType === 'Purchase') $tbaNo = $tbaDoc->po_no ?? 'PO #'.$tbaDoc->id;
+                elseif ($tbaType === 'ProductRequest') $tbaNo = $tbaDoc->request_no ?? 'PR #'.$tbaDoc->id;
+                elseif ($tbaType === 'ComparisonStatement') $tbaNo = 'CS #'.$tbaDoc->id;
+                elseif ($tbaType === 'StockTransfer') $tbaNo = $tbaDoc->transfer_no ?? 'TR #'.$tbaDoc->id;
+                elseif ($tbaType === 'LetterOfCredit') $tbaNo = $tbaDoc->lc_no ?? 'LC #'.$tbaDoc->id;
+                elseif ($tbaType === 'VendorReturn') $tbaNo = $tbaDoc->return_no ?? 'RET #'.$tbaDoc->id;
+                elseif ($tbaType === 'Order') $tbaNo = $tbaDoc->order_no ?? 'SO #'.$tbaDoc->id;
+                elseif ($tbaType === 'VendorBill') $tbaNo = $tbaDoc->bill_no ?? 'BILL #'.$tbaDoc->id;
+                elseif ($tbaType === 'FundTransfer') $tbaNo = 'Transfer #'.$tbaDoc->id;
+              }
+            @endphp
+            <a href="{{ route('admin.approvals.index') }}" class="dropdown-item py-2 border-bottom d-flex align-items-center justify-content-between" style="white-space: normal;">
+              <div>
+                <strong class="text-dark d-block font-weight-bold" style="font-size: 12px;">{{ $tbaType }}: {{ $tbaNo }}</strong>
+                <small class="text-muted">{{ $tba->step?->step_name ?: 'Step ' . ($tba->step?->step_order ?? 1) }} ({{ $tba->step?->approverRole?->name ?? 'Approver' }})</small>
+              </div>
+              <span class="badge badge-warning text-dark font-weight-bold ml-2">Pending</span>
+            </a>
+          @empty
+            <div class="text-center py-4 text-muted">
+              <i class="fas fa-check-circle fa-2x mb-2 text-success d-block"></i>
+              <small>No pending approvals awaiting sign-off.</small>
+            </div>
+          @endforelse
+        </div>
+        <div class="notif-footer text-center py-2 border-top bg-light">
+          <a href="{{ route('admin.approvals.index') }}" class="font-weight-bold text-primary small">
+            View All Pending Approvals <i class="fas fa-arrow-right ml-1"></i>
+          </a>
+        </div>
+      </div>
+    </li>
+
     <li class="dropdown dropdown-list-toggle">
       <a id="low-stock-count-toggle" href="#" data-toggle="dropdown" class="notification-toggle" aria-label="Notifications">
         <i class="fas fa-bell"></i>
@@ -1507,7 +1583,13 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.reports.trial-balance') }}"><i class="fas fa-balance-scale"></i> Trial Balance</a></li>
           <li><a href="{{ route('admin.reports.profit-loss') }}"><i class="fas fa-chart-line"></i> Profit & Loss (P&L)</a></li>
           <li><a href="{{ route('admin.reports.balance-sheet') }}"><i class="fas fa-building"></i> Balance Sheet</a></li>
-          <li><a href="{{ route('admin.reports.ar-aging') }}"><i class="fas fa-clock"></i> AR Aging Receivables</a></li>
+
+          <li class="sb-submenu-header">Payables & Receivables Statements</li>
+          <li><a href="{{ route('admin.accounts.index') }}"><i class="fas fa-receipt"></i> Customer Transaction Ledger</a></li>
+          <li><a href="{{ route('admin.reports.ar-aging') }}"><i class="fas fa-clock"></i> AR Customer Aging</a></li>
+          <li><a href="{{ route('admin.accounts.vendor-payments.index') }}"><i class="fas fa-money-check-alt"></i> Vendor Payment Ledger</a></li>
+          <li><a href="{{ route('admin.vendor-ledger.aging') }}"><i class="fas fa-hourglass-half"></i> AP Vendor Aging</a></li>
+          <li><a href="{{ route('admin.vendor-ledger.index') }}"><i class="fas fa-file-invoice-dollar"></i> Supplier Ledger & Statement</a></li>
 
           <li class="sb-submenu-header">Analytics & Stock Reports</li>
           <li><a href="{{ route('admin.reports.index') }}"><i class="fas fa-chart-pie"></i> All Analytics Reports</a></li>
@@ -1540,24 +1622,28 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <i class="fas fa-chevron-down sb-arrow"></i>
         </a>
         <ul class="sb-submenu">
-          <li class="sb-submenu-header">Core Financial Engine</li>
+          <li class="sb-submenu-header">General Ledger & Setup</li>
           <li><a href="{{ route('admin.chart-of-accounts.index') }}"><i class="fas fa-sitemap"></i> Chart of Accounts (COA)</a></li>
-          <li><a href="{{ route('admin.fiscal-years.index') }}"><i class="fas fa-calendar-alt"></i> Fiscal Years & Lock Manager</a></li>
-          <li class="sb-submenu-header">Banking & Cash Management</li>
+          <li><a href="{{ route('admin.journal-vouchers.index') }}"><i class="fas fa-journal-whills"></i> Manual Journal Vouchers (JV)</a></li>
+          <li><a href="{{ route('admin.fiscal-years.index') }}"><i class="fas fa-calendar-alt"></i> Fiscal Years & Period Lock</a></li>
+
+          <li class="sb-submenu-header">Banking & Treasury</li>
           <li><a href="{{ route('admin.bank-accounts.index') }}"><i class="fas fa-university"></i> Bank Accounts</a></li>
           <li><a href="{{ route('admin.bank-reconciliation.index') }}"><i class="fas fa-sync"></i> Bank Reconciliation</a></li>
           <li><a href="{{ route('admin.petty-cash.index') }}"><i class="fas fa-coins"></i> Petty Cash Register</a></li>
           <li><a href="{{ route('admin.fund-transfers.index') }}"><i class="fas fa-random"></i> Inter-Account Transfers</a></li>
-          <li class="sb-submenu-header">Customer Accounts & AR</li>
+
+          <li class="sb-submenu-header">Accounts Receivable (Customer)</li>
           <li><a href="{{ route('admin.sales-invoices.index') }}"><i class="fas fa-file-invoice"></i> Sales Invoices</a></li>
-          <li><a href="{{ route('admin.customer-payments.index') }}"><i class="fas fa-receipt"></i> Payment Receipts</a></li>
           <li><a href="{{ route('admin.customer-payments.create') }}"><i class="fas fa-hand-holding-usd"></i> Receive Payment</a></li>
+          <li><a href="{{ route('admin.customer-payments.index') }}"><i class="fas fa-receipt"></i> Payment Receipts</a></li>
           <li><a href="{{ route('admin.accounts.due-orders') }}"><i class="fas fa-clock"></i> Customer Due Orders</a></li>
-          <li class="sb-submenu-header">Vendor Accounts & AP</li>
+
+          <li class="sb-submenu-header">Accounts Payable (Vendor)</li>
           <li><a href="{{ route('admin.vendor-bills.index') }}"><i class="fas fa-file-invoice-dollar"></i> Vendor Bills</a></li>
           <li><a href="{{ route('admin.purchase-payments.index') }}"><i class="fas fa-receipt"></i> Payment Vouchers</a></li>
-          <li><a href="{{ route('admin.vendor-ledger.index') }}"><i class="fas fa-book"></i> Supplier Ledger & Statement</a></li>
-          <li><a href="{{ route('admin.vendor-ledger.aging') }}"><i class="fas fa-clock"></i> AP Aging Analysis</a></li>
+          <li><a href="{{ route('admin.accounts.vendor-payments.due-purchases') }}"><i class="fas fa-exclamation-circle"></i> Vendor Due Purchases</a></li>
+
           <li class="sb-submenu-header">Fixed Assets & Depreciation</li>
           <li><a href="{{ route('admin.assets.index') }}"><i class="fas fa-building"></i> Fixed Assets Register</a></li>
         </ul>
@@ -1608,6 +1694,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.master.departments.index') }}"><i class="fas fa-sitemap"></i> Departments</a></li>
           <li><a href="{{ route('admin.master.currencies.index') }}"><i class="fas fa-coins"></i> Currencies</a></li>
           <li><a href="{{ route('admin.master.approval-workflows.index') }}"><i class="fas fa-check-double"></i> Approval Workflows</a></li>
+          <li><a href="{{ route('admin.approvals.index') }}"><i class="fas fa-inbox"></i> Approvals Inbox</a></li>
         </ul>
       </li>
       @endif

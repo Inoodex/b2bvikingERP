@@ -51,7 +51,7 @@ class AssetController extends Controller
         $assetCode = 'FA-' . str_pad($count, 4, '0', STR_PAD_LEFT);
 
         Asset::create([
-            'company_id'          => 1,
+            'company_id'          => auth()->user()->company_id ?? 1,
             'asset_code'          => $assetCode,
             'name'                => $validated['name'],
             'category'            => $validated['category'],

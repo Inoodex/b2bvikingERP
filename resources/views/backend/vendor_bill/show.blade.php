@@ -78,6 +78,18 @@
                                 <strong>Payment Status:</strong> {!! $bill->formatted_status !!}
                             </li>
                             <li class="list-group-item d-flex justify-content-between">
+                                <strong>Approval:</strong> 
+                                @if($bill->approval_status === 'approved')
+                                    <span class="badge badge-success"><i class="fas fa-check-circle mr-1"></i> Approved</span>
+                                @elseif($bill->approval_status === 'rejected')
+                                    <span class="badge badge-danger"><i class="fas fa-times-circle mr-1"></i> Rejected</span>
+                                @elseif($bill->approval_status === 'level1_approved')
+                                    <span class="badge badge-info"><i class="fas fa-tasks mr-1"></i> Multi-Step In Progress</span>
+                                @else
+                                    <span class="badge badge-warning"><i class="fas fa-hourglass-half mr-1"></i> Pending Approval</span>
+                                @endif
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
                                 <strong>Bill Date:</strong> {{ $bill->bill_date ? $bill->bill_date->format('d M Y') : 'N/A' }}
                             </li>
                             <li class="list-group-item d-flex justify-content-between">
@@ -144,13 +156,25 @@
                             </div>
                         </div>
 
-                        @if(in_array($bill->payment_status, ['unpaid', 'partial']))
+                        @if($bill->approval_status !== 'approved')
+                            <button type="button" class="btn btn-secondary btn-block mt-3 disabled" disabled title="Payment locked until bill is fully approved">
+                                <i class="fas fa-lock mr-2"></i> Payment Locked (Approval In Progress)
+                            </button>
+                        @elseif(in_array($bill->payment_status, ['unpaid', 'partial']))
                             <a href="{{ route('admin.purchase-payments.create', ['bill_id' => $bill->id]) }}" class="btn btn-success btn-block mt-3">
                                 <i class="fas fa-money-bill-wave mr-2"></i> Record Payment Voucher
                             </a>
                         @endif
                     </div>
                 </div>
+
+                {{-- Visual Multi-Step Approval Chain & Audit Stepper --}}
+                @include('backend.components.approval_chain', [
+                    'model' => $bill,
+                    'approveRoute' => 'admin.vendor-bills.approve',
+                    'rejectRoute' => 'admin.vendor-bills.reject',
+                    'rejectModalId' => 'rejectBillModal'
+                ])
             </div>
 
             <div class="col-md-8">
@@ -219,6 +243,34 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Reject Bill Modal -->
+    <div class="modal fade" id="rejectBillModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <form method="POST" action="{{ route('admin.vendor-bills.reject', $bill->id) }}">
+                @csrf
+                <div class="modal-content border-0 shadow" style="border-radius: 12px;">
+                    <div class="modal-header bg-danger text-white py-3">
+                        <h5 class="modal-title font-weight-bold"><i class="fas fa-times-circle mr-2"></i> Reject Vendor Bill</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="mb-3">Are you sure you want to reject Vendor Bill <strong>#{{ $bill->bill_no }}</strong>? Payment vouchers cannot be recorded against a rejected bill.</p>
+                        <div class="form-group mb-0">
+                            <label class="font-weight-bold small text-danger">Reason for Rejection *</label>
+                            <textarea name="reason" class="form-control" rows="3" required placeholder="State exact reason for rejection (e.g. Discrepancy in billed amount or terms)..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light py-2">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger font-weight-bold px-4"><i class="fas fa-times mr-1"></i> Reject Bill</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </section>

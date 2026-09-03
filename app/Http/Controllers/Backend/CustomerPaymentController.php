@@ -73,12 +73,27 @@ class CustomerPaymentController extends Controller
         $preloadedInvoice = null;
         $preloadedOrder = null;
 
-        if ($selectedInvoiceId) {
-            $preloadedInvoice = SalesInvoice::with(['order.user'])->find($selectedInvoiceId);
+        if ($selectedOrderId) {
+            $preloadedOrder = Order::with(['user', 'salesInvoice'])->find($selectedOrderId);
+            if ($preloadedOrder) {
+                // Ensure a SalesInvoice exists for this order so all item details and financial due amounts load
+                if (!$preloadedOrder->salesInvoice && $preloadedOrder->due_amount > 0) {
+                    try {
+                        $invoiceService = app(\App\Services\SalesInvoiceService::class);
+                        $preloadedInvoice = $invoiceService->createInvoiceFromOrder($preloadedOrder);
+                        $selectedInvoiceId = $preloadedInvoice->id;
+                    } catch (\Throwable $e) {
+                        \Log::warning("Auto-create sales invoice for order {$selectedOrderId} failed: " . $e->getMessage());
+                    }
+                } elseif ($preloadedOrder->salesInvoice) {
+                    $preloadedInvoice = $preloadedOrder->salesInvoice;
+                    $selectedInvoiceId = $preloadedInvoice->id;
+                }
+            }
         }
 
-        if ($selectedOrderId) {
-            $preloadedOrder = Order::with(['user'])->find($selectedOrderId);
+        if ($selectedInvoiceId && !$preloadedInvoice) {
+            $preloadedInvoice = SalesInvoice::with(['order.user', 'items.product'])->find($selectedInvoiceId);
         }
 
         $unpaidInvoices = SalesInvoice::where('due_amount', '>', 0)
@@ -105,15 +120,59 @@ class CustomerPaymentController extends Controller
         }
 
         $user = User::find($userId);
-        $invoices = SalesInvoice::where(function($q) use ($userId) {
-                $q->where('user_id', $userId)
-                  ->orWhereHas('order', fn($oq) => $oq->where('user_id', $userId));
+
+        // Auto-generate SalesInvoices for any due orders that don't have one yet
+        $dueOrdersWithoutInvoice = Order::where('user_id', $userId)
+            ->where('due_amount', '>', 0)
+            ->whereDoesntHave('salesInvoices')
+            ->get();
+
+        if ($dueOrdersWithoutInvoice->isNotEmpty()) {
+            $invoiceService = app(\App\Services\SalesInvoiceService::class);
+            foreach ($dueOrdersWithoutInvoice as $dueOrder) {
+                try {
+                    $invoiceService->createInvoiceFromOrder($dueOrder);
+                } catch (\Throwable $e) {
+                    \Log::warning("Could not auto-generate invoice for order {$dueOrder->id}: " . $e->getMessage());
+                }
+            }
+        }
+
+        $invoices = SalesInvoice::with(['order.items.product', 'items.product'])
+            ->where(function($q) use ($userId) {
+                $q->whereHas('order', fn($oq) => $oq->where('user_id', $userId));
             })
             ->where('due_amount', '>', 0)
             ->orderBy('date', 'asc') // FIFO sorting
-            ->get(['id', 'invoice_no', 'date', 'due_date', 'total_amount', 'paid_amount', 'due_amount']);
+            ->get();
 
         $totalCustomerDue = $invoices->sum('due_amount');
+
+        $formattedInvoices = $invoices->map(function($inv) {
+            $itemNames = [];
+            if ($inv->items && $inv->items->isNotEmpty()) {
+                foreach ($inv->items as $it) {
+                    $itemNames[] = ($it->product?->name ?: $it->description) . ' (x' . (int)$it->qty . ')';
+                }
+            } elseif ($inv->order && $inv->order->items->isNotEmpty()) {
+                foreach ($inv->order->items as $it) {
+                    $itemNames[] = ($it->product?->name ?: 'Product Item') . ' (x' . (int)$it->quantity . ')';
+                }
+            }
+            $itemsSummary = !empty($itemNames) ? implode(', ', array_slice($itemNames, 0, 3)) . (count($itemNames) > 3 ? ' +' . (count($itemNames) - 3) . ' more' : '') : 'Ordered Line Items';
+
+            return [
+                'id'            => $inv->id,
+                'invoice_no'    => $inv->invoice_no,
+                'order_no'      => $inv->order?->order_no ?: ('Order #' . $inv->order_id),
+                'date'          => $inv->date ? $inv->date->format('Y-m-d') : ($inv->created_at ? $inv->created_at->format('Y-m-d') : 'N/A'),
+                'due_date'      => $inv->due_date ? $inv->due_date->format('Y-m-d') : 'N/A',
+                'total_amount'  => (float) $inv->total_amount,
+                'paid_amount'   => (float) $inv->paid_amount,
+                'due_amount'    => (float) $inv->due_amount,
+                'items_summary' => $itemsSummary,
+            ];
+        });
 
         return response()->json([
             'success'            => true,
@@ -122,7 +181,7 @@ class CustomerPaymentController extends Controller
             'customer_email'     => $user ? $user->email : '',
             'credit_limit'       => (float) ($user->credit_limit ?? 0),
             'total_customer_due' => (float) $totalCustomerDue,
-            'invoices'           => $invoices,
+            'invoices'           => $formattedInvoices,
         ]);
     }
 

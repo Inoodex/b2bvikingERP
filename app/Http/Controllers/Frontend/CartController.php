@@ -499,9 +499,9 @@ class CartController extends Controller
                     ->delete();
             }
 
-            // Customer frontend orders do not require internal approval
-            // $approvalService = app(ApprovalService::class);
-            // $approvalService->submitForApproval($order, (float)$order->total_amount);
+            // Evaluate dynamic multi-step approval workflow for B2B commercial order
+            $approvalService = app(\App\Services\ApprovalService::class);
+            $approvalService->submitForApproval($order, (float)$order->total_amount);
 
             DB::commit();
 

@@ -284,60 +284,13 @@
                 </div>
 
                 <div class="col-12 col-lg-4">
-                    {{-- Approval Engine UI --}}
-                    @if($order->approvals && $order->approvals->count() > 0)
-                    <div class="card card-info mb-3">
-                        <div class="card-header border-bottom">
-                            <h4><i class="fas fa-sitemap mr-2"></i>Approval Chain</h4>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-unstyled list-unstyled-border mb-0">
-                                @foreach($order->approvals as $approval)
-                                    @php
-                                        $step = $approval->step;
-                                        $isCurrentPending = ($approval->status === 'pending');
-                                        $roleName = $step->approverRole ? $step->approverRole->name : '';
-                                        $canApprove = $isCurrentPending && (\Illuminate\Support\Facades\Auth::user()?->hasRole($roleName) ?? false);
-                                    @endphp
-                                    <li class="media mb-2 pb-2 {{ !$loop->last ? 'border-bottom' : '' }}">
-                                        <div class="media-body">
-                                            <div class="mt-0 mb-1 font-weight-bold">Step {{ $step->step_order ?? '' }}: {{ $roleName ?: 'Unknown Role' }}</div>
-                                            <div class="text-small">
-                                                Status:
-                                                @if($approval->status === 'approved')
-                                                    <span class="badge badge-success">Approved</span>
-                                                @elseif($approval->status === 'rejected')
-                                                    <span class="badge badge-danger">Rejected</span>
-                                                @else
-                                                    <span class="badge badge-warning">Pending</span>
-                                                @endif
-                                            </div>
-                                            
-                                            @if($approval->status === 'approved' || $approval->status === 'rejected')
-                                                <div class="text-muted small mt-1">
-                                                    By: {{ $approval->user->name ?? 'System' }}<br>
-                                                    Date: {{ $approval->updated_at->format('d M, Y h:i A') }}
-                                                    @if($approval->comments)
-                                                        <br><i>"{{ $approval->comments }}"</i>
-                                                    @endif
-                                                </div>
-                                            @endif
-
-                                            @if($canApprove)
-                                                <div class="mt-2 d-flex">
-                                                    <form action="{{ route('admin.orders.approve', $order->id) }}" method="POST" class="mr-2">
-                                                        @csrf
-                                                        <button type="button" class="btn btn-sm btn-success btn-approve-order"><i class="fas fa-check"></i> Approve</button>
-                                                    </form>
-                                                    <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#rejectModal"><i class="fas fa-times"></i> Reject</button>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
+                    {{-- Unified Approval Engine Stepper --}}
+                    @include('backend.components.approval_chain', [
+                        'model' => $order,
+                        'approveRoute' => 'admin.orders.approve',
+                        'rejectRoute' => 'admin.orders.reject',
+                        'rejectModalId' => 'rejectModal'
+                    ])
 
                     {{-- Reject Modal --}}
                     <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
@@ -365,7 +318,6 @@
                             </form>
                         </div>
                     </div>
-                    @endif
 
                     <div class="card card-statistic-1 mb-3">
                         <div class="card-icon bg-primary">

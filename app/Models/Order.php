@@ -88,6 +88,16 @@ class Order extends Model
         return $this->approval_status === 'approved';
     }
 
+    public function salesInvoice()
+    {
+        return $this->hasOne(SalesInvoice::class, 'order_id');
+    }
+
+    public function salesInvoices()
+    {
+        return $this->hasMany(SalesInvoice::class, 'order_id');
+    }
+
     public function reconcileTotals(): bool
     {
         $this->loadMissing('items');

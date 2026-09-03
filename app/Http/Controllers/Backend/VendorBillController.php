@@ -63,16 +63,26 @@ class VendorBillController extends Controller
         $pendingReturns = collect();
         $debitNoteAmount = 0;
 
-        $purchases = Purchase::with(['vendor', 'currency'])->whereNotNull('po_no')->orWhere('approval_status', 'approved')->latest()->get();
-        $goodsReceipts = GoodsReceipt::with(['purchase.vendor'])->latest()->get();
+        $purchases = Purchase::with(['vendor', 'currency'])
+            ->has('items')
+            ->latest()
+            ->get();
+
+        $goodsReceipts = GoodsReceipt::with(['purchase.vendor'])
+            ->has('items')
+            ->latest()
+            ->get();
 
         if ($grnId) {
             $goodsReceipt = GoodsReceipt::with(['purchase.vendor', 'items.product', 'items.variant'])->find($grnId);
             if ($goodsReceipt) {
                 $purchase = $goodsReceipt->purchase;
+                if ($purchase) {
+                    $purchase->loadMissing(['items.product', 'items.variant', 'vendor', 'currency']);
+                }
             }
         } else if ($poId) {
-            $purchase = Purchase::with(['vendor', 'currency', 'details.product', 'details.variant'])->find($poId);
+            $purchase = Purchase::with(['vendor', 'currency', 'items.product', 'items.variant'])->find($poId);
         }
 
         if ($purchase) {
@@ -95,7 +105,16 @@ class VendorBillController extends Controller
         try {
             $bill = $this->billService->createBill($request->validated());
 
-            toastr()->success('Vendor Bill ' . $bill->bill_no . ' created successfully!');
+            // Submit for multi-step approval
+            $approvalService = app(\App\Services\ApprovalService::class);
+            $approvalService->submitForApproval($bill, (float)$bill->grand_total);
+
+            if ($bill->approval_status === 'pending') {
+                toastr()->info("Vendor Bill {$bill->bill_no} submitted and waiting for managerial approval before payment voucher release.", 'Pending Approval');
+            } else {
+                toastr()->success('Vendor Bill ' . $bill->bill_no . ' created and approved successfully!');
+            }
+
             return redirect()->route('admin.vendor-bills.show', $bill->id);
         } catch (\Exception $e) {
             toastr()->error('Failed to create Vendor Bill: ' . $e->getMessage());
@@ -119,6 +138,45 @@ class VendorBillController extends Controller
             'debitNoteSettlements.vendorReturn'
         ])->findOrFail($id);
 
-        return view('backend.vendor_bill.show', compact('bill'));
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $canApprove = $approvalService->canUserApproveCurrentStep($bill);
+        $activeApproval = \App\Models\Approval::with('step.approverRole')
+            ->where('approvable_type', get_class($bill))
+            ->where('approvable_id', $bill->id)
+            ->where('status', 'pending')
+            ->first();
+
+        return view('backend.vendor_bill.show', compact('bill', 'canApprove', 'activeApproval'));
+    }
+
+    public function approve(Request $request, int $id)
+    {
+        $bill = VendorBill::findOrFail($id);
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $success = $approvalService->approveStep($bill, auth()->id(), $request->comments);
+
+        if ($success) {
+            toastr()->success('Vendor Bill approval step approved successfully!');
+        } else {
+            toastr()->error('Unauthorized or failed to approve Vendor Bill.');
+        }
+
+        return redirect()->back();
+    }
+
+    public function reject(Request $request, int $id)
+    {
+        $request->validate(['reason' => 'required|string|max:1000']);
+        $bill = VendorBill::findOrFail($id);
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $success = $approvalService->rejectStep($bill, auth()->id(), $request->reason);
+
+        if ($success) {
+            toastr()->warning('Vendor Bill rejected.');
+        } else {
+            toastr()->error('Unauthorized or failed to reject Vendor Bill.');
+        }
+
+        return redirect()->back();
     }
 }

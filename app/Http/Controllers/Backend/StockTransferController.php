@@ -68,12 +68,23 @@ class StockTransferController extends Controller
         try {
             $transfer = $this->transferService->createTransfer($request->validated(), $request->items);
 
+            // Calculate total transfer value for workflow evaluation
+            $totalValue = (float) $transfer->items->sum(fn($i) => (float)$i->qty * (float)$i->unit_cost);
+
+            // Submit for multi-step approval
+            $approvalService = app(\App\Services\ApprovalService::class);
+            $approvalService->submitForApproval($transfer, $totalValue);
+
             // Auto-clear Stock Transfer basket for current user
             \App\Models\Cart::where('user_id', auth()->id())
                 ->where('cart_type', 'request')
                 ->delete();
 
-            Toastr::success('Stock Transfer created successfully in Draft state.');
+            if ($transfer->approval_status === 'pending') {
+                Toastr::info("Stock Transfer #{$transfer->transfer_no} submitted and waiting for managerial approval.", "Pending Approval");
+            } else {
+                Toastr::success('Stock Transfer created successfully in Draft state.');
+            }
             return redirect()->route('admin.stock-transfers.show', $transfer->id);
         } catch (\Exception $e) {
             Toastr::error('Failed to create Stock Transfer: ' . $e->getMessage());
@@ -106,11 +117,24 @@ class StockTransferController extends Controller
             }
         }
 
-        return view('backend.stock_transfers.show', compact('stockTransfer', 'hasInsufficientStock'));
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $canApprove = $approvalService->canUserApproveCurrentStep($stockTransfer);
+        $activeApproval = \App\Models\Approval::with('step.approverRole')
+            ->where('approvable_type', get_class($stockTransfer))
+            ->where('approvable_id', $stockTransfer->id)
+            ->where('status', 'pending')
+            ->first();
+
+        return view('backend.stock_transfers.show', compact('stockTransfer', 'hasInsufficientStock', 'canApprove', 'activeApproval'));
     }
 
     public function dispatchTransfer(StockTransfer $stockTransfer)
     {
+        if ($stockTransfer->approval_status !== 'approved') {
+            Toastr::warning('This Stock Transfer is awaiting managerial approval. It cannot be dispatched until fully approved.');
+            return redirect()->route('admin.stock-transfers.show', $stockTransfer->id);
+        }
+
         try {
             $this->transferService->dispatchTransfer($stockTransfer);
             Toastr::success('Stock Transfer dispatched! Stock has been deducted from source warehouse and is now in transit.');
@@ -119,6 +143,36 @@ class StockTransferController extends Controller
         }
 
         return redirect()->route('admin.stock-transfers.show', $stockTransfer->id);
+    }
+
+    public function approve(Request $request, StockTransfer $stockTransfer)
+    {
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $success = $approvalService->approveStep($stockTransfer, auth()->id(), $request->comments);
+
+        if ($success) {
+            Toastr::success('Stock Transfer approval step approved successfully!');
+        } else {
+            Toastr::error('Unauthorized or failed to approve stock transfer.');
+        }
+
+        return redirect()->back();
+    }
+
+    public function reject(Request $request, StockTransfer $stockTransfer)
+    {
+        $request->validate(['reason' => 'required|string|max:1000']);
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $success = $approvalService->rejectStep($stockTransfer, auth()->id(), $request->reason);
+
+        if ($success) {
+            $stockTransfer->update(['status' => 'cancelled']);
+            Toastr::warning('Stock Transfer rejected and cancelled.');
+        } else {
+            Toastr::error('Unauthorized or failed to reject stock transfer.');
+        }
+
+        return redirect()->back();
     }
 
     public function receiveForm(StockTransfer $stockTransfer)

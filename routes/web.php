@@ -306,6 +306,8 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::get('letters-of-credit', 'index')->name('letters-of-credit.index');
         Route::post('letters-of-credit', 'store')->name('letters-of-credit.store');
         Route::get('letters-of-credit/{id}', 'show')->name('letters-of-credit.show');
+        Route::post('letters-of-credit/{id}/approve', 'approve')->name('letters-of-credit.approve');
+        Route::post('letters-of-credit/{id}/reject', 'reject')->name('letters-of-credit.reject');
         Route::post('letters-of-credit/{id}/amendments', 'addAmendment')->name('letters-of-credit.amendments.store');
     });
 
@@ -339,6 +341,8 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::get('vendor-returns/create', 'create')->name('vendor-returns.create');
         Route::post('vendor-returns', 'store')->name('vendor-returns.store');
         Route::get('vendor-returns/{id}', 'show')->name('vendor-returns.show');
+        Route::post('vendor-returns/{id}/approve', 'approve')->name('vendor-returns.approve');
+        Route::post('vendor-returns/{id}/reject', 'reject')->name('vendor-returns.reject');
         Route::post('vendor-returns/settle-replacement', 'settleReplacement')->name('vendor-returns.settle-replacement');
         Route::post('vendor-returns/settle-refund', 'settleRefund')->name('vendor-returns.settle-refund');
     });
@@ -469,6 +473,8 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     Route::controller(\App\Http\Controllers\Backend\StockTransferController::class)->group(function () {
         Route::get('stock-transfers/get-product-stock', 'getProductStock')->name('stock-transfers.get-product-stock');
         Route::post('stock-transfers/{stockTransfer}/dispatch', 'dispatchTransfer')->name('stock-transfers.dispatch');
+        Route::post('stock-transfers/{stockTransfer}/approve', 'approve')->name('stock-transfers.approve');
+        Route::post('stock-transfers/{stockTransfer}/reject', 'reject')->name('stock-transfers.reject');
         Route::get('stock-transfers/{stockTransfer}/receive', 'receiveForm')->name('stock-transfers.receive-form');
         Route::post('stock-transfers/{stockTransfer}/receive', 'receiveTransfer')->name('stock-transfers.receive');
         Route::post('stock-transfers/{stockTransfer}/cancel', 'cancel')->name('stock-transfers.cancel');
@@ -569,6 +575,8 @@ Route::controller(BackendAccountController::class)->group(function () {
     Route::resource('petty-cash', \App\Http\Controllers\Backend\PettyCashController::class)->only(['index', 'store']);
 
     /** Fund Transfers (Contra) Routes */
+    Route::post('fund-transfers/{id}/approve', [\App\Http\Controllers\Backend\FundTransferController::class, 'approve'])->name('fund-transfers.approve');
+    Route::post('fund-transfers/{id}/reject', [\App\Http\Controllers\Backend\FundTransferController::class, 'reject'])->name('fund-transfers.reject');
     Route::resource('fund-transfers', \App\Http\Controllers\Backend\FundTransferController::class)->only(['index', 'store']);
 
     /** Fixed Assets & Depreciation Routes */
@@ -581,6 +589,11 @@ Route::controller(BackendAccountController::class)->group(function () {
     Route::get('reports/profit-loss', [\App\Http\Controllers\Backend\FinancialReportController::class, 'profitAndLoss'])->name('reports.profit-loss');
     Route::get('reports/balance-sheet', [\App\Http\Controllers\Backend\FinancialReportController::class, 'balanceSheet'])->name('reports.balance-sheet');
 
+    /** Manual Journal Voucher Routes */
+    Route::get('journal-vouchers', [\App\Http\Controllers\Backend\JournalVoucherController::class, 'index'])->name('journal-vouchers.index');
+    Route::get('journal-vouchers/create', [\App\Http\Controllers\Backend\JournalVoucherController::class, 'create'])->name('journal-vouchers.create');
+    Route::post('journal-vouchers', [\App\Http\Controllers\Backend\JournalVoucherController::class, 'store'])->name('journal-vouchers.store');
+
     /** Enterprise Master Data Routes */
     Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
         Route::resource('currencies', CurrencyController::class);
@@ -590,7 +603,14 @@ Route::controller(BackendAccountController::class)->group(function () {
         Route::resource('approval-workflows', ApprovalWorkflowController::class);
     });
 
+    /** Centralized Approvals Inbox Routes */
+    Route::get('approvals', [\App\Http\Controllers\Backend\ApprovalInboxController::class, 'index'])->name('approvals.index');
+    Route::post('approvals/{id}/approve', [\App\Http\Controllers\Backend\ApprovalInboxController::class, 'approve'])->name('approvals.approve');
+    Route::post('approvals/{id}/reject', [\App\Http\Controllers\Backend\ApprovalInboxController::class, 'reject'])->name('approvals.reject');
+
     /** Phase 2 Step 4: Vendor Bills, Payments, Ledger, Returns & Reports */
+    Route::post('vendor-bills/{id}/approve', [\App\Http\Controllers\Backend\VendorBillController::class, 'approve'])->name('vendor-bills.approve');
+    Route::post('vendor-bills/{id}/reject', [\App\Http\Controllers\Backend\VendorBillController::class, 'reject'])->name('vendor-bills.reject');
     Route::resource('vendor-bills', VendorBillController::class)->only(['index', 'create', 'store', 'show']);
     
     Route::get('purchase-payments/{purchase_payment}/pdf', [PurchasePaymentController::class, 'streamPdf'])->name('purchase-payments.pdf');

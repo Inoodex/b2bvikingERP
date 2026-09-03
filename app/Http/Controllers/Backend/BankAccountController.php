@@ -45,7 +45,7 @@ class BankAccountController extends Controller
         $opening = (float) ($validated['opening_balance'] ?? 0);
 
         BankAccount::create([
-            'company_id'      => 1,
+            'company_id'      => auth()->user()->company_id ?? 1,
             'account_name'    => $validated['account_name'],
             'bank_name'       => $validated['bank_name'],
             'account_number'  => $validated['account_number'],

@@ -17,6 +17,7 @@ class StockTransfer extends Model
         'dispatched_by',
         'received_by',
         'status',
+        'approval_status',
         'transfer_date',
         'dispatched_at',
         'received_at',
@@ -63,5 +64,15 @@ class StockTransfer extends Model
     public function items()
     {
         return $this->hasMany(StockTransferItem::class);
+    }
+
+    public function approvals()
+    {
+        return $this->morphMany(Approval::class, 'approvable');
+    }
+
+    public function isFullyApproved(): bool
+    {
+        return $this->approval_status === 'approved';
     }
 }

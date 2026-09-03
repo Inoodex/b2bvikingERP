@@ -15,6 +15,7 @@ class FundTransfer extends Model
         'to_account_id',
         'amount',
         'transfer_date',
+        'approval_status',
     ];
 
     protected $casts = [
@@ -30,5 +31,15 @@ class FundTransfer extends Model
     public function toAccount(): BelongsTo
     {
         return $this->belongsTo(BankAccount::class, 'to_account_id');
+    }
+
+    public function approvals()
+    {
+        return $this->morphMany(Approval::class, 'approvable');
+    }
+
+    public function isFullyApproved(): bool
+    {
+        return $this->approval_status === 'approved';
     }
 }

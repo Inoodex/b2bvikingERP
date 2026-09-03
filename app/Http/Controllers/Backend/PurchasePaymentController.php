@@ -44,6 +44,10 @@ class PurchasePaymentController extends Controller
 
         if ($billId) {
             $vendorBill = VendorBill::with(['purchase', 'vendor', 'currency'])->findOrFail($billId);
+            if ($vendorBill->approval_status === 'pending') {
+                toastr()->warning("Vendor Bill {$vendorBill->bill_no} is awaiting managerial approval. Payment vouchers cannot be issued until fully approved.");
+                return redirect()->route('admin.vendor-bills.show', $vendorBill->id);
+            }
             $purchase = $vendorBill->purchase;
         } else if ($poId) {
             $purchase = Purchase::with(['vendor', 'currency'])->findOrFail($poId);

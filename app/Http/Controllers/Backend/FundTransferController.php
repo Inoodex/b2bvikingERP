@@ -47,37 +47,103 @@ class FundTransferController extends Controller
             return redirect()->back()->withInput();
         }
 
-        DB::transaction(function () use ($validated, $amount, $fromAccount, $toAccount) {
-            $transfer = FundTransfer::create([
-                'from_account_id' => $fromAccount->id,
-                'to_account_id'   => $toAccount->id,
-                'amount'          => $amount,
-                'transfer_date'   => $validated['transfer_date'],
-            ]);
+        $transfer = FundTransfer::create([
+            'from_account_id' => $fromAccount->id,
+            'to_account_id'   => $toAccount->id,
+            'amount'          => $amount,
+            'transfer_date'   => $validated['transfer_date'],
+            'approval_status' => 'pending',
+        ]);
 
-            // Adjust bank current balances
-            $fromAccount->decrement('current_balance', $amount);
-            $toAccount->increment('current_balance', $amount);
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $approvalService->submitForApproval($transfer, $amount);
 
-            // Double-Entry Contra Voucher Posting
-            $fromGlCode = $fromAccount->glAccount ? $fromAccount->glAccount->account_code : '1020';
-            $toGlCode = $toAccount->glAccount ? $toAccount->glAccount->account_code : '1020';
+        if ($transfer->approval_status === 'approved') {
+            DB::transaction(function () use ($validated, $amount, $fromAccount, $toAccount, $transfer) {
+                // Adjust bank current balances
+                $fromAccount->decrement('current_balance', $amount);
+                $toAccount->increment('current_balance', $amount);
 
-            $lines = [
-                ['account_code' => $toGlCode, 'debit' => $amount, 'credit' => 0],
-                ['account_code' => $fromGlCode, 'debit' => 0, 'credit' => $amount],
-            ];
+                // Double-Entry Contra Voucher Posting
+                $fromGlCode = $fromAccount->glAccount ? $fromAccount->glAccount->account_code : '1020';
+                $toGlCode = $toAccount->glAccount ? $toAccount->glAccount->account_code : '1020';
 
-            $this->journalService->recordEntry(
-                event: 'fund_transfer',
-                sourceModel: $transfer,
-                lines: $lines,
-                entryDate: $validated['transfer_date'],
-                narration: "Contra Fund Transfer: kr. {$amount} from {$fromAccount->account_name} to {$toAccount->account_name}"
-            );
-        });
+                $lines = [
+                    ['account_code' => $toGlCode, 'debit' => $amount, 'credit' => 0],
+                    ['account_code' => $fromGlCode, 'debit' => 0, 'credit' => $amount],
+                ];
 
-        toastr()->success('Fund Transfer (Contra Voucher) recorded and posted successfully!');
+                $this->journalService->recordEntry(
+                    event: 'fund_transfer',
+                    sourceModel: $transfer,
+                    lines: $lines,
+                    entryDate: $validated['transfer_date'],
+                    narration: "Contra Fund Transfer: kr. {$amount} from {$fromAccount->account_name} to {$toAccount->account_name}"
+                );
+            });
+
+            toastr()->success('Fund Transfer (Contra Voucher) recorded and posted successfully!');
+        } else {
+            toastr()->info("Fund Transfer of kr. " . number_format($amount, 2) . " submitted and awaiting managerial sign-off.", 'Pending Approval');
+        }
+
         return redirect()->route('admin.fund-transfers.index');
+    }
+
+    public function approve(Request $request, $id)
+    {
+        $transfer = FundTransfer::with(['fromAccount.glAccount', 'toAccount.glAccount'])->findOrFail($id);
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $success = $approvalService->approveStep($transfer, auth()->id(), $request->comments);
+
+        if ($success) {
+            if ($transfer->approval_status === 'approved') {
+                DB::transaction(function () use ($transfer) {
+                    $amount = (float) $transfer->amount;
+                    $fromAccount = $transfer->fromAccount;
+                    $toAccount = $transfer->toAccount;
+
+                    $fromAccount->decrement('current_balance', $amount);
+                    $toAccount->increment('current_balance', $amount);
+
+                    $fromGlCode = $fromAccount->glAccount ? $fromAccount->glAccount->account_code : '1020';
+                    $toGlCode = $toAccount->glAccount ? $toAccount->glAccount->account_code : '1020';
+
+                    $lines = [
+                        ['account_code' => $toGlCode, 'debit' => $amount, 'credit' => 0],
+                        ['account_code' => $fromGlCode, 'debit' => 0, 'credit' => $amount],
+                    ];
+
+                    $this->journalService->recordEntry(
+                        event: 'fund_transfer',
+                        sourceModel: $transfer,
+                        lines: $lines,
+                        entryDate: $transfer->transfer_date ? $transfer->transfer_date->toDateString() : now()->toDateString(),
+                        narration: "Approved Contra Fund Transfer: kr. {$amount} from {$fromAccount->account_name} to {$toAccount->account_name}"
+                    );
+                });
+            }
+            toastr()->success('Fund transfer approved and posted to General Ledger successfully!');
+        } else {
+            toastr()->error('Unauthorized or failed to approve fund transfer.');
+        }
+
+        return redirect()->back();
+    }
+
+    public function reject(Request $request, $id)
+    {
+        $request->validate(['reason' => 'required|string|max:1000']);
+        $transfer = FundTransfer::findOrFail($id);
+        $approvalService = app(\App\Services\ApprovalService::class);
+        $success = $approvalService->rejectStep($transfer, auth()->id(), $request->reason);
+
+        if ($success) {
+            toastr()->warning('Fund transfer request rejected.');
+        } else {
+            toastr()->error('Unauthorized or failed to reject fund transfer.');
+        }
+
+        return redirect()->back();
     }
 }

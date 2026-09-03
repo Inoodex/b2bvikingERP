@@ -281,9 +281,9 @@ class OrderController extends Controller
                 ]);
             }
 
-            // Customer frontend orders do not require internal approval
-            // $approvalService = app(ApprovalService::class);
-            // $approvalService->submitForApproval($newOrder, (float)$newOrder->total_amount);
+            // Evaluate dynamic multi-step approval workflow for B2B commercial order
+            $approvalService = app(\App\Services\ApprovalService::class);
+            $approvalService->submitForApproval($newOrder, (float)$newOrder->total_amount);
 
             DB::commit();
 

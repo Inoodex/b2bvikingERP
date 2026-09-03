@@ -12,6 +12,14 @@
         </div>
 
         <div class="section-body">
+            {{-- Visual Multi-Step Approval Chain & Audit Stepper --}}
+            @include('backend.components.approval_chain', [
+                'model' => $purchase,
+                'approveRoute' => 'admin.purchase-orders.approve',
+                'rejectRoute' => null,
+                'rejectModalId' => null
+            ])
+
             <div class="invoice">
                 <div class="invoice-print">
                     <div class="row">
