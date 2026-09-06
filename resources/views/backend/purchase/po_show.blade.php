@@ -296,14 +296,14 @@
                             <div class="row">
                                 <div class="col-6">
                                     <small class="text-muted d-block font-weight-bold">FOREIGN VALUE</small>
-                                    <h4 class="font-weight-bold text-primary mb-0">{{ $po->currency ? $po->currency->symbol : 'kr.' }} {{ number_format($po->foreign_amount ?? $po->total_amount, 2) }}</h4>
+                                    <h4 class="font-weight-bold text-primary mb-0">{{ $po->currency->symbol ?? $po->vendor->currency->symbol ?? getSettings()->currency_icon }} {{ number_format($po->foreign_amount ?? $po->total_amount, 2) }}</h4>
                                 </div>
                                 <div class="col-6 border-left">
                                     <small class="text-muted d-block font-weight-bold">BASE CONVERTED VALUE</small>
-                                    <h4 class="font-weight-bold text-success mb-0">kr. {{ number_format($po->total_amount, 2) }}</h4>
+                                    <h4 class="font-weight-bold text-success mb-0">{{ formatConverted($po->base_amount ?? ($po->total_amount * ($po->exchange_rate_used ?? $po->vendor->effective_exchange_rate))) }}</h4>
                                 </div>
                             </div>
-                            <small class="text-muted mt-2 d-block"><i class="fas fa-exchange-alt mr-1"></i> Exchange Rate Used: 1 {{ $po->currency ? $po->currency->code : 'DKK' }} = {{ $po->exchange_rate_used ?? 1.0 }} kr.</small>
+                            <small class="text-muted mt-2 d-block"><i class="fas fa-exchange-alt mr-1"></i> Exchange Rate Used: 1 {{ $po->currency->code ?? $po->vendor->currency->code ?? getSettings()->currency_name }} = {{ $po->exchange_rate_used ?? $po->vendor->effective_exchange_rate }} {{ getSettings()->currency_name }}</small>
                         </div>
                     </div>
                 </div>

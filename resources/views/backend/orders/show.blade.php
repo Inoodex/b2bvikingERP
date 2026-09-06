@@ -48,16 +48,77 @@
             <div class="row">
                 <div class="col-12 col-lg-8">
                     <div class="card card-primary">
-                        <div class="card-header">
-                            <h4><i class="fas fa-list mr-2"></i>Order Items</h4>
-                            <div class="card-header-action">
-                                <a href="{{ route('admin.orders.pi-invoice', $order->id) }}" class="btn btn-success" target="_blank"><i class="fas fa-file-signature mr-1"></i> PI Invoice</a>
-                                <a href="{{ route('admin.delivery-orders.create', ['order_id' => $order->id]) }}" class="btn btn-primary font-weight-bold ml-2"><i class="fas fa-truck mr-1"></i> Create Delivery Order</a>
-                                <a href="{{ route('admin.sales-invoices.create', ['order_id' => $order->id]) }}" class="btn btn-secondary font-weight-bold ml-2"><i class="fas fa-file-invoice-dollar mr-1"></i> Create Commercial Invoice</a>
-                                <a href="{{ route('admin.orders.view-invoice', $order->id) }}" class="btn btn-warning ml-2" target="_blank"><i class="fas fa-file-invoice mr-1"></i> View Invoice</a>
-                                <a href="{{ route('admin.orders.download-invoice', $order->id) }}" class="btn btn-info ml-2"><i class="fas fa-download mr-1"></i> Download PDF</a>
-                                <a href="{{ route('admin.orders.download-customer-invoice', $order->id) }}" class="btn btn-dark ml-2"><i class="fas fa-file-invoice mr-1"></i> Customer Invoice</a>
-                                {{-- <a href="{{ route('admin.orders.destroy', $order->id) }}" class="btn btn-danger ml-2 delete-item"><i class="fas fa-trash mr-1"></i> Delete</a> --}}
+                        @php
+                            $isOrderApproved = $order->isFullyApproved();
+                            $existingCommercialInvoice = $order->salesInvoice ?: $order->salesInvoices()->where('status', '!=', 'cancelled')->first();
+                            $isFullyDelivered = ($order->fulfillment_status === 'fully_delivered');
+                        @endphp
+                        <div class="card-header border-bottom d-flex justify-content-between align-items-center flex-wrap py-3" style="min-height: auto; gap: 8px;">
+                            <h4 class="mb-0 text-nowrap font-weight-bold text-dark" style="font-size: 16px;">
+                                <i class="fas fa-list mr-2 text-primary"></i>Order Items
+                            </h4>
+                            <div class="card-header-action d-flex flex-wrap align-items-center" style="gap: 6px;">
+                                <a href="{{ route('admin.orders.pi-invoice', $order->id) }}" class="btn btn-sm btn-success font-weight-bold shadow-sm" target="_blank">
+                                    <i class="fas fa-file-signature mr-1"></i> PI Invoice
+                                </a>
+
+                                {{-- Delivery Order: Approved & Duplicate Guard --}}
+                                @if($isFullyDelivered)
+                                    <a href="{{ route('admin.delivery-orders.index', ['order_id' => $order->id]) }}" class="btn btn-sm btn-outline-primary font-weight-bold shadow-sm" title="Order is already fully delivered">
+                                        <i class="fas fa-check-double mr-1"></i> Delivered (DO)
+                                    </a>
+                                @elseif($isOrderApproved)
+                                    <a href="{{ route('admin.delivery-orders.create', ['order_id' => $order->id]) }}" class="btn btn-sm btn-primary font-weight-bold shadow-sm">
+                                        <i class="fas fa-truck mr-1"></i> Delivery Order
+                                    </a>
+                                @else
+                                    <button class="btn btn-sm btn-outline-secondary font-weight-bold" disabled title="Pending Multi-Level Approval" style="cursor: not-allowed; opacity: 0.65;">
+                                        <i class="fas fa-lock mr-1"></i> Delivery Order
+                                    </button>
+                                @endif
+
+                                {{-- Commercial Invoice: Approved & Duplicate Guard --}}
+                                @if($existingCommercialInvoice)
+                                    <a href="{{ route('admin.sales-invoices.show', $existingCommercialInvoice->id) }}" class="btn btn-sm btn-outline-dark font-weight-bold shadow-sm" title="View already created Commercial Invoice">
+                                        <i class="fas fa-file-invoice mr-1"></i> View Commercial Invoice
+                                    </a>
+                                @elseif($isOrderApproved)
+                                    <a href="{{ route('admin.sales-invoices.create', ['order_id' => $order->id]) }}" class="btn btn-sm btn-secondary font-weight-bold shadow-sm">
+                                        <i class="fas fa-file-invoice-dollar mr-1"></i> Commercial Invoice
+                                    </a>
+                                @else
+                                    <button class="btn btn-sm btn-outline-secondary font-weight-bold" disabled title="Pending Multi-Level Approval" style="cursor: not-allowed; opacity: 0.65;">
+                                        <i class="fas fa-lock mr-1"></i> Commercial Invoice
+                                    </button>
+                                @endif
+
+                                <div class="dropdown d-inline">
+                                    <button class="btn btn-sm btn-info dropdown-toggle font-weight-bold shadow-sm" type="button" id="invoicesDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-file-alt mr-1"></i> Invoices & Documents
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right shadow border" aria-labelledby="invoicesDropdown" style="min-width: 220px; border-radius: 8px;">
+                                        <h6 class="dropdown-header text-uppercase text-muted font-weight-bold" style="font-size: 11px; letter-spacing: 0.5px;">Orders & Proforma</h6>
+                                        <a class="dropdown-item py-2 d-flex align-items-center" href="{{ route('admin.orders.pi-invoice', $order->id) }}" target="_blank">
+                                            <i class="fas fa-file-signature text-success mr-2" style="width: 18px;"></i> PI Invoice
+                                        </a>
+                                        <a class="dropdown-item py-2 d-flex align-items-center" href="{{ route('admin.orders.view-invoice', $order->id) }}" target="_blank">
+                                            <i class="fas fa-file-invoice text-warning mr-2" style="width: 18px;"></i> View Invoice
+                                        </a>
+                                        <a class="dropdown-item py-2 d-flex align-items-center" href="{{ route('admin.orders.download-invoice', $order->id) }}">
+                                            <i class="fas fa-download text-info mr-2" style="width: 18px;"></i> Download PDF
+                                        </a>
+                                        @if($existingCommercialInvoice)
+                                            <a class="dropdown-item py-2 d-flex align-items-center font-weight-bold text-primary" href="{{ route('admin.sales-invoices.show', $existingCommercialInvoice->id) }}">
+                                                <i class="fas fa-file-invoice-dollar text-primary mr-2" style="width: 18px;"></i> Commercial Invoice (#{{ $existingCommercialInvoice->invoice_no }})
+                                            </a>
+                                        @endif
+                                        <div class="dropdown-divider"></div>
+                                        <h6 class="dropdown-header text-uppercase text-muted font-weight-bold" style="font-size: 11px; letter-spacing: 0.5px;">Customer Copy</h6>
+                                        <a class="dropdown-item py-2 d-flex align-items-center" href="{{ route('admin.orders.download-customer-invoice', $order->id) }}">
+                                            <i class="fas fa-receipt text-dark mr-2" style="width: 18px;"></i> Customer Invoice
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body p-0">
@@ -485,16 +546,30 @@
                                 </div>
                             @endif
 
+
                             @can('Manage Inventory')
-                            @if(in_array(strtolower((string) $order->status), ['approved', 'processing', 'completed']))
+                            @if(in_array(strtolower((string) $order->status), ['approved', 'processing', 'completed']) && $order->isFullyApproved())
                                 <div class="border-top pt-4 mt-3">
-                                    <a href="{{ route('admin.delivery-orders.create', ['order_id' => $order->id]) }}" class="btn btn-primary btn-lg btn-block shadow-sm py-3 font-weight-bold mb-2">
-                                        <i class="fas fa-truck mr-2"></i> Create Delivery Challan (DO)
-                                    </a>
-                                    <a href="{{ route('admin.sales-invoices.create', ['order_id' => $order->id]) }}" class="btn btn-info btn-block shadow-sm py-2 font-weight-bold">
-                                        <i class="fas fa-file-invoice-dollar mr-2"></i> Generate Sales Invoice
-                                    </a>
-                                    <p class="text-center text-muted small mt-2 mb-0">Create shipment challan to dispatch goods or generate commercial invoice.</p>
+                                    @if($isFullyDelivered)
+                                        <a href="{{ route('admin.delivery-orders.index', ['order_id' => $order->id]) }}" class="btn btn-outline-primary btn-block shadow-sm py-2 font-weight-bold mb-2">
+                                            <i class="fas fa-check-double mr-2"></i> View Delivery Orders
+                                        </a>
+                                    @else
+                                        <a href="{{ route('admin.delivery-orders.create', ['order_id' => $order->id]) }}" class="btn btn-primary btn-lg btn-block shadow-sm py-3 font-weight-bold mb-2">
+                                            <i class="fas fa-truck mr-2"></i> Create Delivery Challan (DO)
+                                        </a>
+                                    @endif
+
+                                    @if($existingCommercialInvoice)
+                                        <a href="{{ route('admin.sales-invoices.show', $existingCommercialInvoice->id) }}" class="btn btn-outline-info btn-block shadow-sm py-2 font-weight-bold">
+                                            <i class="fas fa-file-invoice mr-2"></i> View Sales Invoice (#{{ $existingCommercialInvoice->invoice_no }})
+                                        </a>
+                                    @else
+                                        <a href="{{ route('admin.sales-invoices.create', ['order_id' => $order->id]) }}" class="btn btn-info btn-block shadow-sm py-2 font-weight-bold">
+                                            <i class="fas fa-file-invoice-dollar mr-2"></i> Generate Sales Invoice
+                                        </a>
+                                    @endif
+                                    <p class="text-center text-muted small mt-2 mb-0">Create shipment challan to dispatch goods or view commercial invoice.</p>
                                 </div>
                             @endif
                             @endcan
@@ -562,3 +637,4 @@
     });
 </script>
 @endpush
+

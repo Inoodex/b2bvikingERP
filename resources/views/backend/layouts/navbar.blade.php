@@ -2,11 +2,11 @@
   $categoriesActive = request()->routeIs('admin.category.*', 'admin.sub-category.*', 'admin.child-category.*', 'admin.slider.*', 'admin.product-types.*');
   $productsActive   = request()->routeIs('admin.products.*', 'admin.units.*', 'admin.colors.*', 'admin.sizes.*');
   $inventoryActive  = request()->routeIs('admin.inventory-reports.*', 'admin.stock-adjustments.*', 'admin.stock-transfers.*', 'admin.stock-ledger.*', 'admin.stock-batches.*', 'admin.month-end-snapshots.*');
-  $ordersActive     = request()->routeIs('admin.orders.*', 'admin.sales-orders.*', 'admin.sales-quotations.*', 'admin.custom-product-requests.*', 'admin.product-requests.*', 'admin.delivery-orders.*', 'admin.sales-returns.*', 'admin.credit-notes.*', 'admin.pricelists.*', 'admin.coupons.*', 'admin.gift-cards.*');
+  $ordersActive     = request()->routeIs('admin.orders.*', 'admin.sales-orders.*', 'admin.sales-quotations.*', 'admin.sales-invoices.*', 'admin.custom-product-requests.*', 'admin.product-requests.*', 'admin.delivery-orders.*', 'admin.sales-returns.*', 'admin.credit-notes.*', 'admin.pricelists.*', 'admin.coupons.*', 'admin.gift-cards.*');
   $purchaseActive   = request()->routeIs('admin.bookings.*', 'admin.purchases.*');
   $procurementActive = request()->routeIs('admin.rfqs.*', 'admin.purchase-orders.*', 'admin.letters-of-credit.*', 'admin.shipments.*', 'admin.goods-receipts.*', 'admin.vendor-returns.*');
-  $reportsActive    = request()->routeIs('admin.reports.*', 'admin.purchase-reports.*', 'admin.vendor-ledger.*');
-  $accountsActive   = request()->routeIs('admin.accounts.*', 'admin.sales-invoices.*', 'admin.customer-payments.*', 'admin.vendor-bills.*', 'admin.purchase-payments.*', 'admin.chart-of-accounts.*', 'admin.fiscal-years.*', 'admin.bank-accounts.*', 'admin.bank-reconciliation.*', 'admin.petty-cash.*', 'admin.fund-transfers.*', 'admin.assets.*', 'admin.journal-vouchers.*');
+  $reportsActive    = request()->routeIs('admin.reports.*', 'admin.purchase-reports.*', 'admin.vendor-ledger.*', 'admin.accounts.index', 'admin.accounts.vendor-payments.index');
+  $accountsActive   = (request()->routeIs('admin.accounts.*', 'admin.customer-payments.*', 'admin.vendor-bills.*', 'admin.purchase-payments.*', 'admin.chart-of-accounts.*', 'admin.fiscal-years.*', 'admin.bank-accounts.*', 'admin.bank-reconciliation.*', 'admin.petty-cash.*', 'admin.fund-transfers.*', 'admin.assets.*', 'admin.journal-vouchers.*')) && !request()->routeIs('admin.accounts.index', 'admin.accounts.vendor-payments.index');
   $brandsActive     = request()->routeIs('admin.brand.*');
   $vendorsActive    = request()->routeIs('admin.vendor.*');
   $masterActive     = request()->routeIs('admin.master.*');
@@ -509,7 +509,7 @@ body.sidebar-collapsed .topbar { left: 0; }
 
 .navbar-right .nav-link-user:hover img { border-color: var(--nb-gold-bright); }
 
-.dropdown-menu {
+.topbar .dropdown-menu {
   position: relative;
   background: var(--glass-bg-strong);
   backdrop-filter: var(--glass-blur);
@@ -529,7 +529,7 @@ body.sidebar-collapsed .topbar { left: 0; }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.dropdown-menu::before {
+.topbar .dropdown-menu::before {
   content: '';
   position: absolute;
   top: -40%; right: -30%;
@@ -538,7 +538,7 @@ body.sidebar-collapsed .topbar { left: 0; }
   pointer-events: none;
 }
 
-.dropdown-menu .dropdown-item {
+.topbar .dropdown-menu .dropdown-item {
   padding: 9px 13px;
   color: var(--nb-muted-2) !important;
   font-size: 12px;
@@ -550,12 +550,12 @@ body.sidebar-collapsed .topbar { left: 0; }
   transition: all 0.15s ease;
 }
 
-.dropdown-menu .dropdown-item i { font-size: 13px; width: 16px; color: var(--nb-muted); }
-.dropdown-menu .dropdown-item:hover { background: var(--nb-gold-soft) !important; color: var(--nb-text) !important; transform: translateX(2px); }
-.dropdown-menu .dropdown-item:hover i { color: var(--nb-gold-bright); }
-.dropdown-menu .dropdown-item.text-danger:hover { background: var(--nb-danger-soft) !important; color: #fff !important; }
-.dropdown-menu .dropdown-item.text-danger:hover i { color: var(--nb-danger); }
-.dropdown-menu .dropdown-divider { margin: 4px 8px; border-color: var(--nb-border); }
+.topbar .dropdown-menu .dropdown-item i { font-size: 13px; width: 16px; color: var(--nb-muted); }
+.topbar .dropdown-menu .dropdown-item:hover { background: var(--nb-gold-soft) !important; color: var(--nb-text) !important; transform: translateX(2px); }
+.topbar .dropdown-menu .dropdown-item:hover i { color: var(--nb-gold-bright); }
+.topbar .dropdown-menu .dropdown-item.text-danger:hover { background: var(--nb-danger-soft) !important; color: #fff !important; }
+.topbar .dropdown-menu .dropdown-item.text-danger:hover i { color: var(--nb-danger); }
+.topbar .dropdown-menu .dropdown-divider { margin: 4px 8px; border-color: var(--nb-border); }
 
 /* ========================================
    LEFT SIDEBAR
@@ -890,7 +890,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
   .navbar-right .nav-link-user { padding: 2px; }
   .navbar-right .nav-link-user img { width: 30px !important; height: 30px !important; }
 
-  .dropdown-menu.dropdown-list {
+  .topbar .dropdown-menu.dropdown-list {
     position: fixed !important;
     top: calc(var(--tb-height-mobile) + env(safe-area-inset-top) + 6px) !important;
     left: 10px !important;
@@ -977,7 +977,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
 }
 
 @media (max-width: 575.98px) {
-  .dropdown-menu.dropdown-menu-right:not(.dropdown-list) {
+  .topbar .dropdown-menu.dropdown-menu-right:not(.dropdown-list) {
     position: fixed !important;
     top: calc(var(--tb-height-mobile) + 8px) !important;
     left: 8px !important;
@@ -1531,6 +1531,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li class="sb-submenu-header">Commercial Sales</li>
           <li><a href="{{ route('admin.sales-quotations.index') }}"><i class="fas fa-file-signature"></i> Sales Quotations (SQ)</a></li>
           <li><a href="{{ route('admin.sales-orders.index') }}"><i class="fas fa-file-invoice"></i> Sales Orders (SO)</a></li>
+          <li><a href="{{ route('admin.sales-invoices.index') }}"><i class="fas fa-file-invoice-dollar"></i> Commercial Sales Invoices</a></li>
           <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-globe"></i> Web / Portal Orders</a></li>
           <li class="sb-submenu-header">Pricing & Promotions</li>
           <li><a href="{{ route('admin.pricelists.index') }}"><i class="fas fa-tags"></i> Customer Pricelists</a></li>

@@ -32,15 +32,35 @@ class SalesInvoiceController extends Controller
         return $dataTable->render('backend.sales_invoices.index');
     }
 
-    public function create(Request $request): View
+    public function create(Request $request): View|RedirectResponse
     {
         $selectedOrderId = $request->get('order_id');
         $selectedDeliveryOrderId = $request->get('delivery_order_id');
 
+        if ($selectedOrderId) {
+            $requestedOrder = Order::find($selectedOrderId);
+            if ($requestedOrder && !$requestedOrder->isFullyApproved()) {
+                Toastr::warning("Order #{$requestedOrder->order_no} is pending approval. Commercial invoice cannot be created until approval is complete.");
+                return redirect()->route('admin.orders.show', $selectedOrderId);
+            }
+
+            $existingInvoice = SalesInvoice::where('order_id', $selectedOrderId)->where('status', '!=', 'cancelled')->first();
+            if ($existingInvoice) {
+                Toastr::info("A Commercial Invoice (#{$existingInvoice->invoice_no}) already exists for Order #{$requestedOrder->order_no}.");
+                return redirect()->route('admin.sales-invoices.show', $existingInvoice->id);
+            }
+        }
+
         $orders = Order::with(['user', 'items.product', 'items.variant'])
             ->whereIn('status', ['approved', 'processing', 'completed'])
+            ->whereDoesntHave('salesInvoices', function($q) {
+                $q->where('status', '!=', 'cancelled');
+            })
             ->latest()
-            ->get();
+            ->get()
+            ->filter(function($order) {
+                return $order->isFullyApproved();
+            });
 
         $deliveryOrders = DeliveryOrder::with(['order.user', 'items.product', 'items.variant'])
             ->where('status', 'dispatched')
@@ -106,6 +126,8 @@ class SalesInvoiceController extends Controller
             return response()->json([
                 'success' => true,
                 'type' => 'delivery_order',
+                'delivery_order_id' => $do->id,
+                'delivery_no' => $do->delivery_no,
                 'order_id' => $do->order_id,
                 'order_no' => $do->order ? $do->order->order_no : '-',
                 'customer_name' => $do->order && $do->order->user ? ($do->order->user->outlet_name ?: $do->order->user->name) : 'Guest / Cash',
@@ -118,7 +140,7 @@ class SalesInvoiceController extends Controller
         if ($orderId) {
             $order = Order::with(['user', 'items.product', 'items.variant'])->find($orderId);
             if (!$order) {
-                return response()->json(['success' => false, 'message' => 'Sales Order not found']);
+                return response()->json(['success' => false, 'message' => 'Order not found']);
             }
 
             $items = $order->items->map(function ($item) {
@@ -158,7 +180,23 @@ class SalesInvoiceController extends Controller
 
     public function store(StoreSalesInvoiceRequest $request): RedirectResponse
     {
-        $invoice = $this->salesInvoiceService->createInvoice($request->validated(), Auth::id() ?? 1);
+        $validated = $request->validated();
+
+        if (!empty($validated['order_id'])) {
+            $order = Order::findOrFail($validated['order_id']);
+            if (!$order->isFullyApproved()) {
+                Toastr::warning("Order #{$order->order_no} is pending approval. Commercial invoice cannot be created.");
+                return redirect()->route('admin.orders.show', $order->id);
+            }
+
+            $existingInvoice = SalesInvoice::where('order_id', $order->id)->where('status', '!=', 'cancelled')->first();
+            if ($existingInvoice) {
+                Toastr::warning("A Commercial Invoice (#{$existingInvoice->invoice_no}) already exists for Order #{$order->order_no}. Duplicate invoice creation is prohibited.");
+                return redirect()->route('admin.sales-invoices.show', $existingInvoice->id);
+            }
+        }
+
+        $invoice = $this->salesInvoiceService->createInvoice($validated, Auth::id() ?? 1);
 
         Toastr::success('Sales Invoice generated successfully.', 'Success');
         return redirect()->route('admin.sales-invoices.show', $invoice->id);

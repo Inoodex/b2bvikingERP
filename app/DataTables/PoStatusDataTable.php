@@ -19,7 +19,7 @@ class PoStatusDataTable extends DataTable
             ->editColumn('date', fn($row) => $row->date ? $row->date->format('d M Y') : 'N/A')
             ->addColumn('vendor_name', fn($row) => '<strong>' . e($row->vendor?->shop_name ?? $row->vendor?->name ?? 'N/A') . '</strong>')
             ->addColumn('type_badge', fn($row) => '<span class="badge badge-' . ($row->purchase_type == 'foreign' ? 'info' : 'secondary') . '">' . ucfirst($row->purchase_type ?? 'local') . '</span>')
-            ->editColumn('total_amount', fn($row) => '$' . number_format($row->total_amount, 2))
+            ->editColumn('total_amount', fn($row) => formatConverted($row->total_amount))
             ->addColumn('milestone_badge', fn($row) => '<span class="badge badge-primary">' . ucfirst(str_replace('_', ' ', $row->milestone_status ?? 'issued')) . '</span>')
             ->addColumn('payment_badge', fn($row) => '<span class="badge badge-' . ($row->payment_status == 'paid' ? 'success' : ($row->payment_status == 'partial' ? 'warning' : 'danger')) . '">' . ucfirst($row->payment_status ?? 'unpaid') . '</span>')
             ->addColumn('action', fn($row) => '<a href="' . route('admin.purchase-orders.show', $row->id) . '" class="btn btn-sm btn-info" target="_blank"><i class="fas fa-eye"></i> View PO</a>')

@@ -33,23 +33,23 @@
     $totalStepsCount = $allSteps->count() ?: $approvals->count();
 @endphp
 
-<div class="card border-0 shadow-sm mb-4" style="border-radius: 12px; border: 1px solid #e2e8f0;">
-    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 font-weight-bold text-dark" style="font-size: 15px;">
-            <i class="fas fa-sitemap mr-2 text-primary"></i> Approval Workflow Chain
-        </h5>
+<div class="card card-primary mb-4 shadow-sm">
+    <div class="card-header border-bottom d-flex justify-content-between align-items-center py-3" style="min-height: auto;">
+        <h4 class="mb-0 text-nowrap" style="font-size: 15px;">
+            <i class="fas fa-sitemap mr-2 text-primary"></i> Approval Workflow
+        </h4>
         <div>
             @if($isFullyApproved)
-                <span class="badge badge-success px-3 py-1 font-weight-bold" style="border-radius: 20px;">
+                <span class="badge badge-success font-weight-bold px-2 py-1">
                     <i class="fas fa-check-circle mr-1"></i> Fully Approved
                 </span>
             @elseif($isRejected)
-                <span class="badge badge-danger px-3 py-1 font-weight-bold" style="border-radius: 20px;">
-                    <i class="fas fa-times-circle mr-1"></i> Workflow Rejected
+                <span class="badge badge-danger font-weight-bold px-2 py-1">
+                    <i class="fas fa-times-circle mr-1"></i> Rejected
                 </span>
             @else
-                <span class="badge badge-warning text-dark px-3 py-1 font-weight-bold" style="border-radius: 20px; background: #fef08a;">
-                    <i class="fas fa-hourglass-half mr-1"></i> In Progress ({{ $activeApproval?->step?->step_name ?: 'Review' }})
+                <span class="badge badge-warning text-dark font-weight-bold px-2 py-1" style="background: #fef08a;">
+                    <i class="fas fa-hourglass-half mr-1"></i> In Progress
                 </span>
             @endif
         </div>
@@ -57,7 +57,7 @@
 
     <div class="card-body p-3">
         @if($totalStepsCount > 0)
-            <div class="approval-timeline position-relative pl-3" style="border-left: 2px solid #e2e8f0; margin-left: 14px;">
+            <div class="approval-timeline position-relative" style="border-left: 2px solid #e2e8f0; margin-left: 16px; padding-left: 18px;">
                 @php
                     $stepsToIterate = $allSteps->isNotEmpty() ? $allSteps : $approvals->pluck('step')->filter();
                     $processedApprovalIds = [];
@@ -74,51 +74,50 @@
                         $roleName = $step->approverRole?->name ?? 'Designated Approver';
                     @endphp
 
-                    <div class="timeline-step position-relative mb-4 {{ $loop->last ? 'mb-1' : '' }}">
+                    <div class="timeline-step position-relative {{ !$loop->last ? 'mb-4' : 'mb-1' }}">
                         {{-- Dot Indicator --}}
                         <div class="timeline-dot position-absolute d-flex align-items-center justify-content-center shadow-sm"
-                             style="left: -27px; top: 0; width: 26px; height: 26px; border-radius: 50%; font-size: 11px; z-index: 2;
+                             style="left: -30px; top: 4px; width: 24px; height: 24px; border-radius: 50%; font-size: 11px; z-index: 2;
                              @if($isApproved) background: #10b981; color: #fff;
                              @elseif($isStepRejected) background: #ef4444; color: #fff;
-                             @elseif($isPending) background: #f59e0b; color: #fff; box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25) !important;
+                             @elseif($isPending) background: #f59e0b; color: #fff; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25) !important;
                              @else background: #cbd5e1; color: #64748b; @endif">
                             @if($isApproved)
                                 <i class="fas fa-check"></i>
                             @elseif($isStepRejected)
                                 <i class="fas fa-times"></i>
                             @elseif($isPending)
-                                <i class="fas fa-hourglass-half fa-spin"></i>
+                                <i class="fas fa-hourglass-half"></i>
                             @else
-                                <i class="fas fa-lock"></i>
+                                <i class="fas fa-lock" style="font-size: 10px;"></i>
                             @endif
                         </div>
 
                         {{-- Step Content Box --}}
-                        <div class="step-card p-3 rounded" style="background: @if($isPending) #fffbeb; border: 1px solid #fde68a; @elseif($isApproved) #f0fdf4; border: 1px solid #bbf7d0; @elseif($isStepRejected) #fef2f2; border: 1px solid #fecaca; @else #f8fafc; border: 1px solid #e2e8f0; @endif">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <div class="font-weight-bold text-dark" style="font-size: 13px;">
-                                        Step {{ $step->step_order ?? ($index + 1) }}: {{ $step->step_name ?: 'Review Step' }}
-                                    </div>
-                                    <div class="small text-muted">
-                                        <i class="fas fa-user-shield mr-1"></i> Authority: <strong>{{ $roleName }}</strong>
-                                    </div>
+                        <div class="step-card p-3 rounded" style="background: @if($isPending) #fffdf7; border: 1.5px solid #fde68a; @elseif($isApproved) #f0fdf4; border: 1px solid #bbf7d0; @elseif($isStepRejected) #fef2f2; border: 1px solid #fecaca; @else #f8fafc; border: 1px dashed #cbd5e1; @endif">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="font-weight-bold text-dark" style="font-size: 13px;">
+                                    Step {{ $step->step_order ?? ($index + 1) }}: {{ $step->step_name ?: 'Review Step' }}
                                 </div>
                                 <div>
                                     @if($isApproved)
-                                        <span class="badge badge-success small font-weight-bold">Passed</span>
+                                        <span class="badge badge-success px-2 py-1 font-weight-bold" style="font-size: 10px;">Passed</span>
                                     @elseif($isStepRejected)
-                                        <span class="badge badge-danger small font-weight-bold">Rejected</span>
+                                        <span class="badge badge-danger px-2 py-1 font-weight-bold" style="font-size: 10px;">Rejected</span>
                                     @elseif($isPending)
-                                        <span class="badge badge-warning text-dark small font-weight-bold" style="background: #fbbf24;">Waiting Authorization</span>
+                                        <span class="badge badge-warning text-dark px-2 py-1 font-weight-bold" style="font-size: 10px; background: #fbbf24;">Waiting Authorization</span>
                                     @else
-                                        <span class="badge badge-secondary small">Locked</span>
+                                        <span class="badge badge-secondary px-2 py-1" style="font-size: 10px;">Locked</span>
                                     @endif
                                 </div>
                             </div>
 
+                            <div class="small text-muted mb-2">
+                                <i class="fas fa-user-shield mr-1 text-primary"></i> Authority: <strong>{{ $roleName }}</strong>
+                            </div>
+
                             @if($isApproved && $stepApproval)
-                                <div class="mt-2 pt-2 border-top small text-success d-flex flex-wrap justify-content-between align-items-center" style="border-color: #bbf7d0 !important;">
+                                <div class="pt-2 border-top small text-success d-flex flex-wrap justify-content-between align-items-center" style="border-color: #bbf7d0 !important;">
                                     <span>
                                         <i class="fas fa-user-check mr-1"></i> Signed by: <strong>{{ $stepApproval->user?->name ?? 'Authorized Officer' }}</strong>
                                     </span>
@@ -127,43 +126,43 @@
                                     </span>
                                 </div>
                                 @if($stepApproval->comments)
-                                    <div class="mt-1 small text-dark font-italic bg-white p-2 rounded border" style="border-color: #dcfce7 !important;">
+                                    <div class="mt-2 small text-dark font-italic bg-white p-2 rounded border" style="border-color: #dcfce7 !important;">
                                         "{{ $stepApproval->comments }}"
                                     </div>
                                 @endif
                             @elseif($isStepRejected && $stepApproval)
-                                <div class="mt-2 pt-2 border-top small text-danger" style="border-color: #fecaca !important;">
+                                <div class="pt-2 border-top small text-danger" style="border-color: #fecaca !important;">
                                     <div><i class="fas fa-user-times mr-1"></i> Rejected by: <strong>{{ $stepApproval->user?->name ?? 'Officer' }}</strong> on {{ $stepApproval->updated_at->format('d M, Y h:i A') }}</div>
                                     @if($stepApproval->comments)
-                                        <div class="mt-1 p-2 bg-white rounded border border-danger text-danger font-weight-bold">
+                                        <div class="mt-2 p-2 bg-white rounded border border-danger text-danger font-weight-bold">
                                             Reason: {{ $stepApproval->comments }}
                                         </div>
                                     @endif
                                 </div>
                             @elseif($isPending)
-                                <div class="mt-2 small text-warning font-weight-bold d-flex align-items-center">
-                                    <i class="fas fa-info-circle mr-1"></i> Currently under review by assigned {{ $roleName }}.
+                                <div class="p-2 rounded mb-2 small text-dark" style="background: #fef9c3; border-left: 3px solid #f59e0b; font-size: 11px;">
+                                    <i class="fas fa-info-circle text-warning mr-1"></i> Currently under review by assigned <strong>{{ $roleName }}</strong>.
                                 </div>
 
                                 {{-- If current user has authority to approve this step --}}
                                 @if($canApprove && !empty($approveRoute))
-                                    <div class="mt-3 pt-2 border-top d-flex gap-2" style="border-color: #fde68a !important;">
-                                        <form action="{{ route($approveRoute, $model->id) }}" method="POST" class="mr-2">
+                                    <div class="pt-2 border-top d-flex align-items-center" style="border-color: #fde68a !important; gap: 8px;">
+                                        <form action="{{ route($approveRoute, $model->id) }}" method="POST" class="flex-grow-1 m-0">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-success font-weight-bold px-3 shadow-sm">
+                                            <button type="submit" class="btn btn-sm btn-success btn-block font-weight-bold shadow-sm" style="font-size: 12px;">
                                                 <i class="fas fa-check mr-1"></i> Approve Step {{ $step->step_order ?? ($index + 1) }}
                                             </button>
                                         </form>
 
                                         @if(!empty($rejectModalId))
-                                            <button type="button" class="btn btn-sm btn-outline-danger font-weight-bold px-3" data-toggle="modal" data-target="#{{ $rejectModalId }}">
+                                            <button type="button" class="btn btn-sm btn-outline-danger font-weight-bold px-3" data-toggle="modal" data-target="#{{ $rejectModalId }}" style="font-size: 12px;">
                                                 <i class="fas fa-times mr-1"></i> Reject
                                             </button>
                                         @endif
                                     </div>
                                 @endif
                             @else
-                                <div class="mt-1 small text-muted font-italic">
+                                <div class="small text-muted font-italic mt-1">
                                     <i class="fas fa-lock mr-1"></i> Will activate automatically once Step {{ ($step->step_order ?? ($index + 1)) - 1 }} is signed.
                                 </div>
                             @endif

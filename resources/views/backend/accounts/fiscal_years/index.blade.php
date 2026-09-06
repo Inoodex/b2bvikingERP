@@ -18,13 +18,16 @@
 
     <!-- Active Fiscal Period Status Cards -->
     @php
-        $activeFy = $fiscalYears->where('is_closed', false)->first();
+        $activeFy = $fiscalYears->first(function($fy) {
+            return !$fy->is_closed && now()->between($fy->start_date, $fy->end_date);
+        }) ?? $fiscalYears->where('is_closed', false)->first();
+
         $daysRemaining = 0;
         $progressPct = 0;
         if ($activeFy && $activeFy->start_date && $activeFy->end_date) {
-            $totalDays = $activeFy->start_date->diffInDays($activeFy->end_date) ?: 365;
-            $passedDays = $activeFy->start_date->diffInDays(now());
-            $daysRemaining = max(0, now()->diffInDays($activeFy->end_date, false));
+            $totalDays = max(1, (int) round($activeFy->start_date->diffInDays($activeFy->end_date)));
+            $passedDays = max(0, (int) round($activeFy->start_date->diffInDays(now())));
+            $daysRemaining = max(0, (int) round(now()->diffInDays($activeFy->end_date, false)));
             $progressPct = min(100, max(0, round(($passedDays / $totalDays) * 100)));
         }
     @endphp
@@ -106,7 +109,13 @@
                                 <td>
                                     <strong class="text-dark">{{ $fy->name }}</strong>
                                     @if(!$fy->is_closed)
-                                        <span class="badge badge-success ml-2" style="font-size: 10px;">CURRENT</span>
+                                        @if(now()->between($fy->start_date, $fy->end_date))
+                                            <span class="badge badge-success ml-2" style="font-size: 10px;">CURRENT</span>
+                                        @elseif(now()->lt($fy->start_date))
+                                            <span class="badge badge-info ml-2" style="font-size: 10px;">UPCOMING</span>
+                                        @else
+                                            <span class="badge badge-warning ml-2" style="font-size: 10px;">DUE FOR CLOSING</span>
+                                        @endif
                                     @endif
                                 </td>
                                 <td>{{ $fy->start_date ? $fy->start_date->format('d M, Y') : 'N/A' }}</td>

@@ -56,14 +56,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($invoice->items as $index => $item)
+                                    @forelse ($invoice->items as $index => $item)
                                         @php
                                             $lineSubtotal = (float)$item->qty * (float)$item->price;
                                         @endphp
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
                                             <td>
-                                                <strong>{{ $item->product ? $item->product->name : 'Product' }}</strong>
+                                                <strong>{{ $item->product ? $item->product->name : ($item->description ?: 'Product') }}</strong>
                                                 @if ($item->variant)
                                                     <br><small class="text-muted">Variant: {{ $item->variant->name }}</small>
                                                 @endif
@@ -72,7 +72,18 @@
                                             <td class="text-right">kr. {{ number_format((float)$item->price, 2) }}</td>
                                             <td class="text-right font-weight-bold">kr. {{ number_format($lineSubtotal, 2) }}</td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td>1</td>
+                                            <td>
+                                                <strong>Commercial Order Billed Items</strong>
+                                                <br><small class="text-muted">Consolidated billing for Order #{{ $invoice->order?->order_no ?? 'N/A' }}</small>
+                                            </td>
+                                            <td class="text-center font-weight-bold">1.00 Pcs</td>
+                                            <td class="text-right">kr. {{ number_format((float)($invoice->subtotal_amount ?: $invoice->total_amount), 2) }}</td>
+                                            <td class="text-right font-weight-bold">kr. {{ number_format((float)($invoice->subtotal_amount ?: $invoice->total_amount), 2) }}</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                                 <tfoot>
                                     <tr>

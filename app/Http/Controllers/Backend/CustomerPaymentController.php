@@ -115,38 +115,51 @@ class CustomerPaymentController extends Controller
     public function getCustomerInvoices(Request $request): JsonResponse
     {
         $userId = $request->get('user_id');
+        $selectedInvoiceId = $request->get('sales_invoice_id');
+
         if (!$userId) {
             return response()->json(['success' => false, 'invoices' => []]);
         }
 
         $user = User::find($userId);
 
-        // Auto-generate SalesInvoices for any due orders that don't have one yet
-        $dueOrdersWithoutInvoice = Order::where('user_id', $userId)
-            ->where('due_amount', '>', 0)
-            ->whereDoesntHave('salesInvoices')
-            ->get();
+        // Auto-generate SalesInvoices for any due orders that don't have one yet (ONLY in multi-invoice mode)
+        if (!$selectedInvoiceId) {
+            $dueOrdersWithoutInvoice = Order::where('user_id', $userId)
+                ->where('due_amount', '>', 0)
+                ->whereDoesntHave('salesInvoices')
+                ->get();
 
-        if ($dueOrdersWithoutInvoice->isNotEmpty()) {
-            $invoiceService = app(\App\Services\SalesInvoiceService::class);
-            foreach ($dueOrdersWithoutInvoice as $dueOrder) {
-                try {
-                    $invoiceService->createInvoiceFromOrder($dueOrder);
-                } catch (\Throwable $e) {
-                    \Log::warning("Could not auto-generate invoice for order {$dueOrder->id}: " . $e->getMessage());
+            if ($dueOrdersWithoutInvoice->isNotEmpty()) {
+                $invoiceService = app(\App\Services\SalesInvoiceService::class);
+                foreach ($dueOrdersWithoutInvoice as $dueOrder) {
+                    try {
+                        $invoiceService->createInvoiceFromOrder($dueOrder);
+                    } catch (\Throwable $e) {
+                        \Log::warning("Could not auto-generate invoice for order {$dueOrder->id}: " . $e->getMessage());
+                    }
                 }
             }
         }
 
-        $invoices = SalesInvoice::with(['order.items.product', 'items.product'])
+        $query = SalesInvoice::with(['order.items.product', 'items.product'])
             ->where(function($q) use ($userId) {
                 $q->whereHas('order', fn($oq) => $oq->where('user_id', $userId));
             })
-            ->where('due_amount', '>', 0)
-            ->orderBy('date', 'asc') // FIFO sorting
-            ->get();
+            ->where('due_amount', '>', 0);
 
-        $totalCustomerDue = $invoices->sum('due_amount');
+        // In Single-Invoice mode, isolate strictly to the requested invoice
+        if ($selectedInvoiceId) {
+            $query->where('id', $selectedInvoiceId);
+        }
+
+        $invoices = $query->orderBy('date', 'asc')->get();
+
+        $totalCustomerDue = (float) SalesInvoice::where(function($q) use ($userId) {
+                $q->whereHas('order', fn($oq) => $oq->where('user_id', $userId));
+            })
+            ->where('due_amount', '>', 0)
+            ->sum('due_amount');
 
         $formattedInvoices = $invoices->map(function($inv) {
             $itemNames = [];
@@ -175,13 +188,15 @@ class CustomerPaymentController extends Controller
         });
 
         return response()->json([
-            'success'            => true,
-            'customer_name'      => $user ? ($user->outlet_name ?: $user->name) : 'Customer',
-            'customer_phone'     => $user ? $user->phone : '',
-            'customer_email'     => $user ? $user->email : '',
-            'credit_limit'       => (float) ($user->credit_limit ?? 0),
-            'total_customer_due' => (float) $totalCustomerDue,
-            'invoices'           => $formattedInvoices,
+            'success'                => true,
+            'is_single_invoice_mode' => !empty($selectedInvoiceId),
+            'customer_name'          => $user ? ($user->outlet_name ?: $user->name) : 'Customer',
+            'customer_phone'         => $user ? $user->phone : '',
+            'customer_email'         => $user ? $user->email : '',
+            'credit_limit'           => (float) ($user->credit_limit ?? 0),
+            'total_customer_due'     => $totalCustomerDue,
+            'target_invoice_due'     => $selectedInvoiceId && $invoices->first() ? (float)$invoices->first()->due_amount : null,
+            'invoices'               => $formattedInvoices,
         ]);
     }
 

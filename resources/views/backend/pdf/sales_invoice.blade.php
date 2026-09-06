@@ -185,7 +185,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($invoice->items as $idx => $item)
+            @forelse ($invoice->items as $idx => $item)
                 @php
                     $lineSubtotal = (float)$item->qty * (float)$item->price;
                     $unitName = ($item->product && $item->product->unit) ? $item->product->unit->name : 'Pcs';
@@ -193,7 +193,7 @@
                 <tr>
                     <td style="text-align: center;">{{ $idx + 1 }}</td>
                     <td>
-                        <strong>{{ $item->product ? $item->product->name : 'Product' }}</strong>
+                        <strong>{{ $item->product ? $item->product->name : ($item->description ?: 'Product') }}</strong>
                         @if ($item->variant)
                             <br><span style="font-size: 10px; color: #64748b;">Variant: {{ $item->variant->name }}</span>
                         @endif
@@ -202,7 +202,18 @@
                     <td style="text-align: right;">kr. {{ number_format((float)$item->price, 2) }}</td>
                     <td style="text-align: right; font-weight: bold;">kr. {{ number_format($lineSubtotal, 2) }}</td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td style="text-align: center;">1</td>
+                    <td>
+                        <strong>Commercial Order Billed Items</strong>
+                        <br><span style="font-size: 10px; color: #64748b;">Consolidated billing for Order #{{ $invoice->order ? $invoice->order->order_no : '-' }}</span>
+                    </td>
+                    <td style="text-align: center; font-weight: bold;">1.00 Pcs</td>
+                    <td style="text-align: right;">kr. {{ number_format((float)($invoice->subtotal_amount ?: $invoice->total_amount), 2) }}</td>
+                    <td style="text-align: right; font-weight: bold;">kr. {{ number_format((float)($invoice->subtotal_amount ?: $invoice->total_amount), 2) }}</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 

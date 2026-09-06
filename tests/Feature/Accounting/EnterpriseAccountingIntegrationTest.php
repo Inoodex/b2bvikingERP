@@ -20,10 +20,13 @@ use App\Services\CustomerPaymentService;
 use App\Services\VendorBillService;
 use App\Services\VendorPaymentService;
 use Exception;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class EnterpriseAccountingIntegrationTest extends TestCase
 {
+    use DatabaseTransactions;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -889,5 +892,55 @@ class EnterpriseAccountingIntegrationTest extends TestCase
         $response = $this->get(route('admin.vendor-bills.show', $bill->id));
         $response->assertStatus(200);
         $response->assertSee('3-Way Match Audit Verification');
+    }
+
+    public function test_sales_invoice_show_page_renders_line_items(): void
+    {
+        $admin = User::first() ?? User::factory()->create();
+        $this->actingAs($admin);
+
+        $invoice = SalesInvoice::find(106) ?: SalesInvoice::first();
+
+        $response = $this->get(route('admin.sales-invoices.show', $invoice->id));
+        $response->assertStatus(200);
+        $response->assertSee('Invoiced Line Items');
+        $response->assertSee('Line Subtotal');
+        $response->assertSee(number_format((float)$invoice->total_amount, 2));
+    }
+
+    public function test_customer_payment_create_with_sales_invoice_id_isolates_single_invoice(): void
+    {
+        $admin = User::first() ?? User::factory()->create();
+        $this->actingAs($admin);
+
+        $invoice = SalesInvoice::find(106) ?: SalesInvoice::first();
+
+        // 1. Check Blade Create Page
+        $response = $this->get(route('admin.customer-payments.create', ['sales_invoice_id' => $invoice->id]));
+        $response->assertStatus(200);
+        $response->assertSee('Single Invoice Mode');
+        $response->assertSee('View All Customer Invoices');
+
+        // 2. Check Isolated AJAX endpoint
+        $ajaxResponse = $this->get(route('admin.customer-payments.get-customer-invoices', [
+            'user_id'          => $invoice->order ? $invoice->order->user_id : $admin->id,
+            'sales_invoice_id' => $invoice->id,
+        ]));
+        $ajaxResponse->assertStatus(200);
+        $ajaxResponse->assertJson([
+            'success'                => true,
+            'is_single_invoice_mode' => true,
+        ]);
+        $data = $ajaxResponse->json();
+        $this->assertCount(1, $data['invoices']);
+        $this->assertEquals($invoice->id, $data['invoices'][0]['id']);
+
+        // 3. Check Full Multi-Invoice Mode when no sales_invoice_id passed
+        $fullAjaxResponse = $this->get(route('admin.customer-payments.get-customer-invoices', [
+            'user_id' => $invoice->order ? $invoice->order->user_id : $admin->id,
+        ]));
+        $fullAjaxResponse->assertStatus(200);
+        $fullData = $fullAjaxResponse->json();
+        $this->assertFalse($fullData['is_single_invoice_mode']);
     }
 }

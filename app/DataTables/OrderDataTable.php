@@ -85,8 +85,23 @@ class OrderDataTable extends DataTable
                 $delete = "<a href='" . route('admin.orders.destroy', $query->id) . "' class='btn btn-danger btn-sm delete-item' title='Delete'><i class='fas fa-trash'></i></a>";
                 $deliveryOrder = '';
                 $canManage = Auth::check() && (Auth::user()->hasRole('Admin') || Auth::user()->can('Manage Inventory'));
-                if ($canManage && in_array(strtolower((string) $query->status), ['approved', 'processing', 'completed'])) {
-                    $deliveryOrder = "<a href='" . route('admin.delivery-orders.create', ['order_id' => $query->id]) . "' class='btn btn-outline-primary btn-sm mr-1' title='Create Delivery Challan'><i class='fas fa-truck'></i></a>";
+                if ($canManage) {
+                    $hasDeliveryOrders = $query->deliveryOrders && $query->deliveryOrders->isNotEmpty();
+                    $isFullyDelivered = ($query->fulfillment_status === 'fully_delivered');
+                    $isCompleted = strtolower((string)$query->status) === 'completed';
+
+                    if ($isFullyDelivered || $isCompleted) {
+                        // In Enterprise O2C, completed/fully delivered orders cannot create new challans.
+                        // If delivery orders exist, allow viewing existing challans.
+                        if ($hasDeliveryOrders) {
+                            $doCount = $query->deliveryOrders->count();
+                            $doTitle = $doCount > 1 ? "View Delivery Challans ({$doCount})" : "View Delivery Challan";
+                            $deliveryOrder = "<a href='" . route('admin.delivery-orders.index', ['order_id' => $query->id]) . "' class='btn btn-outline-success btn-sm mr-1' title='{$doTitle}'><i class='fas fa-truck-loading'></i></a>";
+                        }
+                    } elseif (in_array(strtolower((string) $query->status), ['approved', 'processing']) && $query->fulfillment_status !== 'fully_delivered' && $query->isFullyApproved()) {
+                        // Pending fulfillment & fully approved: ready for warehouse dispatch
+                        $deliveryOrder = "<a href='" . route('admin.delivery-orders.create', ['order_id' => $query->id]) . "' class='btn btn-outline-primary btn-sm mr-1' title='Create Delivery Challan'><i class='fas fa-truck'></i></a>";
+                    }
                 }
 
                 $pay = '';
@@ -108,8 +123,7 @@ class OrderDataTable extends DataTable
     public function query(Order $model): QueryBuilder
     {
         $query = $model->newQuery()
-            ->with('user')
-            ->with('items')
+            ->with(['user', 'deliveryOrders'])
             ->withCount('items')
             ->where(function ($q) {
                 $q->where('order_no', 'not like', 'SO-%')

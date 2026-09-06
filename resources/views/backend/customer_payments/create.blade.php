@@ -1,6 +1,39 @@
 @extends('backend.layouts.master')
 @section('title', 'Receive Customer Payment — Multi-Invoice Smart Matrix')
 
+@push('css')
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+    .select2-container--default .select2-selection--single {
+        height: 44px !important;
+        border: 1px solid #dcdfe8 !important;
+        border-radius: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 42px !important;
+        font-weight: 600 !important;
+        color: #2d3748 !important;
+        padding-left: 14px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 42px !important;
+        right: 10px !important;
+    }
+    .form-control, .custom-select {
+        border-radius: 8px !important;
+        border: 1px solid #dcdfe8 !important;
+    }
+    .form-control:focus, .custom-select:focus {
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15) !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <section class="section">
     <!-- Header Section -->
@@ -32,10 +65,11 @@
                             <h5 class="font-weight-bold text-dark mb-0"><i class="fas fa-receipt text-primary mr-2"></i> Payment Details</h5>
                         </div>
                         <div class="card-body p-4">
+                            <!-- Row 1: Customer & Received Amount -->
                             <div class="row">
                                 <div class="col-md-6 form-group mb-3">
-                                    <label class="font-weight-bold text-dark">B2B Customer / Outlet <span class="text-danger">*</span></label>
-                                    <select name="user_id" id="customer_select" class="form-control select2" required>
+                                    <label class="font-weight-bold text-dark"><i class="fas fa-store text-primary mr-1"></i> B2B Customer / Outlet <span class="text-danger">*</span></label>
+                                    <select name="user_id" id="customer_select" class="form-control select2" required style="width: 100%;">
                                         <option value="">-- Select B2B Customer --</option>
                                         @foreach($customers as $customer)
                                             <option value="{{ $customer->id }}" 
@@ -46,13 +80,13 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6 form-group mb-3">
-                                    <label class="font-weight-bold text-dark">Total Amount Received (DKK) <span class="text-danger">*</span></label>
+                                    <label class="font-weight-bold text-dark"><i class="fas fa-coins text-warning mr-1"></i> Total Amount Received (DKK) <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text font-weight-bold bg-light text-muted">kr.</span>
+                                            <span class="input-group-text font-weight-bold bg-light text-muted" style="border-top-left-radius: 8px; border-bottom-left-radius: 8px;">kr.</span>
                                         </div>
                                         <input type="number" step="0.01" min="0.01" name="amount" id="total_amount_input" class="form-control font-weight-bold text-dark" required 
-                                            value="{{ old('amount', isset($preloadedInvoice) ? $preloadedInvoice->due_amount : (isset($preloadedOrder) ? $preloadedOrder->due_amount : '')) }}" placeholder="0.00" style="font-size: 16px;">
+                                            value="{{ old('amount', isset($preloadedInvoice) ? $preloadedInvoice->due_amount : (isset($preloadedOrder) ? $preloadedOrder->due_amount : '')) }}" placeholder="0.00" style="font-size: 16px; height: 44px; border-top-right-radius: 8px; border-bottom-right-radius: 8px;">
                                     </div>
                                     <div class="custom-control custom-checkbox mt-2">
                                         <input type="checkbox" class="custom-control-input" id="allow_advance_check" name="allow_advance" value="1" checked>
@@ -63,33 +97,39 @@
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-4 form-group mb-3">
-                                    <label class="font-weight-bold text-dark">Payment Method <span class="text-danger">*</span></label>
-                                    <select name="payment_method" id="payment_method" class="form-control select2" required>
+                            <!-- Row 2: Payment Method & Deposit Account (2 columns) -->
+                            <div class="row pt-2 border-top">
+                                <div class="col-md-6 form-group mb-3">
+                                    <label class="font-weight-bold text-dark mb-1"><i class="fas fa-wallet text-info mr-1"></i> Payment Method <span class="text-danger">*</span></label>
+                                    <select name="payment_method" id="payment_method" class="form-control font-weight-bold" style="height: 44px;" required>
                                         <option value="bank" {{ old('payment_method') == 'bank' ? 'selected' : '' }}>🏦 Bank Transfer (Wire/SEPA)</option>
                                         <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}>💵 Cash in Hand</option>
-                                        <option value="card" {{ old('payment_method') == 'card' ? 'selected' : '' }}>💳 Card / POS Terminal</option>
+                                        <option value="card" {{ old('payment_method') == 'card' ? 'selected' : '' }}>💳 POS Terminal / Card</option>
                                         <option value="cheque" {{ old('payment_method') == 'cheque' ? 'selected' : '' }}>📜 Bank Cheque / Draft</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 form-group mb-3">
-                                    <label class="font-weight-bold text-dark">Payment Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="payment_date" id="payment_date" class="form-control" value="{{ old('payment_date', now()->toDateString()) }}" required>
-                                </div>
-                                <div class="col-md-4 form-group mb-3">
-                                    <label class="font-weight-bold text-dark">Transaction / Cheque Ref</label>
-                                    <input type="text" name="reference_no" id="reference_no" class="form-control" placeholder="e.g. TRF-98214 or CHQ-001" value="{{ old('reference_no') }}">
+                                <div class="col-md-6 form-group mb-3">
+                                    <label class="font-weight-bold text-dark mb-1"><i class="fas fa-university text-primary mr-1"></i> Deposit To Account</label>
+                                    <select name="account_id" id="account_id" class="form-control font-weight-bold" style="height: 44px;">
+                                        @foreach($accounts->whereIn('account_code', ['1010', '1020']) as $acc)
+                                            <option value="{{ $acc->id }}" {{ $acc->account_code == '1020' ? 'selected' : '' }}>
+                                                {{ $acc->account_code }} — {{ $acc->account_name }} ({{ strtoupper($acc->account_type) }})
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
 
-                            <div class="form-group mb-0">
-                                <label class="font-weight-bold text-dark">Deposit To GL Account Head</label>
-                                <select name="account_id" class="form-control select2">
-                                    @foreach($accounts->whereIn('account_code', ['1010', '1020']) as $acc)
-                                        <option value="{{ $acc->id }}">{{ $acc->account_code }} — {{ $acc->account_name }} ({{ strtoupper($acc->account_type) }})</option>
-                                    @endforeach
-                                </select>
+                            <!-- Row 3: Payment Date & Reference (2 columns) -->
+                            <div class="row">
+                                <div class="col-md-6 form-group mb-3">
+                                    <label class="font-weight-bold text-dark mb-1"><i class="fas fa-calendar-alt text-warning mr-1"></i> Payment Date <span class="text-danger">*</span></label>
+                                    <input type="date" name="payment_date" id="payment_date" class="form-control font-weight-bold" style="height: 44px;" value="{{ old('payment_date', now()->toDateString()) }}" required>
+                                </div>
+                                <div class="col-md-6 form-group mb-3">
+                                    <label class="font-weight-bold text-dark mb-1"><i class="fas fa-barcode text-secondary mr-1"></i> Transaction / Ref #</label>
+                                    <input type="text" name="reference_no" id="reference_no" class="form-control" style="height: 44px;" placeholder="e.g. TRF-98214 or CHQ-001" value="{{ old('reference_no') }}">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -100,7 +140,7 @@
                             <h5 class="font-weight-bold text-dark mb-0">
                                 <i class="fas fa-tasks text-success mr-2"></i> Invoices to Settle & Allocation Matrix
                             </h5>
-                            <div class="mt-2 mt-md-0">
+                            <div class="mt-2 mt-md-0" id="matrix-actions-bar">
                                 <button type="button" class="btn btn-sm btn-primary font-weight-bold shadow-sm mr-1" id="btn-auto-allocate">
                                     <i class="fas fa-bolt mr-1"></i> ⚡ Auto-Allocate (FIFO)
                                 </button>
@@ -109,6 +149,20 @@
                                 </button>
                             </div>
                         </div>
+
+                        @if(isset($preloadedInvoice))
+                        <div id="single-invoice-banner" class="alert alert-light border border-primary mx-4 my-3 p-3 d-flex flex-wrap justify-content-between align-items-center" style="border-radius: 8px;">
+                            <div class="mb-2 mb-md-0">
+                                <span class="badge badge-primary px-2 py-1 mr-2 font-weight-bold" id="mode-badge"><i class="fas fa-bullseye mr-1"></i> Single Invoice Mode</span>
+                                <span class="text-dark font-weight-bold">Recording payment exclusively for Invoice #{{ $preloadedInvoice->invoice_no }}</span>
+                                <span class="text-muted ml-1 small">({{ $preloadedInvoice->order?->order_no ? 'Order: ' . $preloadedInvoice->order->order_no . ' | ' : '' }}Due: kr. {{ number_format($preloadedInvoice->due_amount, 2) }})</span>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold shadow-sm" id="btn-toggle-multi-invoices">
+                                <i class="fas fa-layer-group mr-1"></i> View All Customer Invoices
+                            </button>
+                        </div>
+                        @endif
+
                         <div class="card-body p-0">
                             <div class="table-responsive">
                                 <table class="table table-hover table-striped mb-0 align-middle" id="invoices-matrix-table">
@@ -268,7 +322,9 @@
 <script>
 $(document).ready(function() {
     let customerInvoices = [];
-    const preloadedInvoiceId = "{{ $selectedInvoiceId ?? '' }}";
+    let currentInvoiceFilter = "{{ $selectedInvoiceId ?? '' }}";
+    const originalInvoiceId = "{{ $selectedInvoiceId ?? '' }}";
+    const originalUserId = "{{ isset($preloadedInvoice) ? $preloadedInvoice->user_id : (isset($preloadedOrder) ? $preloadedOrder->user_id : '') }}";
 
     function formatMoney(amount) {
         return 'kr. ' + parseFloat(amount || 0).toLocaleString('da-DK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -297,7 +353,7 @@ $(document).ready(function() {
         $('#allocations_json').val(JSON.stringify(allocations));
     }
 
-    function loadCustomerData(userId) {
+    function loadCustomerData(userId, overrideInvoiceFilter) {
         if (!userId) {
             $('#invoices-tbody').html('<tr><td colspan="7" class="text-center text-muted py-4">Please select a B2B Customer above.</td></tr>');
             $('#customer-profile-box').html('<div class="text-center text-muted py-3"><i class="fas fa-address-card fa-3x text-muted mb-2"></i><p class="small mb-0">Select a customer to load profile.</p></div>');
@@ -306,14 +362,32 @@ $(document).ready(function() {
             return;
         }
 
-        $('#invoices-tbody').html('<tr><td colspan="7" class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin mr-2"></i> Loading customer invoices...</td></tr>');
+        const activeFilter = (overrideInvoiceFilter !== undefined) ? overrideInvoiceFilter : currentInvoiceFilter;
+
+        $('#invoices-tbody').html('<tr><td colspan="7" class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin mr-2"></i> Loading invoices...</td></tr>');
 
         $.ajax({
             url: "{{ route('admin.customer-payments.get-customer-invoices') }}",
             type: "GET",
-            data: { user_id: userId },
+            data: { 
+                user_id: userId,
+                sales_invoice_id: activeFilter || ''
+            },
             success: function(res) {
                 if (res.success) {
+                    // Update Single Invoice Banner UI
+                    if (res.is_single_invoice_mode) {
+                        $('#single-invoice-banner').slideDown();
+                        $('#mode-badge').removeClass('badge-secondary').addClass('badge-primary')
+                            .html('<i class="fas fa-bullseye mr-1"></i> Single Invoice Mode');
+                        $('#btn-toggle-multi-invoices').html('<i class="fas fa-layer-group mr-1"></i> View All Customer Invoices');
+                    } else if (originalInvoiceId) {
+                        $('#single-invoice-banner').slideDown();
+                        $('#mode-badge').removeClass('badge-primary').addClass('badge-secondary')
+                            .html('<i class="fas fa-layer-group mr-1"></i> Multi-Invoice Mode (All Open)');
+                        $('#btn-toggle-multi-invoices').html('<i class="fas fa-bullseye mr-1"></i> Switch back to Single Invoice');
+                    }
+
                     // Populate Customer Credit Profile Drawer
                     $('#drawer-name').text(res.customer_name);
                     $('#drawer-phone').text(res.customer_phone || 'N/A');
@@ -321,20 +395,31 @@ $(document).ready(function() {
                     $('#drawer-total-due').text(formatMoney(res.total_customer_due));
                     $('#drawer-open-count').text(res.invoices.length);
 
+                    const modeNotice = res.is_single_invoice_mode 
+                        ? `<div class="badge badge-primary px-2 py-1 mb-2 font-weight-bold d-block text-left" style="border-radius: 6px;"><i class="fas fa-bullseye mr-1"></i> Dedicated Single-Invoice Mode</div>` 
+                        : '';
+
                     const profileHtml = `
+                        ${modeNotice}
                         <h6 class="font-weight-bold text-dark mb-1">${res.customer_name}</h6>
-                        <small class="text-muted d-block mb-3"><i class="fas fa-phone mr-1"></i> ${res.customer_phone || 'N/A'} | <i class="fas fa-envelope mr-1"></i> ${res.customer_email || 'N/A'}</small>
-                        <div class="border rounded p-3 bg-light mb-3">
+                        <small class="text-muted d-block mb-3"><i class="fas fa-envelope mr-1"></i> ${res.customer_email || 'N/A'}</small>
+                        <div class="border rounded p-3 bg-light mb-3" style="border-radius: 8px;">
+                            ${res.is_single_invoice_mode && res.target_invoice_due ? `
+                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                <span class="small text-muted font-weight-bold">Invoice Due:</span>
+                                <strong class="text-danger font-weight-bold">${formatMoney(res.target_invoice_due)}</strong>
+                            </div>
+                            ` : ''}
                             <div class="d-flex justify-content-between mb-1">
-                                <span class="small text-muted font-weight-bold">Total Receivables:</span>
-                                <strong class="text-danger">${formatMoney(res.total_customer_due)}</strong>
+                                <span class="small text-muted font-weight-bold">Total Customer Due:</span>
+                                <strong class="text-dark">${formatMoney(res.total_customer_due)}</strong>
                             </div>
                             <div class="d-flex justify-content-between mb-3">
-                                <span class="small text-muted font-weight-bold">Open Invoices:</span>
-                                <span class="badge badge-warning text-dark font-weight-bold">${res.invoices.length} Invoices</span>
+                                <span class="small text-muted font-weight-bold">${res.is_single_invoice_mode ? 'Invoices in View:' : 'Total Open Invoices:'}</span>
+                                <span class="badge ${res.is_single_invoice_mode ? 'badge-primary' : 'badge-warning text-dark'} font-weight-bold">${res.invoices.length} ${res.invoices.length === 1 ? 'Invoice' : 'Invoices'}</span>
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-block font-weight-bold shadow-sm" data-toggle="modal" data-target="#customerCreditDrawerModal">
-                                <i class="fas fa-id-card-alt mr-1"></i> View Full Credit Profile & Risk Analysis
+                            <button type="button" class="btn btn-sm btn-outline-primary btn-block font-weight-bold shadow-sm" data-toggle="modal" data-target="#customerCreditDrawerModal" style="border-radius: 6px;">
+                                <i class="fas fa-id-card-alt mr-1"></i> View Full Credit Profile
                             </button>
                         </div>
                     `;
@@ -343,12 +428,12 @@ $(document).ready(function() {
                     // 2. Render Invoices Matrix Table
                     customerInvoices = res.invoices;
                     if (customerInvoices.length === 0) {
-                        $('#invoices-tbody').html('<tr><td colspan="7" class="text-center text-success py-4"><i class="fas fa-check-circle mr-1"></i> Customer has zero outstanding invoices. This payment will be recorded as unallocated advance deposit.</td></tr>');
+                        $('#invoices-tbody').html('<tr><td colspan="7" class="text-center text-success py-4"><i class="fas fa-check-circle mr-1"></i> No outstanding due balance found for this invoice or customer.</td></tr>');
                     } else {
                         let rows = '';
                         customerInvoices.forEach(function(inv, idx) {
                             rows += `
-                                <tr>
+                                <tr class="${res.is_single_invoice_mode ? 'table-light' : ''}">
                                     <td class="text-center font-weight-bold text-muted">${idx + 1}</td>
                                     <td>
                                         <strong class="text-dark">${inv.invoice_no}</strong>
@@ -369,14 +454,17 @@ $(document).ready(function() {
                         });
                         $('#invoices-tbody').html(rows);
 
-                        // If opened for specific invoice or auto prefilled, run auto-allocate
-                        if (preloadedInvoiceId) {
-                            const targetInput = $(`.alloc-input[data-invoice-id="${preloadedInvoiceId}"]`);
+                        // Auto-populate row amount
+                        if (activeFilter) {
+                            const targetInput = $(`.alloc-input[data-invoice-id="${activeFilter}"]`);
                             if (targetInput.length) {
                                 const due = parseFloat(targetInput.data('due')) || 0;
                                 const initialAmt = parseFloat($('#total_amount_input').val()) || due;
+                                if (!$('#total_amount_input').val() || parseFloat($('#total_amount_input').val()) <= 0) {
+                                    $('#total_amount_input').val(due.toFixed(2));
+                                }
                                 targetInput.val(Math.min(initialAmt, due).toFixed(2));
-                            } else if ($('#total_amount_input').val() > 0) {
+                            } else {
                                 runAutoAllocate();
                             }
                         } else if ($('#total_amount_input').val() > 0) {
@@ -404,9 +492,28 @@ $(document).ready(function() {
         recalculateSummary();
     }
 
+    // Toggle Multi-Invoice vs Single-Invoice view
+    $(document).on('click', '#btn-toggle-multi-invoices', function(e) {
+        e.preventDefault();
+        if (currentInvoiceFilter) {
+            currentInvoiceFilter = '';
+            loadCustomerData($('#customer_select').val(), '');
+        } else {
+            currentInvoiceFilter = originalInvoiceId;
+            loadCustomerData($('#customer_select').val(), currentInvoiceFilter);
+        }
+    });
+
     // Trigger on customer change
     $('#customer_select').on('change', function() {
-        loadCustomerData($(this).val());
+        const selectedUserId = $(this).val();
+        if (originalUserId && selectedUserId != originalUserId) {
+            currentInvoiceFilter = '';
+            $('#single-invoice-banner').slideUp();
+        } else if (originalInvoiceId) {
+            currentInvoiceFilter = originalInvoiceId;
+        }
+        loadCustomerData(selectedUserId, currentInvoiceFilter);
     });
 
     // Auto allocate button
@@ -429,9 +536,23 @@ $(document).ready(function() {
         recalculateSummary();
     });
 
+    // Auto-link Payment Method with Deposit GL Account
+    $('#payment_method').on('change', function() {
+        const method = $(this).val();
+        if (method === 'cash') {
+            $('#account_id option').each(function() {
+                if ($(this).text().indexOf('1010') !== -1) $(this).prop('selected', true);
+            });
+        } else {
+            $('#account_id option').each(function() {
+                if ($(this).text().indexOf('1020') !== -1) $(this).prop('selected', true);
+            });
+        }
+    });
+
     // Initial load if customer already selected
     if ($('#customer_select').val()) {
-        loadCustomerData($('#customer_select').val());
+        loadCustomerData($('#customer_select').val(), currentInvoiceFilter);
     }
 });
 </script>

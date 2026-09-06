@@ -38,6 +38,7 @@ class Order extends Model
         'vat_rate',
         'placed_at',
         'fulfillment_status',
+        'approval_status',
     ];
 
     protected $casts = [
@@ -85,7 +86,31 @@ class Order extends Model
 
     public function isFullyApproved(): bool
     {
-        return $this->approval_status === 'approved';
+        // 1. If any multi-level approval step is pending, it is NOT fully approved
+        $hasPending = $this->relationLoaded('approvals')
+            ? $this->approvals->where('status', 'pending')->isNotEmpty()
+            : $this->approvals()->where('status', 'pending')->exists();
+
+        if ($hasPending) {
+            return false;
+        }
+
+        // 2. If any step is rejected or order approval_status is rejected
+        $hasRejected = $this->relationLoaded('approvals')
+            ? $this->approvals->where('status', 'rejected')->isNotEmpty()
+            : $this->approvals()->where('status', 'rejected')->exists();
+
+        if ($hasRejected || $this->approval_status === 'rejected') {
+            return false;
+        }
+
+        // 3. If approval status is explicitly approved
+        if ($this->approval_status === 'approved') {
+            return true;
+        }
+
+        // 4. Fallback: if order status is already approved/processing/completed
+        return in_array(strtolower((string)$this->status), ['approved', 'processing', 'completed', 'shipped']);
     }
 
     public function salesInvoice()

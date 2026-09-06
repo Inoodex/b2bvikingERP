@@ -18,6 +18,93 @@ class SalesInvoiceService
     }
 
     /**
+     * Create sales invoice from manual form data.
+     */
+    public function createInvoice(array $data, int $userId): SalesInvoice
+    {
+        return DB::transaction(function () use ($data, $userId) {
+            $order = Order::findOrFail($data['order_id']);
+            $invoiceNo = OrderNumberService::generateSalesInvoiceNumber();
+            $issueDate = $data['date'] ?? now()->toDateString();
+            $dueDate = $data['due_date'] ?? now()->addDays(30)->toDateString();
+
+            $subtotal = 0.0;
+            if (!empty($data['items'])) {
+                foreach ($data['items'] as $item) {
+                    $subtotal += ((float)$item['qty'] * (float)$item['price']);
+                }
+            } else {
+                $subtotal = (float)$order->subtotal_amount;
+            }
+
+            $discountAmount = isset($data['discount_amount']) ? (float)$data['discount_amount'] : (float)$order->discount_amount;
+            $taxRate = isset($data['tax_rate']) ? (float)$data['tax_rate'] : (float)($order->vat_rate ?? 0);
+            $netTaxable = max(0, $subtotal - $discountAmount);
+            $taxAmount = round(($netTaxable * $taxRate) / 100, 2);
+            $totalAmount = round($netTaxable + $taxAmount, 2);
+
+            $paidAmount = (float)$order->paid_amount;
+            $dueAmount = max(0, $totalAmount - $paidAmount);
+            $status = $data['status'] ?? 'posted';
+            if ($dueAmount <= 0) {
+                $status = 'paid';
+            } elseif ($paidAmount > 0) {
+                $status = 'partial';
+            }
+
+            $invoice = SalesInvoice::create([
+                'invoice_no'       => $invoiceNo,
+                'order_id'         => $order->id,
+                'date'             => $issueDate,
+                'due_date'         => $dueDate,
+                'subtotal_amount'  => $subtotal,
+                'tax_amount'       => $taxAmount,
+                'discount_amount'  => $discountAmount,
+                'total_amount'     => $totalAmount,
+                'paid_amount'      => $paidAmount,
+                'due_amount'       => $dueAmount,
+                'status'           => $status,
+                'notes'            => $data['notes'] ?? null,
+                'created_by'       => $userId,
+            ]);
+
+            if (!empty($data['items'])) {
+                foreach ($data['items'] as $item) {
+                    $qty = (float)$item['qty'];
+                    $price = (float)$item['price'];
+                    $lineTotal = round($qty * $price, 2);
+                    $product = \App\Models\Product::find($item['product_id']);
+
+                    SalesInvoiceItem::create([
+                        'sales_invoice_id' => $invoice->id,
+                        'product_id'       => $item['product_id'],
+                        'variant_id'       => $item['variant_id'] ?? null,
+                        'description'      => $product ? $product->name : 'Item',
+                        'qty'              => $qty,
+                        'price'            => $price,
+                        'subtotal'         => $lineTotal,
+                    ]);
+                }
+            } else {
+                $order->loadMissing('items.product');
+                foreach ($order->items as $item) {
+                    SalesInvoiceItem::create([
+                        'sales_invoice_id' => $invoice->id,
+                        'product_id'       => $item->product_id,
+                        'variant_id'       => $item->variant_id ?? null,
+                        'description'      => $item->product ? $item->product->name : 'Item',
+                        'qty'              => (float)$item->quantity,
+                        'price'            => (float)$item->unit_price,
+                        'subtotal'         => round((float)$item->quantity * (float)$item->unit_price, 2),
+                    ]);
+                }
+            }
+
+            return $invoice;
+        });
+    }
+
+    /**
      * Generate a new Sales Invoice from an approved / placed Order.
      */
     public function createInvoiceFromOrder(Order $order, array $customData = []): SalesInvoice
@@ -59,20 +146,36 @@ class SalesInvoiceService
 
             // Copy items from order to invoice items
             $order->loadMissing('items.product');
-            foreach ($order->items as $item) {
-                $qty = (float)$item->quantity;
-                $price = (float)$item->unit_price;
-                $lineTotal = round($qty * $price, 2);
+            if ($order->items->isNotEmpty()) {
+                foreach ($order->items as $item) {
+                    $qty = (float)$item->quantity;
+                    $price = (float)$item->unit_price;
+                    $lineTotal = round($qty * $price, 2);
 
-                SalesInvoiceItem::create([
-                    'sales_invoice_id' => $invoice->id,
-                    'product_id'       => $item->product_id,
-                    'variant_id'       => $item->variant_id ?? null,
-                    'description'      => $item->product ? $item->product->name : 'Item',
-                    'qty'              => $qty,
-                    'price'            => $price,
-                    'subtotal'         => $lineTotal,
-                ]);
+                    SalesInvoiceItem::create([
+                        'sales_invoice_id' => $invoice->id,
+                        'product_id'       => $item->product_id,
+                        'variant_id'       => $item->variant_id ?? null,
+                        'description'      => $item->product ? $item->product->name : 'Item',
+                        'qty'              => $qty,
+                        'price'            => $price,
+                        'subtotal'         => $lineTotal,
+                    ]);
+                }
+            } else {
+                // Fallback for orders created without discrete items (lump-sum contracts or mock orders)
+                $defaultProduct = \App\Models\Product::first();
+                if ($defaultProduct && (float)$totalAmount > 0) {
+                    SalesInvoiceItem::create([
+                        'sales_invoice_id' => $invoice->id,
+                        'product_id'       => $defaultProduct->id,
+                        'variant_id'       => null,
+                        'description'      => "Commercial Order #{$order->order_no}",
+                        'qty'              => 1,
+                        'price'            => $subtotal > 0 ? $subtotal : $totalAmount,
+                        'subtotal'         => $subtotal > 0 ? $subtotal : $totalAmount,
+                    ]);
+                }
             }
 
             return $invoice;

@@ -30,9 +30,23 @@ class DeliveryOrderController extends Controller
         return $dataTable->render('backend.delivery_orders.index');
     }
 
-    public function create(Request $request): View
+    public function create(Request $request): View|RedirectResponse
     {
         $selectedOrderId = $request->get('order_id');
+
+        if ($selectedOrderId) {
+            $requestedOrder = Order::find($selectedOrderId);
+            if ($requestedOrder && !$requestedOrder->isFullyApproved()) {
+                Toastr::warning("Order #{$requestedOrder->order_no} is pending approval. Delivery order cannot be created until approval is complete.");
+                return redirect()->route('admin.orders.show', $selectedOrderId);
+            }
+
+            if ($requestedOrder && $requestedOrder->fulfillment_status === 'fully_delivered') {
+                Toastr::info("Order #{$requestedOrder->order_no} is already fully delivered.");
+                return redirect()->route('admin.delivery-orders.index', ['order_id' => $selectedOrderId]);
+            }
+        }
+
         $orders = Order::with('user')
             ->whereIn('status', ['approved', 'processing', 'completed'])
             ->where(function ($q) use ($selectedOrderId) {
@@ -43,7 +57,10 @@ class DeliveryOrderController extends Controller
                 }
             })
             ->latest()
-            ->get();
+            ->get()
+            ->filter(function ($order) {
+                return $order->isFullyApproved() && $order->fulfillment_status !== 'fully_delivered';
+            });
 
         return view('backend.delivery_orders.create', compact('orders', 'selectedOrderId'));
     }
@@ -99,6 +116,17 @@ class DeliveryOrderController extends Controller
     {
         try {
             $order = Order::findOrFail($request->order_id);
+
+            if (!$order->isFullyApproved()) {
+                Toastr::warning("Order #{$order->order_no} is pending approval. Delivery order cannot be created until approval is complete.");
+                return redirect()->route('admin.orders.show', $order->id);
+            }
+
+            if ($order->fulfillment_status === 'fully_delivered') {
+                Toastr::warning("Order #{$order->order_no} is already fully delivered. Duplicate delivery order cannot be created.");
+                return redirect()->route('admin.delivery-orders.index', ['order_id' => $order->id]);
+            }
+
             $deliveryOrder = $this->deliveryOrderService->createDeliveryOrder($request->validated(), Auth::id() ?? 1);
 
             Toastr::success('Delivery Order Challan created successfully.', 'Success');

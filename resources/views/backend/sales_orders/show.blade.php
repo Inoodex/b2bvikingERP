@@ -9,6 +9,10 @@
         $displayGrandTotal = isset($items) ? ($displaySubtotal - $order->discount_amount + $order->tax_amount) : $order->total_amount;
         $displayPaid = (float) $order->paid_amount;
         $displayDue = max(0, round($displayGrandTotal - $displayPaid, 2));
+
+        $isOrderApproved = $order->isFullyApproved();
+        $existingCommercialInvoice = $order->salesInvoice ?: $order->salesInvoices()->where('status', '!=', 'cancelled')->first();
+        $isFullyDelivered = ($order->fulfillment_status === 'fully_delivered' || strtolower((string)$order->status) === 'completed');
     @endphp
     <section class="section">
         <div class="section-header">
@@ -262,15 +266,28 @@
                             @endif
 
                             @can('Manage Inventory')
-                            @if(in_array(strtolower((string) $order->status), ['approved', 'processing', 'completed']))
+                            @if(in_array(strtolower((string) $order->status), ['approved', 'processing', 'completed']) && $isOrderApproved)
                                 <div class="border-top pt-4 mt-3">
-                                    <a href="{{ route('admin.delivery-orders.create', ['order_id' => $order->id]) }}" class="btn btn-primary btn-lg btn-block shadow-sm py-3 font-weight-bold mb-2">
-                                        <i class="fas fa-truck mr-2"></i> Create Delivery Challan (DO)
-                                    </a>
-                                    <a href="{{ route('admin.sales-invoices.create', ['order_id' => $order->id]) }}" class="btn btn-info btn-block shadow-sm py-2 font-weight-bold">
-                                        <i class="fas fa-file-invoice-dollar mr-2"></i> Generate Sales Invoice
-                                    </a>
-                                    <p class="text-center text-muted small mt-2 mb-0">Create shipment challan to dispatch goods or generate commercial invoice.</p>
+                                    @if($isFullyDelivered)
+                                        <a href="{{ route('admin.delivery-orders.index', ['order_id' => $order->id]) }}" class="btn btn-outline-primary btn-block shadow-sm py-2 font-weight-bold mb-2">
+                                            <i class="fas fa-check-double mr-2"></i> View Delivery Orders
+                                        </a>
+                                    @else
+                                        <a href="{{ route('admin.delivery-orders.create', ['order_id' => $order->id]) }}" class="btn btn-primary btn-lg btn-block shadow-sm py-3 font-weight-bold mb-2">
+                                            <i class="fas fa-truck mr-2"></i> Create Delivery Challan (DO)
+                                        </a>
+                                    @endif
+
+                                    @if($existingCommercialInvoice)
+                                        <a href="{{ route('admin.sales-invoices.show', $existingCommercialInvoice->id) }}" class="btn btn-outline-info btn-block shadow-sm py-2 font-weight-bold">
+                                            <i class="fas fa-file-invoice mr-2"></i> View Sales Invoice (#{{ $existingCommercialInvoice->invoice_no }})
+                                        </a>
+                                    @else
+                                        <a href="{{ route('admin.sales-invoices.create', ['order_id' => $order->id]) }}" class="btn btn-info btn-block shadow-sm py-2 font-weight-bold">
+                                            <i class="fas fa-file-invoice-dollar mr-2"></i> Generate Sales Invoice
+                                        </a>
+                                    @endif
+                                    <p class="text-center text-muted small mt-2 mb-0">Manage shipment challans and commercial invoices.</p>
                                 </div>
                             @endif
                             @endcan

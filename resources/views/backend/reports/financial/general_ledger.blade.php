@@ -45,7 +45,7 @@
         <!-- Yajra DataTable Card -->
         <div class="card shadow-sm">
             <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
-                <h4 class="text-dark font-weight-bold mb-0"><i class="fas fa-book text-primary mr-2"></i> Yajra Server-Side Journal Ledger</h4>
+                <h4 class="text-dark font-weight-bold mb-0"><i class="fas fa-book text-primary mr-2"></i> General Ledger Transactions</h4>
                 <div>
                     <span class="badge badge-success font-weight-bold mr-2">Total Debit: kr. {{ number_format($totalDebit, 2) }}</span>
                     <span class="badge badge-info font-weight-bold">Total Credit: kr. {{ number_format($totalCredit, 2) }}</span>
