@@ -13,14 +13,14 @@ class BankAccountController extends Controller
 {
     public function index()
     {
-        $bankAccounts = BankAccount::with(['glAccount', 'currency', 'company'])->latest()->get();
+        $bankAccounts = BankAccount::with(['glAccount', 'currency', 'company'])->latest()->paginate(6);
         $currencies = Currency::all();
         $glAccounts = ChartOfAccount::where('account_type', 'asset')
             ->where('is_group', false)
             ->get();
 
-        $totalBankLiquidity = $bankAccounts->where('status', true)->sum('current_balance');
-        $activeBanksCount = $bankAccounts->where('status', true)->count();
+        $totalBankLiquidity = BankAccount::where('status', true)->sum('current_balance');
+        $activeBanksCount = BankAccount::where('status', true)->count();
 
         return view('backend.accounts.banking.index', compact(
             'bankAccounts',

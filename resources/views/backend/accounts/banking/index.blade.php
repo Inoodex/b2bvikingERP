@@ -51,7 +51,7 @@
     <div class="section-body">
         <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
             <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-                <h5 class="font-weight-bold text-dark mb-0"><i class="fas fa-list text-primary mr-2"></i> Corporate Bank Accounts</h5>
+                <h5 class="font-weight-bold text-dark mb-0"><i class="fas fa-list text-primary mr-2"></i> Corporate Bank Accounts <span class="badge badge-light border ml-1 font-weight-normal text-muted" style="font-size: 13px;">({{ $bankAccounts->total() }})</span></h5>
                 <div>
                     <a href="{{ route('admin.bank-reconciliation.index') }}" class="btn btn-outline-info font-weight-bold mr-2">
                         <i class="fas fa-sync mr-1"></i> Bank Reconciliation
@@ -112,6 +112,17 @@
                         </div>
                     @endforelse
                 </div>
+
+                @if($bankAccounts->hasPages())
+                    <div class="d-flex flex-wrap justify-content-between align-items-center pt-3 mt-2 border-top">
+                        <div class="text-muted small mb-2 mb-md-0">
+                            Showing <strong>{{ $bankAccounts->firstItem() ?? 0 }}</strong> to <strong>{{ $bankAccounts->lastItem() ?? 0 }}</strong> of <strong>{{ $bankAccounts->total() }}</strong> accounts
+                        </div>
+                        <div class="pagination-sm mb-0">
+                            {{ $bankAccounts->links() }}
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

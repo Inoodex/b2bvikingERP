@@ -400,6 +400,8 @@ class EnterpriseAccountingIntegrationTest extends TestCase
         // 2. View Bank index & Reconciliation page
         $this->get(route('admin.bank-accounts.index'))->assertStatus(200);
         $this->get(route('admin.bank-reconciliation.index'))->assertStatus(200);
+
+        \App\Models\BankAccount::where('account_number', $accNo)->delete();
     }
 
     public function test_petty_cash_workflow_and_gl_posting(): void
@@ -462,6 +464,10 @@ class EnterpriseAccountingIntegrationTest extends TestCase
         $this->assertEquals(5000, $bankB->current_balance);
 
         $this->get(route('admin.fund-transfers.index'))->assertStatus(200);
+
+        \App\Models\FundTransfer::where('from_account_id', $bankA->id)->delete();
+        $bankA->delete();
+        $bankB->delete();
     }
 
     public function test_asset_registration_and_monthly_depreciation_engine(): void
