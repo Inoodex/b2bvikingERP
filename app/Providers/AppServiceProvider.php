@@ -94,9 +94,9 @@ class AppServiceProvider extends ServiceProvider
         $this->registerGoogleDriveStorage();
         $this->ensureGoogleBackupDirectory();
 
-        // \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
-        //     return $user->hasRole('Admin') ? true : null;
-        // });
+        \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
+            return ($user && $user->hasRole('Admin')) ? true : null;
+        });
 
         Paginator::useBootstrapFour();
 

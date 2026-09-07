@@ -9,16 +9,17 @@
         --pp-amber-bright: #ecc78b;
         --pp-amber-deep: #b8852a;
         --pp-amber-soft: rgba(212, 162, 78, 0.08);
-        --pp-border: rgba(11, 17, 32, 0.07);
-        --pp-border-hover: rgba(212, 162, 78, 0.15);
-        --pp-ink: #161e2e;
-        --pp-ink-soft: #2d3748;
-        --pp-muted: #6b788e;
-        --pp-surface: #f8f9fc;
-        --pp-radius-md: 14px;
-        --pp-radius-lg: 20px;
-        --pp-shadow-card: 0 1px 3px rgba(11,17,32,0.04), 0 8px 20px -12px rgba(11,17,32,0.12);
-        --pp-shadow-card-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(212,162,78,0.06);
+        --pp-border: rgba(11, 17, 32, 0.08);
+        --pp-border-hover: rgba(212, 162, 78, 0.35);
+        --pp-ink: #0f172a;
+        --pp-ink-soft: #334155;
+        --pp-muted: #64748b;
+        --pp-surface: #f8fafc;
+        --pp-radius-sm: 8px;
+        --pp-radius-md: 12px;
+        --pp-radius-lg: 16px;
+        --pp-shadow-card: 0 4px 16px -4px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.03);
+        --pp-shadow-card-hover: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(212, 162, 78, 0.15);
     }
 
     .pp-header {
@@ -26,15 +27,11 @@
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 10px;
         margin-bottom: 20px;
-        padding: 0;
-        position: relative;
     }
     .pp-header h1 {
         display: flex;
         align-items: center;
-        gap: 12px;
         font-weight: 800;
         font-size: 20px;
         color: var(--pp-ink);
@@ -45,44 +42,37 @@
         width: 34px;
         height: 34px;
         min-width: 34px;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         border-radius: 10px;
         font-size: 14px;
         color: #1a1306;
         background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber));
-        box-shadow: 0 4px 14px rgba(212, 162, 78, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+        box-shadow: 0 4px 14px rgba(212, 162, 78, 0.35);
+        margin-right: 12px;
     }
 
     .pp-btn {
         border: none !important;
         font-weight: 700 !important;
-        font-size: 11.5px !important;
-        letter-spacing: 0.2px;
-        border-radius: var(--pp-radius-lg) !important;
+        font-size: 12px !important;
+        border-radius: 20px !important;
         padding: 7px 16px !important;
-        transition: all 0.25s cubic-bezier(.2,.8,.2,1);
-        position: relative;
-        overflow: hidden;
+        transition: all 0.2s cubic-bezier(.2,.8,.2,1);
+        cursor: pointer;
     }
-    .pp-btn:hover { transform: translateY(-2px); }
-    .pp-btn:active { transform: translateY(0) scale(0.97); }
+    .pp-btn:hover { transform: translateY(-1px); }
     .pp-btn-amber {
         background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep)) !important;
         color: #1a1306 !important;
-        box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.45), inset 0 1px 0 rgba(255,255,255,0.25);
+        box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.45);
     }
-    .pp-btn-amber:hover { filter: brightness(1.06); box-shadow: 0 8px 24px -6px rgba(212, 162, 78, 0.5); }
+    .pp-btn-amber:hover { filter: brightness(1.05); }
     .pp-btn-outline {
         border: 1.5px solid var(--pp-border) !important;
         color: var(--pp-ink-soft) !important;
-        background: transparent !important;
-        border-radius: var(--pp-radius-lg) !important;
-        font-weight: 600 !important;
-        font-size: 11.5px !important;
-        padding: 7px 16px !important;
-        transition: all 0.2s ease !important;
+        background: #fff !important;
     }
     .pp-btn-outline:hover {
         border-color: var(--pp-amber) !important;
@@ -90,134 +80,192 @@
         color: var(--pp-amber-deep) !important;
     }
 
-    .pp-card {
-        border-radius: var(--pp-radius-md) !important;
-        border: 1px solid var(--pp-border) !important;
+    /* Role Top Setup Card */
+    .role-setup-card {
+        background: #ffffff;
+        border: 1px solid var(--pp-border);
+        border-radius: var(--pp-radius-lg);
+        padding: 20px 24px;
+        margin-bottom: 24px;
+        box-shadow: var(--pp-shadow-card);
+    }
+    .form-label-title {
+        font-weight: 800;
+        font-size: 13px;
+        color: var(--pp-ink);
+        margin-bottom: 8px;
+        display: block;
+    }
+    .pp-input {
+        border-radius: 12px !important;
+        border: 1.5px solid var(--pp-border) !important;
+        font-size: 13.5px !important;
+        padding: 10px 16px !important;
+        font-weight: 600;
+        color: var(--pp-ink);
+        transition: all 0.2s ease !important;
         background: #fff !important;
-        box-shadow: var(--pp-shadow-card) !important;
-        transition: all 0.3s cubic-bezier(.2,.8,.2,1) !important;
+    }
+    .pp-input:focus {
+        border-color: var(--pp-amber) !important;
+        box-shadow: 0 0 0 3px var(--pp-amber-soft) !important;
+        outline: none;
+    }
+
+    /* Live Counter Pill */
+    .role-counter-pill {
+        display: inline-flex;
+        align-items: center;
+        background: #f1f5f9;
+        border: 1px solid rgba(11, 17, 32, 0.06);
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--pp-ink-soft);
+    }
+    .role-counter-pill span {
+        color: var(--pp-amber-deep);
+        margin-right: 4px;
+        font-weight: 800;
+    }
+
+    /* Masonry Layout for Balanced Module Cards */
+    .modules-masonry {
+        column-count: 2;
+        column-gap: 20px;
+    }
+    @media (max-width: 991px) {
+        .modules-masonry {
+            column-count: 1;
+        }
+    }
+
+    .module-card {
+        break-inside: avoid;
+        display: inline-block;
+        width: 100%;
+        margin-bottom: 20px;
+        border: 1px solid var(--pp-border);
+        border-radius: var(--pp-radius-lg);
+        background: #ffffff;
+        box-shadow: var(--pp-shadow-card);
+        transition: all 0.25s ease;
         overflow: hidden;
     }
-    .pp-card:hover {
-        box-shadow: var(--pp-shadow-card-hover) !important;
-        border-color: var(--pp-border-hover) !important;
+    .module-card:hover {
+        border-color: var(--pp-border-hover);
+        box-shadow: var(--pp-shadow-card-hover);
     }
-    .pp-card-header {
-        padding: 14px 20px !important;
-        background: linear-gradient(135deg, #fafbfc, #f4f5f8);
+    .module-header {
+        background: linear-gradient(to right, #fcfdfd, #f8fafc);
+        padding: 12px 18px;
         border-bottom: 1px solid var(--pp-border);
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
-    .pp-card-header h4 {
-        font-weight: 800;
-        font-size: 14px;
-        color: var(--pp-ink);
-        margin: 0;
+    .module-header-left {
         display: flex;
         align-items: center;
-        gap: 8px;
     }
-    .pp-card-header h4 i { color: var(--pp-amber); }
-
-    .form-label {
+    .module-badge {
+        font-size: 10.5px;
         font-weight: 700;
-        font-size: 12.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 3px 9px;
+        border-radius: 6px;
+        background: #eef2f6;
+        color: #475569;
+        margin-right: 10px;
+    }
+    .module-title {
+        font-weight: 800;
+        font-size: 13.5px;
         color: var(--pp-ink);
-        margin-bottom: 6px;
+        margin: 0;
     }
-    .pp-input {
-        border-radius: var(--pp-radius-lg) !important;
-        border: 1.5px solid var(--pp-border) !important;
-        font-size: 12.5px !important;
-        padding: 8px 14px !important;
-        font-weight: 500;
-        color: var(--pp-ink);
-        transition: all 0.25s ease !important;
-        background: #fff !important;
+    .module-count {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--pp-muted);
+        background: rgba(100, 116, 139, 0.1);
+        padding: 2px 7px;
+        border-radius: 10px;
+        margin-left: 6px;
     }
-    .pp-input:focus {
-        border-color: var(--pp-amber) !important;
-        box-shadow: 0 0 0 3px var(--pp-amber-soft), 0 4px 12px -8px rgba(212,162,78,0.15) !important;
-        outline: none;
+    .module-body {
+        padding: 14px 16px;
     }
-    .pp-input::placeholder { color: #aab2c0; }
+
+    /* Dynamic CSS Grid for Permission Cards */
+    .module-permissions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+    }
 
     .pp-permission-card {
-        border-radius: 12px !important;
-        border: 1px solid var(--pp-border) !important;
-        background: #fff !important;
-        box-shadow: 0 1px 2px rgba(11,17,32,0.03) !important;
-        transition: all 0.25s ease !important;
-        padding: 12px 14px !important;
+        border-radius: 10px;
+        border: 1.5px solid var(--pp-border);
+        background: #fbfcfd;
+        padding: 9px 12px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        height: 100%;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(.2,.8,.2,1);
+        user-select: none;
     }
     .pp-permission-card:hover {
-        border-color: var(--pp-border-hover) !important;
-        box-shadow: 0 4px 12px -8px rgba(212,162,78,0.12) !important;
-        background: #fefcf8 !important;
+        border-color: rgba(212, 162, 78, 0.45);
+        background: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px -4px rgba(0,0,0,0.06);
+    }
+    .pp-permission-card.is-active {
+        background: #fffdf9 !important;
+        border-color: rgba(212, 162, 78, 0.5) !important;
+        box-shadow: 0 3px 10px -3px rgba(212, 162, 78, 0.2) !important;
     }
     .pp-permission-name {
-        font-weight: 700;
+        font-weight: 600;
         font-size: 12px;
         color: var(--pp-ink-soft);
-        text-transform: capitalize;
+        line-height: 1.35;
+        margin-right: 8px;
+    }
+    .pp-permission-card.is-active .pp-permission-name {
+        color: #1a1306;
+        font-weight: 700;
     }
 
+    /* Modern Pill Switches */
     .pp-toggle .custom-switch-indicator {
         border-radius: 16px !important;
-        width: 31px !important;
-        height: 17px !important;
+        width: 32px !important;
+        height: 18px !important;
         transition: all 0.25s ease !important;
         border: 1px solid var(--pp-border);
-        background: #e8ebf0;
+        background: #e2e8f0;
     }
     .pp-toggle .custom-switch-indicator::after {
-        width: 13px !important;
-        height: 13px !important;
-        top: 2px !important;
+        width: 14px !important;
+        height: 14px !important;
+        top: 1px !important;
         left: 2px !important;
         transition: all 0.25s ease !important;
         background: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
     }
     .pp-toggle .custom-switch-input:checked ~ .custom-switch-indicator {
         background: linear-gradient(135deg, var(--pp-amber-bright), var(--pp-amber)) !important;
         border-color: var(--pp-amber) !important;
-        box-shadow: 0 2px 8px -2px rgba(212, 162, 78, 0.3);
+        box-shadow: 0 2px 8px -2px rgba(212, 162, 78, 0.4);
     }
     .pp-toggle .custom-switch-input:checked ~ .custom-switch-indicator::after {
-        left: 16px !important;
-    }
-
-    @media (max-width: 767.98px) {
-        .pp-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-        }
-        .pp-header h1 {
-            font-size: 16px;
-            gap: 8px;
-        }
-        .pp-header h1 .pp-icon {
-            width: 28px;
-            height: 28px;
-            min-width: 28px;
-            font-size: 12px;
-        }
-        .pp-card-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-        }
-        .pp-card-header h4 { font-size: 13px; }
-        .pp-permission-card { padding: 10px 12px !important; }
-        .pp-permission-name { font-size: 11px; }
-        .pp-input { font-size: 11.5px !important; padding: 7px 12px !important; }
+        left: 14px !important;
     }
 </style>
 @endpush
@@ -227,60 +275,156 @@
         <div class="pp-header">
             <h1>
                 <span class="pp-icon"><i class="fas fa-plus-circle"></i></span>
-                Create Role
+                Create New Role
             </h1>
             <div>
                 <a href="{{ route('admin.role.index') }}" class="btn pp-btn pp-btn-outline shadow-sm">
-                    <i class="fas fa-arrow-left mr-1"></i> Back
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Roles
                 </a>
             </div>
         </div>
+
         <div class="section-body">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card pp-card">
-                        <div class="pp-card-header">
-                            <h4><i class="fas fa-shield-alt"></i> New Role Details</h4>
+            <form action="{{ route('admin.role.store') }}" method="post" id="roleCreateForm">
+                @csrf
+
+                {{-- Role Setup Top Panel --}}
+                <div class="role-setup-card">
+                    <div class="row align-items-center">
+                        <div class="col-lg-5 col-md-6 mb-3 mb-md-0">
+                            <label for="role_name" class="form-label-title">
+                                <i class="fas fa-id-badge text-warning mr-1"></i> Role Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control pp-input" id="role_name" name="name" 
+                                value="{{ old('name') }}" required placeholder="e.g. Sales Manager, Warehouse Lead">
                         </div>
-                        <div class="card-body p-4">
-                            <form action="{{ route('admin.role.store') }}" method="post">
-                                @csrf
-                                <div class="row">
-                                    <div class="col-md-4 mb-4">
-                                        <label for="role_name" class="form-label">Role Name</label>
-                                        <input type="text" class="form-control pp-input" id="role_name" name="name"
-                                            value="{{ old('name') }}" placeholder="Enter role name">
-                                    </div>
-                                    <div class="col-md-8">
-                                        <h5 class="mb-3" style="font-weight: 700; font-size: 13px; color: var(--pp-ink); display: flex; align-items: center; gap: 8px;">
-                                            <i class="fas fa-key" style="color: var(--pp-amber);"></i> Permissions
-                                        </h5>
-                                        <div class="row g-2">
-                                            @foreach ($permissions as $item)
-                                                <div class="col-md-6 col-lg-4">
-                                                    <div class="pp-permission-card">
-                                                        <span class="pp-permission-name">{{ $item->name }}</span>
-                                                        <label class="custom-switch pp-toggle mt-0">
-                                                            <input type="checkbox" name="permissions[]"
-                                                                value="{{ $item->id }}" class="custom-switch-input">
-                                                            <span class="custom-switch-indicator"></span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
+                        <div class="col-lg-7 col-md-6 text-md-right">
+                            <div class="d-inline-flex align-items-center flex-wrap" style="gap: 8px;">
+                                <div class="role-counter-pill mr-2 mb-1">
+                                    <span id="activePermissionCount">0</span> / {{ $permissions->count() }} Permissions Selected
                                 </div>
-                                <div class="d-flex justify-content-end mt-4">
-                                    <button type="submit" class="btn pp-btn pp-btn-amber shadow-sm">
-                                        <i class="fas fa-check mr-1"></i> Create Role
-                                    </button>
-                                </div>
-                            </form>
+                                <button type="button" class="btn pp-btn pp-btn-outline mr-2 mb-1" id="selectAllGlobalBtn">
+                                    <i class="fas fa-check-square mr-1 text-success"></i> Select All
+                                </button>
+                                <button type="button" class="btn pp-btn pp-btn-outline mb-1" id="deselectAllGlobalBtn">
+                                    <i class="fas fa-square mr-1 text-danger"></i> Deselect All
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+
+                {{-- 12 Serial-wise Enterprise Module Cards in Balanced Masonry Layout --}}
+                <div class="modules-masonry">
+                    @foreach ($permissionGroups as $groupKey => $group)
+                        <div class="module-card">
+                            <div class="module-header">
+                                <div class="module-header-left">
+                                    <span class="module-badge"><i class="{{ $group['icon'] }}"></i> {{ $group['badge'] }}</span>
+                                    <h5 class="module-title">{{ $group['title'] }}</h5>
+                                    <span class="module-count">({{ count($group['permissions']) }})</span>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-sm pp-btn pp-btn-outline py-1 px-2 toggle-module-btn" 
+                                        data-target="module-{{ $groupKey }}" style="font-size: 11px;">
+                                        <i class="fas fa-check-double mr-1"></i> Toggle All
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="module-body module-{{ $groupKey }}">
+                                <div class="module-permissions-grid">
+                                    @foreach ($group['permissions'] as $item)
+                                        @php
+                                            $checked = is_array(old('permissions')) && in_array($item->id, old('permissions'));
+                                        @endphp
+                                        <div class="pp-permission-card {{ $checked ? 'is-active' : '' }}" onclick="togglePermissionCard(this, event)">
+                                            <span class="pp-permission-name">{{ $item->name }}</span>
+                                            <label class="custom-switch pp-toggle mt-0 mb-0" onclick="event.stopPropagation();">
+                                                <input type="checkbox" name="permissions[]"
+                                                    value="{{ $item->id }}" 
+                                                    class="custom-switch-input permission-checkbox" 
+                                                    {{ $checked ? 'checked' : '' }}
+                                                    onchange="updateCardState(this)">
+                                                <span class="custom-switch-indicator"></span>
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                {{-- Bottom Action Bar --}}
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 pb-4">
+                    <a href="{{ route('admin.role.index') }}" class="btn pp-btn pp-btn-outline px-4 py-2">
+                        <i class="fas fa-times mr-1"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn pp-btn pp-btn-amber shadow-sm px-5 py-2" style="font-size: 13.5px;">
+                        <i class="fas fa-check mr-1"></i> Create Role
+                    </button>
+                </div>
+            </form>
         </div>
     </section>
 @endsection
+
+@push('scripts')
+<script>
+function updateActiveCounter() {
+    var total = $('.permission-checkbox:checked').length;
+    $('#activePermissionCount').text(total);
+}
+
+function updateCardState(checkbox) {
+    var card = $(checkbox).closest('.pp-permission-card');
+    if ($(checkbox).prop('checked')) {
+        card.addClass('is-active');
+    } else {
+        card.removeClass('is-active');
+    }
+    updateActiveCounter();
+}
+
+function togglePermissionCard(cardElement, event) {
+    var checkbox = $(cardElement).find('.permission-checkbox');
+    checkbox.prop('checked', !checkbox.prop('checked'));
+    updateCardState(checkbox[0]);
+}
+
+$(document).ready(function() {
+    updateActiveCounter();
+
+    // 1. Global Select All
+    $('#selectAllGlobalBtn').on('click', function() {
+        $('.permission-checkbox').prop('checked', true);
+        $('.pp-permission-card').addClass('is-active');
+        updateActiveCounter();
+    });
+
+    // 2. Global Deselect All
+    $('#deselectAllGlobalBtn').on('click', function() {
+        $('.permission-checkbox').prop('checked', false);
+        $('.pp-permission-card').removeClass('is-active');
+        updateActiveCounter();
+    });
+
+    // 3. Module Group Toggle
+    $('.toggle-module-btn').on('click', function() {
+        var targetClass = $(this).data('target');
+        var checkboxes = $('.' + targetClass + ' .permission-checkbox');
+        var allChecked = true;
+        checkboxes.each(function() {
+            if (!$(this).prop('checked')) {
+                allChecked = false;
+            }
+        });
+        checkboxes.prop('checked', !allChecked);
+        checkboxes.each(function() {
+            updateCardState(this);
+        });
+    });
+});
+</script>
+@endpush
+

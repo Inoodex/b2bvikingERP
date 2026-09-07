@@ -1497,7 +1497,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
       </li>
       @endif
 
-      @if(auth()->user()?->can('Manage Inventory') || auth()->user()?->can('View Product Stock') || auth()->user()?->hasRole('Admin'))
+      @if(auth()->user()?->can('Manage Inventory') || auth()->user()?->can('View Product Stock') || auth()->user()?->can('Manage Stock Adjustments') || auth()->user()?->can('Manage Stock Transfers') || auth()->user()?->can('Manage Stock Ledger') || auth()->user()?->can('Manage Stock Batches') || auth()->user()?->can('Manage Warehouse Zones') || auth()->user()?->can('Manage Warehouse Bins') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $inventoryActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Inventory">
           <i class="fas fa-warehouse"></i>
@@ -1506,20 +1506,38 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
         </a>
         <ul class="sb-submenu">
           <li class="sb-flyout-title">Inventory</li>
+          @if(auth()->user()?->can('Manage Inventory') || auth()->user()?->can('View Product Stock') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.inventory-reports.index') }}"><i class="fas fa-clipboard-check"></i> Current Stock</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Stock Adjustments') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.stock-adjustments.index') }}"><i class="fas fa-sliders-h"></i> Stock Adjustments</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Stock Transfers') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.stock-transfers.index') }}"><i class="fas fa-truck-moving"></i> Stock Transfers</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Stock Ledger') || auth()->user()?->can('Manage Stock Batches') || auth()->user()?->can('Manage Warehouse Zones') || auth()->user()?->can('Manage Warehouse Bins') || auth()->user()?->hasRole('Admin'))
           <li class="sb-submenu-divider"></li>
+          @endif
+          @if(auth()->user()?->can('Manage Stock Ledger') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.stock-ledger.index') }}"><i class="fas fa-book"></i> Stock Ledger</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Stock Batches') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.stock-batches.index') }}"><i class="fas fa-boxes"></i> Stock Batches</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Stock Ledger') || auth()->user()?->can('Manage Inventory') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.month-end-snapshots.index') }}"><i class="fas fa-calendar-check"></i> Month-End Valuation</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Warehouse Zones') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.warehouse-zones.index') }}"><i class="fas fa-th-large"></i> Warehouse Zones</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Warehouse Bins') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.warehouse-bins.index') }}"><i class="fas fa-th"></i> Warehouse Bins</a></li>
+          @endif
         </ul>
       </li>
       @endif
 
-      @if(auth()->user()?->can('Manage Orders') || auth()->user()?->can('Manage Order Place') || auth()->user()?->can('Manage Order Receive') || auth()->user()?->hasRole('Admin'))
+      @if(auth()->user()?->can('Manage Orders') || auth()->user()?->can('Manage Order Place') || auth()->user()?->can('Manage Order Receive') || auth()->user()?->can('Manage Sales Quotations') || auth()->user()?->can('Manage Delivery Orders') || auth()->user()?->can('Manage Sales Invoices') || auth()->user()?->can('Manage Pricelists') || auth()->user()?->can('Manage Sales Returns') || auth()->user()?->can('Manage Credit Notes') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $ordersActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Orders">
           <i class="fas fa-shopping-bag"></i>
@@ -1529,26 +1547,50 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
         <ul class="sb-submenu">
           <li class="sb-flyout-title">Orders & Sales</li>
           <li class="sb-submenu-header">Commercial Sales</li>
+          @if(auth()->user()?->can('Manage Sales Quotations') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.sales-quotations.index') }}"><i class="fas fa-file-signature"></i> Sales Quotations (SQ)</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Orders') || auth()->user()?->can('Manage Order Place') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.sales-orders.index') }}"><i class="fas fa-file-invoice"></i> Sales Orders (SO)</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Sales Invoices') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.sales-invoices.index') }}"><i class="fas fa-file-invoice-dollar"></i> Commercial Sales Invoices</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Orders') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-globe"></i> Web / Portal Orders</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Pricelists') || auth()->user()?->can('Manage Discounts') || auth()->user()?->hasRole('Admin'))
           <li class="sb-submenu-header">Pricing & Promotions</li>
+          @endif
+          @if(auth()->user()?->can('Manage Pricelists') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.pricelists.index') }}"><i class="fas fa-tags"></i> Customer Pricelists</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Discounts') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.coupons.index') }}"><i class="fas fa-ticket-alt"></i> Promo Coupons</a></li>
           <li><a href="{{ route('admin.gift-cards.index') }}"><i class="fas fa-gift"></i> Gift Cards Engine</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Delivery Orders') || auth()->user()?->can('Manage Sales Returns') || auth()->user()?->can('Manage Credit Notes') || auth()->user()?->hasRole('Admin'))
           <li class="sb-submenu-header">Fulfillment & Operations</li>
+          @endif
+          @if(auth()->user()?->can('Manage Delivery Orders') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.delivery-orders.index') }}"><i class="fas fa-truck"></i> Delivery Orders (DO)</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Sales Returns') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.sales-returns.index') }}"><i class="fas fa-undo-alt"></i> Customer Returns (RMA)</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Credit Notes') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.credit-notes.index') }}"><i class="fas fa-receipt"></i> Credit Notes</a></li>
+          @endif
+          @if(auth()->user()?->can('Create Product Requests') || auth()->user()?->can('Manage Product Requests') || auth()->user()?->hasRole('Admin'))
           <li class="sb-submenu-divider"></li>
           <li><a href="{{ route('admin.custom-product-requests.index') }}"><i class="fas fa-sync-alt"></i> Custom Requests</a></li>
           <li><a href="{{ route('admin.product-requests.index') }}"><i class="fas fa-history"></i> Old Requests</a></li>
+          @endif
         </ul>
       </li>
       @endif
 
-      @if(auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
+      @if(auth()->user()?->can('Manage Procurement') || auth()->user()?->can('Manage RFQs') || auth()->user()?->can('Manage Purchase Orders') || auth()->user()?->can('Manage Vendor Bills') || auth()->user()?->can('Manage Goods Receipts') || auth()->user()?->can('Manage Shipments') || auth()->user()?->can('Manage Vendor Returns') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $procurementActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Procurement">
           <i class="fas fa-file-contract"></i>
@@ -1557,15 +1599,31 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
         </a>
         <ul class="sb-submenu">
           <li class="sb-flyout-title">Procurement</li>
+          @if(auth()->user()?->can('Manage RFQs') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.rfqs.index') }}"><i class="fas fa-list"></i> All RFQs</a></li>
           <li><a href="{{ route('admin.rfqs.create') }}"><i class="fas fa-plus-circle"></i> Create RFQ</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Purchase Orders') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.purchase-orders.index') }}"><i class="fas fa-file-invoice"></i> Purchase Orders (PO)</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Vendor Bills') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.vendor-bills.index') }}"><i class="fas fa-file-invoice-dollar"></i> Vendor Bills (Invoices)</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Letter of Credits') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.letters-of-credit.index') }}"><i class="fas fa-university"></i> LC Register</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Shipments') || auth()->user()?->can('Manage Goods Receipts') || auth()->user()?->can('Manage Vendor Returns') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
           <li class="sb-submenu-header">Logistics & Receiving</li>
+          @endif
+          @if(auth()->user()?->can('Manage Shipments') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.shipments.index') }}"><i class="fas fa-ship"></i> Shipments & SIT</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Goods Receipts') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.goods-receipts.index') }}"><i class="fas fa-dolly"></i> Goods Receipts (GRN)</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Vendor Returns') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.vendor-returns.index') }}"><i class="fas fa-undo"></i> Vendor Returns</a></li>
+          @endif
         </ul>
       </li>
       @endif
@@ -1615,7 +1673,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
       </li>
       @endif
 
-      @if(auth()->user()?->can('Manage Accounts') || auth()->user()?->can('Accountants') || auth()->user()?->hasRole('Admin'))
+      @if(auth()->user()?->can('Manage Accounts') || auth()->user()?->can('Accountants') || auth()->user()?->can('Manage Chart of Accounts') || auth()->user()?->can('Manage Journal Vouchers') || auth()->user()?->can('Manage Fiscal Years') || auth()->user()?->can('Manage Bank Accounts') || auth()->user()?->can('Manage Bank Reconciliation') || auth()->user()?->can('Manage Petty Cash') || auth()->user()?->can('Manage Customer Payments') || auth()->user()?->can('Manage Vendor Ledger') || auth()->user()?->can('Manage Fixed Assets') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $accountsActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Accounts">
           <i class="fas fa-file-invoice-dollar"></i>
@@ -1623,30 +1681,60 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <i class="fas fa-chevron-down sb-arrow"></i>
         </a>
         <ul class="sb-submenu">
+          @if(auth()->user()?->can('Manage Chart of Accounts') || auth()->user()?->can('Manage Journal Vouchers') || auth()->user()?->can('Manage Fiscal Years') || auth()->user()?->hasRole('Admin'))
           <li class="sb-submenu-header">General Ledger & Setup</li>
+          @endif
+          @if(auth()->user()?->can('Manage Chart of Accounts') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.chart-of-accounts.index') }}"><i class="fas fa-sitemap"></i> Chart of Accounts (COA)</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Journal Vouchers') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.journal-vouchers.index') }}"><i class="fas fa-journal-whills"></i> Manual Journal Vouchers (JV)</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Fiscal Years') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.fiscal-years.index') }}"><i class="fas fa-calendar-alt"></i> Fiscal Years & Period Lock</a></li>
+          @endif
 
+          @if(auth()->user()?->can('Manage Bank Accounts') || auth()->user()?->can('Manage Bank Reconciliation') || auth()->user()?->can('Manage Petty Cash') || auth()->user()?->hasRole('Admin'))
           <li class="sb-submenu-header">Banking & Treasury</li>
+          @endif
+          @if(auth()->user()?->can('Manage Bank Accounts') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.bank-accounts.index') }}"><i class="fas fa-university"></i> Bank Accounts</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Bank Reconciliation') || auth()->user()?->can('Manage Bank Accounts') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.bank-reconciliation.index') }}"><i class="fas fa-sync"></i> Bank Reconciliation</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Petty Cash') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.petty-cash.index') }}"><i class="fas fa-coins"></i> Petty Cash Register</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Bank Accounts') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.fund-transfers.index') }}"><i class="fas fa-random"></i> Inter-Account Transfers</a></li>
+          @endif
 
+          @if(auth()->user()?->can('Manage Sales Invoices') || auth()->user()?->can('Manage Customer Payments') || auth()->user()?->can('Manage Accounts') || auth()->user()?->hasRole('Admin'))
           <li class="sb-submenu-header">Accounts Receivable (Customer)</li>
+          @endif
+          @if(auth()->user()?->can('Manage Sales Invoices') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.sales-invoices.index') }}"><i class="fas fa-file-invoice"></i> Sales Invoices</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Customer Payments') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.customer-payments.create') }}"><i class="fas fa-hand-holding-usd"></i> Receive Payment</a></li>
           <li><a href="{{ route('admin.customer-payments.index') }}"><i class="fas fa-receipt"></i> Payment Receipts</a></li>
           <li><a href="{{ route('admin.accounts.due-orders') }}"><i class="fas fa-clock"></i> Customer Due Orders</a></li>
+          @endif
 
+          @if(auth()->user()?->can('Manage Vendor Bills') || auth()->user()?->can('Manage Accounts') || auth()->user()?->hasRole('Admin'))
           <li class="sb-submenu-header">Accounts Payable (Vendor)</li>
+          @endif
+          @if(auth()->user()?->can('Manage Vendor Bills') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.vendor-bills.index') }}"><i class="fas fa-file-invoice-dollar"></i> Vendor Bills</a></li>
           <li><a href="{{ route('admin.purchase-payments.index') }}"><i class="fas fa-receipt"></i> Payment Vouchers</a></li>
           <li><a href="{{ route('admin.accounts.vendor-payments.due-purchases') }}"><i class="fas fa-exclamation-circle"></i> Vendor Due Purchases</a></li>
+          @endif
 
+          @if(auth()->user()?->can('Manage Fixed Assets') || auth()->user()?->hasRole('Admin'))
           <li class="sb-submenu-header">Fixed Assets & Depreciation</li>
           <li><a href="{{ route('admin.assets.index') }}"><i class="fas fa-building"></i> Fixed Assets Register</a></li>
+          @endif
         </ul>
       </li>
       @endif
@@ -1681,7 +1769,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
       </li>
       @endif
 
-      @if(auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->hasRole('Admin'))
+      @if(auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->can('Manage Companies') || auth()->user()?->can('Manage Outlets') || auth()->user()?->can('Manage Departments') || auth()->user()?->can('Manage Currencies') || auth()->user()?->can('Manage Approval Workflows') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $masterActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Enterprise Setup">
           <i class="fas fa-building"></i>
@@ -1690,17 +1778,27 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
         </a>
         <ul class="sb-submenu">
           <li class="sb-flyout-title">Enterprise Setup</li>
+          @if(auth()->user()?->can('Manage Companies') || auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.master.companies.index') }}"><i class="fas fa-city"></i> Companies</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Outlets') || auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.master.outlets.index') }}"><i class="fas fa-warehouse"></i> Outlets & Hubs</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Departments') || auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.master.departments.index') }}"><i class="fas fa-sitemap"></i> Departments</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Currencies') || auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.master.currencies.index') }}"><i class="fas fa-coins"></i> Currencies</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Approval Workflows') || auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.master.approval-workflows.index') }}"><i class="fas fa-check-double"></i> Approval Workflows</a></li>
           <li><a href="{{ route('admin.approvals.index') }}"><i class="fas fa-inbox"></i> Approvals Inbox</a></li>
+          @endif
         </ul>
       </li>
       @endif
 
-      @if(auth()->user()?->can('Manage Settings') || auth()->user()?->can('Manage Users') || auth()->user()?->can('Manage Roles') || auth()->user()?->hasRole('Admin'))
+      @if(auth()->user()?->can('Manage Settings') || auth()->user()?->can('Manage Users') || auth()->user()?->can('Manage Roles') || auth()->user()?->can('Manage Permissions') || auth()->user()?->can('Manage Pricing Rules') || auth()->user()?->can('Manage Taxes') || auth()->user()?->can('Manage Discounts') || auth()->user()?->can('Manage Document Sequences') || auth()->user()?->can('Administration') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $systemActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="System">
           <i class="fas fa-cog"></i>
@@ -1709,18 +1807,40 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
         </a>
         <ul class="sb-submenu">
           <li class="sb-flyout-title">System</li>
+          @if(auth()->user()?->can('Manage Users') || auth()->user()?->can('Manage Roles') || auth()->user()?->can('Manage Permissions') || auth()->user()?->hasRole('Admin'))
           <li class="sb-submenu-header">User Management</li>
+          @endif
+          @if(auth()->user()?->can('Manage Users') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.users.index') }}"><i class="fas fa-users-cog"></i> Users</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Roles') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.role.index') }}"><i class="fas fa-user-tag"></i> Roles</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Permissions') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.permission.index') }}"><i class="fas fa-lock"></i> Permissions</a></li>
+          @endif
+
+          @if(auth()->user()?->can('Manage Pricing Rules') || auth()->user()?->can('Manage Taxes') || auth()->user()?->can('Manage Discounts') || auth()->user()?->can('Manage Document Sequences') || auth()->user()?->hasRole('Admin'))
           <li class="sb-submenu-header">Business Rules</li>
+          @endif
+          @if(auth()->user()?->can('Manage Pricing Rules') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.pricing-rules.index') }}"><i class="fas fa-dollar-sign"></i> Pricing Rules</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Taxes') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.taxes.index') }}"><i class="fas fa-percent"></i> Tax / VAT</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Discounts') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.discounts.index') }}"><i class="fas fa-tags"></i> Discount</a></li>
+          @endif
+          @if(auth()->user()?->can('Manage Document Sequences') || auth()->user()?->hasRole('Admin'))
           <li class="{{ request()->routeIs('admin.document-sequences.*') ? 'active' : '' }}"><a href="{{ route('admin.document-sequences.index') }}"><i class="fas fa-barcode"></i> Doc Sequences</a></li>
+          @endif
+
+          @if(auth()->user()?->can('Manage Settings') || auth()->user()?->can('Administration') || auth()->user()?->hasRole('Admin'))
           <li class="sb-submenu-header">System Settings</li>
           <li><a href="{{ route('admin.products.announcement.index') }}"><i class="fas fa-bullhorn"></i> Product Announcement</a></li>
           <li><a href="{{ route('admin.settings.index') }}"><i class="fas fa-sliders-h"></i> Settings</a></li>
+          @endif
         </ul>
       </li>
       @endif

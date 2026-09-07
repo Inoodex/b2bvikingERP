@@ -24,7 +24,8 @@ class RolesController extends Controller
     public function create()
     {
         $permissions = Permission::all();
-        return view('backend.authorization.role.create', compact('permissions'));
+        $permissionGroups = \App\Support\PermissionCatalog::getGroupedPermissions();
+        return view('backend.authorization.role.create', compact('permissions', 'permissionGroups'));
     }
 
     /**
@@ -56,8 +57,9 @@ class RolesController extends Controller
     {
         $role = Role::findOrFail($id);
         $permissions = Permission::all();
+        $permissionGroups = \App\Support\PermissionCatalog::getGroupedPermissions();
         $roleHasPermissions = $role->permissions;
-        return view('backend.authorization.role.edit', compact('role', 'permissions', 'roleHasPermissions'));
+        return view('backend.authorization.role.edit', compact('role', 'permissions', 'permissionGroups', 'roleHasPermissions'));
     }
 
     /**

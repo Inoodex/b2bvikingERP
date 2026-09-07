@@ -50,8 +50,8 @@ class ProductRequestController extends Controller implements HasMiddleware
         // Only admin can create requests for outlet/users from backend
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        if (!$user->hasRole('Admin')) {
-             abort(403, 'Only admin can create product requests for outlets/users.');
+        if (!$user->hasRole('Admin') && !$user->can('Create Product Requests') && !$user->can('Manage Product Requests')) {
+             abort(403, 'You do not have permission to create product requests.');
         }
 
         $products = Product::where('status', 1)
@@ -75,8 +75,8 @@ class ProductRequestController extends Controller implements HasMiddleware
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        if (!$user->hasRole('Admin')) {
-            abort(403);
+        if (!$user->hasRole('Admin') && !$user->can('Create Product Requests') && !$user->can('Manage Product Requests')) {
+            abort(403, 'You do not have permission to create product requests.');
         }
 
         $request->validate([

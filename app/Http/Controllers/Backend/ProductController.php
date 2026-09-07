@@ -45,7 +45,7 @@ class ProductController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('role:Admin', except: ['index']),
+            new Middleware('can:Manage Products', except: ['index']),
         ];
     }
 
@@ -56,8 +56,8 @@ class ProductController extends Controller implements HasMiddleware
     {
         $query = Product::with(['category', 'variants.color', 'variants.size', 'inventoryStocks', 'vendor']);
         
-        // Visibility Constraints for non-admins
-        if (!Auth::user()->hasRole('Admin')) {
+        // Visibility Constraints for non-admins and non-product-managers
+        if (!Auth::user()->hasRole('Admin') && !Auth::user()->can('Manage Products')) {
             $query->where('status', 1)
                   ->whereHas('category', function($q) {
                       $q->where('status', 1);
