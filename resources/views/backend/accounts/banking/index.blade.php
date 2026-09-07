@@ -113,14 +113,19 @@
                     @endforelse
                 </div>
 
-                @if($bankAccounts->hasPages())
+                @if($bankAccounts->total() > 0)
                     <div class="d-flex flex-wrap justify-content-between align-items-center pt-3 mt-2 border-top">
                         <div class="text-muted small mb-2 mb-md-0">
                             Showing <strong>{{ $bankAccounts->firstItem() ?? 0 }}</strong> to <strong>{{ $bankAccounts->lastItem() ?? 0 }}</strong> of <strong>{{ $bankAccounts->total() }}</strong> accounts
+                            @if($bankAccounts->hasPages())
+                                <span class="badge badge-light border ml-1">Page {{ $bankAccounts->currentPage() }} of {{ $bankAccounts->lastPage() }}</span>
+                            @endif
                         </div>
-                        <div class="pagination-sm mb-0">
-                            {{ $bankAccounts->links() }}
-                        </div>
+                        @if($bankAccounts->hasPages())
+                            <div class="pagination-sm mb-0">
+                                {{ $bankAccounts->links() }}
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>

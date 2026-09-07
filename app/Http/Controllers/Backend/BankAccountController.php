@@ -11,9 +11,16 @@ use Illuminate\Support\Facades\DB;
 
 class BankAccountController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $bankAccounts = BankAccount::with(['glAccount', 'currency', 'company'])->latest()->paginate(6);
+        $perPage = (int) $request->get('per_page', 12);
+        $perPage = min(50, max(2, $perPage));
+
+        $bankAccounts = BankAccount::with(['glAccount', 'currency', 'company'])
+            ->latest()
+            ->paginate($perPage)
+            ->withQueryString();
+
         $currencies = Currency::all();
         $glAccounts = ChartOfAccount::where('account_type', 'asset')
             ->where('is_group', false)
