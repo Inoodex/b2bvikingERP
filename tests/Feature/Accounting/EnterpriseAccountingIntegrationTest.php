@@ -39,6 +39,7 @@ class EnterpriseAccountingIntegrationTest extends TestCase
             ['account_code' => '1050', 'account_name' => 'Inventory Asset', 'account_type' => 'asset', 'normal_balance' => 'debit'],
             ['account_code' => '2010', 'account_name' => 'Accounts Payable', 'account_type' => 'liability', 'normal_balance' => 'credit'],
             ['account_code' => '2020', 'account_name' => 'GRN Clearing', 'account_type' => 'liability', 'normal_balance' => 'credit'],
+            ['account_code' => '2040', 'account_name' => 'Customer Advances & Deposits', 'account_type' => 'liability', 'normal_balance' => 'credit'],
             ['account_code' => '4010', 'account_name' => 'Sales Revenue', 'account_type' => 'revenue', 'normal_balance' => 'credit'],
             ['account_code' => '5010', 'account_name' => 'Cost of Goods Sold', 'account_type' => 'expense', 'normal_balance' => 'debit'],
         ];
@@ -762,6 +763,14 @@ class EnterpriseAccountingIntegrationTest extends TestCase
         // Attempting to delete protected account should be blocked
         $response = $this->delete(route('admin.chart-of-accounts.destroy', $cashAcc->id));
         $this->assertDatabaseHas('chart_of_accounts', ['account_code' => '1010']);
+
+        // Account 2040 Customer Advances should also be strictly protected
+        $advanceAcc = ChartOfAccount::where('account_code', '2040')->first();
+        $this->assertNotNull($advanceAcc);
+        $this->assertTrue($advanceAcc->isSystemProtected());
+
+        $advResponse = $this->delete(route('admin.chart-of-accounts.destroy', $advanceAcc->id));
+        $this->assertDatabaseHas('chart_of_accounts', ['account_code' => '2040']);
     }
 
     public function test_fiscal_year_close_and_reopen_lock_cycle(): void

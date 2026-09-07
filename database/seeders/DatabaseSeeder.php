@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RoleSeeder::class);
         $this->call(PermissionSeeder::class);
         $this->call(CustomProductRequestSeeder::class);
+        $this->call(ChartOfAccountSeeder::class);
         // User::factory(10)->create();
 
         $admin = User::factory()->create([

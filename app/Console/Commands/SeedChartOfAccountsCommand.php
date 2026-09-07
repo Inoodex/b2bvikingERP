@@ -35,13 +35,15 @@ class SeedChartOfAccountsCommand extends Command
                 ['code' => '1020', 'name' => 'Bank Account', 'type' => 'asset', 'balance' => 'debit', 'is_group' => false, 'parent' => '1000'],
                 ['code' => '1030', 'name' => 'Accounts Receivable (Clients)', 'type' => 'asset', 'balance' => 'debit', 'is_group' => false, 'parent' => '1000'],
                 ['code' => '1050', 'name' => 'Inventory in Warehouse', 'type' => 'asset', 'balance' => 'debit', 'is_group' => false, 'parent' => '1000'],
-                ['code' => '1090', 'name' => 'Accumulated Depreciation', 'type' => 'asset', 'balance' => 'credit', 'is_group' => false, 'parent' => '1000'],
+                ['code' => '1080', 'name' => 'Accumulated Depreciation', 'type' => 'asset', 'balance' => 'credit', 'is_group' => false, 'parent' => '1000'],
+                ['code' => '1090', 'name' => 'Accumulated Depreciation (Other)', 'type' => 'asset', 'balance' => 'credit', 'is_group' => false, 'parent' => '1000'],
 
                 // Liabilities (2000)
                 ['code' => '2000', 'name' => 'Liabilities', 'type' => 'liability', 'balance' => 'credit', 'is_group' => true, 'parent' => null],
                 ['code' => '2010', 'name' => 'Accounts Payable (Vendors)', 'type' => 'liability', 'balance' => 'credit', 'is_group' => false, 'parent' => '2000'],
                 ['code' => '2020', 'name' => 'GRN Accrued Clearing', 'type' => 'liability', 'balance' => 'credit', 'is_group' => false, 'parent' => '2000'],
                 ['code' => '2030', 'name' => 'Sales Tax / VAT Payable', 'type' => 'liability', 'balance' => 'credit', 'is_group' => false, 'parent' => '2000'],
+                ['code' => '2040', 'name' => 'Customer Advances & Deposits', 'type' => 'liability', 'balance' => 'credit', 'is_group' => false, 'parent' => '2000'],
 
                 // Equity (3000)
                 ['code' => '3000', 'name' => 'Equity', 'type' => 'equity', 'balance' => 'credit', 'is_group' => true, 'parent' => null],

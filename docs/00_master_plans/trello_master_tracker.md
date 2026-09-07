@@ -3,7 +3,7 @@
 
 ---
 
-## 📋 LIST: ✅ DONE (Phase 1, Phase 2, Phase 3 & Phase 4)
+## 📋 LIST: ✅ DONE (Phase 1, Phase 2, Phase 3, Phase 4 & Phase 5)
 
 ---
 
@@ -148,15 +148,11 @@
 ---
 ---
 
-## 📋 LIST: 🔄 NEXT / IN PROGRESS — Phase 5 (Core Financial Accounting)
-
----
-
-### 🃏 Module: Chart of Accounts & Journals (Days 41-50)
+### 🃏 Module: Chart of Accounts & Journals (Days 41-50) [Phase 5]
 *   **Sub-modules & Checklists:**
     *   [x] Develop Chart of Accounts (CoA) Nested Tree Structure
     *   [x] Fiscal Year Periods Configuration
-    *   [x] Implement Laravel Observers for Auto-Journals
+    *   [x] Implement Laravel Observers & Services for Auto-Journals
     *   [x] Purchase → Auto Journal Posting
     *   [x] Payment → Auto Journal Posting
     *   [x] Sales → Auto Journal Posting
@@ -173,12 +169,13 @@
     *   [x] Generate General Ledger Report
     *   [x] Generate Profit & Loss (Income Statement)
     *   [x] Generate Balance Sheet
-    *   [x] System Accounting Verification with mock data
+    *   [x] System Accounting Verification with mock data & automated tests
+    *   [x] Seeder integration for Account 2040 (Customer Advances) & system protection
 
 ---
 ---
 
-## 📋 LIST: 🧊 BACKLOG — Phase 6 (Settings & System Testing)
+## 📋 LIST: 🔄 NEXT / IN PROGRESS — Phase 6 (Settings, Gateways & System Testing)
 
 ---
 

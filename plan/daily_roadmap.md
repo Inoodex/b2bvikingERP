@@ -52,16 +52,16 @@
 
 ---
 
-## Phase 5: Core Financial Accounting (Days 41 - 50) [Next Step]
-* **Days 41 - 42: Chart of Accounts & Fiscal Years Configuration [Pending]**
+## Phase 5: Core Financial Accounting (Days 41 - 50) [Completed]
+* **Days 41 - 42: Chart of Accounts & Fiscal Years Configuration [Completed]**
   - Chart of accounts setup (nested accounts tree) and Fiscal Year periods.
-* **Days 43 - 45: Automated Journal Posting (Laravel Observers) [Pending]**
-  - Configure Observers to auto-post Journal entries on Purchases, Payments, Sales, and Receipts.
-* **Days 46 - 47: Bank Accounts, Petty Cash, & Bank Reconciliation [Pending]**
-  - Petty Cash expenses ledger, Bank account registries, and Bank statement reconciliation.
-* **Days 48 - 49: Fixed Assets Register & Depreciation Scheduler [Pending]**
+* **Days 43 - 45: Automated Journal Posting (Laravel Observers & Services) [Completed]**
+  - Configure Observers/Services to auto-post balanced Journal entries on Purchases, Payments, Sales, and Receipts.
+* **Days 46 - 47: Bank Accounts, Petty Cash, & Bank Reconciliation [Completed]**
+  - Petty Cash expenses ledger, Bank account registries, Fund transfers (Contra), and Bank statement reconciliation.
+* **Days 48 - 49: Fixed Assets Register & Depreciation Scheduler [Completed]**
   - Fixed assets registry, straight-line depreciation calculator, and automatic monthly posting.
-* **Days 50: Accounting Verification [Pending]**
+* **Days 50: Accounting Verification [Completed]**
   - Audit Trial Balance, General Ledger, Profit & Loss, and Balance Sheet using mock data.
 
 ---

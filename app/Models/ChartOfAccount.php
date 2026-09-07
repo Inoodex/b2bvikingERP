@@ -64,7 +64,7 @@ class ChartOfAccount extends Model
 
     public function isSystemProtected(): bool
     {
-        $protectedCodes = ['1010', '1020', '1030', '1050', '2010', '2020', '2030', '3010', '3020', '4010', '5010'];
+        $protectedCodes = ['1010', '1020', '1030', '1050', '2010', '2020', '2030', '2040', '3010', '3020', '4010', '5010'];
         return in_array($this->account_code, $protectedCodes);
     }
 }
