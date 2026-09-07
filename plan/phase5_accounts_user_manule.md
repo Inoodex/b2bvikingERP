@@ -10,7 +10,7 @@
 ## 📑 সূচিপত্র (বাংলা)
 1. [পরিচিতি ও অ্যাকাউন্টিং কাঠামো](#১-পরিচিতি-ও-অ্যাকাউন্টিং-কাঠামো)
 2. [সাধারণ খতিয়ান ও প্রাথমিক সেটআপ (General Ledger & Setup)](#২-সাধারণ-খতিয়ান-ও-প্রাথমিক-সেটআপ)
-   - ২.১ [চার্ট অব অ্যাকাউন্টস (COA)](#২১-চার্ট-অব-অ্যাকাউন্টস-coa)
+   - ২.১ [চার্ট অব অ্যাকাউন্টস (COA) ও কোর প্রটেকশন](#২১-চার্ট-অব-অ্যাকাউন্টস-coa)
    - ২.২ [ম্যানুয়াল জার্নাল ভাউচার (Manual JV)](#২২-ম্যানুয়াল-জার্নাল-ভাউচার-manual-jv)
    - ২.৩ [ফিসকাল ইয়ার ও পিরিয়ড লক (Fiscal Years & Lock)](#২৩-ফিসকাল-ইয়ার-ও-পিরিয়ড-লক)
 3. [ব্যাংক ও নগদ ব্যবস্থাপনা (Banking & Treasury)](#৩-ব্যাংক-ও-নগদ-ব্যবস্থাপনা)
@@ -19,15 +19,16 @@
    - ৩.৩ [পেটি ক্যাশ রেজিস্টার (অফিস খরচ)](#৩৩-পেটি-ক্যাশ-রেজিস্টার-অফিস-খরচ)
    - ৩.৪ [আন্তঃঅ্যাকাউন্ট ফান্ড ট্রান্সফার (কন্ট্রা ভাউচার)](#৩৪-আন্তঃঅ্যাকাউন্ট-ফান্ড-ট্রান্সফার-কন্ট্রা-ভাউচার)
 4. [কাস্টমার হিসাব ও দেনাদার (Accounts Receivable - AR)](#৪-কাস্টমার-হিসাব-ও-দেনাদার-ar)
-   - ৪.১ [সেলস ইনভয়েস](#৪১-সেলস-ইনভয়েস)
-   - ৪.২ [টাকা গ্রহণ ও রিসিট (Receive Payment & Receipts)](#৪২-টাকা-গ্রহণ-ও-রিসিট)
+   - ৪.১ [সেলস ইনভয়েস ও অর্ডার অনুমোদন গেটিং](#৪১-সেলস-ইনভয়েস-ও-অর্ডার-অনুমোদন-গেটিং)
+   - ৪.২ [টাকা গ্রহণ, সিঙ্গেল-ইনভয়েস মোড ও অগ্রিম জমা (Account 2040)](#৪২-টাকা-গ্রহণ-সিঙ্গেল-ইনভয়েস-মোড-ও-অগ্রিম-জমা)
    - ৪.৩ [কাস্টমারদের বকেয়া অর্ডার (Customer Due Orders)](#৪৩-কাস্টমারদের-বকেয়া-অর্ডার)
 5. [সরবরাহকারী হিসাব ও পাওনাদার (Accounts Payable - AP)](#৫-সরবরাহকারী-হিসাব-ও-পাওনাদার-ap)
    - ৫.১ [ভেন্ডর বিল ও পেমেন্ট ভাউচার](#৫১-ভেন্ডর-বিল-ও-পেমেন্ট-ভাউচার)
    - ৫.২ [ভেন্ডর বকেয়া ও এজিন্গ বিশ্লেষণ (Vendor Due & AP Aging)](#৫২-ভেন্ডর-বকেয়া-ও-এজিন্গ-বিশ্লেষণ)
-6. [স্থায়ী সম্পদ ও অবচয় ইঞ্জিন (Fixed Assets & Depreciation)](#৬-স্থায়ী-সম্পদ-ও-অবচয়-ইঞ্জিন)
-7. [আর্থিক প্রতিবেদন ও অডিট (Financial Statements & Reports)](#৭-আর্থিক-প্রতিবেদন-ও-অডিট)
-8. [সাধারণ জিজ্ঞাসা ও সমাধান (Troubleshooting & FAQs)](#৮-সাধারণ-জিজ্ঞাসা-ও-সমাধান)
+6. [কেন্দ্রীয় অনুমোদন ইনবক্স ও গভর্নেন্স ওয়ার্কফ্লো (Approval Inbox & Workflows)](#৬-কেন্দ্রীয়-অনুমোদন-ইনবক্স-ও-গভর্নেন্স-ওয়ার্কফ্লো)
+7. [স্থায়ী সম্পদ ও অবচয় ইঞ্জিন (Fixed Assets & Depreciation)](#৭-স্থায়ী-সম্পদ-ও-অবচয়-ইঞ্জিন)
+8. [আর্থিক প্রতিবেদন ও অডিট (Financial Statements & Reports)](#৮-আর্থিক-প্রতিবেদন-ও-অডিট)
+9. [সাধারণ জিজ্ঞাসা ও সমাধান (Troubleshooting & FAQs)](#৯-সাধারণ-জিজ্ঞাসা-ও-সমাধান)
 
 ---
 
@@ -70,7 +71,7 @@ B2B Viking ERP-এর Phase 5 অ্যাকাউন্টিং সিস্�
    - **Parent Group Account:** এটি যদি কোনো মূল অ্যাকাউন্টের অধীনে সাব-অ্যাকাউন্ট হয়, তবে প্যারেন্ট অ্যাকাউন্ট সিলেক্ট করুন।
    - **Is Parent Group Account:** এই অ্যাকাউন্টের আন্ডারে ভবিষ্যতে আরও সাব-অ্যাকাউন্ট করতে চাইলে টিক দিন।
    - **Create Account** বাটনে চাপুন।
-3. **কোর প্রটেকশন:** মূল সিস্টেম অ্যাকাউন্ট যেমন Cash (১০১০), Bank (১০২০), Accounts Payable (২০১০) ইত্যাদির পাশে হলুদ **Core Lock** চিহ্ন থাকে, যা ভুলবশত কেউ ডিলিট করতে পারবে না।
+3. **কোর প্রটেকশন (Core System Protection):** মূল সিস্টেম অ্যাকাউন্ট যেমন Cash (১০১০), Bank (১০২০), Accounts Receivable (১০৩০), Inventory (১০৫০), Accumulated Depreciation (১০৮০), Accounts Payable (২০১০), GRN Accrued Clearing (২০২০), VAT Payable (২০৩০), Customer Advances & Deposits (২০৪০), Owner's Capital (৩০১০), Retained Earnings (৩০২০), Sales Revenue (৪০১০), COGS (৫০১০) ইত্যাদির পাশে হলুদ **Core Lock** ব্যাজ প্রদর্শিত থাকে। এসব মূল হেডকে ডাটাবেস লেভেলে সুরক্ষিত রাখা হয়েছে যাতে কেউ ভুলবশত বা অসাবধানতাবশত এগুলো ডিলিট করতে বা কোড পরিবর্তন করে লেজার ধ্বংস করতে না পারে।
 
 ---
 
@@ -193,16 +194,33 @@ B2B Viking ERP-এর Phase 5 অ্যাকাউন্টিং সিস্�
 
 ## ৪. কাস্টমার হিসাব ও দেনাদার (AR)
 
-### ৪.১ সেলস ইনভয়েস
+### ৪.১ সেলস ইনভয়েস ও অর্ডার অনুমোদন গেটিং
 **লোকেশন:** `সাইডবার` ➡️ `Accounts` ➡️ `Accounts Receivable (Customer)` ➡️ `Sales Invoices`
-* **কেন ও কখন ব্যবহার করবেন:** পণ্য বিক্রি কনফার্ম হওয়ার পর কাস্টমারকে অফিসিয়াল চালান বা বিল দেওয়ার জন্য। ইনভয়েস জেনারেট হওয়ার সাথে সাথে স্বয়ংক্রিয়ভাবে কাস্টমারের নামে দেনা তৈরি হয় (`DR Accounts Receivable / CR Sales Revenue`)।
+
+#### 📌 কেন ও কখন ব্যবহার করবেন? (Purpose & Trigger)
+পণ্য বিক্রয় কনফার্ম হওয়ার পর কাস্টমারকে অফিসিয়াল কমার্শিয়াল ইনভয়েস বা বিল দেওয়ার জন্য। ইনভয়েস জেনারেট হওয়ার সাথে সাথে সিস্টেমে স্বয়ংক্রিয়ভাবে ব্যালান্সড ডাবল-এন্ট্রি জার্নাল পোস্ট হয় (`DR 1030 Accounts Receivable / CR 4010 Sales Revenue & CR 2030 VAT Payable`)।
+
+#### 🔒 কঠোর নিরাপত্তা ও অনুমোদন গেটিং (Order Approval Gating):
+* **অনুমোদন ছাড়া ইনভয়েস ও ডেলিভারি ব্লক:** কোনো সেলস অর্ডার ডিপার্টমেন্ট হেড বা ম্যানেজমেন্ট কর্তৃক সম্পূর্ণ অনুমোদিত (**Fully Approved**) না হওয়া পর্যন্ত সিস্টেম স্বয়ংক্রিয়ভাবে ওই অর্ডারের জন্য কোনো সেলস ইনভয়েস বা ডেলিভারি অর্ডার (DO) তৈরি করতে দেয় না। অর্ডারের ভিউ পেজে এবং ডাটাটেবিলে হলুদ **"Approval Required"** সতর্কবার্তা প্রদর্শিত হবে।
+* **ডুপ্লিকেট ইনভয়েস তৈরি প্রতিরোধ:** একই অর্ডারের বিপরীতে একাধিকবার অসাবধানতাবশত ইনভয়েস তৈরি বন্ধ রাখতে সিস্টেম স্বয়ংক্রিয় প্রটেকশন বজায় রাখে। ইনভয়েস তৈরি হয়ে গেলে বাটনের টেক্সট পরিবর্তিত হয়ে **"View Commercial Invoice"** হয়ে যাবে, ফলে কোনো ডুপ্লিকেট ইনভয়েস বা দ্বিগুণ রাজস্ব পোস্টিং হওয়ার ঝুঁকি থাকে না।
 
 ---
 
-### ৪.২ টাকা গ্রহণ ও রিসিট (Receive Payment & Receipts)
+### ৪.২ টাকা গ্রহণ, সিঙ্গেল-ইনভয়েস মোড ও অগ্রিম জমা (Account 2040)
 **লোকেশন:** `সাইডবার` ➡️ `Accounts` ➡️ `Accounts Receivable (Customer)` ➡️ `Receive Payment` & `Payment Receipts`
-* **কেন ও কখন ব্যবহার করবেন:** কাস্টমার যখন তার বকেয়া বিল ক্যাশ, ব্যাংক বা চেকের মাধ্যমে পরিশোধ করে।
-* **ব্যবহারের নিয়ম:** অর্ডার বা কাস্টমার নির্বাচন করে সংগৃহীত টাকার পরিমাণ ও পেমেন্ট মেথড দিয়ে সাবমিট করুন। সাথে সাথে প্রিন্টযোগ্য রিসিট তৈরি হয়ে যাবে যা কাস্টমারকে দেওয়া যাবে।
+
+#### 📌 কেন ও কখন ব্যবহার করবেন? (Purpose)
+কাস্টমার যখন তার বকেয়া বিল ক্যাশ, ব্যাংক বা চেকের মাধ্যমে পরিশোধ করে কিংবা নতুন অর্ডারের জন্য অগ্রিম টাকা জমা দেয়।
+
+#### 🛠️ ব্যবহারের নিয়ম ও পেমেন্ট মোডসমূহ:
+1. **মাল্টি-ইনভয়েস ফিফো নকডাউন (Standard FIFO Allocation):**  
+   কাস্টমার নির্বাচন করে মোট সংগৃহীত টাকার পরিমাণ ইনপুট দিলে সিস্টেম স্বয়ংক্রিয়ভাবে কাস্টমারের সবচেয়ে পুরোনো বকেয়া ইনভয়েসগুলো থেকে শুরু করে একে একে (First-In, First-Out) সব ইনভয়েস পরিশোধ করে ব্যালান্স কমাবে।
+2. **সিঙ্গেল-ইনভয়েস আইসোলেশন মোড (Single-Invoice Mode):**  
+   যখন কোনো নির্দিষ্ট সেলস ইনভয়েসের শো-পেজে থাকা **`Receive Payment`** বাটনে ক্লিক করে পেমেন্ট ফর্ম খোলা হয়, তখন সিস্টেম **Single-Invoice Mode**-এ লক হয়ে যায়। এতে জমা দেওয়া টাকাটি অন্য কোনো পুরোনো ইনভয়েসে না ছড়িয়ে শুধুমাত্র ওই নির্বাচিত ইনভয়েসেই পরিশোধ হিসেবে সমন্বয় হয়।
+3. **কাস্টমার অগ্রিম জমা (Account 2040 - Customer Advances & Deposits):**  
+   কাস্টমার যদি ইনভয়েসের চেয়ে বেশি অর্থ পরিশোধ করে অথবা কোনো চলমান ইনভয়েস ছাড়াই অগ্রিম টাকা জমা রাখে, সিস্টেম সেটিকে বাতিল না করে স্বয়ংক্রিয়ভাবে ব্যালান্সড জার্নালে **Account 2040 (Customer Advances & Deposits)** নামক চলতি দায় (Current Liability) হিসেবে ক্রেডিট করে জমা রাখে (`DR 1020 Bank Account / CR 2040 Customer Advances`)। পরবর্তীতে ওই কাস্টমারের কোনো নতুন ইনভয়েস জেনারেট হলে এই জমা থাকা ব্যালান্স থেকে সহজেই সমন্বয় করা যায়।
+4. **প্রিন্টযোগ্য মানি রিসিট (Receipt PDF):**  
+   পেমেন্ট সফলভাবে সংরক্ষণ হওয়ার পর তাৎক্ষণিকভাবে একটি সুসজ্জিত প্রিন্টযোগ্য অফিসিয়াল রিসিট (PDF) তৈরি হয় যা কাস্টমারকে সরবরাহ করা যায়।
 
 ---
 
@@ -243,7 +261,35 @@ B2B Viking ERP-এর Phase 5 অ্যাকাউন্টিং সিস্�
 
 ---
 
-## ৬. স্থায়ী সম্পদ ও অবচয় ইঞ্জিন
+## ৬. কেন্দ্রীয় অনুমোদন ইনবক্স ও গভর্নেন্স ওয়ার্কফ্লো (Approval Inbox & Workflows)
+
+**লোকেশন:** `টপ ন্যাভবার` ➡️ `Approvals` অথবা `সাইডবার` ➡️ `Approvals` ➡️ `Approval Inbox` (`/admin/approvals`)
+
+#### 📌 কেন ব্যবহার করবেন? (Purpose)
+একটি বৃহৎ এন্টারপ্রাইজ প্রতিষ্ঠানে একক কোনো ব্যক্তি যাতে অর্থ স্থানান্তর, বড় ক্রয়াদেশ, বাকিতে পণ্য বিক্রি বা স্টক সরানোর মতো গুরুত্বপূর্ণ সিদ্ধান্ত একা নিতে না পারে, সেজন্য বহু-স্তরের (Multi-Step) প্রশাসনিক নিয়ন্ত্রণ ও অনুমোদন নিশ্চিত করতে।
+
+#### ⏰ কখন ব্যবহার করবেন? (When to Use)
+* ডিপার্টমেন্ট হেড, ফাইন্যান্স ম্যানেজার বা চিফ একাউন্ট্যান্ট প্রতিদিন লগইন করে তাদের অনুমোদনের জন্য অপেক্ষমাণ ফাইলগুলো পর্যালোচনা করতে।
+* কোনো লেনদেন কেন আটকে আছে তা অডিট ট্রেইল দেখে যাচাই করতে।
+
+#### 📑 অনুমোদনাধীন ৬টি মূল এন্টারপ্রাইজ মডিউল:
+1. **আন্তঃঅ্যাকাউন্ট ফান্ড ট্রান্সফার (Fund Transfers):** এক ব্যাংক থেকে অন্য ব্যাংক বা ক্যাশ ভল্টে টাকা স্থানান্তরের কন্ট্রা ভাউচার অনুমোদন।
+2. **লেটার অব ক্রেডিট (Letter of Credit - LC):** আমদানির জন্য ব্যাংক এলসি খোলা বা এলসি সংশোধনের অনুমোদন।
+3. **আউটলেট/ওয়্যারহাউস স্টক ট্রান্সফার (Stock Transfers):** এক ডিপো বা শাখা থেকে অন্য শাখায় মালামাল পাঠানোর চালান অনুমোদন।
+4. **ভেন্ডর পারচেজ বিল (Vendor Bills):** সরবরাহকারীদের কাছ থেকে পাওয়া বিল এবং পেমেন্টের দায় স্বীকারের অনুমোদন।
+5. **ভেন্ডর রিটার্ন / ডেবিট নোট (Vendor Returns):** ত্রুটিপূর্ণ বা বাতিল মালামাল সরবরাহকারীকে ফেরত দিয়ে টাকা সমন্বয়ের অনুমোদন।
+6. **কাস্টমার সেলস অর্ডার (Customer Orders):** বাকিতে বড় অঙ্কের পাইকারি বিক্রি বা স্পেশাল ডিসকাউন্ট অর্ডারের অনুমোদন।
+
+#### 🛠️ ব্যবহারের নিয়ম ও অডিট চেইন:
+* **কেন্দ্রীয় ইনবক্স ড্যাশবোর্ড:** ইনবক্সে ঢুকলেই ট্যাব আকারে ৬টি মডিউলের পেন্ডিং ফাইলগুলো দেখা যাবে।
+* **ভিজ্যুয়াল অ্যাপ্রুভাল স্টেপার (Approval Stepper Chain):** প্রতিটি অর্ডারের বা বিলের ভেতর ঢুকলে ধাপে ধাপে দৃশ্যমান একটি প্রগ্রেস বার দেখা যাবে (যেমন: `Step 1: Department Manager ➔ Step 2: Finance Controller ➔ Step 3: Managing Director`)। কোন ধাপে কে অনুমোদন দিয়েছেন, তার তারিখ এবং টাইমস্ট্যাম্পসহ সংরক্ষিত থাকে।
+* **অনুমোদন বা বাতিল (Approve or Reject):**
+  - পর্যালোচনা শেষে সবুজ **`Approve`** বাটনে ক্লিক করলে তা পরবর্তী কর্মকর্তার টেবিলে যাবে অথবা চূড়ান্ত অনুমোদন পেয়ে লেজারে স্বয়ংক্রিয় পোস্টিং সম্পন্ন করবে।
+  - কোনো অসংগতি থাকলে লাল **`Reject`** বাটনে ক্লিক করে সুনির্দিষ্ট কারণ লিখে ফাইলটি বাতিল করে দেওয়া যাবে।
+
+---
+
+## ৭. স্থায়ী সম্পদ ও অবচয় ইঞ্জিন
 
 **লোকেশন:** `সাইডবার` ➡️ `Accounts` ➡️ `Fixed Assets & Depreciation` ➡️ `Fixed Assets Register`
 
@@ -256,11 +302,11 @@ B2B Viking ERP-এর Phase 5 অ্যাকাউন্টিং সিস্�
 
 #### 🛠️ ব্যবহারের নিয়ম (How to Use):
 1. **নতুন সম্পদ নিবন্ধন:** **`Register New Asset`** এ ক্লিক করে নাম, ক্যাটাগরি, কেনার তারিখ, মূল্য, মেয়াদ (যেমন: ৫ বছর) এবং পদ্ধতি (Straight Line বা Reducing Balance) দিয়ে সেভ করুন।
-2. **মাসিক অবচয় চালানো:** মাস শেষে **`⚡ Run Monthly Depreciation`** এ ক্লিক করে মাস সিলেক্ট করে সাবমিট করুন। সফটওয়্যার সাথে সাথে ডাবল-এন্ট্রি জার্নাল পোস্ট করে দেবে (`DR Depreciation Expense / CR Accumulated Depreciation`) এবং সম্পদের বর্তমান বুক ভ্যালু আপডেট করে দেবে।
+2. **মাসিক অবচয় চালানো:** মাস শেষে **`⚡ Run Monthly Depreciation`** এ ক্লিক করে মাস সিলেক্ট করে সাবমিট করুন। সফটওয়্যার সাথে সাথে ডাবল-এন্ট্রি জার্নাল পোস্ট করে দেবে (`DR 5030 Depreciation Expense / CR 1080 Accumulated Depreciation`) এবং সম্পদের বর্তমান বুক ভ্যালু আপডেট করে দেবে।
 
 ---
 
-## ৭. আর্থিক প্রতিবেদন ও অডিট
+## ৮. আর্থিক প্রতিবেদন ও অডিট
 
 **লোকেশন:** `সাইডবার` ➡️ `Reports`
 
@@ -286,7 +332,7 @@ B2B Viking ERP-এর Phase 5 অ্যাকাউন্টিং সিস্�
 
 ---
 
-## ৮. সাধারণ জিজ্ঞাসা ও সমাধান
+## ৯. সাধারণ জিজ্ঞাসা ও সমাধান
 
 * **প্রশ্ন: ভাউচার সেভ করার সময় "Journal Entry Imbalance Exception" দেখালে কী করব?**  
   **উত্তর:** ডাবল এন্ট্রির নিয়ম অনুযায়ী আপনার ডেবিট এবং ক্রেডিটের যোগফল সমান হয়নি। উভয় পাশের টাকার অংক সমান করে আবার সাবমিট করুন।
@@ -307,7 +353,7 @@ B2B Viking ERP-এর Phase 5 অ্যাকাউন্টিং সিস্�
 ## 📑 Table of Contents (English)
 1. [Overview & Architecture](#1-overview--architecture)
 2. [General Ledger & Setup](#2-general-ledger--setup)
-   - 2.1 [Chart of Accounts (COA)](#21-chart-of-accounts-coa)
+   - 2.1 [Chart of Accounts (COA) & Core Protection](#21-chart-of-accounts-coa)
    - 2.2 [Manual Journal Vouchers (MJV)](#22-manual-journal-vouchers-mjv)
    - 2.3 [Fiscal Years & Period Lock](#23-fiscal-years--period-lock)
 3. [Banking & Treasury](#3-banking--treasury)
@@ -316,15 +362,16 @@ B2B Viking ERP-এর Phase 5 অ্যাকাউন্টিং সিস্�
    - 3.3 [Petty Cash Register](#33-petty-cash-register)
    - 3.4 [Inter-Account Fund Transfers (Contra)](#34-inter-account-fund-transfers-contra)
 4. [Accounts Receivable (Customer AR)](#4-accounts-receivable-customer-ar)
-   - 4.1 [Sales Invoices](#41-sales-invoices)
-   - 4.2 [Receive Payment & Receipts](#42-receive-payment--receipts)
+   - 4.1 [Sales Invoices & Order Approval Gating](#41-sales-invoices--order-approval-gating)
+   - 4.2 [Receive Payment, Single-Invoice Mode & Advance Deposits (Account 2040)](#42-receive-payment-single-invoice-mode--advance-deposits-account-2040)
    - 4.3 [Customer Due Orders](#43-customer-due-orders)
 5. [Accounts Payable (Vendor AP)](#5-accounts-payable-vendor-ap)
    - 5.1 [Vendor Bills & Payment Vouchers](#51-vendor-bills--payment-vouchers)
    - 5.2 [Vendor Due Purchases & AP Aging](#52-vendor-due-purchases--ap-aging)
-6. [Fixed Assets & Depreciation Engine](#6-fixed-assets--depreciation-engine)
-7. [Financial Statements & Reports](#7-financial-statements--reports)
-8. [Auditing & Troubleshooting FAQs](#8-auditing--troubleshooting-faqs)
+6. [Approval Inbox & Multi-Step Workflows](#6-approval-inbox--multi-step-workflows)
+7. [Fixed Assets & Depreciation Engine](#7-fixed-assets--depreciation-engine)
+8. [Financial Statements & Reports](#8-financial-statements--reports)
+9. [Auditing & Troubleshooting FAQs](#9-auditing--troubleshooting-faqs)
 
 ---
 
@@ -345,7 +392,7 @@ The B2B Viking ERP Phase 5 Accounts module is designed to meet strict **GAAP / I
 
 ## 2. General Ledger & Setup
 
-### 2.1 Chart of Accounts (COA)
+### 2.1 Chart of Accounts (COA) & Core Protection
 **Navigation:** `Sidebar` ➡️ `Accounts` ➡️ `General Ledger & Setup` ➡️ `Chart of Accounts (COA)`
 
 #### 📌 Purpose (Why Use This):
@@ -364,7 +411,7 @@ The Chart of Accounts organizes all company assets, liabilities, equity, revenue
    - Select the **Classification** (Asset, Liability, Equity, Revenue, Expense) and define its **Normal Balance** (Debit or Credit).
    - If nesting under an existing group head, select the **Parent Group Account**. Check **Is Parent Group Account?** if this head will have sub-accounts beneath it.
    - Click **Create Account**.
-3. **Core Protection:** Core accounts (`1010 Cash`, `1020 Bank`, `2010 AP`, `1030 AR`, etc.) are protected with a lock icon and cannot be deleted by users to prevent ledger corruption.
+3. **Core System Protection:** Vital system heads (`1010 Cash`, `1020 Bank`, `1030 AR`, `1050 Inventory`, `1080 Accumulated Depreciation`, `2010 AP`, `2020 GRN Accrued Clearing`, `2030 VAT Payable`, `2040 Customer Advances & Deposits`, `3010 Capital`, `3020 Retained Earnings`, `4010 Sales Revenue`, `5010 COGS`) display a gold **Core Lock** badge. The system strictly forbids deleting these accounts or altering their codes, preventing catastrophic general ledger corruption.
 
 ---
 
@@ -483,15 +530,33 @@ To transfer funds between two internal accounts (Bank-to-Bank, Bank-to-Cash) wit
 
 ## 4. Accounts Receivable (Customer AR)
 
-### 4.1 Sales Invoices
+### 4.1 Sales Invoices & Order Approval Gating
 **Navigation:** `Sidebar` ➡️ `Accounts` ➡️ `Accounts Receivable (Customer)` ➡️ `Sales Invoices`
-* **Purpose & When to Use:** Generated upon order confirmation to bill customers and establish receivable assets (`DR Accounts Receivable / CR Sales Revenue & Output VAT`).
+
+#### 📌 Purpose & Accounting Trigger:
+Generated upon order confirmation to bill customers and establish formal trade receivable assets (`DR 1030 Accounts Receivable / CR 4010 Sales Revenue & CR 2030 VAT Payable`).
+
+#### 🔒 Enterprise Security & Order Approval Gating:
+* **Approval Gating on Invoicing & Delivery:** To protect against unauthorized dispatches and revenue leakage, the system strictly blocks creating a **Sales Invoice** or **Delivery Order (DO)** until the underlying Customer Sales Order is **Fully Approved** by authorized management. Pending orders display a prominent yellow **"Approval Required"** badge.
+* **Duplicate Invoice Prevention:** The system guards against accidental duplicate invoicing. Once an invoice is generated for an approved order, the action button dynamically transforms into **"View Commercial Invoice"**, permanently eliminating the risk of double-posting revenue.
 
 ---
 
-### 4.2 Receive Payment & Receipts
+### 4.2 Receive Payment, Single-Invoice Mode & Advance Deposits (Account 2040)
 **Navigation:** `Sidebar` ➡️ `Accounts` ➡️ `Accounts Receivable (Customer)` ➡️ `Receive Payment` & `Payment Receipts`
-* **Purpose & When to Use:** When customers remit funds via Cash, Bank Transfer, or Mobile Pay. Automatically settles customer dues and generates printable payment receipts.
+
+#### 📌 Purpose & Operational Modes:
+Used when corporate customers remit funds via Cash, Bank Transfer, or Cheque to clear trade invoices or provide upfront down payments.
+
+#### 🛠️ Core Payment Behaviors:
+1. **Multi-Invoice FIFO Allocation (Standard Mode):**  
+   When receiving general customer funds, the engine systematically applies the received cash across outstanding invoices starting from the oldest open invoice (First-In, First-Out), knocking down ledger balances chronologically.
+2. **Single-Invoice Mode (Targeted Invoice Settle):**  
+   Clicking **`Receive Payment`** directly from a specific Sales Invoice show page activates **Single-Invoice Mode**. The payment engine locks solely to that invoice ID, preventing collected funds from diffusing across older historical receivables.
+3. **Customer Advance Deposits (Account 2040):**  
+   Any payment received in excess of total outstanding invoice dues—or unallocated deposits collected before invoice generation—is automatically credited to **Account 2040 (Customer Advances & Deposits)** as a current liability (`DR 1020 Bank Account / CR 2040 Customer Advances`). When future commercial invoices are finalized for this client, the credit balance can be seamlessly applied.
+4. **Official Printable Payment Receipt (PDF):**  
+   Every payment transaction generates an authenticated, printable PDF receipt complete with voucher tracking number, payment method, invoice knockdown breakdown, and authorized signature lines.
 
 ---
 
@@ -531,7 +596,35 @@ Click **`Pay Now`** on any row to immediately clear outstanding vendor dues.
 
 ---
 
-## 6. Fixed Assets & Depreciation Engine
+## 6. Approval Inbox & Multi-Step Workflows
+
+**Navigation:** `Top Navbar` ➡️ `Approvals` or `Sidebar` ➡️ `Approvals` ➡️ `Approval Inbox` (`/admin/approvals`)
+
+#### 📌 Purpose (Why Use This):
+To enforce strict internal segregation of duties (SoD) and prevent unauthorized financial disbursements, stock relocation, or credit exposure by requiring multi-level managerial authorization.
+
+#### ⏰ When to Use:
+* Department Heads, Chief Accountants, and Operations Directors perform daily inbox triage to review, approve, or reject pending business documents.
+* Auditing historical authorization chains and inspector comments.
+
+#### 📑 6 Supported Approvable Modules:
+1. **Inter-Account Fund Transfers (Contra):** Approving liquid transfers between corporate bank vaults and physical cash tills.
+2. **Letters of Credit (LC):** Authorizing new import LC issuance, margins, and amendment terms.
+3. **Warehouse Stock Transfers:** Approving inter-outlet inventory dispatches prior to physical gate pass release.
+4. **Vendor Bills (AP Invoices):** Authorizing verified trade invoices for disbursement following 3-way matching.
+5. **Vendor Returns (Debit Notes):** Validating supplier claim amounts and inventory deductions for rejected materials.
+6. **Customer Sales Orders (B2B):** Authorizing wholesale credit orders exceeding customer thresholds or applying non-standard pricing.
+
+#### 🛠️ Operational Workflow & Audit Stepper:
+* **Centralized Approval Hub:** The Inbox groups pending items by document type with one-click navigation to inspect itemized source documents.
+* **Interactive Approval Chain Component:** Source views feature an interactive visual stepper displaying active authorization tiers (e.g. `Step 1: Department Manager ➔ Step 2: Finance Controller ➔ Step 3: Managing Director`) with historical timestamps, reviewer names, and decision notes.
+* **Action Gating:**
+  - Click green **`Approve`** to advance the document to the subsequent tier or trigger automatic general ledger / stock posting upon final sign-off.
+  - Click red **`Reject`** with mandatory reason logging to return or cancel the transaction.
+
+---
+
+## 7. Fixed Assets & Depreciation Engine
 
 **Navigation:** `Sidebar` ➡️ `Accounts` ➡️ `Fixed Assets & Depreciation` ➡️ `Fixed Assets Register`
 
@@ -548,7 +641,7 @@ Tangible assets (vehicles, machinery, IT hardware) decline in value over time. U
 
 ---
 
-## 7. Financial Statements & Reports
+## 8. Financial Statements & Reports
 
 **Navigation:** `Sidebar` ➡️ `Reports`
 
@@ -574,7 +667,7 @@ To provide executive leadership, shareholders, and auditors with accurate insigh
 
 ---
 
-## 8. Auditing & Troubleshooting FAQs
+## 9. Auditing & Troubleshooting FAQs
 
 * **Q: Why does the system throw a "Journal Entry Imbalance Exception"?**  
   **A:** In compliance with double-entry accounting rules, total debits must equal total credits. Adjust your debit and credit figures until the imbalance reaches zero.
