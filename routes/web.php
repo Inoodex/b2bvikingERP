@@ -567,7 +567,7 @@ Route::controller(BackendAccountController::class)->group(function () {
 
     /** Banking & Treasury Routes */
     Route::post('bank-accounts/{bankAccount}/toggle-status', [\App\Http\Controllers\Backend\BankAccountController::class, 'toggleStatus'])->name('bank-accounts.toggle-status');
-    Route::resource('bank-accounts', \App\Http\Controllers\Backend\BankAccountController::class)->except(['create', 'show', 'destroy']);
+    Route::resource('bank-accounts', \App\Http\Controllers\Backend\BankAccountController::class)->except(['create', 'show']);
     Route::get('bank-reconciliation', [\App\Http\Controllers\Backend\BankReconciliationController::class, 'index'])->name('bank-reconciliation.index');
     Route::post('bank-reconciliation', [\App\Http\Controllers\Backend\BankReconciliationController::class, 'reconcile'])->name('bank-reconciliation.reconcile');
 

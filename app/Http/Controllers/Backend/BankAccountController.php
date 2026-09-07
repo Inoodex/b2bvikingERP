@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BankAccount;
 use App\Models\ChartOfAccount;
 use App\Models\Currency;
+use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -63,7 +64,7 @@ class BankAccountController extends Controller
             'status'          => true,
         ]);
 
-        toastr()->success('Bank Account created successfully!');
+        Toastr::success('Bank Account created successfully!');
         return redirect()->route('admin.bank-accounts.index');
     }
 
@@ -79,7 +80,7 @@ class BankAccountController extends Controller
 
         $bankAccount->update($validated);
 
-        toastr()->success('Bank Account updated successfully!');
+        Toastr::success('Bank Account updated successfully!');
         return redirect()->route('admin.bank-accounts.index');
     }
 
@@ -88,7 +89,47 @@ class BankAccountController extends Controller
         $bankAccount->status = !$bankAccount->status;
         $bankAccount->save();
 
-        toastr()->success('Bank Account status updated!');
+        Toastr::success('Bank Account status updated!');
+        return redirect()->route('admin.bank-accounts.index');
+    }
+
+    public function destroy(Request $request, BankAccount $bankAccount)
+    {
+        // Enterprise Rule 1: Balance Guard — Strictly block deletion if balance != 0
+        if (abs((float) $bankAccount->current_balance) > 0.0001) {
+            $formattedBal = number_format((float) $bankAccount->current_balance, 2);
+            $msg = "Cannot delete: This account has an active balance of kr. {$formattedBal}. In accordance with accounting compliance, the balance must be transferred to 0.00 first, or you can deactivate the account instead.";
+            if ($request->ajax()) {
+                return response()->json(['status' => 'error', 'message' => $msg]);
+            }
+            Toastr::error($msg);
+            return redirect()->route('admin.bank-accounts.index');
+        }
+
+        // Enterprise Rule 2: Transaction History Guard — Block deletion if past transactions or reconciliations exist
+        $hasTransactions = DB::table('bank_transactions')->where('bank_account_id', $bankAccount->id)->exists();
+        $hasReconciliations = DB::table('bank_reconciliations')->where('bank_account_id', $bankAccount->id)->exists();
+        $hasTransfers = DB::table('fund_transfers')
+            ->where('from_account_id', $bankAccount->id)
+            ->orWhere('to_account_id', $bankAccount->id)
+            ->exists();
+
+        if ($hasTransactions || $hasReconciliations || $hasTransfers) {
+            $msg = 'Cannot delete: This bank account has linked financial transactions or reconciliations. Please deactivate it to preserve audit history.';
+            if ($request->ajax()) {
+                return response()->json(['status' => 'error', 'message' => $msg]);
+            }
+            Toastr::error($msg);
+            return redirect()->route('admin.bank-accounts.index');
+        }
+
+        // Enterprise Rule 3: Zero-Balance & Zero-Transaction Safe Deletion
+        $bankAccount->delete();
+        $msg = 'Bank Account deleted successfully!';
+        if ($request->ajax()) {
+            return response()->json(['status' => 'success', 'message' => $msg]);
+        }
+        Toastr::success($msg);
         return redirect()->route('admin.bank-accounts.index');
     }
 }

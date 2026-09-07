@@ -87,16 +87,37 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                                        <a href="{{ route('admin.bank-reconciliation.index', ['bank_account_id' => $bank->id]) }}" class="btn btn-sm btn-outline-primary font-weight-bold">
-                                            <i class="fas fa-sync-alt mr-1"></i> Reconcile
-                                        </a>
-                                        <form action="{{ route('admin.bank-accounts.toggle-status', $bank->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-light border text-muted">
-                                                {{ $bank->status ? 'Deactivate' : 'Activate' }}
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top flex-wrap" style="gap: 5px;">
+                                        <div class="d-flex align-items-center" style="gap: 5px;">
+                                            <a href="{{ route('admin.bank-reconciliation.index', ['bank_account_id' => $bank->id]) }}" class="btn btn-sm btn-outline-primary font-weight-bold" title="Reconcile Statement">
+                                                <i class="fas fa-sync-alt mr-1"></i> Reconcile
+                                            </a>
+                                            <form action="{{ route('admin.bank-accounts.toggle-status', $bank->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-light border text-muted" title="{{ $bank->status ? 'Deactivate' : 'Activate' }}">
+                                                    {{ $bank->status ? 'Deactivate' : 'Activate' }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-primary btn-edit-account"
+                                                    data-id="{{ $bank->id }}"
+                                                    data-bank="{{ $bank->bank_name }}"
+                                                    data-name="{{ $bank->account_name }}"
+                                                    data-number="{{ $bank->account_number }}"
+                                                    data-currency="{{ $bank->currency_id }}"
+                                                    data-gl="{{ $bank->gl_account_id }}"
+                                                    data-action="{{ route('admin.bank-accounts.update', $bank->id) }}"
+                                                    title="Edit Bank Account">
+                                                <i class="fas fa-edit"></i>
                                             </button>
-                                        </form>
+                                            <a href="{{ route('admin.bank-accounts.destroy', $bank->id) }}" 
+                                               class="btn btn-sm btn-danger delete-item" 
+                                               title="Delete Bank Account">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -147,12 +168,12 @@
                 </div>
                 <div class="modal-body p-4">
                     <div class="form-group mb-3">
-                        <label class="font-weight-bold text-dark">Account Holder / Nickname <span class="text-danger">*</span></label>
-                        <input type="text" name="account_name" class="form-control" placeholder="e.g. Main Operating Account" required>
-                    </div>
-                    <div class="form-group mb-3">
                         <label class="font-weight-bold text-dark">Bank Institution Name <span class="text-danger">*</span></label>
                         <input type="text" name="bank_name" class="form-control" placeholder="e.g. Danske Bank, Nordea" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark">Account Holder / Nickname <span class="text-danger">*</span></label>
+                        <input type="text" name="account_name" class="form-control" placeholder="e.g. Main Operating Account" required>
                     </div>
                     <div class="form-group mb-3">
                         <label class="font-weight-bold text-dark">Account / IBAN Number <span class="text-danger">*</span></label>
@@ -182,4 +203,83 @@
         </div>
     </div>
 </div>
+
+<!-- Modal: Edit Bank Account -->
+<div class="modal fade" id="modalEditBankAccount" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow" style="border-radius: 12px;">
+            <form id="formEditBankAccount" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-header bg-primary text-white py-3">
+                    <h5 class="modal-title font-weight-bold text-white"><i class="fas fa-edit mr-2"></i> Edit Bank Account</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark">Bank Institution Name <span class="text-danger">*</span></label>
+                        <input type="text" name="bank_name" id="edit_bank_name" class="form-control" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark">Account Holder / Nickname <span class="text-danger">*</span></label>
+                        <input type="text" name="account_name" id="edit_account_name" class="form-control" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark">Account / IBAN Number <span class="text-danger">*</span></label>
+                        <input type="text" name="account_number" id="edit_account_number" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group mb-3">
+                            <label class="font-weight-bold text-dark">Currency</label>
+                            <select name="currency_id" id="edit_currency_id" class="form-control">
+                                @foreach($currencies as $c)
+                                    <option value="{{ $c->id }}">{{ $c->code }} ({{ $c->symbol }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 form-group mb-3">
+                            <label class="font-weight-bold text-dark">Linked GL Account Head</label>
+                            <select name="gl_account_id" id="edit_gl_account_id" class="form-control">
+                                <option value="">-- Select GL Head --</option>
+                                @foreach($glAccounts as $gl)
+                                    <option value="{{ $gl->id }}">{{ $gl->account_code }} — {{ $gl->account_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top p-3">
+                    <button type="button" class="btn btn-light font-weight-bold border" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary font-weight-bold shadow-sm"><i class="fas fa-save mr-1"></i> Update Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    $('.btn-edit-account').on('click', function() {
+        var action = $(this).data('action');
+        var bankName = $(this).data('bank');
+        var accountName = $(this).data('name');
+        var accountNumber = $(this).data('number');
+        var currencyId = $(this).data('currency');
+        var glId = $(this).data('gl');
+
+        $('#formEditBankAccount').attr('action', action);
+        $('#edit_bank_name').val(bankName);
+        $('#edit_account_name').val(accountName);
+        $('#edit_account_number').val(accountNumber);
+        $('#edit_currency_id').val(currencyId);
+        $('#edit_gl_account_id').val(glId);
+
+        $('#modalEditBankAccount').modal('show');
+    });
+});
+</script>
+@endpush
