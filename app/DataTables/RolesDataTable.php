@@ -20,19 +20,40 @@ class RolesDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function ($query) {
-                $edit = '<a href="' . route('admin.role.edit', $query->id) . '" class="btn btn-primary"><i class="fas fa-edit"></i></a>';
+                $edit = '<a href="' . route('admin.role.edit', $query->id) . '" class="btn btn-sm btn-primary" title="Edit Role"><i class="fas fa-edit"></i></a>';
                 if ($query->name !== 'Admin') {
-                    $delete = '<a href="' . route('admin.role.destroy', $query->id) . '" class="btn btn-danger delete-item ml-2"><i class="fas fa-trash"></i></a>';
+                    $delete = '<a href="' . route('admin.role.destroy', $query->id) . '" class="btn btn-sm btn-danger delete-item ml-1" title="Delete Role"><i class="fas fa-trash"></i></a>';
                     return $edit . $delete;
                 }
                 return $edit;
             })
             ->addColumn('permissions', function ($query) {
-                $badges = '';
-                foreach ($query->permissions as $permission) {
-                    $badges .= '<span class="badge badge-primary m-1">' . $permission->name . '</span>';
+                $count = $query->permissions->count();
+                if ($query->name === 'Admin' || $count >= 50) {
+                    return '<div class="d-flex align-items-center flex-wrap" style="gap: 6px;">'
+                         . '<span class="badge badge-success px-2 py-1" style="font-weight: 700; font-size: 11px; border-radius: 8px; background: linear-gradient(135deg, #10b981, #059669); color: #fff;"><i class="fas fa-crown mr-1 text-warning"></i> All Permissions (Full Access)</span>'
+                         . '<span class="badge badge-light border text-muted px-2 py-1" style="font-size: 11px; border-radius: 8px;">' . $count . ' Granted</span>'
+                         . '</div>';
                 }
-                return $badges != '' ? $badges : '<span class="badge badge-warning">No Permissions</span>';
+
+                if ($count === 0) {
+                    return '<span class="badge badge-warning px-2 py-1" style="font-size: 11px; border-radius: 8px;">No Permissions</span>';
+                }
+
+                $showLimit = 5;
+                $badges = '<div class="d-flex align-items-center flex-wrap" style="gap: 4px; max-width: 680px;">';
+                foreach ($query->permissions->take($showLimit) as $permission) {
+                    $badges .= '<span class="badge px-2 py-1" style="font-size: 11px; font-weight: 600; border-radius: 6px; background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe;">' . e($permission->name) . '</span>';
+                }
+                if ($count > $showLimit) {
+                    $remaining = $count - $showLimit;
+                    $otherNames = $query->permissions->slice($showLimit)->pluck('name')->implode(', ');
+                    $badges .= '<span class="badge badge-light border px-2 py-1" style="font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; color: #475569;" title="' . e($otherNames) . '" data-toggle="tooltip">+' . $remaining . ' more</span>';
+                }
+                $badges .= '<span class="badge badge-secondary ml-1 px-2 py-1" style="font-size: 10px; border-radius: 10px;">' . $count . ' total</span>';
+                $badges .= '</div>';
+
+                return $badges;
             })
             ->rawColumns(['action', 'permissions'])
             ->setRowId('id');
@@ -55,16 +76,18 @@ class RolesDataTable extends DataTable
             ->setTableId('role-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            //->dom('Bfrtip')
             ->orderBy(0)
             ->selectStyleSingle()
+            ->parameters([
+                'responsive' => false,
+                'autoWidth' => false,
+                'pageLength' => 10,
+            ])
             ->buttons([
                 Button::make('excel'),
                 Button::make('csv'),
                 Button::make('pdf'),
                 Button::make('print'),
-                // Button::make('reset'),
-                // Button::make('reload')
             ]);
     }
 
@@ -74,13 +97,13 @@ class RolesDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id'),
-            Column::make('name'),
-            Column::make('permissions'),
+            Column::make('id')->width(60)->addClass('text-center font-weight-bold'),
+            Column::make('name')->width(180)->addClass('font-weight-bold'),
+            Column::make('permissions')->title('Assigned Permissions'),
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)
-                ->width(120)
+                ->width(110)
                 ->addClass('text-center'),
         ];
     }

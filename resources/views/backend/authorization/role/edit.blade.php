@@ -272,15 +272,15 @@
 
 @section('content')
     <section class="section">
-        <div class="pp-header">
-            <h1>
-                <span class="pp-icon"><i class="fas fa-user-shield"></i></span>
-                Edit Role: {{ $role->name }}
-            </h1>
-            <div>
-                <a href="{{ route('admin.role.index') }}" class="btn pp-btn pp-btn-outline shadow-sm">
-                    <i class="fas fa-arrow-left mr-1"></i> Back to Roles
-                </a>
+        <div class="section-header">
+            <div class="section-header-back">
+                <a href="{{ route('admin.role.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            </div>
+            <h1>Edit Role: {{ $role->name }}</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
+                <div class="breadcrumb-item"><a href="{{ route('admin.role.index') }}">Roles Management</a></div>
+                <div class="breadcrumb-item">Edit</div>
             </div>
         </div>
 
@@ -357,12 +357,12 @@
                 </div>
 
                 {{-- Bottom Action Bar --}}
-                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 pb-4">
-                    <a href="{{ route('admin.role.index') }}" class="btn pp-btn pp-btn-outline px-4 py-2">
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 pb-4 border-top">
+                    <a href="{{ route('admin.role.index') }}" class="btn btn-secondary px-4 py-2 font-weight-bold">
                         <i class="fas fa-times mr-1"></i> Cancel
                     </a>
-                    <button type="submit" class="btn pp-btn pp-btn-amber shadow-sm px-5 py-2" style="font-size: 13.5px;">
-                        <i class="fas fa-save mr-1"></i> Update Role Permissions
+                    <button type="submit" class="btn btn-primary px-5 py-2 font-weight-bold shadow-sm" style="font-size: 14px;">
+                        <i class="fas fa-save mr-1"></i> Update Role
                     </button>
                 </div>
             </form>
