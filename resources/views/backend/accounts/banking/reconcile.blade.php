@@ -24,10 +24,10 @@
                     <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                         <h5 class="font-weight-bold text-dark mb-0"><i class="fas fa-search text-primary mr-2"></i> Select Bank Account</h5>
                         <form method="GET" action="{{ route('admin.bank-reconciliation.index') }}" class="form-inline">
-                            <select name="bank_account_id" class="form-control select2 mr-2" onchange="this.form.submit()">
+                            <select name="bank_account_id" class="form-control select2 mr-2" onchange="this.form.submit()" style="min-width: 320px;">
                                 @foreach($bankAccounts as $bank)
                                     <option value="{{ $bank->id }}" {{ $selectedBank && $selectedBank->id == $bank->id ? 'selected' : '' }}>
-                                        {{ $bank->bank_name }} - {{ $bank->account_name }}
+                                        {{ $bank->account_name }}
                                     </option>
                                 @endforeach
                             </select>

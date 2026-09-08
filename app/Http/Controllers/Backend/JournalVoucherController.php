@@ -20,7 +20,7 @@ class JournalVoucherController extends Controller
      */
     public function index()
     {
-        $vouchers = JournalEntry::where('event', 'manual_jv')
+        $vouchers = JournalEntry::where('reference_type', 'manual_jv')
             ->with('lines.account')
             ->orderByDesc('entry_date')
             ->orderByDesc('id')

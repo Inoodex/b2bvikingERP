@@ -2,11 +2,11 @@
   $categoriesActive = request()->routeIs('admin.category.*', 'admin.sub-category.*', 'admin.child-category.*', 'admin.slider.*', 'admin.product-types.*');
   $productsActive   = request()->routeIs('admin.products.*', 'admin.units.*', 'admin.colors.*', 'admin.sizes.*');
   $inventoryActive  = request()->routeIs('admin.inventory-reports.*', 'admin.stock-adjustments.*', 'admin.stock-transfers.*', 'admin.stock-ledger.*', 'admin.stock-batches.*', 'admin.month-end-snapshots.*');
-  $ordersActive     = request()->routeIs('admin.orders.*', 'admin.sales-orders.*', 'admin.sales-quotations.*', 'admin.sales-invoices.*', 'admin.custom-product-requests.*', 'admin.product-requests.*', 'admin.delivery-orders.*', 'admin.sales-returns.*', 'admin.credit-notes.*', 'admin.pricelists.*', 'admin.coupons.*', 'admin.gift-cards.*');
+  $ordersActive     = request()->routeIs('admin.orders.*', 'admin.sales-orders.*', 'admin.sales-quotations.*', 'admin.custom-product-requests.*', 'admin.product-requests.*', 'admin.delivery-orders.*', 'admin.sales-returns.*', 'admin.credit-notes.*', 'admin.pricelists.*', 'admin.coupons.*', 'admin.gift-cards.*');
   $purchaseActive   = request()->routeIs('admin.bookings.*', 'admin.purchases.*');
   $procurementActive = request()->routeIs('admin.rfqs.*', 'admin.purchase-orders.*', 'admin.letters-of-credit.*', 'admin.shipments.*', 'admin.goods-receipts.*', 'admin.vendor-returns.*');
   $reportsActive    = request()->routeIs('admin.reports.*', 'admin.purchase-reports.*', 'admin.vendor-ledger.*', 'admin.accounts.index', 'admin.accounts.vendor-payments.index');
-  $accountsActive   = (request()->routeIs('admin.accounts.*', 'admin.customer-payments.*', 'admin.vendor-bills.*', 'admin.purchase-payments.*', 'admin.chart-of-accounts.*', 'admin.fiscal-years.*', 'admin.bank-accounts.*', 'admin.bank-reconciliation.*', 'admin.petty-cash.*', 'admin.fund-transfers.*', 'admin.assets.*', 'admin.journal-vouchers.*')) && !request()->routeIs('admin.accounts.index', 'admin.accounts.vendor-payments.index');
+  $accountsActive   = (request()->routeIs('admin.accounts.*', 'admin.sales-invoices.*', 'admin.customer-payments.*', 'admin.vendor-bills.*', 'admin.purchase-payments.*', 'admin.chart-of-accounts.*', 'admin.fiscal-years.*', 'admin.bank-accounts.*', 'admin.bank-reconciliation.*', 'admin.petty-cash.*', 'admin.fund-transfers.*', 'admin.assets.*', 'admin.journal-vouchers.*')) && !request()->routeIs('admin.accounts.index', 'admin.accounts.vendor-payments.index');
   $brandsActive     = request()->routeIs('admin.brand.*');
   $vendorsActive    = request()->routeIs('admin.vendor.*');
   $masterActive     = request()->routeIs('admin.master.*');
@@ -1552,9 +1552,6 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           @endif
           @if(auth()->user()?->can('Manage Orders') || auth()->user()?->can('Manage Order Place') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.sales-orders.index') }}"><i class="fas fa-file-invoice"></i> Sales Orders (SO)</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Sales Invoices') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.sales-invoices.index') }}"><i class="fas fa-file-invoice-dollar"></i> Commercial Sales Invoices</a></li>
           @endif
           @if(auth()->user()?->can('Manage Orders') || auth()->user()?->hasRole('Admin'))
           <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-globe"></i> Web / Portal Orders</a></li>
