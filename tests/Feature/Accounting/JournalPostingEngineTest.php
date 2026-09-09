@@ -24,7 +24,23 @@ class JournalPostingEngineTest extends TestCase
     #[Test]
     public function it_posts_balanced_journal_entry_successfully()
     {
-        $order = Order::first() ?? Order::factory()->create();
+        $user = \App\Models\User::first() ?? \App\Models\User::create([
+            'name'     => 'Test User',
+            'email'    => 'test_journal_user@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        $order = Order::first() ?? Order::create([
+            'order_no'        => 'SO-TEST-001',
+            'user_id'         => $user->id,
+            'total_amount'    => 500,
+            'status'          => 'pending',
+            'payment_status'  => 'unpaid',
+            'billing_name'    => 'Test Customer',
+            'billing_email'   => 'test@example.com',
+            'billing_phone'   => '12345678',
+            'billing_address' => 'Copenhagen',
+        ]);
         $service = new JournalEntryService();
 
         $lines = [
@@ -47,7 +63,23 @@ class JournalPostingEngineTest extends TestCase
     #[Test]
     public function it_throws_exception_on_imbalanced_journal_posting()
     {
-        $order = Order::first() ?? Order::factory()->create();
+        $user = \App\Models\User::first() ?? \App\Models\User::create([
+            'name'     => 'Test User 2',
+            'email'    => 'test_journal_user2@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        $order = Order::first() ?? Order::create([
+            'order_no'        => 'SO-TEST-002',
+            'user_id'         => $user->id,
+            'total_amount'    => 500,
+            'status'          => 'pending',
+            'payment_status'  => 'unpaid',
+            'billing_name'    => 'Test Customer',
+            'billing_email'   => 'test@example.com',
+            'billing_phone'   => '12345678',
+            'billing_address' => 'Copenhagen',
+        ]);
         $service = new JournalEntryService();
 
         $lines = [

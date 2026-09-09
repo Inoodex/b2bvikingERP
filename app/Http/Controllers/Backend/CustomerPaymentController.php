@@ -101,6 +101,8 @@ class CustomerPaymentController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
+        $activeGateways = \App\Models\PaymentSetting::getActiveGateways();
+
         return view('backend.customer_payments.create', compact(
             'customers',
             'accounts',
@@ -108,7 +110,8 @@ class CustomerPaymentController extends Controller
             'selectedOrderId',
             'preloadedInvoice',
             'preloadedOrder',
-            'unpaidInvoices'
+            'unpaidInvoices',
+            'activeGateways'
         ));
     }
 

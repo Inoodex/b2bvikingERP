@@ -65,7 +65,7 @@ class JournalEntryService
                 'reference_type' => $sourceModel->getMorphClass(),
                 'reference_id'   => $sourceModel->id,
                 'narration'      => $narration ?? "Automated journal posting for {$event} #{$sourceModel->id}",
-                'created_by'     => auth()->id() ?? 1,
+                'created_by'     => auth()->id() ?: (\App\Models\User::first()?->id ?? null),
             ]);
 
             foreach ($lines as $line) {

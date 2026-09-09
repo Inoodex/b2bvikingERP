@@ -56,6 +56,13 @@ class CartController extends Controller
         $firstName = $nameParts[0] ?? '';
         $lastName = count($nameParts) > 1 ? implode(' ', array_slice($nameParts, 1)) : '';
 
+        $enabledGateways = \App\Models\PaymentSetting::where('status', 'enable')->get()->keyBy('key');
+        if ($enabledGateways->isEmpty()) {
+            $enabledGateways = collect([
+                'cod' => new \App\Models\PaymentSetting(['key' => 'cod', 'name' => 'Cash On Delivery', 'status' => 'enable']),
+            ]);
+        }
+
         return view('frontend.pages.checkout', [
             'cartItems' => $items,
             'subtotal' => $summary['subtotal'],
@@ -70,6 +77,7 @@ class CartController extends Controller
             'lastName' => $lastName,
             'savedFormId' => $savedFormId,
             'user' => $user,
+            'enabledGateways' => $enabledGateways,
         ]);
     }
 
@@ -373,6 +381,7 @@ class CartController extends Controller
             'pi_email' => 'nullable|email|max:255',
             'saved_form_id' => 'nullable|integer',
             'ship_different' => 'nullable|boolean',
+            'payment_method' => 'required|string|in:cod,paypal',
             'shipping_first_name' => 'nullable|string|max:255|required_if:ship_different,1',
             'shipping_last_name' => 'nullable|string|max:255',
             'shipping_email' => 'nullable|email|max:255|required_if:ship_different,1',
@@ -413,6 +422,72 @@ class CartController extends Controller
             : ($validated['outlet_name'] ?? null);
         $piEmail = $validated['pi_email'] ?? null;
 
+        $paymentMethod = $validated['payment_method'];
+
+        // --- GATEWAY-FIRST ARCHITECTURE FOR PAYPAL ---
+        // Do NOT create order, delete cart, or trigger approvals until payment is verified and captured!
+        if ($paymentMethod === 'paypal') {
+            $outletId = $this->resolveOrderOutletId();
+            $requestedLines = $this->buildRequestedLinesFromCart($cartRows);
+            $stockRows = $this->lockInventoryForRequestedLines($requestedLines, $outletId);
+
+            foreach ($requestedLines as $key => $line) {
+                $available = (int) optional($stockRows->get($key))->quantity;
+                $requestedQty = (int) $line['requested_qty'];
+                if ($available < $requestedQty) {
+                    return redirect()
+                        ->route('checkout.index')
+                        ->with('error', 'Insufficient stock for ' . $line['name'] . '. Available: ' . $available . ', requested: ' . $requestedQty . '.')
+                        ->withInput();
+                }
+            }
+
+            session([
+                'pending_paypal_checkout' => [
+                    'user_id'              => Auth::id(),
+                    'validated'            => $validated,
+                    'summary'              => $summary,
+                    'ship_different'       => $shipDifferent,
+                    'shipping_name'        => $shippingName,
+                    'billing_name'         => $billingName,
+                    'billing_email'        => $billingEmail,
+                    'billing_phone'        => $billingPhone,
+                    'billing_address'      => $billingAddress,
+                    'billing_outlet_name'  => $billingOutletName,
+                    'pi_email'             => $piEmail,
+                    'saved_form_id'        => (int) ($validated['saved_form_id'] ?? 0),
+                ]
+            ]);
+
+            try {
+                $paypalService = app(\App\Services\Payment\PayPalService::class);
+                $returnUrl = route('checkout.paypal.success');
+                $cancelUrl = route('checkout.paypal.cancel');
+                $cartReference = 'CART-' . Auth::id() . '-' . time();
+
+                $paypalOrder = $paypalService->createOrderFromAmount(
+                    (float) $summary['total'],
+                    $cartReference,
+                    'Checkout Order - ' . config('app.name', 'Copenhagen Tourist Point'),
+                    $returnUrl,
+                    $cancelUrl
+                );
+
+                $approvalUrl = $paypalOrder['approval_url'] ?? ($paypalOrder['approve_url'] ?? null);
+
+                if (!empty($approvalUrl)) {
+                    session(['paypal_checkout_order_id' => $paypalOrder['id']]);
+                    return redirect()->away($approvalUrl);
+                }
+
+                return redirect()->route('checkout.index')->with('error', 'Could not obtain PayPal approval link. Please verify payment settings.');
+            } catch (\Throwable $ex) {
+                Log::error('PayPal checkout initiation failed: ' . $ex->getMessage());
+                return redirect()->route('checkout.index')->with('error', 'PayPal initialization failed: ' . $ex->getMessage());
+            }
+        }
+
+        // --- CASH ON DELIVERY (COD) & OFFLINE CLEARING FLOW ---
         DB::beginTransaction();
         try {
             $outletId = $this->resolveOrderOutletId();
@@ -434,36 +509,37 @@ class CartController extends Controller
             $orderNo = $this->generateUniqueOrderNoForUser(Auth::user());
 
             $order = Order::create([
-                'order_no' => $orderNo,
-                'user_id' => Auth::id(),
-                'status' => 'pending',
-                'shipping_method' => 'frontend_checkout',
-                'ship_different' => $shipDifferent,
-                'billing_name' => $billingName,
-                'billing_email' => $billingEmail,
-                'billing_phone' => $billingPhone,
-                'billing_address' => $billingAddress,
-                'billing_outlet_name' => $billingOutletName,
-                'pi_email' => $piEmail,
-                'shipping_name' => $shipDifferent ? $shippingName : null,
-                'shipping_email' => $shipDifferent ? ($validated['shipping_email'] ?? null) : null,
-                'shipping_phone' => $shipDifferent ? ($validated['shipping_phone'] ?? null) : null,
-                'shipping_address' => $shipDifferent ? ($validated['shipping_street_address'] ?? null) : null,
-                'shipping_city' => $shipDifferent ? ($validated['shipping_city'] ?? null) : null,
-                'shipping_state' => $shipDifferent ? ($validated['shipping_state'] ?? null) : null,
-                'shipping_zip_code' => $shipDifferent ? ($validated['shipping_zip_code'] ?? null) : null,
-                'shipping_country' => $shipDifferent ? ($validated['shipping_country'] ?? null) : null,
+                'order_no'             => $orderNo,
+                'user_id'              => Auth::id(),
+                'status'               => 'pending',
+                'shipping_method'      => 'frontend_checkout',
+                'payment_method'       => $validated['payment_method'],
+                'ship_different'       => $shipDifferent,
+                'billing_name'         => $billingName,
+                'billing_email'        => $billingEmail,
+                'billing_phone'        => $billingPhone,
+                'billing_address'      => $billingAddress,
+                'billing_outlet_name'  => $billingOutletName,
+                'pi_email'             => $piEmail,
+                'shipping_name'        => $shipDifferent ? $shippingName : null,
+                'shipping_email'       => $shipDifferent ? ($validated['shipping_email'] ?? null) : null,
+                'shipping_phone'       => $shipDifferent ? ($validated['shipping_phone'] ?? null) : null,
+                'shipping_address'     => $shipDifferent ? ($validated['shipping_street_address'] ?? null) : null,
+                'shipping_city'        => $shipDifferent ? ($validated['shipping_city'] ?? null) : null,
+                'shipping_state'       => $shipDifferent ? ($validated['shipping_state'] ?? null) : null,
+                'shipping_zip_code'    => $shipDifferent ? ($validated['shipping_zip_code'] ?? null) : null,
+                'shipping_country'     => $shipDifferent ? ($validated['shipping_country'] ?? null) : null,
                 'shipping_outlet_name' => $shipDifferent ? ($validated['shipping_outlet_name'] ?? null) : null,
-                'subtotal_amount' => $summary['subtotal'],
-                'tax_amount' => $summary['tax_amount'],
-                'discount_amount' => $summary['discount_amount'],
-                'total_amount' => $summary['total'],
-                'paid_amount' => 0,
-                'due_amount' => $summary['total'],
-                'payment_status' => 'pending',
-                'tax_label' => $summary['tax_label'],
-                'vat_rate' => $summary['vat_rate'],
-                'placed_at' => now(),
+                'subtotal_amount'      => $summary['subtotal'],
+                'tax_amount'           => $summary['tax_amount'],
+                'discount_amount'      => $summary['discount_amount'],
+                'total_amount'         => $summary['total'],
+                'paid_amount'          => 0,
+                'due_amount'           => $summary['total'],
+                'payment_status'       => 'pending',
+                'tax_label'            => $summary['tax_label'],
+                'vat_rate'             => $summary['vat_rate'],
+                'placed_at'            => now(),
             ]);
 
             foreach ($cartRows as $item) {
@@ -473,17 +549,17 @@ class CartController extends Controller
                 $variantLabel = $this->resolveVariantLabel($variant);
 
                 OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'variant_id' => $variant?->id,
-                    'vendor_id' => $item->vendor_id ?: $product->vendor_id,
-                    'product_name' => $product->name,
-                    'category_name' => $product->category->name ?? 'General',
-                    'variant_label' => $variantLabel,
-                    'product_image' => $product->thumb_image,
-                    'unit_price' => $unitPrice,
-                    'quantity' => (int) $item->quantity,
-                    'line_total' => round($unitPrice * (int) $item->quantity, 2),
+                    'order_id'       => $order->id,
+                    'product_id'     => $product->id,
+                    'variant_id'     => $variant?->id,
+                    'vendor_id'      => $item->vendor_id ?: $product->vendor_id,
+                    'product_name'   => $product->name,
+                    'category_name'  => $product->category->name ?? 'General',
+                    'variant_label'  => $variantLabel,
+                    'product_image'  => $product->thumb_image,
+                    'unit_price'     => $unitPrice,
+                    'quantity'       => (int) $item->quantity,
+                    'line_total'     => round($unitPrice * (int) $item->quantity, 2),
                 ]);
             }
 
@@ -505,6 +581,14 @@ class CartController extends Controller
 
             DB::commit();
 
+            // Auto-create COD collection ledger entry
+            try {
+                $codService = app(\App\Services\Payment\CodService::class);
+                $codService->createCodCollection($order);
+            } catch (\Throwable $ex) {
+                Log::warning('COD collection auto-creation notice: ' . $ex->getMessage());
+            }
+
             // Send Admin Notification Email
             try {
                 Mail::to('ctpwh2026@gmail.com')
@@ -523,6 +607,321 @@ class CartController extends Controller
         return redirect()
             ->route('orders.show', $order->id)
             ->with('success', 'Order placed successfully. Reference: ' . $order->order_no);
+    }
+
+    /**
+     * Handle PayPal Return URL capture from frontend checkout.
+     */
+    public function paypalSuccess(Request $request)
+    {
+        $paypalToken = $request->query('token');
+
+        // Case 1: Fresh checkout session completion
+        if (session()->has('pending_paypal_checkout')) {
+            $checkoutData = session('pending_paypal_checkout');
+            $validated = $checkoutData['validated'] ?? [];
+            $summary = $checkoutData['summary'] ?? [];
+
+            $cartRows = Cart::where('user_id', Auth::id())
+                ->where('cart_type', 'frontend')
+                ->with(['product.category', 'variant'])
+                ->get()
+                ->filter(fn ($item) => $item->product && (int) ($item->product->status ?? 0) === 1)
+                ->values();
+
+            if ($cartRows->isEmpty()) {
+                session()->forget(['pending_paypal_checkout', 'paypal_checkout_order_id']);
+                return redirect()->route('checkout.index')->with('error', 'Cart session expired. Please re-add items.');
+            }
+
+            try {
+                $paypalService = app(\App\Services\Payment\PayPalService::class);
+                $capture = $paypalService->captureOrder($paypalToken);
+
+                if (($capture['status'] ?? '') === 'COMPLETED') {
+                    $txnRef = $capture['id'] ?? ($capture['purchase_units'][0]['payments']['captures'][0]['id'] ?? $paypalToken);
+
+                    DB::beginTransaction();
+                    try {
+                        $outletId = $this->resolveOrderOutletId();
+                        $requestedLines = $this->buildRequestedLinesFromCart($cartRows);
+                        $stockRows = $this->lockInventoryForRequestedLines($requestedLines, $outletId);
+
+                        foreach ($requestedLines as $key => $line) {
+                            $available = (int) optional($stockRows->get($key))->quantity;
+                            $requestedQty = (int) $line['requested_qty'];
+                            if ($available < $requestedQty) {
+                                DB::rollBack();
+                                return redirect()
+                                    ->route('checkout.index')
+                                    ->with('error', 'Insufficient stock for ' . $line['name'] . '. Please contact support.');
+                            }
+                        }
+
+                        $orderNo = $this->generateUniqueOrderNoForUser(Auth::user());
+                        $shipDifferent = (bool) ($checkoutData['ship_different'] ?? false);
+
+                        $order = Order::create([
+                            'order_no'             => $orderNo,
+                            'user_id'              => Auth::id(),
+                            'status'               => 'pending',
+                            'shipping_method'      => 'frontend_checkout',
+                            'payment_method'       => 'paypal',
+                            'ship_different'       => $shipDifferent,
+                            'billing_name'         => $checkoutData['billing_name'] ?? null,
+                            'billing_email'        => $checkoutData['billing_email'] ?? null,
+                            'billing_phone'        => $checkoutData['billing_phone'] ?? null,
+                            'billing_address'      => $checkoutData['billing_address'] ?? null,
+                            'billing_outlet_name'  => $checkoutData['billing_outlet_name'] ?? null,
+                            'pi_email'             => $checkoutData['pi_email'] ?? null,
+                            'shipping_name'        => $shipDifferent ? ($checkoutData['shipping_name'] ?? null) : null,
+                            'shipping_email'       => $shipDifferent ? ($validated['shipping_email'] ?? null) : null,
+                            'shipping_phone'       => $shipDifferent ? ($validated['shipping_phone'] ?? null) : null,
+                            'shipping_address'     => $shipDifferent ? ($validated['shipping_street_address'] ?? null) : null,
+                            'shipping_city'        => $shipDifferent ? ($validated['shipping_city'] ?? null) : null,
+                            'shipping_state'       => $shipDifferent ? ($validated['shipping_state'] ?? null) : null,
+                            'shipping_zip_code'    => $shipDifferent ? ($validated['shipping_zip_code'] ?? null) : null,
+                            'shipping_country'     => $shipDifferent ? ($validated['shipping_country'] ?? null) : null,
+                            'shipping_outlet_name' => $shipDifferent ? ($validated['shipping_outlet_name'] ?? null) : null,
+                            'subtotal_amount'      => $summary['subtotal'] ?? 0,
+                            'tax_amount'           => $summary['tax_amount'] ?? 0,
+                            'discount_amount'      => $summary['discount_amount'] ?? 0,
+                            'total_amount'         => $summary['total'] ?? 0,
+                            'paid_amount'          => $summary['total'] ?? 0,
+                            'due_amount'           => 0,
+                            'payment_status'       => 'paid',
+                            'tax_label'            => $summary['tax_label'] ?? null,
+                            'vat_rate'             => $summary['vat_rate'] ?? 0,
+                            'placed_at'            => now(),
+                        ]);
+
+                        foreach ($cartRows as $item) {
+                            $product = $item->product;
+                            $variant = $item->variant;
+                            $unitPrice = (float) $this->resolveCartItemUnitPrice($product, $variant);
+                            $variantLabel = $this->resolveVariantLabel($variant);
+
+                            OrderItem::create([
+                                'order_id'       => $order->id,
+                                'product_id'     => $product->id,
+                                'variant_id'     => $variant?->id,
+                                'vendor_id'      => $item->vendor_id ?: $product->vendor_id,
+                                'product_name'   => $product->name,
+                                'category_name'  => $product->category->name ?? 'General',
+                                'variant_label'  => $variantLabel,
+                                'product_image'  => $product->thumb_image,
+                                'unit_price'     => $unitPrice,
+                                'quantity'       => (int) $item->quantity,
+                                'line_total'     => round($unitPrice * (int) $item->quantity, 2),
+                            ]);
+                        }
+
+                        Cart::where('user_id', Auth::id())
+                            ->where('cart_type', 'frontend')
+                            ->delete();
+
+                        $savedFormId = (int) ($checkoutData['saved_form_id'] ?? 0);
+                        if ($savedFormId > 0) {
+                            SavedPurchaseForm::query()
+                                ->where('user_id', (int) Auth::id())
+                                ->whereKey($savedFormId)
+                                ->delete();
+                        }
+
+                        \App\Models\PaymentTransaction::create([
+                            'transaction_no'     => 'TXN-' . date('Ym') . '-' . str_pad((string)(\App\Models\PaymentTransaction::count() + 1), 5, '0', STR_PAD_LEFT),
+                            'gateway'            => 'paypal',
+                            'order_id'           => $order->id,
+                            'customer_id'        => $order->user_id,
+                            'amount'             => $order->total_amount,
+                            'currency'           => 'DKK',
+                            'external_reference' => $txnRef,
+                            'status'             => 'completed',
+                            'gateway_response'   => $capture,
+                        ]);
+
+                        \App\Models\OrderPayment::create([
+                            'order_id'       => $order->id,
+                            'transaction_id' => $txnRef,
+                            'payment_method' => 'paypal',
+                            'amount'         => (float)$order->total_amount,
+                            'note'           => 'Paid online via PayPal Express Checkout',
+                        ]);
+
+                        try {
+                            $journalService = app(\App\Services\Accounting\JournalEntryService::class);
+                            $lines = [
+                                ['account_code' => '1020', 'debit' => (float)$order->total_amount, 'credit' => 0],
+                                ['account_code' => '1030', 'debit' => 0, 'credit' => (float)$order->total_amount],
+                            ];
+                            $journalService->postJournal("PayPal Payment Capture - Order #{$order->order_no}", $order, $lines);
+                        } catch (\Throwable $je) {
+                            Log::error("PayPal GL posting notice: " . $je->getMessage());
+                        }
+
+                        $approvalService = app(\App\Services\ApprovalService::class);
+                        $approvalService->submitForApproval($order, (float)$order->total_amount);
+
+                        DB::commit();
+
+                        try {
+                            Mail::to('ctpwh2026@gmail.com')->send(new AdminOrderNotificationMail($order));
+                        } catch (\Exception $e) {
+                            Log::error('Failed to send admin order notification: ' . $e->getMessage());
+                        }
+
+                        session()->forget(['pending_paypal_checkout', 'paypal_checkout_order_id']);
+
+                        return redirect()->route('orders.show', $order->id)->with('success', "Payment of kr. {$order->total_amount} via PayPal was successfully verified and captured! Order #{$order->order_no} has been confirmed.");
+                    } catch (\Throwable $e) {
+                        DB::rollBack();
+                        Log::error('Order creation after PayPal capture error: ' . $e->getMessage());
+                        return redirect()->route('checkout.index')->with('error', 'Order placement failed: ' . $e->getMessage());
+                    }
+                }
+
+                return redirect()->route('checkout.index')->with('error', 'PayPal payment was not completed.');
+            } catch (\Throwable $e) {
+                Log::error('PayPal capture error: ' . $e->getMessage());
+                return redirect()->route('checkout.index')->with('error', 'Payment capture failed: ' . $e->getMessage());
+            }
+        }
+
+        // Case 2: Existing order retry capture (via order_id)
+        $orderId = $request->query('order_id') ?: session('paypal_checkout_order_id');
+        session()->forget('paypal_checkout_order_id');
+
+        if (!$orderId || !$paypalToken) {
+            return redirect()->route('orders.index')->with('error', 'Invalid payment session or token.');
+        }
+
+        $order = Order::find($orderId);
+        if (!$order) {
+            return redirect()->route('orders.index')->with('error', 'Order not found.');
+        }
+
+        try {
+            $paypalService = app(\App\Services\Payment\PayPalService::class);
+            $capture = $paypalService->captureOrder($paypalToken);
+
+            if (($capture['status'] ?? '') === 'COMPLETED') {
+                DB::transaction(function () use ($order, $capture, $paypalToken) {
+                    $order->update([
+                        'payment_status' => 'paid',
+                        'paid_amount'    => $order->total_amount,
+                        'due_amount'     => 0,
+                        'payment_method' => 'paypal',
+                    ]);
+
+                    $txnRef = $capture['id'] ?? ($capture['purchase_units'][0]['payments']['captures'][0]['id'] ?? $paypalToken);
+
+                    \App\Models\PaymentTransaction::create([
+                        'transaction_no'     => 'TXN-' . date('Ym') . '-' . str_pad((string)(\App\Models\PaymentTransaction::count() + 1), 5, '0', STR_PAD_LEFT),
+                        'gateway'            => 'paypal',
+                        'order_id'           => $order->id,
+                        'customer_id'        => $order->user_id,
+                        'amount'             => $order->total_amount,
+                        'currency'           => 'DKK',
+                        'external_reference' => $txnRef,
+                        'status'             => 'completed',
+                        'gateway_response'   => $capture,
+                    ]);
+
+                    \App\Models\OrderPayment::create([
+                        'order_id'       => $order->id,
+                        'transaction_id' => $txnRef,
+                        'payment_method' => 'paypal',
+                        'amount'         => (float)$order->total_amount,
+                        'note'           => 'Paid online via PayPal Express Checkout',
+                    ]);
+
+                    if ($order->salesInvoice) {
+                        $order->salesInvoice->update([
+                            'payment_status' => 'paid',
+                            'paid_amount'    => $order->total_amount,
+                            'due_amount'     => 0,
+                        ]);
+                    }
+
+                    try {
+                        $journalService = app(\App\Services\Accounting\JournalEntryService::class);
+                        $lines = [
+                            ['account_code' => '1020', 'debit' => (float)$order->total_amount, 'credit' => 0],
+                            ['account_code' => '1030', 'debit' => 0, 'credit' => (float)$order->total_amount],
+                        ];
+                        $journalService->postJournal("PayPal Payment Capture - Order #{$order->order_no}", $order, $lines);
+                    } catch (\Throwable $je) {
+                        Log::error("PayPal GL posting notice: " . $je->getMessage());
+                    }
+                });
+
+                return redirect()->route('orders.show', $order->id)->with('success', "Payment of kr. {$order->total_amount} via PayPal was successfully verified and captured!");
+            }
+
+            return redirect()->route('orders.show', $order->id)->with('error', 'PayPal payment was not completed.');
+        } catch (\Throwable $e) {
+            Log::error('PayPal capture error: ' . $e->getMessage());
+            return redirect()->route('orders.show', $order->id)->with('error', 'Payment capture failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle PayPal Cancel URL from frontend checkout.
+     */
+    public function paypalCancel(Request $request)
+    {
+        // 1. Fresh checkout session cancellation: Keep cart 100% intact, no ghost order!
+        if (session()->has('pending_paypal_checkout')) {
+            session()->forget(['pending_paypal_checkout', 'paypal_checkout_order_id']);
+            return redirect()->route('checkout.index')->with('warning', 'PayPal checkout was cancelled. Your items remain safely in your cart below. You can choose another payment method or try again.');
+        }
+
+        // 2. Retry payment cancellation for existing order
+        $orderId = $request->query('order_id') ?: session('paypal_checkout_order_id');
+        session()->forget('paypal_checkout_order_id');
+
+        if ($orderId) {
+            $order = Order::find($orderId);
+            if ($order) {
+                return redirect()->route('orders.show', $order->id)->with('warning', 'PayPal checkout was cancelled. You can retry payment anytime below.');
+            }
+            return redirect()->route('orders.show', $orderId)->with('warning', 'PayPal checkout was cancelled. You can retry payment later.');
+        }
+
+        return redirect()->route('checkout.index')->with('warning', 'PayPal checkout was cancelled.');
+    }
+
+    /**
+     * Retry PayPal payment for an existing unpaid order.
+     */
+    public function retryPayPalPayment(Request $request, Order $order)
+    {
+        if ((int) $order->user_id !== (int) Auth::id()) {
+            abort(403, 'Unauthorized access to order.');
+        }
+
+        if ($order->payment_status === 'paid') {
+            return redirect()->route('orders.show', $order->id)->with('info', 'This order has already been paid.');
+        }
+
+        try {
+            $paypalService = app(\App\Services\Payment\PayPalService::class);
+            $returnUrl = route('checkout.paypal.success', ['order_id' => $order->id]);
+            $cancelUrl = route('checkout.paypal.cancel', ['order_id' => $order->id]);
+            $paypalOrder = $paypalService->createOrder($order, $returnUrl, $cancelUrl);
+
+            $approvalUrl = $paypalOrder['approval_url'] ?? ($paypalOrder['approve_url'] ?? null);
+
+            if (!empty($approvalUrl)) {
+                session(['paypal_checkout_order_id' => $order->id]);
+                return redirect()->away($approvalUrl);
+            }
+
+            return redirect()->route('orders.show', $order->id)->with('error', 'Could not obtain PayPal approval link. Please verify payment settings.');
+        } catch (\Throwable $ex) {
+            Log::error('PayPal retry payment error: ' . $ex->getMessage());
+            return redirect()->route('orders.show', $order->id)->with('error', 'PayPal initialization failed: ' . $ex->getMessage());
+        }
     }
 
     private function resolveVariantLabel(?ProductVariant $variant): ?string

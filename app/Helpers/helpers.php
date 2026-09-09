@@ -117,3 +117,31 @@ if (!function_exists('formatWithCurrency')) {
         return formatConverted($amount);
     }
 }
+
+if (!function_exists('is_feature_enabled')) {
+    /**
+     * Check if an enterprise feature toggle is active with high-speed caching.
+     */
+    function is_feature_enabled(string $key, bool $default = true): bool
+    {
+        try {
+            if (app()->environment('testing')) {
+                $setting = \App\Models\GeneralSetting::select('feature_toggles')->first();
+                $toggles = $setting?->feature_toggles ?? [];
+                return isset($toggles[$key]) ? (bool)$toggles[$key] : $default;
+            }
+
+            $toggles = \Illuminate\Support\Facades\Cache::remember('system_feature_toggles', 86400, function () {
+                if (\Illuminate\Support\Facades\Schema::hasTable('general_settings')) {
+                    $setting = \App\Models\GeneralSetting::select('feature_toggles')->first();
+                    return $setting?->feature_toggles ?? [];
+                }
+                return [];
+            });
+            return isset($toggles[$key]) ? (bool)$toggles[$key] : $default;
+        } catch (\Throwable $e) {
+            return $default;
+        }
+    }
+}
+

@@ -182,6 +182,24 @@
                             <p class="mb-1"><strong>Date:</strong> {{ $order->created_at?->format('d M, Y h:i A') }}</p>
                             <p class="mb-1"><strong>Customer:</strong> {{ $order->user->name ?? $order->billing_name }}</p>
                             <p class="mb-1"><strong>Outlet/Shop:</strong> {{ $order->billing_outlet_name ?: ($order->user->outlet_name ?? 'N/A') }}</p>
+                            <p class="mb-1"><strong>Payment Method:</strong>
+                                @if($order->payment_method === 'paypal')
+                                    <span class="badge badge-primary font-weight-bold"><i class="fab fa-paypal mr-1"></i> PayPal Express</span>
+                                @elseif($order->payment_method === 'cod')
+                                    <span class="badge badge-secondary font-weight-bold"><i class="fas fa-truck mr-1"></i> Cash On Delivery (COD)</span>
+                                @else
+                                    <span class="badge badge-info font-weight-bold">{{ strtoupper($order->payment_method ?: 'N/A') }}</span>
+                                @endif
+                            </p>
+                            <p class="mb-1"><strong>Payment Status:</strong>
+                                @if($order->payment_status === 'paid')
+                                    <span class="badge badge-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i> PAID</span>
+                                @elseif($order->payment_status === 'partial')
+                                    <span class="badge badge-info font-weight-bold"><i class="fas fa-adjust mr-1"></i> PARTIAL</span>
+                                @else
+                                    <span class="badge badge-warning font-weight-bold"><i class="fas fa-clock mr-1"></i> {{ strtoupper($order->payment_status ?: 'PENDING') }}</span>
+                                @endif
+                            </p>
                             <p class="mb-3"><strong>Source:</strong> {{ $order->shipping_method ?: 'frontend_checkout' }}</p>
 
                             <hr>

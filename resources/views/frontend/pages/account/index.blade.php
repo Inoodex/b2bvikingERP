@@ -142,6 +142,7 @@
                                         <th class="py-3 pr-4 font-black">Order</th>
                                         <th class="py-3 px-4 font-black">Date</th>
                                         <th class="py-3 px-4 font-black">Status</th>
+                                        <th class="py-3 px-4 font-black">Payment</th>
                                         <th class="py-3 px-4 font-black">Total</th>
                                         <th class="py-3 pl-4 font-black">Actions</th>
                                     </tr>

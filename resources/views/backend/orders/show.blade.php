@@ -415,6 +415,24 @@
                             <p class="mb-1"><strong>Date:</strong> {{ $order->created_at?->format('d M, Y h:i A') }}</p>
                             <p class="mb-1"><strong>Customer:</strong> {{ $order->user->name ?? $order->billing_name }}</p>
                             <p class="mb-1"><strong>Outlet/Shop:</strong> {{ $order->billing_outlet_name ?: ($order->user->outlet_name ?? 'N/A') }}</p>
+                            <p class="mb-1"><strong>Payment Method:</strong>
+                                @if($order->payment_method === 'paypal')
+                                    <span class="badge badge-primary font-weight-bold"><i class="fab fa-paypal mr-1"></i> PayPal Express</span>
+                                @elseif($order->payment_method === 'cod')
+                                    <span class="badge badge-secondary font-weight-bold"><i class="fas fa-truck mr-1"></i> Cash On Delivery (COD)</span>
+                                @else
+                                    <span class="badge badge-info font-weight-bold">{{ strtoupper($order->payment_method ?: 'N/A') }}</span>
+                                @endif
+                            </p>
+                            <p class="mb-1"><strong>Payment Status:</strong>
+                                @if($order->payment_status === 'paid')
+                                    <span class="badge badge-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i> PAID</span>
+                                @elseif($order->payment_status === 'partial')
+                                    <span class="badge badge-info font-weight-bold"><i class="fas fa-adjust mr-1"></i> PARTIAL</span>
+                                @else
+                                    <span class="badge badge-warning font-weight-bold"><i class="fas fa-clock mr-1"></i> {{ strtoupper($order->payment_status ?: 'PENDING') }}</span>
+                                @endif
+                            </p>
                             <p class="mb-3"><strong>Source:</strong> {{ $order->shipping_method ?: 'frontend_checkout' }}</p>
 
                             <hr>
@@ -472,6 +490,30 @@
                             @endif
                         </div>
                         <div class="card-body">
+                            <div class="mb-2 pb-2 border-bottom d-flex justify-content-between align-items-center">
+                                <span class="text-muted small text-uppercase font-weight-bold">Payment Method</span>
+                                <span>
+                                    @if($order->payment_method === 'paypal')
+                                        <span class="badge badge-primary px-2 py-1"><i class="fab fa-paypal mr-1"></i> PayPal Express</span>
+                                    @elseif($order->payment_method === 'cod')
+                                        <span class="badge badge-success px-2 py-1"><i class="fas fa-truck mr-1"></i> COD</span>
+                                    @else
+                                        <span class="badge badge-secondary px-2 py-1">{{ strtoupper($order->payment_method ?: 'N/A') }}</span>
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="mb-3 pb-2 border-bottom d-flex justify-content-between align-items-center">
+                                <span class="text-muted small text-uppercase font-weight-bold">Payment Status</span>
+                                <span>
+                                    @if($order->payment_status === 'paid')
+                                        <span class="badge badge-success px-2 py-1"><i class="fas fa-check-circle mr-1"></i> Paid</span>
+                                    @elseif($order->payment_status === 'partial')
+                                        <span class="badge badge-info px-2 py-1"><i class="fas fa-adjust mr-1"></i> Partial</span>
+                                    @else
+                                        <span class="badge badge-warning px-2 py-1"><i class="fas fa-clock mr-1"></i> Pending / Unpaid</span>
+                                    @endif
+                                </span>
+                            </div>
                             <div class="row text-center">
                                 <div class="col-6 border-right">
                                     <div class="text-muted small text-uppercase font-weight-bold">Paid</div>

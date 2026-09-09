@@ -206,9 +206,13 @@ class SalesInvoiceController extends Controller
     {
         $invoice = SalesInvoice::with([
             'order.user',
+            'order.payments',
             'items.product',
             'creator',
-            'journalEntries.lines.account'
+            'journalEntries.lines.account',
+            'customerPayments',
+            'paymentTransactions',
+            'codCollections',
         ])->findOrFail($id);
 
         return view('backend.sales_invoices.show', compact('invoice'));

@@ -59,14 +59,43 @@
                                     <tr>
                                         <th class="bg-light">Payment Method</th>
                                         <td>
-                                            <span class="badge badge-primary px-3 py-1 font-weight-bold">
-                                                {{ strtoupper(str_replace('_', ' ', $customerPayment->payment_method)) }}
-                                            </span>
+                                            @if($customerPayment->payment_method === 'paypal')
+                                                <span class="badge badge-info px-3 py-1 font-weight-bold" style="background-color: #0070ba; color: #fff;">
+                                                    <i class="fab fa-paypal mr-1"></i> PayPal Express (Online Settlement)
+                                                </span>
+                                            @elseif($customerPayment->payment_method === 'bank_transfer')
+                                                <span class="badge badge-primary px-3 py-1 font-weight-bold">
+                                                    <i class="fas fa-university mr-1"></i> Bank Wire Transfer
+                                                </span>
+                                            @elseif($customerPayment->payment_method === 'cash')
+                                                <span class="badge badge-success px-3 py-1 font-weight-bold">
+                                                    <i class="fas fa-money-bill-wave mr-1"></i> Cash in Hand
+                                                </span>
+                                            @elseif($customerPayment->payment_method === 'pos')
+                                                <span class="badge badge-secondary px-3 py-1 font-weight-bold">
+                                                    <i class="fas fa-credit-card mr-1"></i> POS Card Terminal
+                                                </span>
+                                            @elseif($customerPayment->payment_method === 'cheque')
+                                                <span class="badge badge-warning px-3 py-1 font-weight-bold">
+                                                    <i class="fas fa-money-check mr-1"></i> Commercial Cheque
+                                                </span>
+                                            @else
+                                                <span class="badge badge-dark px-3 py-1 font-weight-bold">
+                                                    {{ strtoupper(str_replace('_', ' ', $customerPayment->payment_method)) }}
+                                                </span>
+                                            @endif
                                         </td>
                                     </tr>
                                     <tr>
                                         <th class="bg-light">Reference / Cheque / Txn No</th>
-                                        <td>{{ $customerPayment->reference_no ?: 'N/A' }}</td>
+                                        <td>
+                                            <span class="font-weight-bold">{{ $customerPayment->reference_no ?: 'N/A' }}</span>
+                                            @if($customerPayment->reference_no && ($customerPayment->payment_method === 'paypal' || str_contains($customerPayment->reference_no, 'PAYPAL-')))
+                                                <a href="{{ route('admin.payments.transactions.index', ['search' => $customerPayment->reference_no]) }}" class="btn btn-sm btn-outline-primary ml-2 py-0" style="border-radius: 4px; font-size: 11px;">
+                                                    <i class="fas fa-search mr-1"></i> View Gateway Audit
+                                                </a>
+                                            @endif
+                                        </td>
                                     </tr>
                                     <tr>
                                         <th class="bg-light">Linked Sales Invoice</th>

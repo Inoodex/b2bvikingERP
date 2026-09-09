@@ -15,6 +15,7 @@ class SalesInvoice extends Model
     protected $fillable = [
         'order_id',
         'invoice_no',
+        'payment_token',
         'subtotal_amount',
         'tax_amount',
         'discount_amount',
@@ -30,6 +31,25 @@ class SalesInvoice extends Model
         'notes',
         'created_by',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($invoice) {
+            if (empty($invoice->payment_token)) {
+                $invoice->payment_token = \Illuminate\Support\Str::random(40);
+            }
+        });
+    }
+
+    public function getPublicPaymentUrlAttribute(): string
+    {
+        if (empty($this->payment_token)) {
+            $this->payment_token = \Illuminate\Support\Str::random(40);
+            $this->saveQuietly();
+        }
+
+        return route('invoices.pay', ['token' => $this->payment_token]);
+    }
 
     protected $casts = [
         'date' => 'date',
@@ -81,5 +101,20 @@ class SalesInvoice extends Model
     public function journalEntries(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(JournalEntry::class, 'reference');
+    }
+
+    public function customerPayments(): HasMany
+    {
+        return $this->hasMany(CustomerPayment::class, 'sales_invoice_id');
+    }
+
+    public function paymentTransactions(): HasMany
+    {
+        return $this->hasMany(PaymentTransaction::class, 'sales_invoice_id');
+    }
+
+    public function codCollections(): HasMany
+    {
+        return $this->hasMany(CodCollection::class, 'sales_invoice_id');
     }
 }

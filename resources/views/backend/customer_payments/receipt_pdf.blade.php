@@ -61,7 +61,20 @@
                     <div class="box-title">Receipt Information</div>
                     <strong>Receipt No:</strong> {{ $payment->payment_no }}<br>
                     <strong>Receipt Date:</strong> {{ $payment->payment_date ? date('d M, Y', strtotime($payment->payment_date)) : date('d M, Y', strtotime($payment->created_at)) }}<br>
-                    <strong>Payment Method:</strong> {{ strtoupper(str_replace('_', ' ', $payment->payment_method)) }}<br>
+                    <strong>Payment Method:</strong> 
+                    @if($payment->payment_method === 'paypal')
+                        PayPal Express (Online Settlement)
+                    @elseif($payment->payment_method === 'bank_transfer')
+                        Bank Wire Transfer
+                    @elseif($payment->payment_method === 'cash')
+                        Cash in Hand
+                    @elseif($payment->payment_method === 'pos')
+                        POS Card Terminal
+                    @elseif($payment->payment_method === 'cheque')
+                        Commercial Cheque
+                    @else
+                        {{ strtoupper(str_replace('_', ' ', $payment->payment_method)) }}
+                    @endif<br>
                     <strong>Status:</strong> <span class="badge-success">POSTED & CLEARED</span>
                 </div>
             </td>

@@ -22,10 +22,11 @@ return new class extends Migration
         }
 
         // 2. Ensure 2040 Customer Advances & Deposits account exists under 2000 Liabilities
+        $companyId = \App\Models\Company::first()?->id;
         $parentLiab = ChartOfAccount::where('account_code', '2000')->first();
         if (!ChartOfAccount::where('account_code', '2040')->exists()) {
             ChartOfAccount::create([
-                'company_id'     => 1,
+                'company_id'     => $companyId,
                 'account_code'   => '2040',
                 'account_name'   => 'Customer Advances & Deposits',
                 'account_type'   => 'liability',

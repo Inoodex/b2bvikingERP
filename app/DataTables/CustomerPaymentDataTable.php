@@ -36,6 +36,9 @@ class CustomerPaymentDataTable extends DataTable
                 $methodNames = [
                     'cash' => '<span class="badge badge-success px-2 py-1"><i class="fas fa-money-bill-wave mr-1"></i> Cash</span>',
                     'bank_transfer' => '<span class="badge badge-primary px-2 py-1"><i class="fas fa-university mr-1"></i> Bank Transfer</span>',
+                    'bank' => '<span class="badge badge-primary px-2 py-1"><i class="fas fa-university mr-1"></i> Bank Transfer</span>',
+                    'paypal' => '<span class="badge badge-primary px-2 py-1" style="background-color: #0070ba;"><i class="fab fa-paypal mr-1"></i> PayPal</span>',
+                    'cod' => '<span class="badge badge-success px-2 py-1"><i class="fas fa-truck mr-1"></i> Cash On Delivery</span>',
                     'cheque' => '<span class="badge badge-info px-2 py-1"><i class="fas fa-money-check mr-1"></i> Cheque</span>',
                     'card' => '<span class="badge badge-warning px-2 py-1"><i class="fas fa-credit-card mr-1"></i> Card</span>',
                     'mobile_money' => '<span class="badge badge-secondary px-2 py-1"><i class="fas fa-mobile-alt mr-1"></i> Mobile Money</span>',

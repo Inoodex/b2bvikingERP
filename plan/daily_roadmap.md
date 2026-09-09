@@ -66,16 +66,18 @@
 
 ---
 
-## Phase 6: PayPal, Advanced Settings & Testing (Days 51 - 54)
-* **Day 51: PayPal API Integration & IPN Webhook [Pending]**
-  - Integrate PayPal Express Checkout for Sales Orders. Set up Webhook to listen for payments and auto-reconcile invoices.
-* **Day 52: Advanced System Settings & Master Feature Toggles [Pending]**
-  - **Enterprise Feature Toggles Center** (`plan/enterprise_feature_toggles_plan.md`): Centralized Admin ON/OFF switches for Auto-Replenish, Vendor Emails, Quote Reminders, Credit Lock, and Auto-Journals.
-  - Implement "Clear Cache" UI for optimization.
-  - Integrate `spatie/laravel-backup` for DB & File Backup downloads from Admin Panel.
-  - Setup "Recycle Bin" for Soft Deletes (view/restore/force delete).
-* **Days 53 - 54: System-wide End-to-End Testing (Dev QA) [Pending]**
-  - Verify accounting ledger values, inventory valuation, and approval locks under stress testing.
+## Phase 6: Payments (PayPal & COD), Advanced Settings & Testing (Days 51 - 54) [Completed]
+* **Day 51: Payment Gateways — PayPal Express & Cash On Delivery (COD) Only [Completed]**
+  - Integrate Native PayPal Express Checkout for Sales Orders with Synchronous Direct Return URL Capture (Namecheap Shared-Hosting Safe, Zero Webhooks, Zero 3rd-party packages).
+  - Implement Cash On Delivery (COD) lifecycle: driver cash collection, cashier handover to Account 1010 (Cash in Hand), and automated invoice clearance.
+  - Strict Rule: Only PayPal and COD supported (no other payment gateways).
+* **Day 52: Advanced System Settings & Master Feature Toggles [Completed]**
+  - **Enterprise Feature Toggles Center** (`plan/enterprise_feature_toggles_plan.md` & `docs/06_payments_settings_and_testing/`): Centralized Admin ON/OFF switches for Auto-Replenish, Vendor Emails, Quote Reminders, Credit Lock, Auto-Journals, PayPal, and COD.
+  - Implement "Clear Cache" UI for application, config, route, view, and OPcache optimization.
+  - Integrate Shared-Hosting Pure PDO Streaming Database Backup Engine (bypassing disabled shell_exec/mysqldump on Namecheap) for DB Backup downloads from Admin Panel.
+  - Setup "Recycle Bin" for Soft Deletes (view/restore/force delete across Products, Customers, Orders, Invoices, Vendors).
+* **Days 53 - 54: System-wide End-to-End Testing (Dev QA) [Completed]**
+  - Verify accounting ledger values (zero-imbalance invariant), inventory FIFO valuation under load, approval locks, and full suite of automated Phase 6 tests (9/9 passed).
 
 ---
 

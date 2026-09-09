@@ -128,6 +128,9 @@ Route::middleware(['auth', 'role:Outlet User|User'])->group(function () {
         Route::post('/frontend/cart/remove', 'remove')->name('frontend.cart.remove');
         Route::post('/frontend/cart/update-qty', 'updateQuantity')->name('frontend.cart.update-qty');
         Route::post('/frontend/cart/clear', 'clear')->name('frontend.cart.clear');
+        Route::get('/checkout/paypal/success', 'paypalSuccess')->name('checkout.paypal.success');
+        Route::get('/checkout/paypal/cancel', 'paypalCancel')->name('checkout.paypal.cancel');
+        Route::post('/my-orders/{order}/retry-paypal', 'retryPayPalPayment')->name('orders.retry-paypal');
     });
 
     Route::controller(FrontendCustomerOrderController::class)->group(function () {
@@ -462,6 +465,56 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::post('settings/email/test', 'sendTestEmail')->name('settings.email.test');
     });
 
+    /** Phase 6: Enterprise Feature Toggles Center */
+    Route::controller(\App\Http\Controllers\Backend\FeatureToggleController::class)->group(function () {
+        Route::get('settings/feature-toggles', 'index')->name('settings.feature-toggles');
+        Route::post('settings/feature-toggles/toggle', 'toggle')->name('settings.feature-toggles.toggle');
+        Route::post('settings/feature-toggles/update', 'updateAll')->name('settings.feature-toggles.update');
+    });
+
+    /** Phase 6: Database Backups & Disaster Recovery */
+    Route::controller(\App\Http\Controllers\Backend\BackupController::class)->group(function () {
+        Route::get('backups', 'index')->name('backups.index');
+        Route::post('backups', 'create')->name('backups.create');
+        Route::get('backups/{id}/download', 'download')->name('backups.download');
+        Route::delete('backups/{id}', 'destroy')->name('backups.destroy');
+    });
+
+    /** Phase 6: Universal Recycle Bin (Soft Delete Restoration Center) */
+    Route::controller(\App\Http\Controllers\Backend\RecycleBinController::class)->group(function () {
+        Route::get('recycle-bin', 'index')->name('recycle-bin.index');
+        Route::post('recycle-bin/{type}/{id}/restore', 'restore')->name('recycle-bin.restore');
+        Route::post('recycle-bin/{type}/restore-all', 'restoreAll')->name('recycle-bin.restore-all');
+        Route::delete('recycle-bin/{type}/{id}', 'forceDelete')->name('recycle-bin.force-delete');
+    });
+
+    /** Payment Settings (Dedicated Gateway Configuration matching Enterprise UI) */
+    Route::controller(\App\Http\Controllers\Backend\PaymentSettingController::class)->prefix('payment-settings')->name('payment-settings.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::put('paypal', 'updatePaypal')->name('paypal.update');
+        Route::post('paypal/test', 'testPaypal')->name('paypal.test');
+        Route::put('cod', 'updateCod')->name('cod.update');
+        Route::put('payoneer', 'updatePayoneer')->name('payoneer.update');
+        Route::put('mobile-pay', 'updateMobilePay')->name('mobile-pay.update');
+    });
+
+    Route::controller(\App\Http\Controllers\Backend\PayPalPaymentController::class)->group(function () {
+        Route::post('payments/paypal/create-order', 'createOrder')->name('payments.paypal.create-order');
+        Route::get('payments/paypal/success', 'success')->name('payments.paypal.success');
+        Route::get('payments/paypal/cancel', 'cancel')->name('payments.paypal.cancel');
+    });
+
+    Route::controller(\App\Http\Controllers\Backend\CodManagementController::class)->group(function () {
+        Route::get('payments/cod-collections', 'index')->name('payments.cod.index');
+        Route::post('payments/cod-collections/{id}/dispatch', 'markOutForDelivery')->name('payments.cod.dispatch');
+        Route::post('payments/cod-collections/{id}/collect', 'markCollected')->name('payments.cod.collect');
+        Route::post('payments/cod-collections/{id}/settle', 'settleHandover')->name('payments.cod.settle');
+    });
+
+    Route::controller(\App\Http\Controllers\Backend\PaymentTransactionController::class)->group(function () {
+        Route::get('payments/transactions', 'index')->name('payments.transactions.index');
+    });
+
     /** Enterprise Inventory: Stock Adjustments & Stock Transfers */
     Route::controller(\App\Http\Controllers\Backend\StockAdjustmentController::class)->group(function () {
         Route::get('stock-adjustments/get-item-stock', 'getItemStock')->name('stock-adjustments.get-item-stock');
@@ -660,6 +713,7 @@ Route::controller(BackendAccountController::class)->group(function () {
         Route::get('sales-invoices/get-items', 'getItems')->name('sales-invoices.get-items');
         Route::post('sales-invoices/{salesInvoice}/post', 'post')->name('sales-invoices.post');
         Route::get('sales-invoices/{salesInvoice}/pdf', 'downloadPdf')->name('sales-invoices.pdf');
+        Route::post('sales-invoices/{salesInvoice}/send-payment-link', [\App\Http\Controllers\Frontend\InvoicePaymentController::class, 'sendEmail'])->name('sales-invoices.send-payment-link');
     });
     Route::resource('sales-invoices', SalesInvoiceController::class);
 
@@ -678,6 +732,14 @@ Route::controller(BackendAccountController::class)->group(function () {
     });
 
 });
+});
+
+/** Public Hosted Invoice Payment Routes (Enterprise Payment Portal) */
+Route::controller(\App\Http\Controllers\Frontend\InvoicePaymentController::class)->group(function () {
+    Route::get('/invoices/pay/{token}', 'show')->name('invoices.pay');
+    Route::post('/invoices/pay/{token}/paypal', 'payPayPal')->name('invoices.pay.paypal');
+    Route::get('/invoices/pay/{token}/paypal/success', 'paypalSuccess')->name('invoices.pay.paypal.success');
+    Route::get('/invoices/pay/{token}/paypal/cancel', 'paypalCancel')->name('invoices.pay.paypal.cancel');
 });
 
 require __DIR__ . '/auth.php';

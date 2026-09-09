@@ -102,10 +102,10 @@
                                 <div class="col-md-6 form-group mb-3">
                                     <label class="font-weight-bold text-dark mb-1"><i class="fas fa-wallet text-info mr-1"></i> Payment Method <span class="text-danger">*</span></label>
                                     <select name="payment_method" id="payment_method" class="form-control font-weight-bold" style="height: 44px;" required>
-                                        <option value="bank" {{ old('payment_method') == 'bank' ? 'selected' : '' }}>🏦 Bank Transfer (Wire/SEPA)</option>
-                                        <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}>💵 Cash in Hand</option>
-                                        <option value="card" {{ old('payment_method') == 'card' ? 'selected' : '' }}>💳 POS Terminal / Card</option>
+                                        <option value="bank" {{ old('payment_method', 'bank') == 'bank' ? 'selected' : '' }}>🏦 Bank Transfer (Wire/SEPA)</option>
+                                        <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}>💵 Cash in Hand (Petty Cash)</option>
                                         <option value="cheque" {{ old('payment_method') == 'cheque' ? 'selected' : '' }}>📜 Bank Cheque / Draft</option>
+                                        <option value="card" {{ old('payment_method') == 'card' ? 'selected' : '' }}>💳 POS Terminal / Card</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 form-group mb-3">

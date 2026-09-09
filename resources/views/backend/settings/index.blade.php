@@ -61,6 +61,75 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="col-12 col-lg-6 mb-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="row no-gutters h-100">
+                            <div class="col-12 col-sm-4 d-flex align-items-center justify-content-center text-white p-3 p-sm-0" style="background: #0d9488;">
+                                <i class="fas fa-toggle-on settings-icon" style="font-size: 54px;"></i>
+                            </div>
+                            <div class="col-12 col-sm-8">
+                                <div class="card-body d-flex flex-column h-100">
+                                    <h4 class="mb-2">Feature Toggles</h4>
+                                    <p class="text-muted flex-grow-1 mb-3">Runtime switches for auto-replenish, credit locks, GL journals, and gateways.</p>
+                                    <a href="{{ route('admin.settings.feature-toggles') }}" class="font-weight-bold">Manage Toggles <i class="fas fa-angle-right ml-1"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-6 mb-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="row no-gutters h-100">
+                            <div class="col-12 col-sm-4 d-flex align-items-center justify-content-center text-white p-3 p-sm-0" style="background: #cda05a;">
+                                <i class="fas fa-credit-card settings-icon" style="font-size: 54px;"></i>
+                            </div>
+                            <div class="col-12 col-sm-8">
+                                <div class="card-body d-flex flex-column h-100">
+                                    <h4 class="mb-2">Payment Settings</h4>
+                                    <p class="text-muted flex-grow-1 mb-3">Configure PayPal Express, Cash On Delivery limits, and cashier GL accounts.</p>
+                                    <a href="{{ route('admin.payment-settings.index') }}" class="font-weight-bold">Configure Gateways <i class="fas fa-angle-right ml-1"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-6 mb-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="row no-gutters h-100">
+                            <div class="col-12 col-sm-4 d-flex align-items-center justify-content-center text-white p-3 p-sm-0" style="background: #4f46e5;">
+                                <i class="fas fa-database settings-icon" style="font-size: 54px;"></i>
+                            </div>
+                            <div class="col-12 col-sm-8">
+                                <div class="card-body d-flex flex-column h-100">
+                                    <h4 class="mb-2">Database Backups</h4>
+                                    <p class="text-muted flex-grow-1 mb-3">On-demand SQL database snapshots and downloadable disaster recovery archives.</p>
+                                    <a href="{{ route('admin.backups.index') }}" class="font-weight-bold">Manage Backups <i class="fas fa-angle-right ml-1"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-6 mb-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="row no-gutters h-100">
+                            <div class="col-12 col-sm-4 d-flex align-items-center justify-content-center text-white p-3 p-sm-0" style="background: #e11d48;">
+                                <i class="fas fa-trash-restore settings-icon" style="font-size: 54px;"></i>
+                            </div>
+                            <div class="col-12 col-sm-8">
+                                <div class="card-body d-flex flex-column h-100">
+                                    <h4 class="mb-2">Universal Recycle Bin</h4>
+                                    <p class="text-muted flex-grow-1 mb-3">Restoration center for soft-deleted products, orders, invoices, and contacts.</p>
+                                    <a href="{{ route('admin.recycle-bin.index') }}" class="font-weight-bold">Open Recycle Bin <i class="fas fa-angle-right ml-1"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
     </section>

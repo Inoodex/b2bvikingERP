@@ -35,10 +35,10 @@ class CustomerPaymentService
                 $allocations = is_array($data['allocations_json']) ? $data['allocations_json'] : json_decode($data['allocations_json'], true);
             }
 
-            // 1. Overpayment Guard for Single Sales Invoice
-            if (empty($allocations) && !empty($data['sales_invoice_id']) && !($data['allow_advance'] ?? false)) {
+            $invoice = null;
+            if (!empty($data['sales_invoice_id'])) {
                 $invoice = SalesInvoice::lockForUpdate()->find($data['sales_invoice_id']);
-                if ($invoice) {
+                if ($invoice && empty($allocations) && !($data['allow_advance'] ?? false)) {
                     $due = (float)$invoice->due_amount;
                     if ($amount > ($due + 0.01)) {
                         throw new Exception("Payment amount (kr. {$amount}) exceeds outstanding invoice due balance (kr. {$due}).");
@@ -46,14 +46,23 @@ class CustomerPaymentService
                 }
             }
 
+            $order = null;
+            if (!empty($data['order_id'])) {
+                $order = Order::find($data['order_id']);
+            } elseif ($invoice && !empty($invoice->order_id)) {
+                $order = $invoice->order;
+            }
+
+            $customerId = $data['user_id'] ?? ($data['customer_id'] ?? ($order?->user_id ?? $invoice?->order?->user_id ?? $userId));
+
             $paymentNo = OrderNumberService::generateCustomerPaymentNumber();
             $paymentDate = !empty($data['payment_date']) ? date('Y-m-d', strtotime($data['payment_date'])) : now()->toDateString();
 
             $payment = CustomerPayment::create([
                 'payment_no'       => $paymentNo,
-                'user_id'          => $data['user_id'] ?? ($data['customer_id'] ?? null),
+                'user_id'          => $customerId,
                 'sales_invoice_id' => $data['sales_invoice_id'] ?? null,
-                'order_id'         => $data['order_id'] ?? null,
+                'order_id'         => $data['order_id'] ?? ($invoice?->order_id ?? null),
                 'account_id'       => $data['account_id'] ?? ($data['bank_account_id'] ?? null),
                 'amount'           => $amount,
                 'payment_method'   => $data['payment_method'],

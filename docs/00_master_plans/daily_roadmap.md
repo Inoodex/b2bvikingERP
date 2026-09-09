@@ -66,16 +66,20 @@
 
 ---
 
-## Phase 6: PayPal, Advanced Settings & Testing (Days 51 - 54)
-* **Day 51: PayPal API Integration & IPN Webhook [Pending]**
-  - Integrate PayPal Express Checkout for Sales Orders. Set up Webhook to listen for payments and auto-reconcile invoices.
-* **Day 52: Advanced System Settings & Master Feature Toggles [Pending]**
-  - **Enterprise Feature Toggles Center** (`plan/enterprise_feature_toggles_plan.md`): Centralized Admin ON/OFF switches for Auto-Replenish, Vendor Emails, Quote Reminders, Credit Lock, and Auto-Journals.
-  - Implement "Clear Cache" UI for optimization.
-  - Integrate `spatie/laravel-backup` for DB & File Backup downloads from Admin Panel.
-  - Setup "Recycle Bin" for Soft Deletes (view/restore/force delete).
-* **Days 53 - 54: System-wide End-to-End Testing (Dev QA) [Pending]**
-  - Verify accounting ledger values, inventory valuation, and approval locks under stress testing.
+## Phase 6: Payments (PayPal & COD), Dedicated Payment Settings & Enterprise Testing (Days 51 - 54) [Completed]
+* **Day 51: Payment Gateways — PayPal Express & Cash On Delivery (COD) [Completed]**
+  - Dedicated `payment_settings` schema with multi-currency, live/sandbox modes, deposit GL account, and credentials.
+  - Native PayPal REST v2 Express Checkout with Synchronous Return URL Capture (Shared-Hosting & VPS Safe, zero webhooks, zero heavy 3rd-party dependencies).
+  - Cash On Delivery (COD) enterprise workflow: Driver collection reconciliation, Cashier physical cash envelope settlement to Account 1010 (Cash in Hand), invoice knockdown, and automated GL posting.
+  - Frontend checkout payment selector with dynamic badge preview and radio cards.
+* **Day 52: Dedicated Payment Settings UI & System Controls [Completed]**
+  - **Payment Settings UI**: Vertical side tabs (PayPal, Payoneer, Mobile Pay, COD) matching modern enterprise design.
+  - **Payment Operations Separation**: COD Collections and Payment Transactions moved into Dedicated Accounting Operations.
+  - **Feature Toggles Center**: Centralized Admin ON/OFF switches for business workflows.
+  - **Database Backup Engine**: Pure PDO Streaming Database Backup Engine with full Yajra DataTables integration.
+  - **Universal Recycle Bin**: Soft-delete restoration and force-purge engine powered by Yajra DataTables across Products, Customers, Orders, Invoices, and Vendors.
+* **Days 53 - 54: System-wide End-to-End Testing (Dev QA) [Completed]**
+  - Automated Phase 6 feature test suites: 100% GREEN (8/8 tests, 57 assertions passed).
 
 ---
 

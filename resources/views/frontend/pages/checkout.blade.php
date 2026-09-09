@@ -159,6 +159,49 @@
                             </div>
                         </div>
                         </div>
+
+                        <!-- Select Payment Method Section -->
+                        <div class="mt-8 border-t border-slate-100 pt-6">
+                            <div class="mb-4">
+                                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                    Select Payment Method
+                                </h3>
+                                <p class="text-xs text-slate-500">Choose your preferred payment method to complete the order.</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @if(isset($enabledGateways['cod']) && $enabledGateways['cod']->isEnabled())
+                                <label class="relative flex cursor-pointer rounded-2xl border-2 border-slate-200 bg-white p-4 shadow-sm hover:border-indigo-400 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/40 transition-all">
+                                    <input type="radio" name="payment_method" value="cod" class="mt-1 h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500" {{ old('payment_method', 'cod') === 'cod' ? 'checked' : '' }} required>
+                                    <div class="ml-3 flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-bold text-sm text-slate-900">Cash On Delivery</span>
+                                            <span class="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">COD</span>
+                                        </div>
+                                        <p class="text-xs text-slate-500 mt-1">Pay physical cash to the delivery driver upon arrival.</p>
+                                    </div>
+                                </label>
+                                @endif
+
+                                @if(isset($enabledGateways['paypal']) && $enabledGateways['paypal']->isEnabled())
+                                <label class="relative flex cursor-pointer rounded-2xl border-2 border-slate-200 bg-white p-4 shadow-sm hover:border-indigo-400 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/40 transition-all">
+                                    <input type="radio" name="payment_method" value="paypal" class="mt-1 h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500" {{ old('payment_method') === 'paypal' ? 'checked' : '' }} required>
+                                    <div class="ml-3 flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-bold text-sm text-slate-900">PayPal Express</span>
+                                            <span class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">PayPal</span>
+                                        </div>
+                                        <p class="text-xs text-slate-500 mt-1">Pay online securely via PayPal with cards or account.</p>
+                                    </div>
+                                </label>
+                                @endif
+                            </div>
+
+                            @error('payment_method')
+                                <p class="text-xs text-rose-600 font-semibold mt-2">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </form>
                 </section>
             </div>

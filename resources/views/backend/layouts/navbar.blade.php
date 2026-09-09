@@ -7,10 +7,11 @@
   $procurementActive = request()->routeIs('admin.rfqs.*', 'admin.purchase-orders.*', 'admin.letters-of-credit.*', 'admin.shipments.*', 'admin.goods-receipts.*', 'admin.vendor-returns.*');
   $reportsActive    = request()->routeIs('admin.reports.*', 'admin.purchase-reports.*', 'admin.vendor-ledger.*', 'admin.accounts.index', 'admin.accounts.vendor-payments.index');
   $accountsActive   = (request()->routeIs('admin.accounts.*', 'admin.sales-invoices.*', 'admin.customer-payments.*', 'admin.vendor-bills.*', 'admin.purchase-payments.*', 'admin.chart-of-accounts.*', 'admin.fiscal-years.*', 'admin.bank-accounts.*', 'admin.bank-reconciliation.*', 'admin.petty-cash.*', 'admin.fund-transfers.*', 'admin.assets.*', 'admin.journal-vouchers.*')) && !request()->routeIs('admin.accounts.index', 'admin.accounts.vendor-payments.index');
+  $paymentsActive   = request()->routeIs('admin.payments.*');
   $brandsActive     = request()->routeIs('admin.brand.*');
   $vendorsActive    = request()->routeIs('admin.vendor.*');
   $masterActive     = request()->routeIs('admin.master.*');
-  $systemActive     = request()->routeIs('admin.users.*', 'admin.role.*', 'admin.permission.*', 'admin.pricing-rules.*', 'admin.taxes.*', 'admin.discounts.*', 'admin.document-sequences.*', 'admin.products.announcement.*', 'admin.settings.*');
+  $systemActive     = request()->routeIs('admin.users.*', 'admin.role.*', 'admin.permission.*', 'admin.pricing-rules.*', 'admin.taxes.*', 'admin.discounts.*', 'admin.document-sequences.*', 'admin.products.announcement.*', 'admin.settings.*', 'admin.payment-settings.*', 'admin.backups.*', 'admin.recycle-bin.*');
 @endphp
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1736,6 +1737,21 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
       </li>
       @endif
 
+      @if(auth()->user()?->can('Manage Settings') || auth()->user()?->can('Manage Accounts') || auth()->user()?->hasRole('Admin'))
+      <li class="sb-item has-children {{ $paymentsActive ? 'active open' : '' }}">
+        <a href="#" class="sb-link sb-toggle" title="Payment Operations">
+          <i class="fas fa-money-check-alt"></i>
+          <span class="sb-label">Payment Operations</span>
+          <i class="fas fa-chevron-down sb-arrow"></i>
+        </a>
+        <ul class="sb-submenu">
+          <li class="sb-flyout-title">Payment Operations</li>
+          <li><a href="{{ route('admin.payments.cod.index') }}" class="{{ request()->routeIs('admin.payments.cod.*') ? 'active' : '' }}"><i class="fas fa-truck-loading"></i> COD Collections</a></li>
+          <li><a href="{{ route('admin.payments.transactions.index') }}" class="{{ request()->routeIs('admin.payments.transactions.*') ? 'active' : '' }}"><i class="fas fa-receipt"></i> Payment Transactions</a></li>
+        </ul>
+      </li>
+      @endif
+
       @if(auth()->user()?->can('Manage Brands') || auth()->user()?->hasRole('Admin'))
       <li class="sb-item has-children {{ $brandsActive ? 'active open' : '' }}">
         <a href="#" class="sb-link sb-toggle" title="Brands">
@@ -1834,9 +1850,13 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           @endif
 
           @if(auth()->user()?->can('Manage Settings') || auth()->user()?->can('Administration') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-header">System Settings</li>
+          <li class="sb-submenu-header">System Settings & Utilities</li>
           <li><a href="{{ route('admin.products.announcement.index') }}"><i class="fas fa-bullhorn"></i> Product Announcement</a></li>
-          <li><a href="{{ route('admin.settings.index') }}"><i class="fas fa-sliders-h"></i> Settings</a></li>
+          <li><a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.index', 'admin.settings.general', 'admin.settings.email') ? 'active' : '' }}"><i class="fas fa-sliders-h"></i> General Settings</a></li>
+          <li><a href="{{ route('admin.payment-settings.index') }}" class="{{ request()->routeIs('admin.payment-settings.*') ? 'active' : '' }}"><i class="fas fa-credit-card"></i> Payment Settings</a></li>
+          <li><a href="{{ route('admin.settings.feature-toggles') }}" class="{{ request()->routeIs('admin.settings.feature-toggles*') ? 'active' : '' }}"><i class="fas fa-toggle-on"></i> Feature Toggles</a></li>
+          <li><a href="{{ route('admin.backups.index') }}" class="{{ request()->routeIs('admin.backups.*') ? 'active' : '' }}"><i class="fas fa-database"></i> Database Backups</a></li>
+          <li><a href="{{ route('admin.recycle-bin.index') }}" class="{{ request()->routeIs('admin.recycle-bin.*') ? 'active' : '' }}"><i class="fas fa-trash-restore"></i> Recycle Bin</a></li>
           @endif
         </ul>
       </li>

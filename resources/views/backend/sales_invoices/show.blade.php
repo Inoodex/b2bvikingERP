@@ -128,6 +128,7 @@
                         <h4><i class="fas fa-cogs mr-2"></i>Financial Actions</h4>
                     </div>
                     <div class="card-body">
+                        {{-- 1. POSTING CONTROLS (DRAFT VS POSTED) --}}
                         @if ($invoice->status === 'draft')
                             <form action="{{ route('admin.sales-invoices.post', $invoice->id) }}" method="POST" id="postInvoiceForm">
                                 @csrf
@@ -135,6 +136,9 @@
                                     <i class="fas fa-check-circle mr-1"></i> Post & Journal Entry
                                 </button>
                             </form>
+                            <small class="text-muted text-center d-block mt-2">
+                                <i class="fas fa-info-circle mr-1"></i> Invoice is in Draft. Post to General Ledger to finalize billing and lock commercial totals.
+                            </small>
                         @else
                             <div class="alert alert-success mb-0 text-center">
                                 <i class="fas fa-lock mr-2"></i> <strong>Posted & Accounting Locked</strong>
@@ -142,9 +146,74 @@
                         @endif
 
                         @if ($invoice->due_amount > 0)
-                            <a href="{{ route('admin.customer-payments.create', ['sales_invoice_id' => $invoice->id]) }}" class="btn btn-success btn-block mt-2 font-weight-bold shadow-sm" style="border-radius: 6px;">
-                                <i class="fas fa-money-check-alt mr-1"></i> Record Customer Payment
-                            </a>
+                            {{-- CUSTOMER PAYMENT ACTIONS --}}
+                            <div class="mt-3 pt-3 border-top">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-block text-muted small font-weight-bold text-uppercase">
+                                        <i class="fas fa-link mr-1"></i> Customer Payment Actions
+                                    </span>
+                                    <span class="badge badge-danger font-weight-bold px-2 py-0.5">
+                                        Due: kr. {{ number_format((float)$invoice->due_amount, 2) }}
+                                    </span>
+                                </div>
+                                
+                                {{-- 1. Preview Customer View --}}
+                                <a href="{{ $invoice->public_payment_url }}" target="_blank" class="btn btn-outline-primary btn-block font-weight-bold shadow-sm mb-2" style="border-radius: 6px;" title="Preview what the customer sees on their payment portal">
+                                    <i class="fas fa-eye mr-1"></i> Preview Customer View ↗
+                                </a>
+
+                                {{-- 2. Copy Customer Payment Link --}}
+                                <button type="button" class="btn btn-light border btn-block font-weight-bold text-dark shadow-sm mb-2" id="btnCopyPaymentLink" data-url="{{ $invoice->public_payment_url }}" style="border-radius: 6px;">
+                                    <i class="fas fa-copy mr-1 text-primary"></i> Copy Payment Link
+                                </button>
+
+                                {{-- 3. Email Payment Link to Customer --}}
+                                <form action="{{ route('admin.sales-invoices.send-payment-link', $invoice->id) }}" method="POST" id="sendPaymentLinkEmailForm" class="mb-2">
+                                    @csrf
+                                    <button type="submit" class="btn btn-info btn-block font-weight-bold shadow-sm" id="btnSendPaymentLink" style="border-radius: 6px;">
+                                        <i class="fas fa-paper-plane mr-1"></i> Email Payment Link
+                                    </button>
+                                </form>
+
+                                {{-- 4. Manual / Offline Payment Receipt --}}
+                                <a href="{{ route('admin.customer-payments.create', ['sales_invoice_id' => $invoice->id]) }}" class="btn btn-success btn-block font-weight-bold shadow-sm" style="border-radius: 6px;">
+                                    <i class="fas fa-money-check-alt mr-1"></i> Record Offline/Bank Receipt
+                                </a>
+                            </div>
+                        @else
+                            {{-- SETTLED STATE --}}
+                            <div class="mt-3 pt-3 border-top">
+                                <div class="p-3 bg-light rounded border border-success mb-3" style="background-color: #f0fff4 !important;">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="badge badge-success font-weight-bold px-2.5 py-1 text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">
+                                            <i class="fas fa-check-circle mr-1"></i> Payment Settled in Full
+                                        </span>
+                                        <span class="text-success font-weight-bold small">kr. 0.00 Due</span>
+                                    </div>
+                                    <div class="small text-muted mb-2">
+                                        <div><strong>Paid Amount:</strong> kr. {{ number_format((float)($invoice->paid_amount ?: $invoice->total_amount), 2) }}</div>
+                                        <div class="mt-1">
+                                            <strong>Channel:</strong>
+                                            @if ($invoice->order?->payment_method === 'paypal' || (isset($invoice->paymentTransactions) && $invoice->paymentTransactions->where('gateway', 'paypal')->where('status', 'completed')->isNotEmpty()))
+                                                <span class="badge badge-primary text-white font-weight-bold px-2 py-0.5 ml-1">
+                                                    <i class="fab fa-paypal mr-1"></i> PayPal Express
+                                                </span>
+                                            @elseif ($invoice->order?->payment_method === 'cod')
+                                                <span class="badge badge-secondary text-white font-weight-bold px-2 py-0.5 ml-1">
+                                                    <i class="fas fa-truck mr-1"></i> COD Cash Handover
+                                                </span>
+                                            @else
+                                                <span class="badge badge-info text-white font-weight-bold px-2 py-0.5 ml-1">
+                                                    <i class="fas fa-university mr-1"></i> Bank Wire / Cash
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <a href="{{ route('admin.sales-invoices.pdf', $invoice->id) }}" class="btn btn-outline-success btn-sm btn-block font-weight-bold shadow-sm" target="_blank" style="border-radius: 6px;">
+                                        <i class="fas fa-print mr-1"></i> Download Paid Tax Invoice (PDF)
+                                    </a>
+                                </div>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -204,6 +273,38 @@
                 }
             });
         });
+
+        $('#btnCopyPaymentLink').on('click', function(e) {
+            e.preventDefault();
+            const url = $(this).data('url');
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(function() {
+                    toastr.success('Customer payment link copied to clipboard!');
+                }).catch(function() {
+                    fallbackCopyTextToClipboard(url);
+                });
+            } else {
+                fallbackCopyTextToClipboard(url);
+            }
+        });
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                toastr.success('Customer payment link copied to clipboard!');
+            } catch (err) {
+                prompt('Copy this customer payment link:', text);
+            }
+            document.body.removeChild(textArea);
+        }
     });
 </script>
 @endpush
