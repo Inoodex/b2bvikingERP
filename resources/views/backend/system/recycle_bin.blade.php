@@ -2,10 +2,27 @@
 
 @section('title', 'Universal Recycle Bin')
 
+@push('css')
+<style>
+  .nav-pills .nav-link {
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  .nav-pills .nav-link:hover:not(.active) {
+    background-color: #f1f3f8 !important;
+  }
+</style>
+@endpush
+
 @section('content')
 <section class="section">
-  <div class="section-header">
-    <h1><i class="fas fa-trash-restore text-primary mr-2"></i> Universal Recycle Bin</h1>
+  {{-- Section Header matching ERP Dashboard & Index views --}}
+  <div class="section-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="text-dark font-weight-bold mb-1">
+        <i class="fas fa-recycle text-primary mr-2"></i> Universal Recycle Bin
+      </h1>
+      <p class="text-muted mb-0 small">Centralized restoration hub for soft-deleted records across products, orders, invoices, and contacts</p>
+    </div>
     <div class="section-header-breadcrumb">
       <div class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
       <div class="breadcrumb-item"><a href="{{ route('admin.settings.index') }}">Settings</a></div>
@@ -14,39 +31,17 @@
   </div>
 
   <div class="section-body">
-    <!-- Header Notice Card -->
-    <div class="card shadow-sm border-0 mb-4" style="background: linear-gradient(135deg, #1e293b, #0f172a); color: #fff; border-radius: 12px;">
-      <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap">
-        <div class="d-flex align-items-center mb-2 mb-md-0">
-          <div class="rounded-circle p-3 mr-3" style="background: rgba(205, 160, 90, 0.2); border: 1px solid rgba(205, 160, 90, 0.4);">
-            <i class="fas fa-recycle fa-2x" style="color: #cda05a;"></i>
-          </div>
-          <div>
-            <h5 class="mb-1 text-white font-weight-bold">Soft-Deleted Records Restoration Center</h5>
-            <p class="mb-0" style="color: #94a3b8; font-size: 13.5px;">
-              Easily restore accidentally deleted products, orders, invoices, customers, and vendors back to the active catalog.
-            </p>
-          </div>
-        </div>
-        <div>
-          <span class="badge badge-success px-3 py-2" style="font-size: 12px; border-radius: 20px;">
-            <i class="fas fa-shield-alt mr-1"></i> Foreign Key Guard Active
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Entity Navigation Tabs -->
+    {{-- Entity Filter Tabs --}}
     <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
-      <div class="card-body py-2 px-3">
-        <ul class="nav nav-pills nav-fill flex-column flex-sm-row">
+      <div class="card-body p-3">
+        <ul class="nav nav-pills flex-column flex-sm-row" style="gap: 8px;">
           @foreach($entities as $type => $meta)
           <li class="nav-item">
-            <a class="nav-link {{ $activeType === $type ? 'active bg-primary font-weight-bold shadow-sm' : 'text-dark' }}" 
+            <a class="nav-link font-weight-bold {{ $activeType === $type ? 'active bg-primary text-white shadow-sm' : 'text-dark bg-light' }}" 
                href="{{ route('admin.recycle-bin.index', ['type' => $type]) }}"
-               style="border-radius: 8px; font-size: 14px;">
+               style="border-radius: 8px; font-size: 13.5px; padding: 10px 18px; transition: all 0.2s ease;">
               <i class="{{ $meta['icon'] }} mr-2"></i> {{ $meta['label'] }}
-              <span class="badge {{ $activeType === $type ? 'badge-light text-primary' : 'badge-secondary' }} ml-2">
+              <span class="badge {{ $activeType === $type ? 'badge-light text-primary font-weight-bold' : 'badge-secondary' }} ml-2" style="font-size: 11px; border-radius: 10px;">
                 {{ $counts[$type] ?? 0 }}
               </span>
             </a>
@@ -56,29 +51,32 @@
       </div>
     </div>
 
-    <!-- Active Entity Header & Restore All Action -->
-    <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
-      <div class="card-body py-3 d-flex align-items-center justify-content-between flex-wrap">
-        <div>
-          <h6 class="mb-0 font-weight-bold text-dark">
-            <i class="{{ $entities[$activeType]['icon'] }} mr-2 text-primary"></i> Trashed {{ $entities[$activeType]['label'] }}
+    {{-- Main DataTable Card --}}
+    <div class="card shadow-sm border-0 mb-5" style="border-radius: 12px; overflow: hidden; background: #ffffff;">
+      <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap" style="gap: 10px;">
+        <div class="d-flex align-items-center" style="gap: 10px;">
+          <h6 class="font-weight-bold text-dark mb-0">
+            <i class="{{ $entities[$activeType]['icon'] }} text-primary mr-2"></i> Trashed {{ $entities[$activeType]['label'] }}
           </h6>
+          <span class="badge badge-light border text-muted px-2 py-1" style="font-size: 11px; border-radius: 6px;">
+            {{ $counts[$activeType] ?? 0 }} items
+          </span>
         </div>
-        <div>
+        <div class="d-flex align-items-center" style="gap: 8px;">
           @if(($counts[$activeType] ?? 0) > 0)
-          <form action="{{ route('admin.recycle-bin.restore-all', $activeType) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to restore ALL deleted items in this category?')">
+          <form action="{{ route('admin.recycle-bin.restore-all', $activeType) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to restore ALL deleted {{ $entities[$activeType]['label'] }}?')">
             @csrf
-            <button type="submit" class="btn btn-outline-success font-weight-bold">
-              <i class="fas fa-undo-alt mr-1"></i> Restore All {{ $entities[$activeType]['label'] }}
+            <button type="submit" class="btn btn-success font-weight-bold btn-sm rounded-pill px-3 shadow-sm">
+              <i class="fas fa-undo mr-1"></i> Restore All ({{ $counts[$activeType] }})
             </button>
           </form>
           @endif
+          <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="fas fa-th-large mr-1"></i> Dashboard
+          </a>
         </div>
       </div>
-    </div>
 
-    <!-- DataTable Container -->
-    <div class="card shadow-sm border-0 mb-5" style="border-radius: 12px; overflow: hidden; background: #ffffff;">
       <div class="card-body p-4">
         <div class="table-responsive">
           {{ $dataTable->table(['class' => 'table table-striped table-hover align-middle mb-0 w-100', 'id' => 'recyclebin-table']) }}

@@ -1856,7 +1856,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.payment-settings.index') }}" class="{{ request()->routeIs('admin.payment-settings.*') ? 'active' : '' }}"><i class="fas fa-credit-card"></i> Payment Settings</a></li>
           <li><a href="{{ route('admin.settings.feature-toggles') }}" class="{{ request()->routeIs('admin.settings.feature-toggles*') ? 'active' : '' }}"><i class="fas fa-toggle-on"></i> Feature Toggles</a></li>
           <li><a href="{{ route('admin.backups.index') }}" class="{{ request()->routeIs('admin.backups.*') ? 'active' : '' }}"><i class="fas fa-database"></i> Database Backups</a></li>
-          <li><a href="{{ route('admin.recycle-bin.index') }}" class="{{ request()->routeIs('admin.recycle-bin.*') ? 'active' : '' }}"><i class="fas fa-trash-restore"></i> Recycle Bin</a></li>
+          <li><a href="{{ route('admin.recycle-bin.index') }}" class="{{ request()->routeIs('admin.recycle-bin.*') ? 'active' : '' }}"><i class="fas fa-recycle"></i> Recycle Bin</a></li>
           @endif
         </ul>
       </li>
