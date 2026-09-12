@@ -159,11 +159,11 @@
                             <i class="fas fa-shopping-basket"></i>
                         </button>
                         @endcan
-                        @can('Create Product Requests')
-                        <button type="button" class="btn btn-sm pp-btn-card pp-btn-outline flex-fill add-to-request-basket" data-id="{{ $product->id }}" data-has-variants="{{ $hasVariants ? 1 : 0 }}" title="Stock Transfer Basket" style="padding: 7px 0; font-size: 13px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-file-import"></i>
+                        @if(Auth::user()->can('Manage Sales Quotations') || Auth::user()->can('Create Product Requests') || Auth::user()->hasRole('Admin'))
+                        <button type="button" class="btn btn-sm pp-btn-card pp-btn-outline flex-fill add-to-request-basket" data-id="{{ $product->id }}" data-has-variants="{{ $hasVariants ? 1 : 0 }}" title="Add to Sales Quotation (SQ)" style="padding: 7px 0; font-size: 13px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-file-invoice"></i>
                         </button>
-                        @endcan
+                        @endif
                     </div>
                 </div>
 

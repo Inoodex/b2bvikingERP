@@ -53,9 +53,15 @@ class CartController extends Controller
                 $variantName = implode(' - ', $parts);
             }
 
-            $unitPrice = $item->variant 
-                ? (float) ($item->variant->price ?: ($p ? ($p->purchase_price ?: $p->price) : 0))
-                : (float) ($p ? ($p->purchase_price ?: $p->price) : 0);
+            if ($item->cart_type === 'booking') {
+                $unitPrice = $item->variant 
+                    ? (float) ($item->variant->price ?: ($p ? ($p->purchase_price ?: $p->price) : 0))
+                    : (float) ($p ? ($p->purchase_price ?: $p->price) : 0);
+            } else {
+                $unitPrice = $item->variant 
+                    ? (float) ($item->variant->price ?: ($p ? ($p->outlet_price ?: $p->price) : 0))
+                    : (float) ($p ? ($p->outlet_price ?: $p->price) : 0);
+            }
 
             return [
                 'id' => $item->id,

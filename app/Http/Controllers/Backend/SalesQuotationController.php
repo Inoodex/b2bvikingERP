@@ -29,7 +29,7 @@ class SalesQuotationController extends Controller
         return $dataTable->render('backend.sales_quotation.index', compact('sequences'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         $customers = User::customers()->where('status', 1)->orderBy('name')->get();
         $currencies = Currency::where('status', 1)->get();
@@ -37,8 +37,16 @@ class SalesQuotationController extends Controller
         $products = Product::where('status', 1)->with('variants')->get();
         $nextQuotationNo = DocumentSequence::generateNext('SalesQuotation');
 
+        $cartItems = collect();
+        if (in_array($request->query('source'), ['cart', 'basket'])) {
+            $cartItems = \App\Models\Cart::where('user_id', auth()->id())
+                ->where('cart_type', 'request')
+                ->with(['product.variants', 'variant.color', 'variant.size'])
+                ->get();
+        }
+
         return view('backend.sales_quotation.create', compact(
-            'customers', 'currencies', 'taxes', 'products', 'nextQuotationNo'
+            'customers', 'currencies', 'taxes', 'products', 'nextQuotationNo', 'cartItems'
         ));
     }
 
@@ -112,6 +120,12 @@ class SalesQuotationController extends Controller
             }
 
             DB::commit();
+
+            if ($request->filled('from_cart') || in_array($request->input('source'), ['cart', 'basket'])) {
+                \App\Models\Cart::where('user_id', auth()->id())
+                    ->where('cart_type', 'request')
+                    ->delete();
+            }
 
             toastr()->success('Sales Quotation ' . $quotationNo . ' created successfully!');
 

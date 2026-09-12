@@ -901,9 +901,9 @@
                 $('.add-to-request-basket').each(function() {
                     const id = Number($(this).data('id'));
                     if (rIds.includes(id)) {
-                        $(this).addClass('added').html('<i class="fas fa-check"></i>').attr('title', 'Added to Stock Transfer');
+                        $(this).addClass('added').html('<i class="fas fa-check"></i>').attr('title', 'Added to Sales Quotation Cart');
                     } else {
-                        $(this).removeClass('added').html('<i class="fas fa-file-import"></i>').attr('title', 'Add to Stock Transfer');
+                        $(this).removeClass('added').html('<i class="fas fa-file-invoice"></i>').attr('title', 'Add to Sales Quotation (SQ)');
                     }
                 });
             }
@@ -965,7 +965,7 @@
                 const defaultImg = "{{ asset('uploads/no-image.svg') }}";
                 $('#variant_modal_product_img').attr('src', productImg || defaultImg);
                 $('#variant_modal_product_vendor').text(vendorName);
-                $('#quickVariantModalTitle').html(`<i class="fas ${cartType === 'booking' ? 'fa-shopping-basket text-warning' : 'fa-truck-moving text-danger'} mr-2"></i>Select Variants for ${cartType === 'booking' ? 'Procurement' : 'Stock Transfer'}`);
+                $('#quickVariantModalTitle').html(`<i class="fas ${cartType === 'booking' ? 'fa-shopping-basket text-warning' : 'fa-file-invoice text-primary'} mr-2"></i>Select Variants for ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'}`);
                 
                 $('#quick_variant_modal_tbody').html('<tr><td colspan="3" class="text-center py-3 text-muted"><div class="spinner-border spinner-border-sm text-warning mr-1"></div> Loading variants...</td></tr>');
                 $('#quickVariantModal').modal('show');
@@ -1058,9 +1058,9 @@
 
                     const defaultLabel = (cartType === 'booking') 
                         ? '<i class="fas fa-shopping-basket"></i>' 
-                        : '<i class="fas fa-file-import"></i>';
+                        : '<i class="fas fa-file-invoice"></i>';
                     $(`${targetBtnClass}[data-id="${productId}"]`).removeClass('added').html(defaultLabel);
-                    if (window.toastr) toastr.info(`Removed from ${cartType === 'booking' ? 'Procurement' : 'Stock Transfer'} basket`);
+                    if (window.toastr) toastr.info(`Removed from ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`);
                     $('#quickVariantModal').modal('hide');
 
                     $.ajax({
@@ -1113,7 +1113,7 @@
 
                 // 2. Instant Button Update & Snappy Toastr (0ms)
                 $(`${targetBtnClass}[data-id="${productId}"]`).addClass('added').html('<i class="fas fa-check"></i>').attr('title', 'Added');
-                if (window.toastr) toastr.success(`Added ${variantsToAdd.length} variant(s) to ${cartType === 'booking' ? 'Procurement' : 'Stock Transfer'} basket`);
+                if (window.toastr) toastr.success(`Added ${variantsToAdd.length} variant(s) to ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`);
                 $('#quickVariantModal').modal('hide');
 
                 // 3. Background MySQL sync
@@ -1140,12 +1140,12 @@
                 const desiredAction = isAlreadyAdded ? 'remove' : 'add';
                 const defaultLabel = (cartType === 'booking') 
                     ? '<i class="fas fa-shopping-basket"></i>' 
-                    : '<i class="fas fa-file-import"></i>';
+                    : '<i class="fas fa-file-invoice"></i>';
 
                 // Optimistic visual & store update (0ms)
                 if (isAlreadyAdded) {
                     $btn.removeClass('added').html(defaultLabel);
-                    if (window.toastr) toastr.info(`Removed from ${cartType === 'booking' ? 'Procurement' : 'Stock Transfer'} basket`);
+                    if (window.toastr) toastr.info(`Removed from ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`);
 
                     if (window.cartStore && window.cartStore[cartType]) {
                         window.cartStore[cartType].ids = window.cartStore[cartType].ids.filter(id => Number(id) !== productId);
@@ -1158,7 +1158,7 @@
                     }
                 } else {
                     $btn.addClass('added').html('<i class="fas fa-check"></i>');
-                    if (window.toastr) toastr.success(`Added to ${cartType === 'booking' ? 'Procurement' : 'Stock Transfer'} basket`);
+                    if (window.toastr) toastr.success(`Added to ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`);
 
                     if (window.cartStore && window.cartStore[cartType]) {
                         if (!window.cartStore[cartType].ids.map(Number).includes(productId)) {

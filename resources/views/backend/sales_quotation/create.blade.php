@@ -26,8 +26,22 @@
 
         {{-- Form --}}
         <div class="section-body">
+            @if(isset($cartItems) && $cartItems->count() > 0)
+                <div class="alert alert-primary d-flex align-items-center mb-4 shadow-sm" style="border-radius: 12px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af;">
+                    <div class="mr-3" style="font-size: 1.5rem;">
+                        <i class="fas fa-file-invoice-dollar text-primary"></i>
+                    </div>
+                    <div>
+                        <strong class="d-block font-weight-bold" style="font-size: 0.95rem;">Pre-filled from Sales Quotation Cart!</strong>
+                        <span class="small" style="color: #3b82f6;">{{ $cartItems->count() }} item(s) have been pre-loaded from your visual catalog selection. Review quantities, select a customer, and save to finalize the quote.</span>
+                    </div>
+                </div>
+            @endif
             <form action="{{ route('admin.sales-quotations.store') }}" method="POST" id="quotationForm">
                 @csrf
+                @if(isset($cartItems) && $cartItems->count() > 0)
+                    <input type="hidden" name="from_cart" value="1">
+                @endif
                 <div class="row">
                     {{-- Main Info --}}
                     <div class="col-lg-8">
@@ -134,7 +148,46 @@
                                             </tr>
                                         </thead>
                                         <tbody id="itemsTableBody">
-                                            <!-- Dynamic Rows -->
+                                            @if(isset($cartItems) && $cartItems->count() > 0)
+                                                @foreach($cartItems as $index => $cItem)
+                                                    @php
+                                                        $p = $cItem->product;
+                                                        $v = $cItem->variant;
+                                                        $rIndex = $index + 1;
+                                                        $pName = $p ? $p->name : 'Product';
+                                                        $vName = $v ? ($v->name ?: (trim(implode(' - ', array_filter([optional($v->color)->name, optional($v->size)->name]))) ?: '#'.$v->id)) : 'Standard';
+                                                        $price = $v && $v->price > 0 ? $v->price : ($p ? ($p->outlet_price ?: $p->price) : 0);
+                                                        $stock = $v ? ($v->qty ?? 0) : ($p ? ($p->qty ?? 0) : 0);
+                                                        $qty = $cItem->quantity > 0 ? (float)$cItem->quantity : 1;
+                                                        $lineTotal = $qty * $price;
+                                                    @endphp
+                                                    <tr class="item-row">
+                                                        <td class="pl-4">
+                                                            <strong class="text-dark d-block" style="font-size: 0.9rem;">{{ $pName }}</strong>
+                                                            <small class="badge badge-secondary mt-1">{{ $vName }}</small>
+                                                            <input type="hidden" name="items[{{ $rIndex }}][product_id]" value="{{ $cItem->product_id }}" class="product-id-input">
+                                                            @if($cItem->variant_id)
+                                                                <input type="hidden" name="items[{{ $rIndex }}][variant_id]" value="{{ $cItem->variant_id }}">
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge badge-info px-2 py-1" style="font-size: 0.85rem;">{{ $stock }}</span>
+                                                        </td>
+                                                        <td>
+                                                            <input type="number" step="1" min="1" name="items[{{ $rIndex }}][qty]" class="form-control qty-input" value="{{ $qty }}" required style="border-radius: 8px;">
+                                                        </td>
+                                                        <td>
+                                                            <input type="number" step="0.01" min="0" name="items[{{ $rIndex }}][unit_price]" class="form-control price-input" value="{{ number_format($price, 2, '.', '') }}" required style="border-radius: 8px;" data-default-price="{{ $price }}">
+                                                        </td>
+                                                        <td class="text-right pr-4 font-weight-bold text-dark line-subtotal">
+                                                            kr. {{ number_format($lineTotal, 2) }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <button type="button" class="btn btn-sm btn-link text-danger remove-row-btn" style="outline: none;"><i class="fas fa-times"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            @endif
                                         </tbody>
                                     </table>
                                 </div>
@@ -226,7 +279,7 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    let rowIndex = 1;
+    let rowIndex = {{ isset($cartItems) && $cartItems->count() > 0 ? $cartItems->count() + 1 : 1 }};
 
     function calculateTotals() {
         let subtotal = 0;
@@ -258,6 +311,9 @@ $(document).ready(function() {
 
         $('#summaryGrandTotal').text('kr. ' + grandTotal.toFixed(2));
     }
+
+    // Initialize calculation on page load (for pre-filled cart items)
+    calculateTotals();
 
     // Auto-fetch variants when product is selected
     $('#product_selector').on('change', function() {
@@ -393,6 +449,32 @@ $(document).ready(function() {
     $('#currencySelect').on('change', function() {
         let rate = $(this).find('option:selected').data('rate') || 1.0;
         $('#exchangeRateInput').val(rate);
+    });
+
+    // Re-resolve customer-specific prices if customer selection changes
+    $('select[name="customer_id"]').on('change', function() {
+        let customerId = $(this).val();
+        if (!customerId) return;
+        $('.item-row').each(function() {
+            let row = $(this);
+            let productId = row.find('.product-id-input').val();
+            if (productId) {
+                $.ajax({
+                    url: "{{ route('admin.pricelists.resolve-price') }}",
+                    method: 'GET',
+                    data: {
+                        product_id: productId,
+                        customer_id: customerId
+                    },
+                    success: function(res) {
+                        if (res && res.price !== undefined) {
+                            row.find('.price-input').val(parseFloat(res.price).toFixed(2));
+                            calculateTotals();
+                        }
+                    }
+                });
+            }
+        });
     });
 });
 </script>

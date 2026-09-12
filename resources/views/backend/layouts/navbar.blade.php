@@ -1065,9 +1065,9 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
   border: 1px solid rgba(234, 179, 8, 0.3);
 }
 .cart-drawer-icon-box.request {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(37, 99, 235, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(37, 99, 235, 0.3);
 }
 .cart-drawer-title {
   font-size: 15px;
@@ -1265,11 +1265,11 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
       </a>
     </li>
 
-    {{-- Topbar Stock Transfer & Allocation Cart --}}
+    {{-- Topbar Sales Quotation Cart --}}
     <li>
-      <a id="topbar-request-cart-toggle" href="javascript:void(0)" onclick="openCartDrawer('request')" class="notification-toggle" title="Stock Transfer Cart (WMS Outbound)">
-        <i class="fas fa-file-import"></i>
-        <span id="topbar-request-cart-badge" class="badge" style="display: none; background: #ef4444; color: #fff; font-weight: 700; font-size: 10px; border-radius: 999px;">0</span>
+      <a id="topbar-request-cart-toggle" href="javascript:void(0)" onclick="openCartDrawer('request')" class="notification-toggle" title="Sales Quotation Cart (SQ Basket)">
+        <i class="fas fa-file-invoice-dollar" style="color: #60a5fa;"></i>
+        <span id="topbar-request-cart-badge" class="badge" style="display: none; background: #2563eb; color: #fff; font-weight: 700; font-size: 10px; border-radius: 999px;">0</span>
       </a>
     </li>
 
@@ -2000,17 +2000,17 @@ window.openCartDrawer = function(type) {
     $subtitle.text('Review items before generating RFQ / Purchase');
     $iconBox.removeClass('request').addClass('booking');
     $headerIcon.attr('class', 'fas fa-shopping-basket');
-    $proceedBtn.removeClass('btn-danger').addClass('btn-warning').css('color', '#1a1408');
+    $proceedBtn.removeClass('btn-danger btn-primary').addClass('btn-warning').css('color', '#1a1408');
     $proceedBtn.attr('href', "{{ route('admin.rfqs.create') }}?source=basket");
     $btnText.text('Proceed to Create RFQ');
   } else {
-    $title.text('Stock Transfer Cart');
-    $subtitle.text('Review items for inter-outlet allocation & dispatch');
+    $title.text('Sales Quotation Cart');
+    $subtitle.text('Review items before generating Customer Quotation (SQ)');
     $iconBox.removeClass('booking').addClass('request');
-    $headerIcon.attr('class', 'fas fa-truck-moving');
-    $proceedBtn.removeClass('btn-warning').addClass('btn-danger').css('color', '#ffffff');
-    $proceedBtn.attr('href', "{{ route('admin.stock-transfers.create') }}?source=cart");
-    $btnText.text('Proceed to Stock Transfer');
+    $headerIcon.attr('class', 'fas fa-file-invoice-dollar');
+    $proceedBtn.removeClass('btn-warning btn-danger').addClass('btn-primary').css('color', '#ffffff');
+    $proceedBtn.attr('href', "{{ route('admin.sales-quotations.create') }}?source=cart");
+    $btnText.text('Proceed to Create Sales Quotation');
   }
 
   // Render items INSTANTLY from in-memory cartStore (0ms delay)
@@ -2078,13 +2078,13 @@ function renderDrawerItems() {
     $list.html(html);
   } else {
     const isBooking = (activeDrawerType === 'booking');
-    const emptyIcon = isBooking ? 'fa-shopping-basket' : 'fa-truck-moving';
+    const emptyIcon = isBooking ? 'fa-shopping-basket' : 'fa-file-invoice-dollar';
     $list.html(`
       <div class="cart-drawer-empty">
         <div class="empty-icon-circle">
-          <i class="fas ${emptyIcon} fa-2x"></i>
+          <i class="fas ${emptyIcon} fa-2x" style="color: ${isBooking ? '#eab308' : '#3b82f6'};"></i>
         </div>
-        <h6 class="font-weight-bold text-dark">Your ${isBooking ? 'Procurement' : 'Stock Transfer'} Cart is Empty</h6>
+        <h6 class="font-weight-bold text-dark">Your ${isBooking ? 'Procurement' : 'Sales Quotation'} Cart is Empty</h6>
         <p class="text-muted small">Select products from the catalog to add them to this list.</p>
       </div>
     `);
@@ -2211,7 +2211,7 @@ window.clearActiveDrawerCart = function() {
   const store = window.cartStore[activeDrawerType];
   if (!store || store.count === 0) return;
 
-  const cartName = activeDrawerType === 'booking' ? 'Procurement Cart' : 'Stock Transfer Cart';
+  const cartName = activeDrawerType === 'booking' ? 'Procurement Cart' : 'Sales Quotation Cart';
 
   const doClear = function() {
     store.items = [];
