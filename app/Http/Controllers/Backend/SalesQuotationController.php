@@ -31,10 +31,12 @@ class SalesQuotationController extends Controller
 
     public function create(Request $request): View
     {
-        $customers = User::customers()->where('status', 1)->orderBy('name')->get();
+        $outlets = User::role('Outlet User')->where('status', 1)->latest('id')->get();
+        $regularCustomers = User::customers()->where('status', 1)->latest('id')->get();
+        $customers = $outlets->concat($regularCustomers);
         $currencies = Currency::where('status', 1)->get();
         $taxes = Tax::where('status', 1)->get();
-        $products = Product::where('status', 1)->with('variants')->get();
+        $products = Product::where('status', 1)->with('variants')->latest('id')->get();
         $nextQuotationNo = DocumentSequence::generateNext('SalesQuotation');
 
         $cartItems = collect();
@@ -46,7 +48,7 @@ class SalesQuotationController extends Controller
         }
 
         return view('backend.sales_quotation.create', compact(
-            'customers', 'currencies', 'taxes', 'products', 'nextQuotationNo', 'cartItems'
+            'customers', 'outlets', 'regularCustomers', 'currencies', 'taxes', 'products', 'nextQuotationNo', 'cartItems'
         ));
     }
 
@@ -153,13 +155,15 @@ class SalesQuotationController extends Controller
         }
 
         $salesQuotation->load(['items.product', 'items.variant']);
-        $customers = User::orderBy('name')->get();
+        $outlets = User::role('Outlet User')->where('status', 1)->latest('id')->get();
+        $regularCustomers = User::customers()->where('status', 1)->latest('id')->get();
+        $customers = $outlets->concat($regularCustomers);
         $currencies = Currency::where('status', 1)->get();
         $taxes = Tax::where('status', 1)->get();
-        $products = Product::where('status', 1)->with('variants')->get();
+        $products = Product::where('status', 1)->with('variants')->latest('id')->get();
 
         return view('backend.sales_quotation.edit', compact(
-            'salesQuotation', 'customers', 'currencies', 'taxes', 'products'
+            'salesQuotation', 'customers', 'outlets', 'regularCustomers', 'currencies', 'taxes', 'products'
         ));
     }
 

@@ -41,21 +41,50 @@
                             </div>
                             <div class="card-body p-4">
                                 <div class="row">
-                                    <div class="col-md-6 form-group">
+                                    <div class="col-md-12 form-group">
                                         <label class="font-weight-bold text-dark">Quotation No</label>
-                                        <input type="text" class="form-control font-weight-bold text-primary bg-light" value="{{ $salesQuotation->quotation_no }}" readonly style="border-radius: 8px;">
+                                        <input type="text" class="form-control font-weight-bold text-primary bg-light" value="{{ $salesQuotation->quotation_no }}" readonly style="border-radius: 8px; font-size: 1rem;">
                                     </div>
+                                </div>
+
+                                <div class="row">
+                                    @php
+                                        $selectedIsOutlet = isset($outlets) && $outlets->contains('id', $salesQuotation->customer_id);
+                                    @endphp
+                                    {{-- Regular Customer Selection --}}
                                     <div class="col-md-6 form-group">
-                                        <label class="font-weight-bold text-dark">Customer <span class="text-danger">*</span></label>
-                                        <select name="customer_id" class="form-control select2" required style="border-radius: 8px;">
-                                            <option value="">-- Select Customer --</option>
-                                            @foreach($customers as $customer)
-                                                <option value="{{ $customer->id }}" {{ $salesQuotation->customer_id == $customer->id ? 'selected' : '' }}>
+                                        <label class="font-weight-bold text-dark">
+                                            <i class="fas fa-user text-primary mr-1"></i> Customer (Regular B2B)
+                                        </label>
+                                        <select id="regularCustomerSelect" class="form-control select2" style="border-radius: 8px;">
+                                            <option value="">-- Choose B2B Customer --</option>
+                                            @foreach($regularCustomers as $customer)
+                                                <option value="{{ $customer->id }}" {{ !$selectedIsOutlet && $salesQuotation->customer_id == $customer->id ? 'selected' : '' }}>
                                                     {{ $customer->name }} ({{ $customer->email }})
                                                 </option>
                                             @endforeach
                                         </select>
+                                        <small class="text-muted d-block mt-1">Select if selling to an external client/customer</small>
                                     </div>
+
+                                    {{-- Outlet User Selection --}}
+                                    <div class="col-md-6 form-group">
+                                        <label class="font-weight-bold text-dark">
+                                            <i class="fas fa-store text-warning mr-1"></i> Outlet User (Store / Branch)
+                                        </label>
+                                        <select id="outletUserSelect" class="form-control select2" style="border-radius: 8px;">
+                                            <option value="">-- Choose Outlet / Store --</option>
+                                            @foreach($outlets as $outlet)
+                                                <option value="{{ $outlet->id }}" {{ $selectedIsOutlet && $salesQuotation->customer_id == $outlet->id ? 'selected' : '' }}>
+                                                    {{ $outlet->name }} ({{ $outlet->email }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <small class="text-muted d-block mt-1">Select if selling directly to a retail outlet</small>
+                                    </div>
+
+                                    {{-- Hidden input holding the actual selected customer_id submitted to backend --}}
+                                    <input type="hidden" name="customer_id" id="finalCustomerId" value="{{ $salesQuotation->customer_id }}" required>
                                 </div>
 
                                 <div class="row">
@@ -285,6 +314,39 @@
                 $('#displayTax').text('kr. ' + taxAmount.toFixed(2));
                 $('#displayGrandTotal').text('kr. ' + grandTotal.toFixed(2));
             }
+
+            // Mutual clear and sync between Regular Customer and Outlet User
+            $('#regularCustomerSelect').on('change', function() {
+                let val = $(this).val();
+                if (val) {
+                    $('#outletUserSelect').val('').trigger('change.select2');
+                    $('#finalCustomerId').val(val);
+                } else {
+                    if (!$('#outletUserSelect').val()) {
+                        $('#finalCustomerId').val('');
+                    }
+                }
+            });
+
+            $('#outletUserSelect').on('change', function() {
+                let val = $(this).val();
+                if (val) {
+                    $('#regularCustomerSelect').val('').trigger('change.select2');
+                    $('#finalCustomerId').val(val);
+                } else {
+                    if (!$('#regularCustomerSelect').val()) {
+                        $('#finalCustomerId').val('');
+                    }
+                }
+            });
+
+            $('form').on('submit', function(e) {
+                if (!$('#finalCustomerId').val()) {
+                    e.preventDefault();
+                    toastr.error('Please select either a Regular B2B Customer or an Outlet User.');
+                    return false;
+                }
+            });
 
             calculateTotals();
         });

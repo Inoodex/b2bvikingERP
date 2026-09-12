@@ -36,18 +36,44 @@
                             </div>
                             <div class="card-body p-4">
                                 <div class="row">
+                                    {{-- Regular Customer Selection --}}
                                     <div class="col-md-6 form-group">
-                                        <label class="font-weight-bold text-dark">Customer Account <span class="text-danger">*</span></label>
-                                        <select name="user_id" id="customerSelect" class="form-control" required style="border-radius: 8px;">
-                                            <option value="">-- Select Customer --</option>
-                                            @foreach($customers as $customer)
+                                        <label class="font-weight-bold text-dark">
+                                            <i class="fas fa-user text-primary mr-1"></i> Customer (Regular B2B)
+                                        </label>
+                                        <select id="regularCustomerSelect" class="form-control select2" style="border-radius: 8px;">
+                                            <option value="">-- Choose B2B Customer --</option>
+                                            @foreach($regularCustomers as $customer)
                                                 <option value="{{ $customer->id }}" data-segment="{{ $customer->customer_segment }}" data-credit="{{ $customer->credit_limit }}">
                                                     {{ $customer->name }} ({{ $customer->email }})
                                                 </option>
                                             @endforeach
                                         </select>
+                                        <small class="text-muted d-block mt-1">Select if selling to an external client/customer</small>
                                     </div>
+
+                                    {{-- Outlet User Selection --}}
                                     <div class="col-md-6 form-group">
+                                        <label class="font-weight-bold text-dark">
+                                            <i class="fas fa-store text-warning mr-1"></i> Outlet User (Store / Branch)
+                                        </label>
+                                        <select id="outletUserSelect" class="form-control select2" style="border-radius: 8px;">
+                                            <option value="">-- Choose Outlet / Store --</option>
+                                            @foreach($outlets as $outlet)
+                                                <option value="{{ $outlet->id }}" data-segment="{{ $outlet->customer_segment }}" data-credit="{{ $outlet->credit_limit }}">
+                                                    {{ $outlet->name }} ({{ $outlet->email }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <small class="text-muted d-block mt-1">Select if selling directly to a retail outlet</small>
+                                    </div>
+
+                                    {{-- Hidden input holding the actual selected user_id submitted to backend --}}
+                                    <input type="hidden" name="user_id" id="customerSelect" value="">
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12 form-group">
                                         <label class="font-weight-bold text-dark">Shipping Method</label>
                                         <input type="text" name="shipping_method" class="form-control" placeholder="e.g. Standard Freight / Express" value="Standard Freight" style="border-radius: 8px;">
                                     </div>
@@ -270,8 +296,41 @@
         }
 
         $(document).ready(function() {
-            $('#customerSelect').on('change', function() {
-                calculateTotals();
+            // Mutual clear and sync between Regular Customer and Outlet User
+            $('#regularCustomerSelect').on('change', function() {
+                let val = $(this).val();
+                if (val) {
+                    $('#outletUserSelect').val('').trigger('change.select2');
+                    $('#customerSelect').val(val);
+                    calculateTotals();
+                } else {
+                    if (!$('#outletUserSelect').val()) {
+                        $('#customerSelect').val('');
+                        calculateTotals();
+                    }
+                }
+            });
+
+            $('#outletUserSelect').on('change', function() {
+                let val = $(this).val();
+                if (val) {
+                    $('#regularCustomerSelect').val('').trigger('change.select2');
+                    $('#customerSelect').val(val);
+                    calculateTotals();
+                } else {
+                    if (!$('#regularCustomerSelect').val()) {
+                        $('#customerSelect').val('');
+                        calculateTotals();
+                    }
+                }
+            });
+
+            $('form').on('submit', function(e) {
+                if (!$('#customerSelect').val()) {
+                    e.preventDefault();
+                    toastr.error('Please select either a Regular B2B Customer or an Outlet User.');
+                    return false;
+                }
             });
 
             // Auto-fetch variants when product is selected

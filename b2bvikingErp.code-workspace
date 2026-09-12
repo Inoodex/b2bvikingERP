@@ -3,5 +3,19 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"tailwindCSS.files.exclude": [
+			"**/.git/**",
+			"**/node_modules/**",
+			"**/vendor/**",
+			"**/storage/**"
+		],
+		"tailwindCSS.includeLanguages": {
+			"blade": "html"
+		},
+		"editor.quickSuggestions": {
+			"strings": "on"
+		}
+	}
 }

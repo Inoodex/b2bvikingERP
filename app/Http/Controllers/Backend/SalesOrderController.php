@@ -38,12 +38,14 @@ class SalesOrderController extends Controller
 
     public function create(): View
     {
-        $customers = User::customers()->where('status', 1)->orderBy('name')->get();
+        $outlets = User::role('Outlet User')->where('status', 1)->latest('id')->get();
+        $regularCustomers = User::customers()->where('status', 1)->latest('id')->get();
+        $customers = $outlets->concat($regularCustomers);
         $currencies = Currency::where('status', 1)->get();
         $taxes = Tax::where('status', 1)->get();
-        $products = Product::where('status', 1)->with('variants')->get();
+        $products = Product::where('status', 1)->with('variants')->latest('id')->get();
 
-        return view('backend.sales_orders.create', compact('customers', 'currencies', 'taxes', 'products'));
+        return view('backend.sales_orders.create', compact('customers', 'outlets', 'regularCustomers', 'currencies', 'taxes', 'products'));
     }
 
     public function store(Request $request): RedirectResponse
