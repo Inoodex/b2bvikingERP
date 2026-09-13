@@ -7,7 +7,7 @@
     <div class="section-header d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="text-dark font-weight-bold mb-1"><i class="fas fa-calendar-alt text-primary mr-2"></i> Fiscal Years & Period Governance</h1>
-            <p class="text-muted mb-0 small">SAP / IFRS Posting Period Lock & Audit Trail Management</p>
+            <p class="text-muted mb-0 small">Posting Period Lock & Financial Audit Trail Management</p>
         </div>
         <div class="section-header-breadcrumb">
             <div class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>

@@ -26,10 +26,13 @@ class DocumentSequenceController extends Controller
             'next_number' => 'required|integer|min:1',
             'reset_policy' => 'required|in:yearly,monthly,never',
             'include_date' => 'nullable|boolean',
-            'date_format' => 'required|string|max:10',
+            'date_format' => 'nullable|string|max:10',
         ]);
 
-        $validated['include_date'] = $request->has('include_date');
+        $validated['include_date'] = $request->boolean('include_date');
+        if ($validated['include_date'] && empty($validated['date_format'])) {
+            $validated['date_format'] = 'Ym';
+        }
 
         $documentSequence->update($validated);
 

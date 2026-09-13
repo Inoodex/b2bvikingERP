@@ -37,7 +37,7 @@ class SalesQuotationController extends Controller
         $currencies = Currency::where('status', 1)->get();
         $taxes = Tax::where('status', 1)->get();
         $products = Product::where('status', 1)->with('variants')->latest('id')->get();
-        $nextQuotationNo = DocumentSequence::generateNext('SalesQuotation');
+        $nextQuotationNo = DocumentSequence::previewNext('SalesQuotation');
 
         $cartItems = collect();
         if (in_array($request->query('source'), ['cart', 'basket'])) {

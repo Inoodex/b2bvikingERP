@@ -27,6 +27,38 @@ class DocumentSequence extends Model
     ];
 
     /**
+     * Preview the next document number for a given model type without incrementing.
+     */
+    public static function previewNext(string $modelType): string
+    {
+        $defaultPrefixes = [
+            'WebOrder' => 'ORD-',
+            'OutletOrder' => 'DS-',
+            'SalesOrder' => 'SO-',
+            'SalesQuotation' => 'SQ-',
+            'SalesInvoice' => 'INV-',
+            'DeliveryOrder' => 'DO-',
+            'CreditNote' => 'CN-',
+        ];
+
+        $sequence = static::firstOrCreate(
+            ['model_type' => $modelType],
+            [
+                'prefix' => $defaultPrefixes[$modelType] ?? (strtoupper(substr($modelType, 0, 3)) . '-'),
+                'padding' => 4,
+                'next_number' => 1,
+                'reset_policy' => 'yearly',
+                'include_date' => true,
+                'date_format' => 'Ym',
+            ]
+        );
+
+        $number = str_pad((string) $sequence->next_number, $sequence->padding, '0', STR_PAD_LEFT);
+        $dateStr = ($sequence->include_date && !empty($sequence->date_format)) ? date($sequence->date_format) . '-' : '';
+        return ($sequence->prefix ?? '') . $dateStr . $number . ($sequence->suffix ?? '');
+    }
+
+    /**
      * Generate the next document number for a given model type.
      */
     public static function generateNext(string $modelType): string
@@ -65,7 +97,7 @@ class DocumentSequence extends Model
 
         do {
             $number = str_pad((string) $sequence->next_number, $sequence->padding, '0', STR_PAD_LEFT);
-            $dateStr = $sequence->include_date ? date($sequence->date_format) . '-' : '';
+            $dateStr = ($sequence->include_date && !empty($sequence->date_format)) ? date($sequence->date_format) . '-' : '';
             $docNo = ($sequence->prefix ?? '') . $dateStr . $number . ($sequence->suffix ?? '');
 
             $sequence->increment('next_number');

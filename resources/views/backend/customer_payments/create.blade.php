@@ -40,7 +40,7 @@
     <div class="section-header d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="text-dark font-weight-bold mb-1"><i class="fas fa-hand-holding-usd text-primary mr-2"></i> Receive Customer Payment</h1>
-            <p class="text-muted mb-0 small">SAP / Odoo Multi-Invoice FIFO Allocation & Real-time AR Knockdown</p>
+            <p class="text-muted mb-0 small">Multi-Invoice FIFO Allocation & Real-time AR Settlement</p>
         </div>
         <div class="section-header-breadcrumb">
             <div class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>

@@ -26,10 +26,10 @@ class DocumentSequenceDataTable extends DataTable
                 return '<span class="badge badge-dark px-3 py-2" style="background: #0f172a; color: #38bdf8; border-radius: 8px; font-weight: 700; font-family: monospace;">' . e($query->prefix) . '</span>';
             })
             ->addColumn('date_format_badge', function ($query) {
-                if ($query->include_date) {
+                if ($query->include_date && !empty($query->date_format)) {
                     return '<span class="badge badge-light border text-dark font-weight-semibold">' . e($query->date_format) . ' (' . date($query->date_format) . ')</span>';
                 }
-                return '<span class="badge badge-light text-muted">Disabled</span>';
+                return '<span class="badge badge-light text-muted">No Date (Classic)</span>';
             })
             ->addColumn('padding_label', function ($query) {
                 return '<span class="font-weight-semibold">' . $query->padding . ' digits</span>';
@@ -42,7 +42,7 @@ class DocumentSequenceDataTable extends DataTable
             })
             ->addColumn('sample_preview', function ($query) {
                 $numberStr = str_pad((string) $query->next_number, $query->padding, '0', STR_PAD_LEFT);
-                $dateStr = $query->include_date ? date($query->date_format) . '-' : '';
+                $dateStr = ($query->include_date && !empty($query->date_format)) ? date($query->date_format) . '-' : '';
                 $sample = ($query->prefix ?? '') . $dateStr . $numberStr . ($query->suffix ?? '');
                 return '<span class="px-3 py-1 rounded font-weight-bold" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-family: \'JetBrains Mono\', monospace; font-size: 0.9rem;">' . e($sample) . '</span>';
             })

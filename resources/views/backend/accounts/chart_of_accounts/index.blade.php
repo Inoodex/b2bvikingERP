@@ -7,7 +7,7 @@
     <div class="section-header d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="text-dark font-weight-bold mb-1"><i class="fas fa-sitemap text-primary mr-2"></i> Chart of Accounts (COA)</h1>
-            <p class="text-muted mb-0 small">SAP / IFRS 5-Tier General Ledger Master Data & Hierarchy</p>
+            <p class="text-muted mb-0 small">General Ledger Master Data & Chart of Accounts Hierarchy</p>
         </div>
         <div class="section-header-breadcrumb">
             <div class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
@@ -84,7 +84,7 @@
                 <ul class="nav nav-pills" id="coaTab" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link active font-weight-bold py-2 px-3" id="tree-tab" data-toggle="pill" href="#tree-view" role="tab" aria-selected="true" style="border-radius: 8px;">
-                            <i class="fas fa-network-wired mr-1"></i> Interactive Tree View (SAP Hierarchy)
+                            <i class="fas fa-network-wired mr-1"></i> Interactive Tree View (Account Hierarchy)
                         </a>
                     </li>
                     <li class="nav-item ml-2">
