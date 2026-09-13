@@ -57,7 +57,7 @@ OUTPUT: string $approvalUrl
      ],
      "application_context" => [
        "brand_name"          => "Copenhagen Tourist Point",
-       "locale"              => "da-DK",
+       "locale"              => "en-US",
        "landing_page"        => "BILLING",
        "user_action"         => "PAY_NOW",
        "return_url"          => route('admin.paypal.success'),
