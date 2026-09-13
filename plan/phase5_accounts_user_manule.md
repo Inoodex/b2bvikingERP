@@ -217,8 +217,15 @@ B2B Viking ERP-এর Phase 5 অ্যাকাউন্টিং সিস্�
    কাস্টমার নির্বাচন করে মোট সংগৃহীত টাকার পরিমাণ ইনপুট দিলে সিস্টেম স্বয়ংক্রিয়ভাবে কাস্টমারের সবচেয়ে পুরোনো বকেয়া ইনভয়েসগুলো থেকে শুরু করে একে একে (First-In, First-Out) সব ইনভয়েস পরিশোধ করে ব্যালান্স কমাবে।
 2. **সিঙ্গেল-ইনভয়েস আইসোলেশন মোড (Single-Invoice Mode):**  
    যখন কোনো নির্দিষ্ট সেলস ইনভয়েসের শো-পেজে থাকা **`Receive Payment`** বাটনে ক্লিক করে পেমেন্ট ফর্ম খোলা হয়, তখন সিস্টেম **Single-Invoice Mode**-এ লক হয়ে যায়। এতে জমা দেওয়া টাকাটি অন্য কোনো পুরোনো ইনভয়েসে না ছড়িয়ে শুধুমাত্র ওই নির্বাচিত ইনভয়েসেই পরিশোধ হিসেবে সমন্বয় হয়।
-3. **কাস্টমার অগ্রিম জমা (Account 2040 - Customer Advances & Deposits):**  
-   কাস্টমার যদি ইনভয়েসের চেয়ে বেশি অর্থ পরিশোধ করে অথবা কোনো চলমান ইনভয়েস ছাড়াই অগ্রিম টাকা জমা রাখে, সিস্টেম সেটিকে বাতিল না করে স্বয়ংক্রিয়ভাবে ব্যালান্সড জার্নালে **Account 2040 (Customer Advances & Deposits)** নামক চলতি দায় (Current Liability) হিসেবে ক্রেডিট করে জমা রাখে (`DR 1020 Bank Account / CR 2040 Customer Advances`)। পরবর্তীতে ওই কাস্টমারের কোনো নতুন ইনভয়েস জেনারেট হলে এই জমা থাকা ব্যালান্স থেকে সহজেই সমন্বয় করা যায়।
+3. **কাস্টমার অগ্রিম জমা ও ইনভয়েস সমন্বয় (Account 2040 - Customer Advances & Deposits):**  
+   - **অগ্রিম টাকা গ্রহণ (Receiving Advance):** কাস্টমার যদি কোনো চলমান ইনভয়েস ছাড়া আগাম অর্থ দেয় অথবা ইনভয়েস বকেয়ার চেয়ে বেশি টাকা পরিশোধ করে, তবে অতিরিক্ত অর্থ স্বয়ংক্রিয়ভাবে **Account 2040 (Customer Advances & Deposits)** নামক চলতি দায়ে (Current Liability) ক্রেডিট হয়ে জমা থাকে।
+     - **জার্নাল পোস্টিং:** `DR 1010/1020 Cash/Bank` / `CR 2040 Customer Advances & Deposits`
+   - **ইনভয়েসে অগ্রিম সমন্বয় (Applying Advance to Settle Invoices):** পরবর্তীতে কাস্টমারের নতুন ইনভয়েস বকেয়া হলে, পূর্বে জমাকৃত অগ্রিম টাকা থেকে সহজেই ইনভয়েস পরিশোধ করা যায়:
+     - ইনভয়েস শো পেজে **"Settle via Advance"** বাটনে ক্লিক করুন অথবা পেমেন্ট ফর্মে কাস্টমার সিলেক্ট করলে প্রদর্শিত সবুজ ব্যানার থেকে **"Apply Advance Deposit to Invoices"** বাটনে ক্লিক করুন।
+     - পেমেন্ট মেথড হিসেবে **"💎 Pay using Customer Advance Deposit (Account 2040)"** নির্বাচিত হবে এবং সিস্টেম সেটেলমেন্ট অ্যাকাউন্ট হিসেবে ২০৪০ নির্ধারণ করবে। এতে কোনো নতুন ব্যাংক/ক্যাশ মুভমেন্ট ছাড়াই ইনভয়েস পরিশোধ হয়ে যায়।
+     - **জার্নাল পোস্টিং (Settlement Journal):**  
+       $$\text{DR } 2040 \text{ (Customer Advances \& Deposits)} \quad / \quad \text{CR } 1030 \text{ (Accounts Receivable)}$$
+     - **স্মার্ট ওভার-অ্যালোকেশন প্রটেকশন:** গ্রাহকের জমা থাকা মোট ব্যালান্সের চেয়ে বেশি টাকা সমন্বয়ের চেষ্টা করলে সিস্টেম তাৎক্ষণিকভাবে ভ্যালিডেশন এরর দিয়ে তা প্রতিহত করে।
 4. **প্রিন্টযোগ্য মানি রিসিট (Receipt PDF):**  
    পেমেন্ট সফলভাবে সংরক্ষণ হওয়ার পর তাৎক্ষণিকভাবে একটি সুসজ্জিত প্রিন্টযোগ্য অফিসিয়াল রিসিট (PDF) তৈরি হয় যা কাস্টমারকে সরবরাহ করা যায়।
 
@@ -553,10 +560,60 @@ Used when corporate customers remit funds via Cash, Bank Transfer, or Cheque to 
    When receiving general customer funds, the engine systematically applies the received cash across outstanding invoices starting from the oldest open invoice (First-In, First-Out), knocking down ledger balances chronologically.
 2. **Single-Invoice Mode (Targeted Invoice Settle):**  
    Clicking **`Receive Payment`** directly from a specific Sales Invoice show page activates **Single-Invoice Mode**. The payment engine locks solely to that invoice ID, preventing collected funds from diffusing across older historical receivables.
-3. **Customer Advance Deposits (Account 2040):**  
-   Any payment received in excess of total outstanding invoice dues—or unallocated deposits collected before invoice generation—is automatically credited to **Account 2040 (Customer Advances & Deposits)** as a current liability (`DR 1020 Bank Account / CR 2040 Customer Advances`). When future commercial invoices are finalized for this client, the credit balance can be seamlessly applied.
-4. **Official Printable Payment Receipt (PDF):**  
+3. **Official Printable Payment Receipt (PDF):**  
    Every payment transaction generates an authenticated, printable PDF receipt complete with voucher tracking number, payment method, invoice knockdown breakdown, and authorized signature lines.
+
+---
+
+#### 💰 Customer Advance Deposits & Invoice Settlement (Account 2040):
+
+##### A. Workflow 1: Collecting Upfront Customer Advance Deposits
+* **When to Use:** When a customer sends an advance payment before any order or invoice is generated, or when they overpay an existing invoice.
+* **Step-by-Step Procedure:**
+  1. Navigate to `Accounts` ➡️ `Receive Payment` (`/admin/customer-payments/create`).
+  2. Select the **Customer** from the dropdown.
+  3. Choose Payment Method (`Bank Transfer` or `Cash`), and select the target Deposit Account (`1020 Bank` or `1010 Cash`).
+  4. Enter the Advance Amount. Check the **"Allow Advance / Excess Payment"** checkbox if collecting excess.
+  5. Click **`Save & Post Payment`**.
+* **Accounting Entry (Receipt Journal):**
+  - **DR 1020 Bank Account** (or 1010 Cash) — Asset Increases
+  - **CR 2040 Customer Advances & Deposits** — Current Liability Increases
+
+##### B. Workflow 2: Applying Advance Deposit to Settle Invoices (Advance Knockdown)
+* **When to Use:** When a customer has an existing advance balance in Account 2040 and you want to settle open commercial invoices without requesting new cash.
+* **Step-by-Step Procedure:**
+  * **Option 1 (From Invoice Show Page):**
+    1. Navigate to `Sales Invoices` and open the unpaid invoice.
+    2. If the customer holds an advance balance, a prominent amber action button appears:  
+       **`Settle via Advance (kr. X,XXX.XX Avail)`**.
+    3. Clicking this button automatically opens the payment receipt screen in Advance Mode (`use_advance=1`).
+  * **Option 2 (From Receive Payment Screen):**
+    1. Navigate to `Accounts` ➡️ `Receive Payment`.
+    2. Select the customer. If an advance balance exists, an emerald notification banner displays:  
+       **`Available Advance: kr. X,XXX.XX (Deposit held in Account 2040)`**.
+    3. Click **`Apply Advance Deposit to Invoices`**.
+    4. The payment method switches to **"💎 Pay using Customer Advance Deposit (Account 2040)"**, the settlement GL account is automatically locked to **Account 2040**, and external cash/bank movement is disabled.
+    5. The invoice knockdown table automatically allocates the advance amount across open dues.
+    6. Click **`Save & Post Payment`**.
+* **Accounting Entry (Settlement Journal):**
+  - **DR 2040 Customer Advances & Deposits** — Liability Decreases
+  - **CR 1030 Accounts Receivable** — Trade Receivable Decreases  
+  *(Note: Bank 1020 and Cash 1010 remain untouched, preserving pristine cash flow integrity).*
+
+---
+
+#### 📊 Advance Accounting Impact Matrix:
+| Transaction Type | Trigger / Screen | Cash / Bank (1010/1020) | Customer Advances (2040) | Accounts Receivable (1030) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Advance Collection** | Receive Payment (Cash/Bank) | **Debit (Increase)** | **Credit (Liability)** | *No Impact* |
+| **Sales Invoicing** | Order Confirmation | *No Impact* | *No Impact* | **Debit (Asset)** |
+| **Advance Settlement** | Settle via Advance (Method: advance) | *No Movement* | **Debit (Liability Clear)** | **Credit (Asset Knockdown)** |
+
+---
+
+#### 🔒 Over-Allocation & Integrity Safeguards:
+* **Strict Balance Limit:** The system checks `CustomerPayment::where('user_id', $id)->sum('unallocated_amount')`. Attempting to settle more than the available advance balance triggers a validation block.
+* **Dual-Ledger FIFO Synchronization:** When an advance is settled, both `customer_payments` (unallocated amount) and `advance_payments` ledger tables are deducted chronologically (First-In, First-Out), and an audit entry is posted to `payment_allocations`.
 
 ---
 

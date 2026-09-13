@@ -103,6 +103,8 @@ class CustomerPaymentController extends Controller
 
         $activeGateways = \App\Models\PaymentSetting::getActiveGateways();
 
+        $useAdvance = $request->boolean('use_advance');
+
         return view('backend.customer_payments.create', compact(
             'customers',
             'accounts',
@@ -111,7 +113,8 @@ class CustomerPaymentController extends Controller
             'preloadedInvoice',
             'preloadedOrder',
             'unpaidInvoices',
-            'activeGateways'
+            'activeGateways',
+            'useAdvance'
         ));
     }
 
@@ -196,10 +199,11 @@ class CustomerPaymentController extends Controller
             'customer_name'          => $user ? ($user->outlet_name ?: $user->name) : 'Customer',
             'customer_phone'         => $user ? $user->phone : '',
             'customer_email'         => $user ? $user->email : '',
-            'credit_limit'           => (float) ($user->credit_limit ?? 0),
-            'total_customer_due'     => $totalCustomerDue,
-            'target_invoice_due'     => $selectedInvoiceId && $invoices->first() ? (float)$invoices->first()->due_amount : null,
-            'invoices'               => $formattedInvoices,
+            'credit_limit'              => (float) ($user->credit_limit ?? 0),
+            'available_advance_balance' => $this->customerPaymentService->getCustomerAdvanceBalance((int)$userId),
+            'total_customer_due'        => $totalCustomerDue,
+            'target_invoice_due'        => $selectedInvoiceId && $invoices->first() ? (float)$invoices->first()->due_amount : null,
+            'invoices'                  => $formattedInvoices,
         ]);
     }
 

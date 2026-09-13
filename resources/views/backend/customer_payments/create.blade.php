@@ -102,21 +102,23 @@
                                 <div class="col-md-6 form-group mb-3">
                                     <label class="font-weight-bold text-dark mb-1"><i class="fas fa-wallet text-info mr-1"></i> Payment Method <span class="text-danger">*</span></label>
                                     <select name="payment_method" id="payment_method" class="form-control font-weight-bold" style="height: 44px;" required>
-                                        <option value="bank" {{ old('payment_method', 'bank') == 'bank' ? 'selected' : '' }}>🏦 Bank Transfer (Wire/SEPA)</option>
+                                        <option value="bank" {{ (old('payment_method') == 'bank' || (!old('payment_method') && !(isset($useAdvance) && $useAdvance))) ? 'selected' : '' }}>🏦 Bank Transfer (Wire/SEPA)</option>
                                         <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}>💵 Cash in Hand (Petty Cash)</option>
+                                        <option value="advance" {{ (old('payment_method') == 'advance' || (isset($useAdvance) && $useAdvance)) ? 'selected' : '' }}>💎 Customer Advance Balance (Account 2040)</option>
                                         <option value="cheque" {{ old('payment_method') == 'cheque' ? 'selected' : '' }}>📜 Bank Cheque / Draft</option>
                                         <option value="card" {{ old('payment_method') == 'card' ? 'selected' : '' }}>💳 POS Terminal / Card</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 form-group mb-3">
-                                    <label class="font-weight-bold text-dark mb-1"><i class="fas fa-university text-primary mr-1"></i> Deposit To Account</label>
+                                    <label class="font-weight-bold text-dark mb-1" id="deposit-account-label"><i class="fas fa-university text-primary mr-1"></i> Deposit To Account</label>
                                     <select name="account_id" id="account_id" class="form-control font-weight-bold" style="height: 44px;">
-                                        @foreach($accounts->whereIn('account_code', ['1010', '1020']) as $acc)
-                                            <option value="{{ $acc->id }}" {{ $acc->account_code == '1020' ? 'selected' : '' }}>
+                                        @foreach($accounts->whereIn('account_code', ['1010', '1020', '2040']) as $acc)
+                                            <option value="{{ $acc->id }}" data-code="{{ $acc->account_code }}" {{ $acc->account_code == ((isset($useAdvance) && $useAdvance) ? '2040' : '1020') ? 'selected' : '' }}>
                                                 {{ $acc->account_code }} — {{ $acc->account_name }} ({{ strtoupper($acc->account_type) }})
                                             </option>
                                         @endforeach
                                     </select>
+                                    <small class="text-muted d-block mt-1" id="account-help-note"></small>
                                 </div>
                             </div>
 
@@ -339,16 +341,22 @@ $(document).ready(function() {
             const rowVal = parseFloat($(this).val()) || 0;
             const invoiceId = $(this).data('invoice-id');
             if (rowVal > 0) {
-                totalAllocated += rowVal;
+                totalAllocated = Math.round((totalAllocated + rowVal) * 100) / 100;
                 allocations.push({ sales_invoice_id: invoiceId, amount: rowVal });
             }
         });
 
-        const unallocated = Math.max(0, totalReceived - totalAllocated);
+        const unallocated = Math.max(0, Math.round((totalReceived - totalAllocated) * 100) / 100);
 
         $('#summary-received').text(formatMoney(totalReceived));
         $('#summary-allocated').text(formatMoney(totalAllocated));
         $('#summary-unallocated').text(formatMoney(unallocated));
+
+        if (totalAllocated > totalReceived && totalReceived > 0) {
+            $('#summary-allocated').removeClass('text-success').addClass('text-danger');
+        } else {
+            $('#summary-allocated').removeClass('text-danger').addClass('text-success');
+        }
 
         $('#allocations_json').val(JSON.stringify(allocations));
     }
@@ -399,8 +407,26 @@ $(document).ready(function() {
                         ? `<div class="badge badge-primary px-2 py-1 mb-2 font-weight-bold d-block text-left" style="border-radius: 6px;"><i class="fas fa-bullseye mr-1"></i> Dedicated Single-Invoice Mode</div>` 
                         : '';
 
+                    const advanceBal = parseFloat(res.available_advance_balance || 0);
+                    let advanceCardHtml = '';
+                    if (advanceBal > 0) {
+                        advanceCardHtml = `
+                            <div class="alert p-3 mb-3 border-0 shadow-sm" style="border-radius: 8px; background-color: #ecfdf5; border-left: 4px solid #10b981 !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small font-weight-bold text-success"><i class="fas fa-coins mr-1"></i> Available Advance:</span>
+                                    <strong class="text-success font-weight-bold" style="font-size: 15px;">${formatMoney(advanceBal)}</strong>
+                                </div>
+                                <div class="small text-muted mb-2">Deposit held in Account 2040</div>
+                                <button type="button" class="btn btn-sm btn-success btn-block font-weight-bold shadow-sm" id="btn-apply-customer-advance" data-advance="${advanceBal}">
+                                    <i class="fas fa-gem mr-1"></i> Apply Advance Deposit to Invoices
+                                </button>
+                            </div>
+                        `;
+                    }
+
                     const profileHtml = `
                         ${modeNotice}
+                        ${advanceCardHtml}
                         <h6 class="font-weight-bold text-dark mb-1">${res.customer_name}</h6>
                         <small class="text-muted d-block mb-3"><i class="fas fa-envelope mr-1"></i> ${res.customer_email || 'N/A'}</small>
                         <div class="border rounded p-3 bg-light mb-3" style="border-radius: 8px;">
@@ -477,14 +503,51 @@ $(document).ready(function() {
         });
     }
 
-    function runAutoAllocate() {
-        let remaining = parseFloat($('#total_amount_input').val()) || 0;
-        $('.alloc-input').each(function() {
+    function runAutoAllocate(forcePopulateTotal = false) {
+        const allocInputs = $('.alloc-input');
+        if (allocInputs.length === 0) {
+            if (typeof toastr !== 'undefined') {
+                toastr.warning('Please select a customer with open invoices first.');
+            }
+            return;
+        }
+
+        let enteredAmt = parseFloat($('#total_amount_input').val()) || 0;
+
+        // If amount field is empty, 0, or forcePopulateTotal is true
+        if (enteredAmt <= 0 || forcePopulateTotal) {
+            let totalDue = 0;
+            allocInputs.each(function() {
+                totalDue += parseFloat($(this).data('due')) || 0;
+            });
+
+            const isAdvanceMode = ($('#payment_method').val() === 'advance');
+            if (isAdvanceMode) {
+                const advanceBal = parseFloat($('#btn-apply-customer-advance').data('advance')) || 0;
+                enteredAmt = advanceBal > 0 ? Math.min(totalDue, advanceBal) : totalDue;
+            } else {
+                enteredAmt = totalDue;
+            }
+
+            if (enteredAmt > 0) {
+                $('#total_amount_input').val(enteredAmt.toFixed(2));
+                if (typeof toastr !== 'undefined') {
+                    toastr.success('Auto-filled amount: ' + formatMoney(enteredAmt) + ' and allocated in FIFO order.');
+                }
+            }
+        } else {
+            if (typeof toastr !== 'undefined') {
+                toastr.info('Allocated ' + formatMoney(enteredAmt) + ' across open invoices in FIFO order.');
+            }
+        }
+
+        let remaining = enteredAmt;
+        allocInputs.each(function() {
             const due = parseFloat($(this).data('due')) || 0;
             if (remaining > 0) {
                 const allocate = Math.min(remaining, due);
                 $(this).val(allocate.toFixed(2));
-                remaining -= allocate;
+                remaining = Math.round((remaining - allocate) * 100) / 100;
             } else {
                 $(this).val('0.00');
             }
@@ -525,6 +588,9 @@ $(document).ready(function() {
     $('#btn-clear-allocations').on('click', function() {
         $('.alloc-input').val('0.00');
         recalculateSummary();
+        if (typeof toastr !== 'undefined') {
+            toastr.info('Cleared all invoice allocations.');
+        }
     });
 
     // Recompute on amount change or row change
@@ -533,22 +599,92 @@ $(document).ready(function() {
     });
 
     $(document).on('keyup change', '.alloc-input', function() {
+        const val = parseFloat($(this).val()) || 0;
+        const maxDue = parseFloat($(this).data('due')) || 0;
+        if (val > maxDue) {
+            $(this).val(maxDue.toFixed(2));
+            if (typeof toastr !== 'undefined') {
+                toastr.warning('Cannot allocate more than the invoice due balance of kr. ' + maxDue.toFixed(2));
+            }
+        }
+
+        // If total received is not entered yet or 0, auto-update it to the sum of row allocations
+        const currentReceived = parseFloat($('#total_amount_input').val()) || 0;
+        if (currentReceived <= 0 || !$('#total_amount_input').val()) {
+            let rowSum = 0;
+            $('.alloc-input').each(function() {
+                rowSum += parseFloat($(this).val()) || 0;
+            });
+            if (rowSum > 0) {
+                $('#total_amount_input').val(rowSum.toFixed(2));
+            }
+        }
+
         recalculateSummary();
     });
 
-    // Auto-link Payment Method with Deposit GL Account
+    // Auto-link Payment Method with Deposit / Settlement GL Account
     $('#payment_method').on('change', function() {
         const method = $(this).val();
-        if (method === 'cash') {
+        if (method === 'advance') {
             $('#account_id option').each(function() {
-                if ($(this).text().indexOf('1010') !== -1) $(this).prop('selected', true);
+                if ($(this).data('code') == '2040' || $(this).text().indexOf('2040') !== -1) {
+                    $(this).prop('selected', true);
+                }
             });
+            $('#allow_advance_check').prop('checked', false).prop('disabled', true);
+            $('#allow_advance_check').closest('.custom-control').addClass('text-muted').css('opacity', '0.5');
+            $('#deposit-account-label').html('<i class="fas fa-gem text-warning mr-1"></i> Settlement GL Account');
+            $('#account-help-note').text('Settling from Account 2040 (Customer Advances & Deposits) to Accounts Receivable 1030.');
+        } else if (method === 'cash') {
+            $('#account_id option').each(function() {
+                if ($(this).data('code') == '1010' || $(this).text().indexOf('1010') !== -1) {
+                    $(this).prop('selected', true);
+                }
+            });
+            $('#allow_advance_check').prop('disabled', false);
+            $('#allow_advance_check').closest('.custom-control').removeClass('text-muted').css('opacity', '1');
+            $('#deposit-account-label').html('<i class="fas fa-university text-primary mr-1"></i> Deposit To Account');
+            $('#account-help-note').text('');
         } else {
             $('#account_id option').each(function() {
-                if ($(this).text().indexOf('1020') !== -1) $(this).prop('selected', true);
+                if ($(this).data('code') == '1020' || $(this).text().indexOf('1020') !== -1) {
+                    $(this).prop('selected', true);
+                }
             });
+            $('#allow_advance_check').prop('disabled', false);
+            $('#allow_advance_check').closest('.custom-control').removeClass('text-muted').css('opacity', '1');
+            $('#deposit-account-label').html('<i class="fas fa-university text-primary mr-1"></i> Deposit To Account');
+            $('#account-help-note').text('');
+        }
+        recalculateSummary();
+    });
+
+    // Handle Apply Advance Button Click
+    $(document).on('click', '#btn-apply-customer-advance', function() {
+        const advanceBal = parseFloat($(this).data('advance') || 0);
+        if (advanceBal <= 0) return;
+
+        $('#payment_method').val('advance').trigger('change');
+
+        let totalDueInvoices = 0;
+        customerInvoices.forEach(function(inv) {
+            totalDueInvoices += parseFloat(inv.due_amount || 0);
+        });
+
+        const amountToApply = Math.min(advanceBal, totalDueInvoices > 0 ? totalDueInvoices : advanceBal);
+        $('#total_amount_input').val(amountToApply.toFixed(2));
+
+        runAutoAllocate();
+        if (typeof toastr !== 'undefined') {
+            toastr.info('Applied kr. ' + amountToApply.toFixed(2) + ' from available Customer Advance deposit.');
         }
     });
+
+    // Auto-trigger advance mode if loaded with use_advance flag
+    if ("{{ (isset($useAdvance) && $useAdvance) ? '1' : '0' }}" === "1") {
+        $('#payment_method').val('advance').trigger('change');
+    }
 
     // Initial load if customer already selected
     if ($('#customer_select').val()) {

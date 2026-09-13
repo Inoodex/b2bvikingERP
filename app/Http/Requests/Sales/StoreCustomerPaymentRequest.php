@@ -43,7 +43,15 @@ class StoreCustomerPaymentRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function ($validator) {
-            if (!$this->boolean('allow_advance') && $this->filled('sales_invoice_id') && $this->filled('amount')) {
+            if (strtolower((string)$this->payment_method) === 'advance') {
+                $customerId = (int) ($this->customer_id ?? $this->user_id);
+                $service = app(\App\Services\CustomerPaymentService::class);
+                $availableAdvance = $service->getCustomerAdvanceBalance($customerId);
+                $paying = (float) $this->amount;
+                if ($paying > ($availableAdvance + 0.01)) {
+                    $validator->errors()->add('amount', "Requested settlement amount (kr. {$paying}) exceeds customer available advance deposit (kr. {$availableAdvance}).");
+                }
+            } elseif (!$this->boolean('allow_advance') && $this->filled('sales_invoice_id') && $this->filled('amount')) {
                 $invoice = SalesInvoice::find($this->sales_invoice_id);
                 if ($invoice) {
                     $due = (float) $invoice->due_amount;

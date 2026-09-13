@@ -175,6 +175,17 @@
                                     </button>
                                 </form>
 
+                                @php
+                                    $invCustId = $invoice->customer_id ?: ($invoice->order?->user_id ?? null);
+                                    $customerAdvanceBal = $invCustId ? app(\App\Services\CustomerPaymentService::class)->getCustomerAdvanceBalance((int)$invCustId) : 0;
+                                @endphp
+
+                                @if($customerAdvanceBal > 0)
+                                    <a href="{{ route('admin.customer-payments.create', ['sales_invoice_id' => $invoice->id, 'use_advance' => 1]) }}" class="btn btn-warning btn-block font-weight-bold shadow-sm mb-2 text-white" style="border-radius: 6px; background-color: #d97706; border-color: #d97706;">
+                                        <i class="fas fa-gem mr-1"></i> Settle via Advance (kr. {{ number_format($customerAdvanceBal, 2) }} Avail)
+                                    </a>
+                                @endif
+
                                 {{-- 4. Manual / Offline Payment Receipt --}}
                                 <a href="{{ route('admin.customer-payments.create', ['sales_invoice_id' => $invoice->id]) }}" class="btn btn-success btn-block font-weight-bold shadow-sm" style="border-radius: 6px;">
                                     <i class="fas fa-money-check-alt mr-1"></i> Record Offline/Bank Receipt
