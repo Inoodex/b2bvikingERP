@@ -211,7 +211,8 @@ class DashboardController extends Controller
             ->selectRaw('
                 DATE_FORMAT(placed_at, "%Y-%m") as month_key,
                 DATE_FORMAT(placed_at, "%b %Y") as month_label,
-                SUM(total_amount) as total_sales
+                SUM(total_amount) as total_sales,
+                COUNT(*) as total_orders
             ')
             ->whereNotNull('placed_at')
             ->where('placed_at', '>=', now()->subMonths(11)->startOfMonth())
@@ -225,7 +226,8 @@ class DashboardController extends Controller
                 ->selectRaw('
                     DATE_FORMAT(created_at, "%Y-%m") as month_key,
                     DATE_FORMAT(created_at, "%b %Y") as month_label,
-                    SUM(total_amount) as total_sales
+                    SUM(total_amount) as total_sales,
+                    COUNT(*) as total_orders
                 ')
                 ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
                 ->groupBy('month_key', 'month_label')
@@ -235,6 +237,13 @@ class DashboardController extends Controller
 
         $salesMonths = $monthlySales->pluck('month_label')->toArray();
         $salesRevenueTrend = $monthlySales->pluck('total_sales')->map(fn($v) => round((float)$v, 2))->toArray();
+        $salesOrderCountTrend = $monthlySales->pluck('total_orders')->map(fn($v) => (int)$v)->toArray();
+
+        // High-level analytics highlights for executive cockpit
+        $peakMonthObj = $monthlySales->sortByDesc('total_sales')->first();
+        $peakMonthLabel = $peakMonthObj ? $peakMonthObj->month_label : 'N/A';
+        $peakMonthSales = $peakMonthObj ? (float)$peakMonthObj->total_sales : 0.0;
+        $avgMonthlySales = $monthlySales->isNotEmpty() ? ($monthlySales->sum('total_sales') / $monthlySales->count()) : 0.0;
 
         // =========================================================================
         // 6. 🍩 SALES BY PRODUCT CATEGORY BREAKDOWN (Donut Chart & Distribution)
@@ -332,6 +341,10 @@ class DashboardController extends Controller
             'topCustomers',
             'salesMonths',
             'salesRevenueTrend',
+            'salesOrderCountTrend',
+            'peakMonthLabel',
+            'peakMonthSales',
+            'avgMonthlySales',
             'categorySales',
             'totalCatSales',
             'categoryLabels',

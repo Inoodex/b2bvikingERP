@@ -194,10 +194,12 @@
                 </h3>
             </div>
             <div class="pt-2 mt-2" style="border-top: 1px solid #f1f5f9;">
-                <div class="d-flex justify-content-between align-items-center" style="font-size: 11px;">
-                    <span class="text-muted" style="font-size: 10.5px;">{{ number_format($totalActiveProducts) }} Active Products</span>
-                    <a href="{{ route('admin.products.index') }}" class="badge font-weight-bold px-1.5 py-0.5 border text-decoration-none" style="font-size: 9.5px; background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; border-radius: 4px;">
-                        Manage →
+                <div class="d-flex justify-content-between align-items-center flex-wrap" style="font-size: 10.5px; gap: 4px;">
+                    <a href="{{ route('admin.products.index') }}?status=1" class="badge font-weight-bold px-2 py-0.5 text-decoration-none" style="font-size: 9.5px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; border-radius: 4px;" title="Active Live Catalog">
+                        <i class="fas fa-check mr-1"></i>{{ number_format($totalActiveProducts) }} Active
+                    </a>
+                    <a href="{{ route('admin.products.index') }}?status=0" class="badge font-weight-bold px-2 py-0.5 text-decoration-none" style="font-size: 9.5px; background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 4px;" title="Inactive / Draft SKUs">
+                        {{ number_format($totalInactiveProducts) }} Inactive
                     </a>
                 </div>
             </div>
@@ -332,17 +334,32 @@
         {{-- Left: 12-Month Sales Revenue Trend --}}
         <div class="col-lg-8 col-12 mb-4 mb-lg-0">
             <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; border: 1px solid #e2e8f0 !important; background: #ffffff;">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 px-4" style="border-bottom: 1px solid #f1f5f9;">
+                <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center py-3 px-4" style="border-bottom: 1px solid #f1f5f9; gap: 12px;">
                     <div>
-                        <h4 class="font-weight-bold text-dark mb-0 d-flex align-items-center" style="font-size: 15px; gap: 8px;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-                            Sales & Revenue Growth Trend
-                        </h4>
-                        <small class="text-muted">Monthly completed commercial sales volume</small>
+                        <div class="d-flex align-items-center" style="gap: 8px;">
+                            <span class="d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; border-radius: 6px; background: #eff6ff; color: #2563eb;">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                            </span>
+                            <div>
+                                <h4 class="font-weight-bold text-dark mb-0" style="font-size: 15px;">Sales & Revenue Velocity</h4>
+                                <small class="text-muted">Peak: <strong class="text-dark">{{ $peakMonthLabel }}</strong> ({!! formatWithCurrency($peakMonthSales) !!}) &bull; Run-Rate: <strong class="text-dark">{!! formatWithCurrency($avgMonthlySales) !!}/mo</strong></small>
+                            </div>
+                        </div>
                     </div>
-                    <span class="badge border font-weight-bold px-2.5 py-1 text-dark" style="font-size: 11px; background: #f8fafc; border-color: #e2e8f0;">
-                        Currency: DKK (kr.)
-                    </span>
+                    <div class="d-flex align-items-center" style="gap: 8px;">
+                        {{-- Interactive Metric Switcher --}}
+                        <div class="btn-group btn-group-sm p-0.5 bg-light border" style="border-radius: 8px; border-color: #e2e8f0 !important;">
+                            <button type="button" class="btn btn-sm font-weight-bold shadow-none" id="btnChartRevenue" onclick="switchExecutiveChart('revenue')" style="font-size: 11px; border-radius: 6px; padding: 3px 10px; background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1;">
+                                Revenue (kr.)
+                            </button>
+                            <button type="button" class="btn btn-sm font-weight-bold shadow-none text-muted" id="btnChartOrders" onclick="switchExecutiveChart('orders')" style="font-size: 11px; border-radius: 6px; padding: 3px 10px; border: 1px solid transparent;">
+                                Order Volume
+                            </button>
+                        </div>
+                        <span class="badge border font-weight-bold px-2 py-1 text-muted" style="font-size: 10px; background: #f8fafc; border-radius: 6px;">
+                            Live Analytics
+                        </span>
+                    </div>
                 </div>
                 <div class="card-body p-4">
                     <div style="position: relative; height: 260px;">
@@ -605,6 +622,7 @@
                                     <th class="py-3">Customer / Outlet</th>
                                     <th class="py-3 text-center">Placed At</th>
                                     <th class="py-3 text-right">Order Total</th>
+                                    <th class="py-3 text-center">Payment</th>
                                     <th class="py-3 text-center">Fulfillment Status</th>
                                     <th class="py-3 text-right pr-4" style="width: 100px;">Action</th>
                                 </tr>
@@ -622,6 +640,10 @@
                                         default => 'badge-warning'
                                     };
                                     $clientName = optional($order->user)->outlet_name ?: (optional($order->user)->name ?? 'Walk-in Client');
+                                    $dueAmount = (float)($order->due_amount ?? 0);
+                                    $totalAmount = (float)($order->total_amount ?? 0);
+                                    $isPaid = $dueAmount <= 0.01 && $totalAmount > 0;
+                                    $isPartial = $dueAmount > 0.01 && $dueAmount < $totalAmount;
                                 @endphp
                                 <tr>
                                     <td class="pl-4 font-weight-bold">
@@ -639,6 +661,21 @@
                                         {!! formatWithCurrency($order->total_amount) !!}
                                     </td>
                                     <td class="text-center">
+                                        @if($isPaid)
+                                            <span class="badge px-2 py-0.5 font-weight-bold" style="font-size: 10px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; border-radius: 4px;">
+                                                <i class="fas fa-check-circle mr-1"></i>PAID
+                                            </span>
+                                        @elseif($isPartial)
+                                            <span class="badge px-2 py-0.5 font-weight-bold" style="font-size: 10px; background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 4px;" title="Due: {!! formatWithCurrency($dueAmount) !!}">
+                                                PARTIAL
+                                            </span>
+                                        @else
+                                            <span class="badge px-2 py-0.5 font-weight-bold" style="font-size: 10px; background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px;">
+                                                DUE
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
                                         <span class="badge {{ $statusBadge }} px-2 py-1 font-weight-bold" style="font-size: 10.5px; text-transform: uppercase;">
                                             {{ str_replace('_', ' ', $order->status) }}
                                         </span>
@@ -651,7 +688,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-4 text-muted font-italic">No commercial orders found in this period.</td>
+                                    <td colspan="7" class="text-center py-4 text-muted font-italic">No commercial orders found in this period.</td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -667,25 +704,32 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // 1. Sales & Revenue Growth Trend (Institutional Area Chart)
+    // 1. Sales & Revenue Growth Trend (Institutional Area Chart with Multi-Metric Switcher)
     const revCtx = document.getElementById('executiveRevenueChart');
+    let executiveChartInstance = null;
+
     if (revCtx) {
         const revMonths = @json($salesMonths);
         const revData = @json($salesRevenueTrend);
+        const ordersData = @json($salesOrderCountTrend ?? []);
 
         const ctx2d = revCtx.getContext('2d');
-        const gradient = ctx2d.createLinearGradient(0, 0, 0, 240);
-        gradient.addColorStop(0, 'rgba(79, 70, 229, 0.25)');
-        gradient.addColorStop(1, 'rgba(79, 70, 229, 0.00)');
+        const gradientRevenue = ctx2d.createLinearGradient(0, 0, 0, 240);
+        gradientRevenue.addColorStop(0, 'rgba(79, 70, 229, 0.28)');
+        gradientRevenue.addColorStop(1, 'rgba(79, 70, 229, 0.00)');
 
-        new Chart(revCtx, {
+        const gradientOrders = ctx2d.createLinearGradient(0, 0, 0, 240);
+        gradientOrders.addColorStop(0, 'rgba(6, 182, 212, 0.28)');
+        gradientOrders.addColorStop(1, 'rgba(6, 182, 212, 0.00)');
+
+        executiveChartInstance = new Chart(revCtx, {
             type: 'line',
             data: {
                 labels: revMonths.length ? revMonths : ['No Data'],
                 datasets: [{
                     label: 'Sales Revenue (DKK)',
                     data: revData.length ? revData : [0],
-                    backgroundColor: gradient,
+                    backgroundColor: gradientRevenue,
                     borderColor: '#4f46e5',
                     borderWidth: 2.5,
                     pointBackgroundColor: '#ffffff',
@@ -734,6 +778,54 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         });
+
+        window.switchExecutiveChart = function(type) {
+            const btnRev = document.getElementById('btnChartRevenue');
+            const btnOrd = document.getElementById('btnChartOrders');
+
+            if (type === 'orders') {
+                btnOrd.style.background = '#ffffff';
+                btnOrd.style.color = '#0f172a';
+                btnOrd.style.border = '1px solid #cbd5e1';
+                btnOrd.classList.remove('text-muted');
+
+                btnRev.style.background = 'transparent';
+                btnRev.style.border = '1px solid transparent';
+                btnRev.classList.add('text-muted');
+
+                executiveChartInstance.data.datasets[0].label = 'Completed Orders';
+                executiveChartInstance.data.datasets[0].data = ordersData.length ? ordersData : [0];
+                executiveChartInstance.data.datasets[0].backgroundColor = gradientOrders;
+                executiveChartInstance.data.datasets[0].borderColor = '#0891b2';
+                executiveChartInstance.data.datasets[0].pointBorderColor = '#0891b2';
+                executiveChartInstance.options.scales.yAxes[0].ticks.callback = function(val) { return val + ' orders'; };
+                executiveChartInstance.options.tooltips.callbacks.label = function(item) { return ' Volume: ' + item.yLabel + ' orders'; };
+            } else {
+                btnRev.style.background = '#ffffff';
+                btnRev.style.color = '#0f172a';
+                btnRev.style.border = '1px solid #cbd5e1';
+                btnRev.classList.remove('text-muted');
+
+                btnOrd.style.background = 'transparent';
+                btnOrd.style.border = '1px solid transparent';
+                btnOrd.classList.add('text-muted');
+
+                executiveChartInstance.data.datasets[0].label = 'Sales Revenue (DKK)';
+                executiveChartInstance.data.datasets[0].data = revData.length ? revData : [0];
+                executiveChartInstance.data.datasets[0].backgroundColor = gradientRevenue;
+                executiveChartInstance.data.datasets[0].borderColor = '#4f46e5';
+                executiveChartInstance.data.datasets[0].pointBorderColor = '#4f46e5';
+                executiveChartInstance.options.scales.yAxes[0].ticks.callback = function(value) {
+                    if (value >= 1000000) return 'kr. ' + (value / 1000000).toFixed(1) + 'M';
+                    if (value >= 1000) return 'kr. ' + (value / 1000).toFixed(0) + 'k';
+                    return 'kr. ' + value;
+                };
+                executiveChartInstance.options.tooltips.callbacks.label = function(item) {
+                    return ' Revenue: kr. ' + Number(item.yLabel).toLocaleString('da-DK', { minimumFractionDigits: 2 });
+                };
+            }
+            executiveChartInstance.update();
+        };
     }
 
     // 2. Top Category Sales Share (Modern Doughnut)
