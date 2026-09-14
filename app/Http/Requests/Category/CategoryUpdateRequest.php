@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Category;
 
+use App\Models\Category;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CategoryUpdateRequest extends FormRequest
@@ -11,19 +14,21 @@ class CategoryUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->check();
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, array<int, string>>
      */
     public function rules(): array
     {
-        $id=$this->route('category');
+        $category = $this->route('category');
+        $id = $category instanceof Category ? $category->id : $category;
+
         return [
-            'name' => ['required', 'max:255', 'unique:categories,name,' . $id],
+            'name' => ['required', 'string', 'max:255', 'unique:categories,name,' . $id],
             'status' => ['required', 'boolean'],
             'frontend_show' => ['nullable', 'boolean'],
         ];

@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\ProductType;
 
-use App\Models\ProductType;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ProductTypeUpdateRequest extends FormRequest
+class ProductTypeToggleStatusRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,12 +23,9 @@ class ProductTypeUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        $productType = $this->route('product_type');
-        $id = $productType instanceof ProductType ? $productType->id : $productType;
-
         return [
-            'name' => ['required', 'string', 'max:200', 'unique:product_types,name,' . $id],
-            'status' => ['required', 'boolean'],
+            'id' => ['required', 'integer', 'exists:product_types,id'],
+            'status' => ['required'],
         ];
     }
 }

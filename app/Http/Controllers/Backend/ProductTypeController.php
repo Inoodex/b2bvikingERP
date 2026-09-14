@@ -1,97 +1,112 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Backend;
 
 use App\DataTables\ProductTypeDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductType\ProductTypeCreateRequest;
+use App\Http\Requests\ProductType\ProductTypeToggleStatusRequest;
 use App\Http\Requests\ProductType\ProductTypeUpdateRequest;
 use App\Models\ProductType;
 use Brian2694\Toastr\Facades\Toastr;
-use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
 
 class ProductTypeController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of product types via DataTable.
      */
-    public function index(ProductTypeDataTable $dataTable)
+    public function index(ProductTypeDataTable $dataTable): JsonResponse|View
     {
         return $dataTable->render('backend.product-types.index');
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new product type.
      */
-    public function create()
+    public function create(): View
     {
         return view('backend.product-types.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created product type in storage.
      */
-    public function store(ProductTypeCreateRequest $request)
+    public function store(ProductTypeCreateRequest $request): RedirectResponse
     {
         ProductType::create([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-            'status' => $request->status,
+            'name' => $request->validated('name'),
+            'slug' => Str::slug($request->validated('name')),
+            'status' => (bool) $request->validated('status'),
         ]);
 
-        Toastr::success('Product Type Created Successfully!');
+        Toastr::success(__('Product Type Created Successfully!'));
+
         return redirect()->route('admin.product-types.index');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified product type.
      */
-    public function edit(string $id)
+    public function edit(ProductType $productType): View
     {
-        $productType = ProductType::findOrFail($id);
         return view('backend.product-types.edit', compact('productType'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified product type in storage.
      */
-    public function update(ProductTypeUpdateRequest $request, string $id)
+    public function update(ProductTypeUpdateRequest $request, ProductType $productType): RedirectResponse
     {
-        $productType = ProductType::findOrFail($id);
-        $productType->name = $request->name;
-        $productType->slug = Str::slug($request->name);
-        $productType->status = $request->status;
-        $productType->save();
+        $productType->update([
+            'name' => $request->validated('name'),
+            'slug' => Str::slug($request->validated('name')),
+            'status' => (bool) $request->validated('status'),
+        ]);
 
-        Toastr::success('Product Type Updated Successfully!');
+        Toastr::success(__('Product Type Updated Successfully!'));
+
         return redirect()->route('admin.product-types.index');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified product type from storage with relationship safety guard.
      */
-    public function destroy(string $id)
+    public function destroy(ProductType $productType): JsonResponse
     {
-        $productType = ProductType::findOrFail($id);
-        
-        // Optional: Check if products are assigned to this type
-        if ($productType->products()->count() > 0) {
-            return response(['status' => 'error', 'message' => 'This type has products assigned. Please reassign them first!']);
+        if ($productType->products()->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('This type has products assigned. Please reassign them first!'),
+            ], 422);
         }
-        
+
         $productType->delete();
-        return response(['status' => 'success', 'message' => 'Deleted Successfully!']);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('Deleted Successfully!'),
+        ]);
     }
 
     /**
-     * Change product type status.
+     * Toggle publication status of a product type.
      */
-    public function changeStatus(Request $request)
+    public function changeStatus(ProductTypeToggleStatusRequest $request): JsonResponse
     {
-        $productType = ProductType::findOrFail($request->id);
-        $productType->status = $request->status == 'true' ? 1 : 0;
-        $productType->save();
+        $productType = ProductType::findOrFail((int) $request->validated('id'));
+        $status = filter_var($request->validated('status'), FILTER_VALIDATE_BOOLEAN);
 
-        return response(['status' => 'success', 'message' => 'Status Updated Successfully!']);
+        $productType->update(['status' => $status]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('Status Updated Successfully!'),
+        ]);
     }
 }

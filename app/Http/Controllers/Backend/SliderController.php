@@ -1,116 +1,122 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Backend;
 
 use App\DataTables\SliderDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Slider\SliderCreateRequest;
+use App\Http\Requests\Slider\SliderToggleStatusRequest;
 use App\Http\Requests\Slider\SliderUpdateRequest;
 use App\Models\Slider;
 use App\Traits\ImageUploadTrait;
 use Brian2694\Toastr\Facades\Toastr;
-use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 
 class SliderController extends Controller
 {
     use ImageUploadTrait;
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of sliders via DataTable.
      */
-    public function index(SliderDataTable $dataTable)
+    public function index(SliderDataTable $dataTable): JsonResponse|View
     {
         return $dataTable->render('backend.slider.index');
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new slider.
      */
-    public function create()
+    public function create(): View
     {
-        $nextSerial = (int) Slider::max('serial') + 1;
-        if ($nextSerial < 1) {
-            $nextSerial = 1;
-        }
+        $nextSerial = max(1, (int) Slider::max('serial') + 1);
 
         return view('backend.slider.create', compact('nextSerial'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created slider in storage.
      */
-    public function store(SliderCreateRequest $request)
+    public function store(SliderCreateRequest $request): RedirectResponse
     {
         $bannerPath = $this->upload_image($request, 'banner', 'uploads/sliders');
 
         Slider::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'starting_price' => max(0, (float) $request->starting_price),
-            'button_url' => $request->button_url,
-            'serial' => max(1, (int) $request->serial),
-            'status' => $request->status,
+            'title' => $request->validated('title'),
+            'description' => $request->validated('description'),
+            'starting_price' => max(0, (float) ($request->validated('starting_price') ?? 0)),
+            'button_url' => $request->validated('button_url'),
+            'serial' => max(1, (int) $request->validated('serial')),
+            'status' => (bool) $request->validated('status'),
             'banner' => $bannerPath,
         ]);
 
-        Toastr::success('Slider Created Successfully!');
+        Toastr::success(__('Slider Created Successfully!'));
+
         return redirect()->route('admin.slider.index');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified slider.
      */
-    public function edit(string $id)
+    public function edit(Slider $slider): View
     {
-        $slider = Slider::findOrFail($id);
         return view('backend.slider.edit', compact('slider'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified slider in storage.
      */
-    public function update(SliderUpdateRequest $request, string $id)
+    public function update(SliderUpdateRequest $request, Slider $slider): RedirectResponse
     {
-        $slider = Slider::findOrFail($id);
         $bannerPath = $this->update_image($request, 'banner', 'uploads/sliders', $slider->banner);
 
-        $slider->title = $request->title;
-        $slider->description = $request->description;
-        $slider->starting_price = max(0, (float) $request->starting_price);
-        $slider->button_url = $request->button_url;
-        $slider->serial = max(1, (int) $request->serial);
-        $slider->status = $request->status;
+        $slider->update([
+            'title' => $request->validated('title'),
+            'description' => $request->validated('description'),
+            'starting_price' => max(0, (float) ($request->validated('starting_price') ?? 0)),
+            'button_url' => $request->validated('button_url'),
+            'serial' => max(1, (int) $request->validated('serial')),
+            'status' => (bool) $request->validated('status'),
+            'banner' => $bannerPath ?? $slider->banner,
+        ]);
 
-        if ($request->hasFile('banner')) {
-            $slider->banner = $bannerPath;
-        }
+        Toastr::success(__('Slider Updated Successfully!'));
 
-        $slider->save();
-
-        Toastr::success('Slider Updated Successfully!');
         return redirect()->route('admin.slider.index');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified slider from storage and prune image.
      */
-    public function destroy(string $id)
+    public function destroy(Slider $slider): JsonResponse
     {
-        $slider = Slider::findOrFail($id);
         $this->delete_image($slider->banner);
         $slider->delete();
-        return response(['status' => 'success', 'message' => 'Deleted Successfully!']);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('Deleted Successfully!'),
+        ]);
     }
 
     /**
-     * Change slider status.
+     * Toggle publication status of a slider.
      */
-    public function changeStatus(Request $request)
+    public function changeStatus(SliderToggleStatusRequest $request): JsonResponse
     {
-        $slider = Slider::findOrFail($request->id);
-        $slider->status = $request->status == 'true' ? 1 : 0;
-        $slider->save();
+        $slider = Slider::findOrFail((int) $request->validated('id'));
+        $status = filter_var($request->validated('status'), FILTER_VALIDATE_BOOLEAN);
 
-        return response(['status' => 'success', 'message' => 'Status Updated Successfully!']);
+        $slider->update(['status' => $status]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('Status Updated Successfully!'),
+        ]);
     }
 }

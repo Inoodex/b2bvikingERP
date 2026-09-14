@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\SubCategory;
 
+use App\Models\SubCategory;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SubCategoryUpdateRequest extends FormRequest
@@ -11,21 +14,22 @@ class SubCategoryUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->check();
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, array<int, string>>
      */
     public function rules(): array
     {
-        $id=$this->route('sub_category');
-        // dd($id);
+        $subCategory = $this->route('sub_category');
+        $id = $subCategory instanceof SubCategory ? $subCategory->id : $subCategory;
+
         return [
-            'category' => ['required', 'exists:categories,id'],
-            'name' => ['required', 'max:255', 'unique:sub_categories,name,' . $id],
+            'category' => ['required', 'integer', 'exists:categories,id'],
+            'name' => ['required', 'string', 'max:255', 'unique:sub_categories,name,' . $id],
             'status' => ['required', 'boolean'],
         ];
     }

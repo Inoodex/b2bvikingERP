@@ -1,112 +1,138 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Backend;
 
 use App\DataTables\CategoryDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Category\CategoryCreateRequest;
+use App\Http\Requests\Category\CategoryToggleFrontendShowRequest;
+use App\Http\Requests\Category\CategoryToggleStatusRequest;
 use App\Http\Requests\Category\CategoryUpdateRequest;
 use App\Models\Category;
 use Brian2694\Toastr\Facades\Toastr;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of categories via DataTable.
      */
-    public function index(CategoryDataTable $dataTable)
+    public function index(CategoryDataTable $dataTable): JsonResponse|View
     {
         return $dataTable->render('backend.category.index');
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new category.
      */
-    public function create()
+    public function create(): View
     {
         return view('backend.category.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created category in storage.
      */
-    public function store(CategoryCreateRequest $request)
+    public function store(CategoryCreateRequest $request): RedirectResponse
     {
         Category::create([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-            'status' => $request->status,
-            'frontend_show' => $request->boolean('frontend_show'),
+            'name' => $request->validated('name'),
+            'slug' => Str::slug($request->validated('name')),
+            'status' => (bool) $request->validated('status'),
+            'frontend_show' => (bool) $request->validated('frontend_show', false),
         ]);
 
-        Toastr::success('Category Created Successfully!');
+        Toastr::success(__('Category Created Successfully!'));
+
         return redirect()->route('admin.category.index');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified category.
      */
-    public function edit(string $id)
+    public function edit(Category $category): View
     {
-        $category = Category::findOrFail($id);
         return view('backend.category.edit', compact('category'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified category in storage.
      */
-    public function update(CategoryUpdateRequest $request, string $id)
+    public function update(CategoryUpdateRequest $request, Category $category): RedirectResponse
     {
-        // dd($request->all());
-        $category = Category::findOrFail($id);
-        $category->name = $request->name;
-        $category->slug = Str::slug($request->name);
-        $category->status = $request->status;
-        $category->frontend_show = $request->boolean('frontend_show');
-        $category->save();
+        $category->update([
+            'name' => $request->validated('name'),
+            'slug' => Str::slug($request->validated('name')),
+            'status' => (bool) $request->validated('status'),
+            'frontend_show' => (bool) $request->validated('frontend_show', false),
+        ]);
 
-        Toastr::success('Category Updated Successfully!');
+        Toastr::success(__('Category Updated Successfully!'));
+
         return redirect()->route('admin.category.index');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified category from storage with cascading child safety check.
      */
-    public function destroy(string $id)
+    public function destroy(Category $category): JsonResponse
     {
-        $category = Category::findOrFail($id);
-        // Check if there are subcategories before deleting
-        if ($category->subCategories()->count() > 0) {
-            return response(['status' => 'error', 'message' => 'This category has subcategories. Please delete them first!']);
+        if ($category->subCategories()->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('This category has subcategories. Please delete them first!'),
+            ], 422);
         }
+
+        if ($category->products()->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('This category has active products. Please delete them first!'),
+            ], 422);
+        }
+
         $category->delete();
-        return response(['status' => 'success', 'message' => 'Deleted Successfully!']);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('Deleted Successfully!'),
+        ]);
     }
 
     /**
-     * Change category status.
+     * Toggle category publication status.
      */
-    public function changeStatus(Request $request)
+    public function changeStatus(CategoryToggleStatusRequest $request): JsonResponse
     {
-        $category = Category::findOrFail($request->id);
-        $category->status = $request->status == 'true' ? 1 : 0;
-        $category->save();
+        $category = Category::findOrFail((int) $request->validated('id'));
+        $status = filter_var($request->validated('status'), FILTER_VALIDATE_BOOLEAN);
 
-        return response(['status' => 'success', 'message' => 'Status Updated Successfully!']);
+        $category->update(['status' => $status]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('Status Updated Successfully!'),
+        ]);
     }
 
     /**
-     * Change category frontend show status.
+     * Toggle category frontend visibility.
      */
-    public function changeFrontendShow(Request $request)
+    public function changeFrontendShow(CategoryToggleFrontendShowRequest $request): JsonResponse
     {
-        $category = Category::findOrFail($request->id);
-        $category->frontend_show = $request->frontend_show == 'true' ? 1 : 0;
-        $category->save();
+        $category = Category::findOrFail((int) $request->validated('id'));
+        $frontendShow = filter_var($request->validated('frontend_show'), FILTER_VALIDATE_BOOLEAN);
 
-        return response(['status' => 'success', 'message' => 'Frontend Show Updated Successfully!']);
+        $category->update(['frontend_show' => $frontendShow]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('Frontend Show Updated Successfully!'),
+        ]);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Category;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -11,21 +13,20 @@ class CategoryCreateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->check();
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, array<int, string>>
      */
     public function rules(): array
     {
         return [
-            'name' => ['required', 'max:255', 'unique:categories,name'],
+            'name' => ['required', 'string', 'max:255', 'unique:categories,name'],
             'status' => ['required', 'boolean'],
             'frontend_show' => ['nullable', 'boolean'],
-            
         ];
     }
 }
