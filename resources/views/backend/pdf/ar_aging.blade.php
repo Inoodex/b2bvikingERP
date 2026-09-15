@@ -1,80 +1,160 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <title>Customer AR Aging Report</title>
     <style>
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; color: #333; margin: 0; padding: 20px; }
-        .header-table { width: 100%; border-bottom: 2px solid #2563eb; padding-bottom: 12px; margin-bottom: 20px; }
-        .company-title { font-size: 20px; font-weight: bold; color: #1e3a8a; }
-        .report-title { font-size: 16px; font-weight: bold; color: #2563eb; text-align: right; }
-        .report-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .report-table th { background-color: #f1f5f9; padding: 8px; font-size: 10px; border: 1px solid #cbd5e1; text-align: left; }
-        .report-table td { padding: 8px; font-size: 10px; border: 1px solid #e2e8f0; }
+        @page { margin: 25px 30px; size: a4 landscape; }
+        body { font-family: 'DejaVu Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9pt; color: #2d3748; line-height: 1.3; }
+        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; border-bottom: 2px solid #2b4c7e; padding-bottom: 8px; }
+        .company-title { font-size: 16pt; font-weight: bold; color: #1a365d; margin: 0; }
+        .company-meta { font-size: 8pt; color: #4a5568; margin-top: 3px; line-height: 1.3; }
+        .report-title { font-size: 14pt; font-weight: bold; color: #2b4c7e; text-align: right; text-transform: uppercase; margin: 0; }
+        .report-meta { font-size: 8pt; color: #4a5568; text-align: right; margin-top: 3px; line-height: 1.3; }
+        
+        .filter-badge-table { width: 100%; margin-bottom: 12px; border-collapse: collapse; background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 4px; }
+        .filter-badge-table td { padding: 6px 10px; font-size: 8.5pt; }
+
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        .data-table th { background-color: #2b4c7e; color: #ffffff; font-size: 8.5pt; font-weight: bold; padding: 7px 8px; text-align: left; border: 1px solid #2b4c7e; }
+        .data-table td { font-size: 8pt; padding: 6px 8px; border-bottom: 1px solid #e2e8f0; border-left: 1px solid #edf2f7; border-right: 1px solid #edf2f7; vertical-align: top; }
+        .data-table tr:nth-child(even) { background-color: #f8fafc; }
+        .data-table tr { page-break-inside: avoid; }
+        
         .text-right { text-align: right; }
         .text-center { text-align: center; }
-        .text-danger { color: #dc2626; font-weight: bold; }
-        .text-success { color: #16a34a; font-weight: bold; }
-        .text-primary { color: #2563eb; font-weight: bold; }
-        .footer { margin-top: 30px; font-size: 9px; color: #64748b; text-align: center; border-top: 1px solid #cbd5e1; padding-top: 10px; }
+        .text-success { color: #276749; font-weight: bold; }
+        .text-info { color: #2b6cb0; font-weight: bold; }
+        .text-warning { color: #c05621; font-weight: bold; }
+        .text-danger { color: #c53030; font-weight: bold; }
+        .font-bold { font-weight: bold; }
+
+        .total-row td { background-color: #edf2f7; font-size: 9pt; font-weight: bold; border-top: 2px solid #cbd5e0; border-bottom: 2px solid #a0aec0; padding: 7px 8px; }
+
+        .signature-table { width: 100%; margin-top: 35px; border-collapse: collapse; page-break-inside: avoid; }
+        .signature-table td { width: 33.33%; text-align: center; vertical-align: bottom; }
+        .sig-line { width: 75%; margin: 0 auto 5px auto; border-top: 1px solid #718096; }
+        .sig-title { font-size: 8.5pt; font-weight: bold; color: #2d3748; }
+        .sig-sub { font-size: 7.5pt; color: #718096; }
+
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; font-size: 7.5pt; color: #a0aec0; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 5px; }
     </style>
 </head>
 <body>
 
     <table class="header-table">
         <tr>
-            <td>
-                <div class="company-title">{{ $generalSetting->site_name ?? 'B2B Viking ERP' }}</div>
-                <div>Executive Accounts Receivable (AR) Portfolio Analysis</div>
+            <td width="55%">
+                <div class="company-title">{{ $company?->name ?? $settings?->site_name ?? 'B2B Viking ERP' }}</div>
+                <div class="company-meta">
+                    @if(!empty($company?->address ?? $settings?->address))
+                        {{ $company?->address ?? $settings?->address }}<br>
+                    @endif
+                    @php
+                        $contactEmail = $company?->email ?? $settings?->contact_email;
+                        $contactPhone = $company?->phone ?? $settings?->phone;
+                    @endphp
+                    @if($contactEmail)
+                        Email: {{ $contactEmail }}
+                    @endif
+                    @if($contactEmail && $contactPhone)
+                        &nbsp;|&nbsp;
+                    @endif
+                    @if($contactPhone)
+                        Phone: {{ $contactPhone }}
+                    @endif
+                </div>
             </td>
-            <td class="report-title">
-                CUSTOMER AR AGING REPORT<br>
-                <small style="font-size: 10px; font-weight: normal; color: #64748b;">Generated: {{ date('Y-m-d H:i:s') }}</small>
+            <td width="45%">
+                <div class="report-title">AR Aging Analysis</div>
+                <div class="report-meta">
+                    <strong>Portfolio:</strong> Accounts Receivable (Dues)<br>
+                    <strong>Generated:</strong> {{ ($generatedAt ?? now())->format('d M Y, h:i A') }}<br>
+                    <strong>Generated By:</strong> {{ $generatedBy ?? 'Administrator' }}
+                </div>
             </td>
         </tr>
     </table>
 
-    <table class="report-table">
+    <table class="filter-badge-table">
+        <tr>
+            <td width="40%">
+                <strong>Report Scope:</strong> All Outstanding Customer Accounts
+            </td>
+            <td width="30%">
+                <strong>As Of Date:</strong> {{ ($generatedAt ?? now())->format('d M Y') }}
+            </td>
+            <td width="30%" class="text-right">
+                <strong>Active Accounts with Dues:</strong> {{ number_format(count($agingData)) }}
+            </td>
+        </tr>
+    </table>
+
+    <table class="data-table">
         <thead>
             <tr>
-                <th>B2B Customer</th>
-                <th>Phone</th>
-                <th class="text-center">Invoices</th>
-                <th class="text-right">Current (0-30 D)</th>
-                <th class="text-right">31-60 Days</th>
-                <th class="text-right">61-90 Days</th>
-                <th class="text-right">90+ Days (Critical)</th>
-                <th class="text-right">Total Dues</th>
+                <th width="26%">B2B Customer</th>
+                <th width="14%">Phone</th>
+                <th width="8%" class="text-center">Invoices</th>
+                <th width="13%" class="text-right">Current (0-30 D)</th>
+                <th width="13%" class="text-right">31-60 Days</th>
+                <th width="13%" class="text-right">61-90 Days</th>
+                <th width="13%" class="text-right">90+ Days (Critical)</th>
+                <th width="13%" class="text-right">Total Due</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($agingData as $row)
+            @forelse($agingData as $row)
                 <tr>
                     <td><strong>{{ $row['customer_name'] }}</strong></td>
                     <td>{{ $row['phone'] }}</td>
                     <td class="text-center">{{ $row['invoice_count'] }}</td>
                     <td class="text-right text-success">kr. {{ number_format((float)$row['current_0_30'], 2) }}</td>
                     <td class="text-right">kr. {{ number_format((float)$row['days_31_60'], 2) }}</td>
-                    <td class="text-right">kr. {{ number_format((float)$row['days_61_90'], 2) }}</td>
+                    <td class="text-right text-warning">kr. {{ number_format((float)$row['days_61_90'], 2) }}</td>
                     <td class="text-right text-danger">kr. {{ number_format((float)$row['over_90'], 2) }}</td>
-                    <td class="text-right text-primary">kr. {{ number_format((float)$row['total_due'], 2) }}</td>
+                    <td class="text-right font-bold">kr. {{ number_format((float)$row['total_due'], 2) }}</td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="8" class="text-center" style="padding: 20px; color: #718096;">Zero outstanding receivables. All invoices are fully settled!</td>
+                </tr>
+            @endforelse
         </tbody>
         <tfoot>
-            <tr style="background-color: #f8fafc; font-weight: bold;">
-                <td colspan="3" class="text-right">TOTAL PORTFOLIO DUES:</td>
+            <tr class="total-row">
+                <td colspan="3" class="text-right">TOTAL RECEIVABLES PORTFOLIO:</td>
                 <td class="text-right text-success">kr. {{ number_format((float)$totals['current_0_30'], 2) }}</td>
                 <td class="text-right">kr. {{ number_format((float)$totals['days_31_60'], 2) }}</td>
-                <td class="text-right">kr. {{ number_format((float)$totals['days_61_90'], 2) }}</td>
+                <td class="text-right text-warning">kr. {{ number_format((float)$totals['days_61_90'], 2) }}</td>
                 <td class="text-right text-danger">kr. {{ number_format((float)$totals['over_90'], 2) }}</td>
-                <td class="text-right text-primary">kr. {{ number_format((float)$totals['total_due'], 2) }}</td>
+                <td class="text-right font-bold">kr. {{ number_format((float)$totals['total_due'], 2) }}</td>
             </tr>
         </tfoot>
     </table>
 
+    <table class="signature-table">
+        <tr>
+            <td>
+                <div class="sig-line"></div>
+                <div class="sig-title">Prepared By</div>
+                <div class="sig-sub">Accounts Receivable Officer</div>
+            </td>
+            <td>
+                <div class="sig-line"></div>
+                <div class="sig-title">Checked By</div>
+                <div class="sig-sub">Internal Auditor / Finance Controller</div>
+            </td>
+            <td>
+                <div class="sig-line"></div>
+                <div class="sig-title">Authorized By</div>
+                <div class="sig-sub">Chief Financial Officer / Director</div>
+            </td>
+        </tr>
+    </table>
+
     <div class="footer">
-        Confidential Report — Produced by B2B Viking ERP System Financial Engine.
+        Confidential Financial Document • Produced by ERP System • Generated on {{ ($generatedAt ?? now())->format('d M Y, h:i A') }}
     </div>
 
 </body>

@@ -19,7 +19,7 @@ When users trigger direct (synchronous) PDF downloads on large datasets—specif
 
 Below is the complete list of all 24 report endpoints found under the **Reports** menu in the sidebar navigation:
 
-### 1. Core Financial Statements
+### 1. Core Financial Statements ([Documentation: 01_core_financial_statements/feature.md](01_core_financial_statements/feature.md))
 | # | Report Name | Route Name | Controller & Method | Export Status / Type | Crash Risk |
 |:--|:---|:---|:---|:---|:---:|
 | 1 | **General Ledger** | `admin.reports.general-ledger` | `FinancialReportController@generalLedger` | Yajra DataTables (Web) + Ephemeral PDF (`reports/general-ledger/pdf`) | ✅ Safe (0 MB RAM leak) |
@@ -29,14 +29,14 @@ Below is the complete list of all 24 report endpoints found under the **Reports*
 
 ---
 
-### 2. Payables & Receivables Statements
+### 2. Payables & Receivables Statements ([Documentation: 02_payables_receivables_statements/feature.md](02_payables_receivables_statements/feature.md) | [Plan: 2_payables_and_receivables_statements_async_pdf_engine.md](2_payables_and_receivables_statements_async_pdf_engine.md))
 | # | Report Name | Route Name | Controller & Method | Export Status / Type | Crash Risk |
 |:--|:---|:---|:---|:---|:---:|
-| 5 | **Customer Transaction Ledger** | `admin.accounts.index` | `AccountController@index` | Synchronous PDF (`accounts/payments/pdf`) | Medium |
-| 6 | **AR Customer Aging** | `admin.reports.ar-aging` | `SalesReportController@arAging` | **Synchronous PDF** (`reports/ar-aging/pdf` via `exportArAgingPdf`) | 🚨 **High** |
-| 7 | **Vendor Payment Ledger** | `admin.accounts.vendor-payments.index` | `AccountController@vendorPaymentHistory` | Synchronous PDF (`accounts/vendor-payments/pdf`) | Medium |
-| 8 | **AP Vendor Aging** | `admin.vendor-ledger.aging` | `VendorLedgerController@agingReport` | Blade View | Low |
-| 9 | **Supplier Ledger & Statement** | `admin.vendor-ledger.index` | `VendorLedgerController@index` | Synchronous PDF (`vendor-ledger/{id}/pdf`) | Medium |
+| 5 | **Customer Transaction Ledger** | `admin.accounts.index` | `AccountController@index` | Yajra DataTables + Ephemeral PDF (`accounts/payments/pdf`) | ✅ Safe (0 MB RAM leak) |
+| 6 | **AR Customer Aging** | `admin.reports.ar-aging` | `SalesReportController@arAging` | Blade Matrix + Ephemeral PDF (`reports/ar-aging/pdf`) | ✅ Safe (0 MB RAM leak) |
+| 7 | **Vendor Payment Ledger** | `admin.accounts.vendor-payments.index` | `AccountController@vendorPaymentIndex` | Paginated View + Ephemeral PDF (`accounts/vendor-payments/pdf`) | ✅ Safe (0 MB RAM leak) |
+| 8 | **AP Vendor Aging** | `admin.vendor-ledger.aging` | `VendorLedgerController@agingReport` | Blade Matrix + Ephemeral PDF (`vendor-ledger/aging/pdf`) | ✅ Safe (0 MB RAM leak) |
+| 9 | **Supplier Ledger & Statement** | `admin.vendor-ledger.show` | `VendorLedgerController@show` | Blade Statement + Ephemeral PDF (`vendor-ledger/{id}/pdf`) | ✅ Safe (0 MB RAM leak) |
 
 ---
 

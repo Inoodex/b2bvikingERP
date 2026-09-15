@@ -126,8 +126,9 @@ class VendorLedgerService
             $vId = $bill->vendor_id;
             if (!isset($vendorAging[$vId])) {
                 $vendorAging[$vId] = [
+                    'vendor_id'   => $vId,
                     'vendor_name' => $bill->vendor->shop_name ?? ($bill->vendor->name ?? 'Unknown Supplier'),
-                    'vendor_code' => $bill->vendor->code ?? 'N/A',
+                    'vendor_code' => $bill->vendor?->code ?? ('V-' . str_pad((string) $vId, 4, '0', STR_PAD_LEFT)),
                     'phone'       => $bill->vendor->phone ?? 'N/A',
                     'current'     => 0.00,   // Not overdue or <= 30 days
                     'days_31_60'  => 0.00,   // 31-60 days overdue

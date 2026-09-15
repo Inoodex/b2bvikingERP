@@ -19,10 +19,27 @@
     <div class="section-body">
         <div class="card card-primary">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h4><i class="fas fa-user-tag text-primary mr-2"></i> {{ $statement['vendor']->name }}</h4>
-                <a href="{{ route('admin.vendor-ledger.pdf', ['vendor_id' => $statement['vendor']->id, 'from_date' => $fromDate, 'to_date' => $toDate]) }}" class="btn btn-danger btn-sm" target="_blank">
-                    <i class="fas fa-file-pdf mr-1"></i> Print PDF Statement
-                </a>
+                <h4>
+                    <i class="fas fa-user-tag text-primary mr-2"></i> {{ $statement['vendor']->name }}
+                    <span class="badge badge-dark font-monospace ml-2">{{ $statement['vendor']->code }}</span>
+                </h4>
+                <div class="d-flex align-items-center">
+                    @if(!empty($latestPdf))
+                        <a href="{{ $latestPdf['url'] }}" id="btn-download-pdf" class="btn btn-success btn-sm font-weight-bold mr-2" title="{{ $latestPdf['filename'] }}">
+                            <i class="fas fa-file-download mr-1"></i> Download Statement (Ready: {{ $latestPdf['time'] }})
+                        </a>
+                    @else
+                        <a href="#" id="btn-download-pdf" class="btn btn-success btn-sm font-weight-bold mr-2" style="display: none;">
+                            <i class="fas fa-file-download mr-1"></i> Download Statement (Ready)
+                        </a>
+                    @endif
+
+                    <button type="button" id="btn-generate-pdf" class="btn btn-danger btn-sm font-weight-bold" 
+                            data-url="{{ route('admin.vendor-ledger.pdf', ['vendor_id' => $statement['vendor']->id, 'from_date' => $fromDate, 'to_date' => $toDate]) }}" 
+                            data-type="supplier_statement_{{ $statement['vendor']->id }}">
+                        <i class="fas fa-file-pdf mr-1"></i> Generate Fresh Statement
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 <form action="{{ route('admin.vendor-ledger.show', $statement['vendor']->id) }}" method="GET" class="mb-4">
@@ -116,3 +133,7 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+    @include('backend.reports.partials.async_payables_receivables_pdf_js')
+@endpush

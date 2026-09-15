@@ -63,12 +63,21 @@
         <div class="card shadow-sm border-0" style="border-radius: 12px;">
             <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap">
                 <h5 class="font-weight-bold text-dark mb-0"><i class="fas fa-list text-primary mr-2"></i> Vendor Payment History</h5>
-                <div class="mt-2 mt-md-0">
-                    <a href="{{ route('admin.accounts.vendor-payments.pdf', request()->except('page')) }}"
-                       class="btn btn-primary btn-sm font-weight-bold mr-2" style="border-radius:6px;">
-                        <i class="fas fa-file-pdf mr-1"></i> Download PDF
-                    </a>
-                    <a href="{{ route('admin.accounts.vendor-payments.pdf.view', request()->except('page')) }}"
+                <div class="mt-2 mt-md-0 d-flex align-items-center flex-wrap">
+                    @if(!empty($latestPdf))
+                        <a href="{{ $latestPdf['url'] }}" id="btn-download-pdf" class="btn btn-success btn-sm font-weight-bold mr-2" style="border-radius:6px;" title="{{ $latestPdf['filename'] }}">
+                            <i class="fas fa-file-download mr-1"></i> Download PDF (Ready: {{ $latestPdf['time'] }})
+                        </a>
+                    @else
+                        <a href="#" id="btn-download-pdf" class="btn btn-success btn-sm font-weight-bold mr-2" style="border-radius:6px; display: none;">
+                            <i class="fas fa-file-download mr-1"></i> Download PDF (Ready)
+                        </a>
+                    @endif
+
+                    <button type="button" id="btn-generate-pdf" class="btn btn-primary btn-sm font-weight-bold mr-2" style="border-radius:6px;" data-url="{{ route('admin.accounts.vendor-payments.pdf') }}" data-type="vendor_payments">
+                        <i class="fas fa-file-pdf mr-1"></i> Generate PDF
+                    </button>
+                    <a href="{{ route('admin.accounts.vendor-payments.pdf.view') }}"
                        class="btn btn-outline-secondary btn-sm font-weight-bold mr-2" target="_blank" style="border-radius:6px;">
                         <i class="fas fa-eye mr-1"></i> View
                     </a>
@@ -78,128 +87,50 @@
                     </a>
                 </div>
             </div>
+
             <div class="card-body p-4">
-                <!-- Filter Bar -->
-                <form method="GET" class="mb-4 p-3 bg-light rounded border" id="vendor-payment-filter-form">
-                    <div class="row">
-                        <div class="col-md-3 form-group mb-2">
-                            <label class="small font-weight-bold text-muted text-uppercase">Vendor</label>
-                            <select name="vendor_id" class="form-control form-control-sm">
-                                <option value="">All Vendors</option>
+                <!-- Modern Executive Filter Toolbar (Zero-Reload) -->
+                <div class="p-3 mb-4" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);">
+                    <form id="filter-form" class="row align-items-end mb-0">
+                        <div class="col-lg-3 col-md-6 col-12 form-group mb-lg-0 mb-3">
+                            <label class="font-weight-bold text-dark mb-1" style="font-size: 12px;">Vendor / Supplier</label>
+                            <select id="vendor_id" name="vendor_id" class="form-control form-control-sm select2" style="width: 100%;">
+                                <option value="">All Registered Vendors</option>
                                 @foreach($vendors as $vendor)
-                                    <option value="{{ $vendor->id }}" {{ (string) request('vendor_id') === (string) $vendor->id ? 'selected' : '' }}>
-                                        {{ $vendor->shop_name }}
-                                    </option>
+                                    <option value="{{ $vendor->id }}">{{ $vendor->shop_name ?? $vendor->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-2 form-group mb-2">
-                            <label class="small font-weight-bold text-muted text-uppercase">From</label>
-                            <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control form-control-sm">
+                        <div class="col-lg-2 col-md-3 col-6 form-group mb-lg-0 mb-3">
+                            <label class="font-weight-bold text-dark mb-1" style="font-size: 12px;">From Date</label>
+                            <input type="date" id="start_date" name="start_date" class="form-control form-control-sm" style="border-radius: 8px; border: 1px solid #cbd5e1;">
                         </div>
-                        <div class="col-md-2 form-group mb-2">
-                            <label class="small font-weight-bold text-muted text-uppercase">To</label>
-                            <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control form-control-sm">
+                        <div class="col-lg-2 col-md-3 col-6 form-group mb-lg-0 mb-3">
+                            <label class="font-weight-bold text-dark mb-1" style="font-size: 12px;">To Date</label>
+                            <input type="date" id="end_date" name="end_date" class="form-control form-control-sm" style="border-radius: 8px; border: 1px solid #cbd5e1;">
                         </div>
-                        <div class="col-md-2 form-group mb-2">
-                            <label class="small font-weight-bold text-muted text-uppercase">Method</label>
-                            <select name="method" class="form-control form-control-sm">
+                        <div class="col-lg-2 col-md-6 col-6 form-group mb-lg-0 mb-3">
+                            <label class="font-weight-bold text-dark mb-1" style="font-size: 12px;">Payment Method</label>
+                            <select id="method" name="method" class="form-control form-control-sm" style="border-radius: 8px; border: 1px solid #cbd5e1;">
                                 <option value="">All Methods</option>
-                                <option value="cash"           {{ request('method') === 'cash' ? 'selected' : '' }}>Cash</option>
-                                <option value="bank"           {{ request('method') === 'bank' ? 'selected' : '' }}>Bank Transfer</option>
-                                <option value="mobile_banking" {{ request('method') === 'mobile_banking' ? 'selected' : '' }}>Mobile Pay</option>
-                                <option value="cheque"         {{ request('method') === 'cheque' ? 'selected' : '' }}>Cheque</option>
+                                <option value="cash">Cash</option>
+                                <option value="bank">Bank Transfer</option>
+                                <option value="mobile_banking">Mobile Pay</option>
+                                <option value="cheque">Cheque</option>
                             </select>
                         </div>
-                        <div class="col-md-3 form-group mb-2">
-                            <label class="small font-weight-bold text-muted text-uppercase">Search</label>
-                            <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Invoice, vendor, transaction...">
+                        <div class="col-lg-3 col-md-6 col-6 form-group mb-lg-0 mb-3 d-flex align-items-center">
+                            <button type="button" id="btn-reset" class="btn btn-sm d-inline-flex align-items-center font-weight-bold mr-2" style="background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px; height: 35px; padding: 0 16px; transition: all 0.2s;" title="Reset Filters">
+                                <i class="fas fa-undo mr-1.5"></i> Reset
+                            </button>
                         </div>
-                    </div>
-                    <div class="d-flex justify-content-end align-items-center mt-1">
-                        <small class="text-muted mr-3"><i class="fas fa-info-circle mr-1"></i> Filters apply automatically.</small>
-                        <a href="{{ route('admin.accounts.vendor-payments.index') }}" class="btn btn-light border btn-sm font-weight-bold" style="border-radius:6px;">
-                            <i class="fas fa-undo mr-1"></i> Reset
-                        </a>
-                    </div>
-                </form>
-
-                <!-- Table -->
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-hover align-middle mb-0">
-                        <thead class="bg-light text-dark">
-                            <tr>
-                                <th>Date</th>
-                                <th>Invoice No</th>
-                                <th>Vendor</th>
-                                <th>Method</th>
-                                <th>Transaction ID</th>
-                                <th>Receipts</th>
-                                <th class="text-right">Amount</th>
-                                <th>Note</th>
-                                <th class="text-center">PDF</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($payments as $payment)
-                                <tr>
-                                    <td><small>{{ $payment->created_at->format('d M, Y') }}<br><span class="text-muted">{{ $payment->created_at->format('h:i A') }}</span></small></td>
-                                    <td><span class="font-weight-bold font-monospace small">{{ $payment->purchase->invoice_no ?? 'N/A' }}</span></td>
-                                    <td>
-                                        <strong>{{ $payment->purchase->vendor->shop_name ?? 'N/A' }}</strong>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-info font-weight-bold">{{ strtoupper($payment->payment_method) }}</span>
-                                    </td>
-                                    <td><small class="text-muted font-monospace">{{ $payment->transaction_id ?: '—' }}</small></td>
-                                    <td>
-                                        @if($payment->receipts->count() > 0)
-                                            @foreach($payment->receipts as $receipt)
-                                                <div class="mb-1">
-                                                    <a href="{{ route('admin.accounts.vendor-payments.receipts.download', $receipt->id) }}" class="btn btn-sm btn-outline-primary py-0 px-1" title="Download">
-                                                        <i class="fas fa-download"></i>
-                                                    </a>
-                                                    <a href="{{ route('admin.accounts.vendor-payments.receipts.destroy', $receipt->id) }}" class="btn btn-sm btn-outline-danger py-0 px-1 delete-item" title="Delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </a>
-                                                </div>
-                                            @endforeach
-                                        @else
-                                            <span class="text-muted small">—</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-right font-weight-bold text-success">{!! formatConverted($payment->amount) !!}</td>
-                                    <td><small class="text-muted">{{ $payment->note ?: '—' }}</small></td>
-                                    <td class="text-center text-nowrap">
-                                        <a href="{{ route('admin.accounts.vendor-payments.single.pdf', $payment->id) }}" class="btn btn-sm btn-warning" title="Download PDF">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </a>
-                                        <a href="{{ route('admin.accounts.vendor-payments.single.view', $payment->id) }}" class="btn btn-sm btn-outline-info ml-1" title="View" target="_blank">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </td>
-                                    <td class="text-center">
-                                        @if($payment->purchase)
-                                            <a href="{{ route('admin.purchases.show', $payment->purchase->id) }}" class="btn btn-sm btn-primary" title="Purchase Details">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="10" class="text-center text-muted py-5">
-                                        <i class="fas fa-money-check-alt fa-2x mb-2 d-block text-muted"></i>
-                                        No vendor payments found matching the current filters.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                    </form>
                 </div>
 
-                <div class="mt-3">{{ $payments->links() }}</div>
+                <!-- Yajra Server-Side DataTable -->
+                <div class="table-responsive">
+                    {{ $dataTable->table(['class' => 'table table-bordered table-striped table-hover align-middle mb-0']) }}
+                </div>
             </div>
         </div>
     </div>
@@ -207,24 +138,44 @@
 @endsection
 
 @push('scripts')
+{{ $dataTable->scripts(attributes: ['type' => 'module']) }}
 <script>
     $(document).ready(function() {
-        const $form = $('#vendor-payment-filter-form');
-        const $search = $form.find('input[name="search"]');
-        let searchTimer = null;
+        const table = window.LaravelDataTables["vendor-payment-table"];
 
-        $form.find('select, input[type="date"]').on('change', function() {
-            $form.trigger('submit');
+        if ($('.select2').length) {
+            $('.select2').select2({
+                placeholder: "All Registered Vendors",
+                allowClear: true
+            });
+        }
+
+        $('#vendor_id, #start_date, #end_date, #method').on('change', function() {
+            if (table) {
+                table.draw();
+            }
         });
 
-        $search.on('input', function() {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(function() { $form.trigger('submit'); }, 450);
+        $('#btn-reset').on('click', function(e) {
+            e.preventDefault();
+            $('#filter-form')[0].reset();
+            if ($('#vendor_id').hasClass('select2-hidden-accessible')) {
+                $('#vendor_id').val('').trigger('change.select2');
+            }
+            if (table) {
+                table.draw();
+            }
         });
 
-        $search.on('keydown', function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); clearTimeout(searchTimer); $form.trigger('submit'); }
-        });
+        if (table) {
+            table.on('preXhr.dt', function(e, settings, data) {
+                data.vendor_id  = $('#vendor_id').val();
+                data.start_date = $('#start_date').val();
+                data.end_date   = $('#end_date').val();
+                data.method     = $('#method').val();
+            });
+        }
     });
 </script>
+@include('backend.reports.partials.async_payables_receivables_pdf_js')
 @endpush

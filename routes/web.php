@@ -682,6 +682,7 @@ Route::controller(BackendAccountController::class)->group(function () {
     Route::controller(VendorLedgerController::class)->prefix('vendor-ledger')->name('vendor-ledger.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/aging', 'agingReport')->name('aging');
+        Route::get('/aging/pdf', 'exportAgingPdf')->name('aging.pdf');
         Route::get('/{vendor_id}', 'show')->name('show');
         Route::get('/{vendor_id}/pdf', 'exportPdf')->name('pdf');
     });
@@ -737,6 +738,12 @@ Route::controller(BackendAccountController::class)->group(function () {
         Route::get('reports/ar-aging', 'arAging')->name('reports.ar-aging');
         Route::get('reports/ar-aging/pdf', 'exportArAgingPdf')->name('reports.ar-aging.pdf');
         Route::get('reports/salesperson-performance', 'salespersonPerformance')->name('reports.salesperson-performance');
+    });
+
+    /** Payables & Receivables Ephemeral Download and Status Routes */
+    Route::controller(\App\Http\Controllers\Backend\PayablesReceivablesReportController::class)->group(function () {
+        Route::get('reports/payables-receivables/download/{file}', 'downloadReportPdf')->name('reports.payables-receivables.download');
+        Route::get('reports/payables-receivables/check-status', 'checkReportStatus')->name('reports.payables-receivables.check-status');
     });
 
 });

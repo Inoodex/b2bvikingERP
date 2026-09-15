@@ -5,10 +5,25 @@
 @section('content')
 <section class="section">
     <div class="section-header d-flex justify-content-between align-items-center">
-        <h1><i class="fas fa-clock text-primary mr-2"></i> Accounts Receivable (AR) Aging Report</h1>
-        <a href="{{ route('admin.reports.ar-aging.pdf', ['customer_id' => $customerId]) }}" target="_blank" class="btn btn-danger font-weight-bold shadow-sm">
-            <i class="fas fa-file-pdf mr-1"></i> Export PDF Report
-        </a>
+        <div>
+            <h1 class="text-dark font-weight-bold mb-1"><i class="fas fa-clock text-primary mr-2"></i> Accounts Receivable (AR) Aging Report</h1>
+            <p class="text-muted mb-0 small">Customer outstanding balances stratified across 30, 60, 90+ day aging buckets</p>
+        </div>
+        <div class="d-flex align-items-center">
+            @if(!empty($latestPdf))
+                <a href="{{ $latestPdf['url'] }}" id="btn-download-pdf" class="btn btn-success font-weight-bold mr-2 shadow-sm" title="{{ $latestPdf['filename'] }}">
+                    <i class="fas fa-file-download mr-1"></i> Download PDF (Ready: {{ $latestPdf['time'] }})
+                </a>
+            @else
+                <a href="#" id="btn-download-pdf" class="btn btn-success font-weight-bold mr-2 shadow-sm" style="display: none;">
+                    <i class="fas fa-file-download mr-1"></i> Download PDF (Ready)
+                </a>
+            @endif
+
+            <button type="button" id="btn-generate-pdf" class="btn btn-danger font-weight-bold shadow-sm" data-url="{{ route('admin.reports.ar-aging.pdf', ['customer_id' => $customerId]) }}" data-type="ar_aging">
+                <i class="fas fa-file-pdf mr-1"></i> Generate Fresh PDF
+            </button>
+        </div>
     </div>
 
     <style>
@@ -212,4 +227,5 @@
         }
     });
 </script>
+@include('backend.reports.partials.async_payables_receivables_pdf_js')
 @endpush

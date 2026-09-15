@@ -2,14 +2,22 @@
 
 namespace App\Http\Controllers\Backend;
 
+use App\DataTables\VendorLedgerDataTable;
 use App\Http\Controllers\Controller;
+use App\Jobs\GeneratePayablesReceivablesReportPdfJob;
 use App\Models\Vendor;
+use App\Models\VendorBill;
 use App\Services\VendorLedgerService;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Traits\HasEphemeralPdfReports;
+use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class VendorLedgerController extends Controller
 {
+    use HasEphemeralPdfReports;
+
     protected VendorLedgerService $ledgerService;
 
     public function __construct(VendorLedgerService $ledgerService)
@@ -18,14 +26,24 @@ class VendorLedgerController extends Controller
     }
 
     /**
-     * Display AP Summary Dashboard for all vendors.
+     * Display AP Summary Dashboard & Yajra DataTable for all vendors.
      */
-    public function index()
+    public function index(VendorLedgerDataTable $dataTable)
     {
-        $vendors = Vendor::where('status', 1)->get();
-        $agingSummary = $this->ledgerService->getAgingReport();
+        $totalVendors = Vendor::where('status', 1)->count();
+        $vendorsWithDue = VendorBill::whereIn('payment_status', ['unpaid', 'partial'])
+            ->where('due_amount', '>', 0)
+            ->distinct('vendor_id')
+            ->count('vendor_id');
 
-        return view('backend.vendor_ledger.index', compact('vendors', 'agingSummary'));
+        $summary = [
+            'total_payables'  => (float) VendorBill::whereIn('payment_status', ['unpaid', 'partial'])->sum('due_amount'),
+            'total_vendors'   => $totalVendors,
+            'active_dues'     => $vendorsWithDue,
+            'settled_vendors' => max(0, $totalVendors - $vendorsWithDue),
+        ];
+
+        return $dataTable->render('backend.vendor_ledger.index', compact('summary'));
     }
 
     /**
@@ -38,8 +56,9 @@ class VendorLedgerController extends Controller
         $toDate = $request->query('to_date');
 
         $statement = $this->ledgerService->getVendorStatement($vendor, $fromDate, $toDate);
+        $latestPdf = $this->getLatestReportFile("supplier_statement_{$vendorId}");
 
-        return view('backend.vendor_ledger.show', compact('statement', 'fromDate', 'toDate'));
+        return view('backend.vendor_ledger.show', compact('statement', 'fromDate', 'toDate', 'latestPdf'));
     }
 
     /**
@@ -48,24 +67,55 @@ class VendorLedgerController extends Controller
     public function agingReport()
     {
         $agingData = $this->ledgerService->getAgingReport();
+        $latestPdf = $this->getLatestReportFile('ap_aging');
 
-        return view('backend.vendor_ledger.aging', compact('agingData'));
+        return view('backend.vendor_ledger.aging', compact('agingData', 'latestPdf'));
     }
 
     /**
-     * Export Supplier Outstanding Confirmation Letter PDF.
+     * Export Supplier Outstanding Confirmation Letter PDF via background queue.
      */
-    public function exportPdf(int $vendorId, Request $request)
+    public function exportPdf(int $vendorId, Request $request): JsonResponse|RedirectResponse
     {
         $vendor = Vendor::findOrFail($vendorId);
-        $fromDate = $request->query('from_date');
-        $toDate = $request->query('to_date');
+        $filters = [
+            'vendor_id' => $vendorId,
+            'from_date' => $request->query('from_date'),
+            'to_date'   => $request->query('to_date'),
+        ];
 
-        $statement = $this->ledgerService->getVendorStatement($vendor, $fromDate, $toDate);
+        dispatch(new GeneratePayablesReceivablesReportPdfJob('supplier_statement', $filters, (int) auth()->id()));
 
-        $pdf = Pdf::loadView('backend.vendor_ledger.statement_pdf', compact('statement'))
-            ->setPaper('a4', 'portrait');
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status'        => 'dispatched',
+                'message'       => 'Supplier statement PDF generation started in the background.',
+                'dispatched_at' => time() - 1,
+            ]);
+        }
 
-        return $pdf->stream('Supplier_Statement_' . str_replace(' ', '_', $vendor->name) . '.pdf');
+        Toastr::info('Supplier statement PDF is generating in the background. Check notifications when ready.');
+        return redirect()->back();
+    }
+
+    /**
+     * Export AP Vendor Aging PDF via background queue.
+     */
+    public function exportAgingPdf(Request $request): JsonResponse|RedirectResponse
+    {
+        $filters = [];
+
+        dispatch(new GeneratePayablesReceivablesReportPdfJob('ap_aging', $filters, (int) auth()->id()));
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status'        => 'dispatched',
+                'message'       => 'AP Vendor Aging PDF generation started in the background.',
+                'dispatched_at' => time() - 1,
+            ]);
+        }
+
+        Toastr::info('AP Vendor Aging PDF is generating in the background. Check notifications when ready.');
+        return redirect()->back();
     }
 }

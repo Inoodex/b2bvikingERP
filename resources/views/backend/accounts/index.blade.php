@@ -41,7 +41,17 @@
                             <option value="cheque">Cheque</option>
                         </select>
                     </div>
-                    <button type="button" id="btn-export-pdf" class="btn btn-primary btn-sm mr-1" style="border-radius:6px;" title="Download PDF">
+                    @if(!empty($latestPdf))
+                        <a href="{{ $latestPdf['url'] }}" id="btn-download-pdf" class="btn btn-success btn-sm mr-1 font-weight-bold" style="border-radius:6px;" title="{{ $latestPdf['filename'] }}">
+                            <i class="fas fa-file-download mr-1"></i> Download PDF (Ready: {{ $latestPdf['time'] }})
+                        </a>
+                    @else
+                        <a href="#" id="btn-download-pdf" class="btn btn-success btn-sm mr-1 font-weight-bold" style="border-radius:6px; display: none;">
+                            <i class="fas fa-file-download mr-1"></i> Download PDF (Ready)
+                        </a>
+                    @endif
+
+                    <button type="button" id="btn-generate-pdf" class="btn btn-primary btn-sm mr-1" style="border-radius:6px;" title="Generate PDF in Background" data-url="{{ route('admin.accounts.payments.pdf') }}" data-type="customer_ledger">
                         <i class="fas fa-file-pdf mr-1"></i> PDF
                     </button>
                     <button type="button" id="btn-reset" class="btn btn-light border btn-sm" style="border-radius:6px;" title="Reset Filters">
@@ -73,21 +83,6 @@
                 table.draw();
             });
 
-            $('#btn-export-pdf').on('click', function() {
-                const params = new URLSearchParams();
-                const startDate = $('#start_date').val();
-                const endDate   = $('#end_date').val();
-                const method    = $('#method').val();
-                const search    = table.search();
-
-                if (startDate) params.set('start_date', startDate);
-                if (endDate)   params.set('end_date', endDate);
-                if (method)    params.set('method', method);
-                if (search)    params.set('search', search);
-
-                window.location.href = "{{ route('admin.accounts.payments.pdf') }}" + (params.toString() ? `?${params}` : '');
-            });
-
             table.on('preXhr.dt', function(e, settings, data) {
                 data.start_date = $('#start_date').val();
                 data.end_date   = $('#end_date').val();
@@ -95,4 +90,5 @@
             });
         });
     </script>
+    @include('backend.reports.partials.async_payables_receivables_pdf_js')
 @endpush

@@ -1,78 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Payment History</title>
+    <meta charset="utf-8">
+    <title>Customer Payment Ledger</title>
     <style>
-        body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 12px; color: #111827; }
-        .header { text-align: center; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 12px; }
-        .logo { height: 42px; margin-bottom: 6px; }
-        .title { font-size: 18px; font-weight: bold; margin: 0; }
-        .meta { font-size: 11px; color: #6b7280; }
-        .filters { margin: 10px 0 14px; font-size: 11px; color: #374151; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #e5e7eb; padding: 6px 8px; vertical-align: top; }
-        th { background: #f9fafb; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .02em; }
+        @page { margin: 25px 30px; size: a4 landscape; }
+        body { font-family: 'DejaVu Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9pt; color: #2d3748; line-height: 1.3; }
+        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; border-bottom: 2px solid #2b4c7e; padding-bottom: 8px; }
+        .company-title { font-size: 16pt; font-weight: bold; color: #1a365d; margin: 0; }
+        .company-meta { font-size: 8pt; color: #4a5568; margin-top: 3px; line-height: 1.3; }
+        .report-title { font-size: 14pt; font-weight: bold; color: #2b4c7e; text-align: right; text-transform: uppercase; margin: 0; }
+        .report-meta { font-size: 8pt; color: #4a5568; text-align: right; margin-top: 3px; line-height: 1.3; }
+        
+        .filter-badge-table { width: 100%; margin-bottom: 12px; border-collapse: collapse; background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 4px; }
+        .filter-badge-table td { padding: 6px 10px; font-size: 8.5pt; }
+
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        .data-table th { background-color: #2b4c7e; color: #ffffff; font-size: 8.5pt; font-weight: bold; padding: 7px 8px; text-align: left; border: 1px solid #2b4c7e; }
+        .data-table td { font-size: 8pt; padding: 6px 8px; border-bottom: 1px solid #e2e8f0; border-left: 1px solid #edf2f7; border-right: 1px solid #edf2f7; vertical-align: top; }
+        .data-table tr:nth-child(even) { background-color: #f8fafc; }
+        .data-table tr { page-break-inside: avoid; }
+        
         .text-right { text-align: right; }
-        .muted { color: #6b7280; }
-        .badge { display: inline-block; padding: 2px 6px; border-radius: 10px; font-size: 10px; background: #eef2ff; color: #3730a3; }
-        .summary { margin-top: 10px; font-size: 12px; }
+        .text-center { text-align: center; }
+        .font-bold { font-weight: bold; }
+        .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 7.5pt; background-color: #ebf8ff; color: #2b6cb0; font-weight: bold; }
+
+        .total-row td { background-color: #edf2f7; font-size: 9pt; font-weight: bold; border-top: 2px solid #cbd5e0; border-bottom: 2px solid #a0aec0; padding: 7px 8px; }
+
+        .signature-table { width: 100%; margin-top: 35px; border-collapse: collapse; page-break-inside: avoid; }
+        .signature-table td { width: 33.33%; text-align: center; vertical-align: bottom; }
+        .sig-line { width: 75%; margin: 0 auto 5px auto; border-top: 1px solid #718096; }
+        .sig-title { font-size: 8.5pt; font-weight: bold; color: #2d3748; }
+        .sig-sub { font-size: 7.5pt; color: #718096; }
+
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; font-size: 7.5pt; color: #a0aec0; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 5px; }
     </style>
 </head>
 <body>
-    <div class="header">
-        @if(!empty($logoData))
-            <img src="{{ $logoData }}" class="logo" alt="Logo">
-        @endif
-        <p class="title">{{ $settings->site_name ?? 'Inventory Management System' }}</p>
-        <div class="meta">{{ $settings->contact_email ?? '' }}</div>
-        <div class="meta">{{ $settings->phone ?? '' }}</div>
-        <div class="meta">{{ $settings->address ?? '' }}</div>
-        <div class="meta">Payment History • Generated: {{ $generatedAt->format('d M, Y h:i A') }}</div>
-    </div>
 
-    <div class="filters">
-        <strong>Filters:</strong>
-        <span>From: {{ $filters['start_date'] ?: 'All' }}</span> |
-        <span>To: {{ $filters['end_date'] ?: 'All' }}</span> |
-        <span>Method: {{ $filters['method'] ?: 'All' }}</span> |
-        <span>Search: {{ $filters['search'] ?: 'N/A' }}</span>
-    </div>
+    <table class="header-table">
+        <tr>
+            <td width="55%">
+                <div class="company-title">{{ $company?->name ?? $settings?->site_name ?? 'B2B Viking ERP' }}</div>
+                <div class="company-meta">
+                    @if(!empty($company?->address ?? $settings?->address))
+                        {{ $company?->address ?? $settings?->address }}<br>
+                    @endif
+                    @php
+                        $contactEmail = $company?->email ?? $settings?->contact_email;
+                        $contactPhone = $company?->phone ?? $settings?->phone;
+                    @endphp
+                    @if($contactEmail)
+                        Email: {{ $contactEmail }}
+                    @endif
+                    @if($contactEmail && $contactPhone)
+                        &nbsp;|&nbsp;
+                    @endif
+                    @if($contactPhone)
+                        Phone: {{ $contactPhone }}
+                    @endif
+                </div>
+            </td>
+            <td width="45%">
+                <div class="report-title">Customer Payment Ledger</div>
+                <div class="report-meta">
+                    <strong>Report:</strong> Accounts Receivable Collections<br>
+                    <strong>Generated:</strong> {{ ($generatedAt ?? now())->format('d M Y, h:i A') }}<br>
+                    <strong>Generated By:</strong> {{ $generatedBy ?? 'Administrator' }}
+                </div>
+            </td>
+        </tr>
+    </table>
 
-    <table>
+    <table class="filter-badge-table">
+        <tr>
+            <td width="35%">
+                <strong>Period:</strong> {{ ($filters['start_date'] ?? null) ? $filters['start_date'] : 'Inception' }} &mdash; {{ ($filters['end_date'] ?? null) ? $filters['end_date'] : 'Present' }}
+            </td>
+            <td width="35%">
+                <strong>Payment Method:</strong> {{ !empty($filters['method']) ? strtoupper($filters['method']) : 'All Payment Methods' }}
+                @if(!empty($filters['search']))
+                    &nbsp;|&nbsp;<strong>Search:</strong> {{ $filters['search'] }}
+                @endif
+            </td>
+            <td width="30%" class="text-right">
+                <strong>Total Transactions:</strong> {{ number_format($summary['count'] ?? count($payments)) }} records
+            </td>
+        </tr>
+    </table>
+
+    <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 12%;">Date</th>
-                <th style="width: 12%;">Order No</th>
-                <th style="width: 18%;">Customer</th>
-                <th style="width: 12%;">Phone</th>
-                <th style="width: 12%;">Method</th>
-                <th style="width: 12%;">Trans ID</th>
-                <th style="width: 10%;" class="text-right">Amount</th>
+                <th width="12%">Payment Date</th>
+                <th width="14%">Order / Invoice No</th>
+                <th width="24%">Customer / Billing Name</th>
+                <th width="14%">Phone Number</th>
+                <th width="12%">Method</th>
+                <th width="12%">Transaction ID</th>
+                <th width="12%" class="text-right">Amount Received</th>
             </tr>
         </thead>
         <tbody>
+            @php $currency = $settings?->currency_icon ?? 'kr. '; @endphp
             @forelse($payments as $payment)
                 <tr>
-                    <td>{{ $payment->created_at?->format('d M, Y') }}</td>
-                    <td>{{ $payment->order->order_no ?? '-' }}</td>
-                    <td>{{ $payment->order->billing_name ?? '-' }}</td>
-                    <td>{{ $payment->order->billing_phone ?? '-' }}</td>
-                    <td><span class="badge">{{ strtoupper($payment->payment_method) }}</span></td>
+                    <td>{{ $payment->created_at?->format('d M Y') }}</td>
+                    <td><strong>{{ $payment->order?->order_no ?? '-' }}</strong></td>
+                    <td>{{ $payment->order?->billing_name ?? ($payment->order?->user?->name ?? 'N/A') }}</td>
+                    <td>{{ $payment->order?->billing_phone ?? ($payment->order?->user?->phone ?? 'N/A') }}</td>
+                    <td><span class="badge">{{ strtoupper($payment->payment_method ?? 'CASH') }}</span></td>
                     <td>{{ $payment->transaction_id ?? '-' }}</td>
-                    <td class="text-right">{{$settings->currency_icon}}{{ number_format($payment->amount, 2) }}</td>
+                    <td class="text-right font-bold">{{ $currency }}{{ number_format((float)$payment->amount, 2) }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="text-right muted">No records found.</td>
+                    <td colspan="7" class="text-center" style="padding: 20px; color: #718096;">No customer payments found matching the selected criteria.</td>
                 </tr>
             @endforelse
         </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="6" class="text-right">TOTAL COLLECTIONS (NET):</td>
+                <td class="text-right font-bold">{{ $currency }}{{ number_format((float)($summary['total_amount'] ?? 0), 2) }}</td>
+            </tr>
+        </tfoot>
     </table>
 
-    <div class="summary">
-        <strong>Total Records:</strong> {{ $summary['count'] }} |
-        <strong>Total Amount:</strong>{{$settings->currency_icon}} {{ number_format($summary['total_amount'], 2) }}
+    <table class="signature-table">
+        <tr>
+            <td>
+                <div class="sig-line"></div>
+                <div class="sig-title">Prepared By</div>
+                <div class="sig-sub">Cashier / Collections Officer</div>
+            </td>
+            <td>
+                <div class="sig-line"></div>
+                <div class="sig-title">Verified By</div>
+                <div class="sig-sub">Accounts Supervisor</div>
+            </td>
+            <td>
+                <div class="sig-line"></div>
+                <div class="sig-title">Approved By</div>
+                <div class="sig-sub">Finance Manager / Comptroller</div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        Confidential Financial Document • Produced by ERP System • Generated on {{ ($generatedAt ?? now())->format('d M Y, h:i A') }}
     </div>
+
 </body>
 </html>

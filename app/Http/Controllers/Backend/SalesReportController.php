@@ -3,16 +3,22 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\GeneratePayablesReceivablesReportPdfJob;
 use App\Models\GeneralSetting;
 use App\Models\Order;
 use App\Models\SalesInvoice;
 use App\Models\User;
+use App\Traits\HasEphemeralPdfReports;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 class SalesReportController extends Controller
 {
+    use HasEphemeralPdfReports;
     /**
      * Display Customer Accounts Receivable (AR) Aging Report.
      * Categorizes unpaid dues into 0-30, 31-60, 61-90, and 90+ day risk buckets.
@@ -88,86 +94,29 @@ class SalesReportController extends Controller
         }
 
         $customers = User::where('status', 1)->orderBy('name')->get();
+        $latestPdf = $this->getLatestReportFile('ar_aging');
 
-        return view('backend.reports.ar_aging', compact('agingData', 'totals', 'customers', 'customerId'));
+        return view('backend.reports.ar_aging', compact('agingData', 'totals', 'customers', 'customerId', 'latestPdf'));
     }
 
     /**
-     * Download printable AR Aging PDF Report.
+     * Dispatch printable AR Aging PDF Report to Background Queue.
      */
-    public function exportArAgingPdf(Request $request)
+    public function exportArAgingPdf(Request $request): JsonResponse|RedirectResponse
     {
-        $customerId = $request->get('customer_id');
+        $filters = $request->only(['customer_id']);
+        dispatch(new GeneratePayablesReceivablesReportPdfJob('ar_aging', $filters, (int) auth()->id()));
 
-        $query = SalesInvoice::with(['order.user'])
-            ->where('due_amount', '>', 0)
-            ->where('status', 'posted');
-
-        if ($customerId) {
-            $query->whereHas('order', function ($q) use ($customerId) {
-                $q->where('user_id', $customerId);
-            });
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status'        => 'dispatched',
+                'message'       => 'Customer AR Aging PDF generation started in the background.',
+                'dispatched_at' => time() - 1,
+            ]);
         }
 
-        $invoices = $query->get();
-
-        $agingData = [];
-        $totals = [
-            'total_due' => 0.00,
-            'current_0_30' => 0.00,
-            'days_31_60' => 0.00,
-            'days_61_90' => 0.00,
-            'over_90' => 0.00,
-        ];
-
-        $now = Carbon::now();
-
-        foreach ($invoices as $inv) {
-            $user = $inv->order ? $inv->order->user : null;
-            $userId = $user ? $user->id : 0;
-            $customerName = $user ? ($user->outlet_name ? $user->outlet_name . ' (' . $user->name . ')' : $user->name) : 'Guest / Unassigned';
-            $phone = $user ? ($user->phone ?: 'N/A') : 'N/A';
-
-            if (!isset($agingData[$userId])) {
-                $agingData[$userId] = [
-                    'customer_id' => $userId,
-                    'customer_name' => $customerName,
-                    'phone' => $phone,
-                    'total_due' => 0.00,
-                    'current_0_30' => 0.00,
-                    'days_31_60' => 0.00,
-                    'days_61_90' => 0.00,
-                    'over_90' => 0.00,
-                    'invoice_count' => 0,
-                ];
-            }
-
-            $invDate = Carbon::parse($inv->created_at);
-            $ageInDays = $invDate->diffInDays($now);
-            $due = (float)$inv->due_amount;
-
-            $agingData[$userId]['total_due'] += $due;
-            $agingData[$userId]['invoice_count'] += 1;
-            $totals['total_due'] += $due;
-
-            if ($ageInDays <= 30) {
-                $agingData[$userId]['current_0_30'] += $due;
-                $totals['current_0_30'] += $due;
-            } elseif ($ageInDays <= 60) {
-                $agingData[$userId]['days_31_60'] += $due;
-                $totals['days_31_60'] += $due;
-            } elseif ($ageInDays <= 90) {
-                $agingData[$userId]['days_61_90'] += $due;
-                $totals['days_61_90'] += $due;
-            } else {
-                $agingData[$userId]['over_90'] += $due;
-                $totals['over_90'] += $due;
-            }
-        }
-
-        $generalSetting = GeneralSetting::first();
-        $pdf = Pdf::loadView('backend.pdf.ar_aging', compact('agingData', 'totals', 'generalSetting'));
-        return $pdf->stream('Customer_AR_Aging_Report_' . date('Ymd_His') . '.pdf');
+        Toastr::info('Customer AR Aging PDF is generating in the background. Check notifications when ready.');
+        return redirect()->back();
     }
 
     /**

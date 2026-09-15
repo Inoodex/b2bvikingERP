@@ -2,32 +2,39 @@
 
 namespace App\Http\Controllers\Backend;
 
+use App\DataTables\VendorPaymentDataTable;
 use App\Http\Controllers\Controller;
+use App\Jobs\GeneratePayablesReceivablesReportPdfJob;
+use App\Models\GeneralSetting;
 use App\Models\Order;
 use App\Models\OrderPayment;
 use App\Models\OrderPaymentReceipt;
 use App\Models\Purchase;
 use App\Models\PurchasePayment;
 use App\Models\PurchasePaymentReceipt;
-use App\Models\GeneralSetting;
 use App\Models\Vendor;
+use App\Support\AuditLogSupport;
+use App\Support\PdfImageHelper;
+use App\Support\StoredFileSupport;
+use App\Traits\HasEphemeralPdfReports;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Brian2694\Toastr\Facades\Toastr;
-use App\Support\AuditLogSupport;
-use App\Support\StoredFileSupport;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use App\Support\PdfImageHelper;
 use Illuminate\Support\Facades\DB;
 
 class AccountController extends Controller
 {
+    use HasEphemeralPdfReports;
     /**
      * Display a listing of all transactions (Ledger).
      */
     public function index(\App\DataTables\OrderPaymentDataTable $dataTable)
     {
-        return $dataTable->render('backend.accounts.index');
+        $latestPdf = $this->getLatestReportFile('customer_ledger');
+        return $dataTable->render('backend.accounts.index', compact('latestPdf'));
     }
 
     /**
@@ -39,67 +46,40 @@ class AccountController extends Controller
     }
 
     /**
-     * Display vendor payment history.
+     * Display vendor payment history via Yajra DataTable.
      */
-    public function vendorPaymentIndex(Request $request)
+    public function vendorPaymentIndex(VendorPaymentDataTable $dataTable)
     {
         $vendors = Vendor::where('status', 1)->orderBy('shop_name')->get();
-        $query = $this->vendorPaymentQuery($request);
-
-        $payments = $query->orderByDesc('id')->paginate(30)->withQueryString();
-        $summaryQuery = clone $query;
 
         $summary = [
-            'count' => (clone $summaryQuery)->count(),
-            'total_amount' => (clone $summaryQuery)->sum('amount'),
+            'count'        => PurchasePayment::count(),
+            'total_amount' => (float) PurchasePayment::sum('amount'),
         ];
 
-        return view('backend.accounts.vendor_payments_index', [
-            'payments' => $payments,
-            'vendors' => $vendors,
-            'summary' => $summary,
-        ]);
+        $latestPdf = $this->getLatestReportFile('vendor_payments');
+
+        return $dataTable->render('backend.accounts.vendor_payments_index', compact('vendors', 'summary', 'latestPdf'));
     }
 
     /**
-     * Download vendor payment history PDF (filtered).
+     * Dispatch vendor payment history PDF generation to Background Queue.
      */
-    public function vendorPaymentHistoryPdf(Request $request)
+    public function vendorPaymentHistoryPdf(Request $request): JsonResponse|RedirectResponse
     {
-        ini_set('memory_limit', '512M');
-        set_time_limit(300);
+        $filters = $request->only(['vendor_id', 'start_date', 'end_date', 'method', 'search']);
+        dispatch(new GeneratePayablesReceivablesReportPdfJob('vendor_payments', $filters, (int) auth()->id()));
 
-        $query = $this->vendorPaymentQuery($request);
-        $count = (clone $query)->count();
-        $maxRows = 1000;
-        if ($count > $maxRows) {
-            Toastr::error('Too many records for PDF. Please filter by vendor, date, or method to reduce results.');
-            return redirect()->back();
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status'        => 'dispatched',
+                'message'       => 'Vendor Payment History PDF generation started in the background.',
+                'dispatched_at' => time() - 1,
+            ]);
         }
 
-        $payments = $query->orderByDesc('id')->get();
-        $settings = GeneralSetting::first();
-        $logoData = $this->resolveLogoData($settings);
-        $generatedAt = Carbon::now();
-
-        $summary = [
-            'count' => $payments->count(),
-            'total_amount' => $payments->sum('amount'),
-        ];
-
-        $filters = $this->vendorPaymentFilters($request);
-
-        $pdf = Pdf::loadView('backend.accounts.vendor_payment_history_pdf', [
-            'payments' => $payments,
-            'settings' => $settings,
-            'logoData' => $logoData,
-            'filters' => $filters,
-            'summary' => $summary,
-            'generatedAt' => $generatedAt,
-        ])->setPaper('a4', 'portrait');
-
-        $fileName = 'vendor_payment_history_' . now()->format('Ymd_His') . '.pdf';
-        return $pdf->download($fileName);
+        Toastr::info('Vendor Payment History PDF is generating in the background. Check notifications when ready.');
+        return redirect()->back();
     }
 
     /**
@@ -334,77 +314,23 @@ class AccountController extends Controller
     }
 
     /**
-     * Download payment history PDF (filtered).
+     * Dispatch payment history PDF generation to Background Queue.
      */
-    public function paymentHistoryPdf(Request $request)
+    public function paymentHistoryPdf(Request $request): JsonResponse|RedirectResponse
     {
-        ini_set('memory_limit', '512M');
-        set_time_limit(300);
+        $filters = $request->only(['start_date', 'end_date', 'method', 'search']);
+        dispatch(new GeneratePayablesReceivablesReportPdfJob('customer_ledger', $filters, (int) auth()->id()));
 
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-        $method = $request->input('method');
-        $search = trim((string) $request->input('search', ''));
-
-        $query = OrderPayment::query()->with(['order', 'receipts']);
-
-        if (!empty($startDate)) {
-            $query->whereDate('created_at', '>=', $startDate);
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status'        => 'dispatched',
+                'message'       => 'Customer Payment Ledger PDF generation started in the background.',
+                'dispatched_at' => time() - 1,
+            ]);
         }
 
-        if (!empty($endDate)) {
-            $query->whereDate('created_at', '<=', $endDate);
-        }
-
-        if (!empty($method)) {
-            $query->where('payment_method', $method);
-        }
-
-        if ($search !== '') {
-            $query->where(function ($q) use ($search) {
-                $q->where('transaction_id', 'like', '%' . $search . '%')
-                    ->orWhere('payment_method', 'like', '%' . $search . '%')
-                    ->orWhereHas('order', function ($oq) use ($search) {
-                        $oq->where('order_no', 'like', '%' . $search . '%')
-                            ->orWhere('billing_name', 'like', '%' . $search . '%')
-                            ->orWhere('billing_phone', 'like', '%' . $search . '%');
-                    });
-            });
-        }
-
-        $count = (clone $query)->count();
-        $maxRows = 1000;
-        if ($count > $maxRows) {
-            Toastr::error('Too many records for PDF. Please filter by date or method to reduce results.');
-            return redirect()->back();
-        }
-
-        $payments = $query->orderByDesc('id')->get();
-        $settings = GeneralSetting::first();
-        $logoData = $this->resolveLogoData($settings);
-        $generatedAt = Carbon::now();
-
-        $summary = [
-            'count' => $payments->count(),
-            'total_amount' => $payments->sum('amount'),
-        ];
-
-        $pdf = Pdf::loadView('backend.accounts.payment_history_pdf', [
-            'payments' => $payments,
-            'settings' => $settings,
-            'logoData' => $logoData,
-            'filters' => [
-                'start_date' => $startDate,
-                'end_date' => $endDate,
-                'method' => $method,
-                'search' => $search,
-            ],
-            'summary' => $summary,
-            'generatedAt' => $generatedAt,
-        ])->setPaper('a4', 'portrait');
-
-        $fileName = 'payment_history_' . now()->format('Ymd_His') . '.pdf';
-        return $pdf->download($fileName);
+        Toastr::info('Customer Payment Ledger PDF is generating in the background. Check notifications when ready.');
+        return redirect()->back();
     }
 
     /**

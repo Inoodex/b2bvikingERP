@@ -29,6 +29,18 @@ class Vendor extends Model
         return $this->attributes['shop_name'] ?? $this->attributes['name'] ?? 'N/A';
     }
 
+    /**
+     * Accessor for supplier / vendor code (e.g. V-0001).
+     */
+    public function getCodeAttribute(): string
+    {
+        if (!empty($this->attributes['code'])) {
+            return (string) $this->attributes['code'];
+        }
+
+        return 'V-' . str_pad((string) $this->id, 4, '0', STR_PAD_LEFT);
+    }
+
     public function currency()
     {
         return $this->belongsTo(Currency::class);
