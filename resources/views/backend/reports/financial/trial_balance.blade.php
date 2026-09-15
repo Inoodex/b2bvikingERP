@@ -3,9 +3,26 @@
 
 @section('content')
 <section class="section">
-    <div class="section-header">
-        <h1>Trial Balance Report</h1>
-        <div class="section-header-breadcrumb">
+    <div class="section-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="text-dark font-weight-bold mb-1"><i class="fas fa-balance-scale text-primary mr-2"></i> Trial Balance Report</h1>
+            <p class="text-muted mb-0 small">Summary of debit and credit closing balances across all accounts</p>
+        </div>
+        <div class="section-header-breadcrumb d-flex align-items-center">
+            @if(!empty($latestPdf))
+                <a href="{{ $latestPdf['url'] }}" id="btn-download-pdf" class="btn btn-success font-weight-bold mr-2 shadow-sm" title="{{ $latestPdf['filename'] }}">
+                    <i class="fas fa-file-download mr-1"></i> Download PDF (Ready: {{ $latestPdf['time'] }})
+                </a>
+            @else
+                <a href="#" id="btn-download-pdf" class="btn btn-success font-weight-bold mr-2 shadow-sm" style="display: none;">
+                    <i class="fas fa-file-download mr-1"></i> Download PDF (Ready)
+                </a>
+            @endif
+
+            <button type="button" id="btn-generate-pdf" class="btn btn-danger font-weight-bold mr-3 shadow-sm" data-url="{{ route('admin.reports.trial-balance.pdf') }}" data-type="trial_balance">
+                <i class="fas fa-file-pdf mr-1"></i> Generate Fresh PDF
+            </button>
+
             <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
             <div class="breadcrumb-item">Trial Balance</div>
         </div>
@@ -24,7 +41,10 @@
                         <input type="date" name="date_to" class="form-control" value="{{ $dateTo }}">
                     </div>
                     <div class="col-md-4">
-                        <button type="submit" class="btn btn-primary font-weight-bold btn-block"><i class="fas fa-filter mr-1"></i> Generate Trial Balance</button>
+                        <div class="d-flex">
+                            <button type="submit" class="btn btn-primary font-weight-bold flex-grow-1 mr-2"><i class="fas fa-filter mr-1"></i> Generate</button>
+                            <a href="{{ route('admin.reports.trial-balance') }}" class="btn btn-secondary" title="Reset"><i class="fas fa-redo"></i></a>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -82,3 +102,7 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+    @include('backend.reports.financial.partials.async_pdf_js')
+@endpush

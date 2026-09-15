@@ -8,8 +8,21 @@
             <h1 class="text-dark font-weight-bold mb-1"><i class="fas fa-building text-primary mr-2"></i> Balance Sheet Statement</h1>
             <p class="text-muted mb-0 small">IFRS Statement of Financial Position (Assets = Liabilities + Owner's Equity)</p>
         </div>
-        <div class="section-header-breadcrumb">
-            <button onclick="window.print()" class="btn btn-outline-secondary font-weight-bold mr-2"><i class="fas fa-print mr-1"></i> Print</button>
+        <div class="section-header-breadcrumb d-flex align-items-center">
+            @if(!empty($latestPdf))
+                <a href="{{ $latestPdf['url'] }}" id="btn-download-pdf" class="btn btn-success font-weight-bold mr-2 shadow-sm" title="{{ $latestPdf['filename'] }}">
+                    <i class="fas fa-file-download mr-1"></i> Download PDF (Ready: {{ $latestPdf['time'] }})
+                </a>
+            @else
+                <a href="#" id="btn-download-pdf" class="btn btn-success font-weight-bold mr-2 shadow-sm" style="display: none;">
+                    <i class="fas fa-file-download mr-1"></i> <span id="download-btn-text">Download PDF (Ready)</span>
+                </a>
+            @endif
+
+            <button type="button" id="btn-generate-pdf" class="btn btn-danger font-weight-bold mr-2 shadow-sm" data-url="{{ route('admin.reports.balance-sheet.pdf') }}" data-type="balance_sheet">
+                <i class="fas fa-file-pdf mr-1"></i> <span id="generate-btn-text">Generate Fresh PDF</span>
+            </button>
+
             <a href="{{ route('admin.dashboard') }}" class="btn btn-light border font-weight-bold"><i class="fas fa-arrow-left mr-1"></i> Dashboard</a>
         </div>
     </div>
@@ -155,3 +168,7 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+    @include('backend.reports.financial.partials.async_pdf_js')
+@endpush

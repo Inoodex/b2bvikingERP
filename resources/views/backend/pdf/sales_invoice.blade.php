@@ -131,9 +131,16 @@
                     <h1 class="company-name">{{ $generalSetting->site_name ?? 'B2B VIKING ERP' }}</h1>
                 @endif
                 <div style="font-size: 10px; color: #64748b;">
-                    {{ $generalSetting->address ?? 'Corporate Headquarters' }}<br>
-                    Phone: {{ $generalSetting->phone ?? '+45 00 00 00 00' }} | Email: {{ $generalSetting->email ?? 'billing@b2bviking.com' }}<br>
-                    VAT Reg No: {{ $generalSetting->vat_number ?? 'DK-99238419' }}
+                    @if(!empty($generalSetting->address))
+                        {{ $generalSetting->address }}<br>
+                    @endif
+                    @if(!empty($generalSetting->phone)) Phone: {{ $generalSetting->phone }} @endif
+                    @if(!empty($generalSetting->phone) && !empty($generalSetting->email)) | @endif
+                    @if(!empty($generalSetting->email)) Email: {{ $generalSetting->email }} @endif
+                    @if(!empty($generalSetting->phone) || !empty($generalSetting->email)) <br> @endif
+                    @if(!empty($generalSetting->vat_number))
+                        VAT Reg No: {{ $generalSetting->vat_number }}
+                    @endif
                 </div>
             </td>
             <td>

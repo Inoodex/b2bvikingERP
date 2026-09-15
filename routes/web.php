@@ -637,10 +637,18 @@ Route::controller(BackendAccountController::class)->group(function () {
     Route::resource('assets', \App\Http\Controllers\Backend\AssetController::class)->only(['index', 'store']);
 
     /** Financial Reports Routes */
-    Route::get('reports/general-ledger', [\App\Http\Controllers\Backend\FinancialReportController::class, 'generalLedger'])->name('reports.general-ledger');
-    Route::get('reports/trial-balance', [\App\Http\Controllers\Backend\FinancialReportController::class, 'trialBalance'])->name('reports.trial-balance');
-    Route::get('reports/profit-loss', [\App\Http\Controllers\Backend\FinancialReportController::class, 'profitAndLoss'])->name('reports.profit-loss');
-    Route::get('reports/balance-sheet', [\App\Http\Controllers\Backend\FinancialReportController::class, 'balanceSheet'])->name('reports.balance-sheet');
+    Route::controller(\App\Http\Controllers\Backend\FinancialReportController::class)->group(function () {
+        Route::get('reports/general-ledger', 'generalLedger')->name('reports.general-ledger');
+        Route::get('reports/general-ledger/pdf', 'generalLedgerPdf')->name('reports.general-ledger.pdf');
+        Route::get('reports/trial-balance', 'trialBalance')->name('reports.trial-balance');
+        Route::get('reports/trial-balance/pdf', 'trialBalancePdf')->name('reports.trial-balance.pdf');
+        Route::get('reports/profit-loss', 'profitAndLoss')->name('reports.profit-loss');
+        Route::get('reports/profit-loss/pdf', 'profitAndLossPdf')->name('reports.profit-loss.pdf');
+        Route::get('reports/balance-sheet', 'balanceSheet')->name('reports.balance-sheet');
+        Route::get('reports/balance-sheet/pdf', 'balanceSheetPdf')->name('reports.balance-sheet.pdf');
+        Route::get('reports/financial/download/{file}', 'downloadReportPdf')->name('reports.financial.download');
+        Route::get('reports/financial/check-status', 'checkReportStatus')->name('reports.financial.check-status');
+    });
 
     /** Manual Journal Voucher Routes */
     Route::get('journal-vouchers', [\App\Http\Controllers\Backend\JournalVoucherController::class, 'index'])->name('journal-vouchers.index');
