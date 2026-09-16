@@ -227,6 +227,19 @@ class ProcurementReportsAuditTest extends ControllerTestCase
         $response->assertSee('12-Month Comparative Spend Breakdown', false);
         $response->assertSee('January', false);
         $response->assertSee('December', false);
+
+        // Test custom benchmark year (e.g. comparing year against year - 2)
+        $customResult = $service->getPurchaseVsLastYear((int) date('Y'), (int) date('Y') - 2);
+        $this->assertEquals((int) date('Y') - 2, $customResult['benchmark_year']);
+        $this->assertEquals((int) date('Y') - 2, $customResult['last_year']);
+
+        $customResponse = $this->actingAs($this->adminUser)
+            ->get(route('admin.purchase-reports.vs-last-year', [
+                'year' => date('Y'),
+                'benchmark_year' => date('Y') - 2,
+            ]));
+        $customResponse->assertStatus(200);
+        $customResponse->assertSee('Year ' . (date('Y') - 2) . ' Benchmark', false);
     }
 
     /**

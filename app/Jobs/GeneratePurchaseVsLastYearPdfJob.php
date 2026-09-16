@@ -18,13 +18,15 @@ class GeneratePurchaseVsLastYearPdfJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $year;
+    public ?int $benchmarkYear;
     public int $userId;
     public int $timeout = 3600;
 
-    public function __construct(int $year, int $userId)
+    public function __construct(int $year, int $userId, ?int $benchmarkYear = null)
     {
         $this->year = $year;
         $this->userId = $userId;
+        $this->benchmarkYear = $benchmarkYear;
     }
 
     public function handle(): void
@@ -34,7 +36,7 @@ class GeneratePurchaseVsLastYearPdfJob implements ShouldQueue
 
         /** @var PurchaseReportService $reportService */
         $reportService = app(PurchaseReportService::class);
-        $comparison = $reportService->getPurchaseVsLastYear($this->year);
+        $comparison = $reportService->getPurchaseVsLastYear($this->year, $this->benchmarkYear);
 
         $settings = GeneralSetting::first();
         $currencyIcon = $settings->currency_icon ?? 'Kr.';
@@ -42,6 +44,7 @@ class GeneratePurchaseVsLastYearPdfJob implements ShouldQueue
         $data = [
             'comparison'   => $comparison,
             'year'         => $this->year,
+            'benchmarkYear'=> $comparison['benchmark_year'] ?? ($this->year - 1),
             'settings'     => $settings,
             'currencyIcon' => $currencyIcon,
         ];
@@ -67,10 +70,11 @@ class GeneratePurchaseVsLastYearPdfJob implements ShouldQueue
         $filePath = "{$tempDir}/{$filename}";
         $pdf->save($filePath);
 
+        $bYear = $comparison['benchmark_year'] ?? ($this->year - 1);
         $this->addCacheNotification($this->userId, [
             'type'      => 'pdf_ready',
-            'title'     => 'Purchase vs Last Year Report Ready',
-            'desc'      => "Purchase vs Last Year Comparison Report (Year {$this->year} vs " . ($this->year - 1) . ") is ready.",
+            'title'     => 'Purchase Comparison Report Ready',
+            'desc'      => "Purchase Comparison Report (Year {$this->year} vs Year {$bYear}) is ready.",
             'url'       => route('admin.purchase-reports.vs-last-year.pdf.download', ['file' => $filename]),
             'icon'      => 'fas fa-file-pdf',
             'class'     => 'bg-success',

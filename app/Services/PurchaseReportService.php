@@ -152,14 +152,16 @@ class PurchaseReportService
     /**
      * Client Req 2.27: Purchase Value vs Last Year Comparison
      */
-    public function getPurchaseVsLastYear(int $year): array
+    public function getPurchaseVsLastYear(int $year, ?int $benchmarkYear = null): array
     {
+        $benchmarkYear = ($benchmarkYear !== null && $benchmarkYear > 0) ? $benchmarkYear : ($year - 1);
+
         $currentYearPurchases = Purchase::where('status', 1)
             ->whereYear('date', $year)
             ->sum('total_amount');
 
         $lastYearPurchases = Purchase::where('status', 1)
-            ->whereYear('date', $year - 1)
+            ->whereYear('date', $benchmarkYear)
             ->sum('total_amount');
 
         $growth = $lastYearPurchases > 0
@@ -174,7 +176,7 @@ class PurchaseReportService
             ->pluck('total', 'month');
 
         $monthlyLast = Purchase::where('status', 1)
-            ->whereYear('date', $year - 1)
+            ->whereYear('date', $benchmarkYear)
             ->select(DB::raw('MONTH(date) as month'), DB::raw('SUM(total_amount) as total'))
             ->groupBy(DB::raw('MONTH(date)'))
             ->pluck('total', 'month');
@@ -200,8 +202,10 @@ class PurchaseReportService
         return [
             'current_year' => $year,
             'current_year_value' => round($currentYearPurchases, 2),
-            'last_year' => $year - 1,
+            'last_year' => $benchmarkYear,
             'last_year_value' => round($lastYearPurchases, 2),
+            'benchmark_year' => $benchmarkYear,
+            'benchmark_year_value' => round($lastYearPurchases, 2),
             'growth_percentage' => $growth,
             'monthly_matrix' => $monthlyMatrix,
         ];

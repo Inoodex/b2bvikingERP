@@ -212,15 +212,50 @@
             </div>
 
             <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
-                {{-- Fiscal Year Selector Tabs (Matching Period Selector in Dashboard) --}}
-                <div class="d-inline-flex align-items-center p-1" style="background: #f1f5f9; border-radius: 8px; border: 1px solid #e2e8f0; gap: 4px;">
-                    @foreach($availableYears as $yr)
-                        <a href="{{ route('admin.purchase-reports.vs-last-year', ['year' => $yr]) }}" 
-                           class="period-tab-btn {{ $year == $yr ? 'active' : '' }}">
-                           Year {{ $yr }}
+                {{-- Enterprise Dual-Year Calendar & Benchmark Selector Form --}}
+                <form action="{{ route('admin.purchase-reports.vs-last-year') }}" method="GET" id="comparativeFilterForm" class="d-inline-flex align-items-center flex-wrap" style="gap: 6px;">
+                    <div class="d-inline-flex align-items-center p-1" style="background: #f1f5f9; border-radius: 8px; border: 1px solid #e2e8f0; gap: 4px;">
+                        {{-- Active Evaluation Year (with Calendar Icon) --}}
+                        <div class="d-inline-flex align-items-center px-2 py-1 bg-white" style="border-radius: 6px; border: 1px solid #cbd5e1; gap: 6px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <span class="text-muted font-weight-bold text-uppercase" style="font-size: 9.5px; letter-spacing: 0.05em;">Year:</span>
+                            <select name="year" id="selectTargetYear" class="border-0 font-weight-bold text-dark p-0" style="font-size: 12px; background: transparent; cursor: pointer; outline: none;" onchange="document.getElementById('comparativeFilterForm').submit();">
+                                @foreach($availableYears as $yr)
+                                    <option value="{{ $yr }}" {{ $year == $yr ? 'selected' : '' }}>{{ $yr }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- VS Badge --}}
+                        <span class="font-weight-bold text-muted px-1" style="font-size: 11px; letter-spacing: 0.05em;">vs</span>
+
+                        {{-- Benchmark Comparison Year (with Calendar Icon) --}}
+                        <div class="d-inline-flex align-items-center px-2 py-1 bg-white" style="border-radius: 6px; border: 1px solid #cbd5e1; gap: 6px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <span class="text-muted font-weight-bold text-uppercase" style="font-size: 9.5px; letter-spacing: 0.05em;">Benchmark:</span>
+                            <select name="benchmark_year" id="selectBenchmarkYear" class="border-0 font-weight-bold text-dark p-0" style="font-size: 12px; background: transparent; cursor: pointer; outline: none;" onchange="document.getElementById('comparativeFilterForm').submit();">
+                                @foreach($availableYears as $byr)
+                                    <option value="{{ $byr }}" {{ $benchmarkYear == $byr ? 'selected' : '' }}>
+                                        {{ $byr }} {{ $byr == ($year - 1) ? '(Last Year)' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- Reset to Default Button --}}
+                    @if($isCustomFilter ?? false)
+                        <a href="{{ route('admin.purchase-reports.vs-last-year') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #ffffff; color: #dc2626; border-radius: 8px; font-size: 12px; padding: 7px 12px; gap: 5px; border: 1px solid #fca5a5; text-decoration: none; transition: all 0.2s ease;" title="Reset to Default (Year {{ now()->year }} vs {{ now()->year - 1 }})">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline></svg>
+                            Reset
                         </a>
-                    @endforeach
-                </div>
+                    @else
+                        <a href="{{ route('admin.purchase-reports.vs-last-year') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm text-muted" style="background: #f8fafc; border-radius: 8px; font-size: 12px; padding: 7px 12px; gap: 5px; border: 1px solid #e2e8f0; text-decoration: none; pointer-events: none; opacity: 0.6;" title="Default comparison active">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline></svg>
+                            Reset
+                        </a>
+                    @endif
+                </form>
 
                 {{-- Download PDF Button (revealed dynamically when ready) --}}
                 @if(!empty($latestPdf))
@@ -237,7 +272,7 @@
 
                 {{-- Async PDF Export Trigger (Dark Slate Executive Button) --}}
                 <button type="button" id="btn-generate-pdf" class="btn btn-generate-pdf font-weight-bold d-inline-flex align-items-center shadow-sm"
-                    data-url="{{ route('admin.purchase-reports.vs-last-year.pdf.async', ['year' => $year]) }}"
+                    data-url="{{ route('admin.purchase-reports.vs-last-year.pdf.async', ['year' => $year, 'benchmark_year' => $benchmarkYear]) }}"
                     data-type="purchase_vs_last_year_report"
                     data-check-url="{{ route('admin.purchase-reports.vs-last-year.check-status') }}"
                     style="background: #0f172a; color: #ffffff; border-radius: 8px; font-size: 12px; padding: 7px 15px; gap: 6px; border: 1px solid #0f172a; transition: all 0.2s ease;">
@@ -955,7 +990,7 @@ $(document).ready(function() {
         var encodedUri = encodeURI(csvContent);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "purchase_vs_last_year_{{ $year }}.csv");
+        link.setAttribute("download", "purchase_comparison_{{ $year }}_vs_{{ $benchmarkYear }}.csv");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

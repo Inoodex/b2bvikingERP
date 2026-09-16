@@ -140,22 +140,27 @@ class PurchaseReportController extends Controller
     public function vsLastYear(Request $request)
     {
         $year = (int) $request->query('year', now()->year);
-        $comparison = $this->reportService->getPurchaseVsLastYear($year);
+        $benchmarkYear = $request->filled('benchmark_year') ? (int) $request->query('benchmark_year') : null;
+        $comparison = $this->reportService->getPurchaseVsLastYear($year, $benchmarkYear);
+        $benchmarkYear = $comparison['benchmark_year'];
 
-        $availableYears = Purchase::where('status', 1)
+        $currentYear = (int) now()->year;
+        $rangeYears = range($currentYear + 2, $currentYear - 8);
+
+        $dbYears = Purchase::where('status', 1)
             ->whereNotNull('date')
             ->selectRaw('DISTINCT YEAR(date) as yr')
-            ->orderBy('yr', 'desc')
             ->pluck('yr')
+            ->map(fn($y) => (int) $y)
             ->toArray();
 
-        if (empty($availableYears)) {
-            $availableYears = [now()->year, now()->year - 1];
-        }
+        $availableYears = array_unique(array_merge($rangeYears, $dbYears, [$year, $benchmarkYear]));
+        rsort($availableYears);
 
         $latestPdf = $this->getLatestReportFile('purchase_vs_last_year_report', 'admin.purchase-reports.vs-last-year.pdf.download');
+        $isCustomFilter = ($year !== $currentYear) || ($benchmarkYear !== ($currentYear - 1));
 
-        return view('backend.purchase_report.value_vs_last_year', compact('comparison', 'year', 'availableYears', 'latestPdf'));
+        return view('backend.purchase_report.value_vs_last_year', compact('comparison', 'year', 'benchmarkYear', 'availableYears', 'latestPdf', 'isCustomFilter'));
     }
 
     /**
@@ -164,7 +169,8 @@ class PurchaseReportController extends Controller
     public function vsLastYearPdfAsync(Request $request): JsonResponse
     {
         $year = (int) $request->query('year', now()->year);
-        GeneratePurchaseVsLastYearPdfJob::dispatch($year, auth()->id() ?? 0);
+        $benchmarkYear = $request->filled('benchmark_year') ? (int) $request->query('benchmark_year') : null;
+        GeneratePurchaseVsLastYearPdfJob::dispatch($year, auth()->id() ?? 0, $benchmarkYear);
 
         return response()->json([
             'status'        => 'success',
