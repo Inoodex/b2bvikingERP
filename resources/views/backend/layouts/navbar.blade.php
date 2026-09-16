@@ -1387,7 +1387,6 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
           <li><a href="{{ route('admin.vendor-ledger.index') }}"><i class="fas fa-file-invoice-dollar"></i> Supplier Ledger & Statement</a></li>
 
           <li class="sb-submenu-header">Analytics & Stock Reports</li>
-          <li><a href="{{ route('admin.reports.index') }}"><i class="fas fa-chart-pie"></i> All Analytics Reports</a></li>
           <li><a href="{{ route('admin.reports.orders') }}"><i class="fas fa-file-invoice"></i> Order & Sales Report</a></li>
           <li><a href="{{ route('admin.reports.stock') }}"><i class="fas fa-boxes"></i> Stock Valuation Reports</a></li>
           <li><a href="{{ route('admin.reports.low-stock') }}"><i class="fas fa-exclamation-triangle"></i> Low Stock Alert</a></li>

@@ -16,17 +16,25 @@ use App\Models\Purchase;
 use App\Models\PurchaseDetail;
 use App\Models\User;
 use App\Models\Vendor;
+use App\Jobs\GenerateReportPdfJob;
+use App\Jobs\GenerateStockReportPdfJob;
+use App\Traits\HasEphemeralPdfReports;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ReportController extends Controller implements HasMiddleware
 {
+    use HasEphemeralPdfReports;
+
     public static function middleware(): array
     {
         return [
@@ -35,57 +43,11 @@ class ReportController extends Controller implements HasMiddleware
     }
 
     /**
-     * Reports Dashboard
+     * Reports Dashboard (Redirects directly to primary Order & Sales Report)
      */
     public function index()
     {
-        // 1. Total Stock Value: Using Weighted Average Cost from PurchaseDetails
-        // We calculate the average purchase price per product and multiply by current stock
-        $totalStockValue = DB::table('inventory_stocks')
-            ->join('products', 'inventory_stocks.product_id', '=', 'products.id')
-            ->join(DB::raw('(SELECT product_id, AVG(unit_cost) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'products.id', '=', 'costs.product_id')
-            ->where('products.status', 1)
-            ->sum(DB::raw('inventory_stocks.quantity * costs.avg_cost'));
-        
-        $totalProducts = Product::where('status', 1)->count();
-        
-        $lowStockCount = Product::where('status', 1)
-            ->withSum('inventoryStocks', 'quantity')
-            ->havingRaw('inventory_stocks_sum_quantity <= 100 OR inventory_stocks_sum_quantity IS NULL')
-            ->get()
-            ->count();
-        
-        // 2. Total Revenue: From Posted Sales Invoices (or Approved/Completed Orders)
-        $invoiceRevenue = (float) \App\Models\SalesInvoice::whereIn('status', ['posted', 'paid'])->sum('total_amount');
-        if ($invoiceRevenue > 0) {
-            $totalRevenue = $invoiceRevenue;
-        } else {
-            $totalRevenue = (float) Order::whereIn('status', ['approved', 'processing', 'completed'])->sum('total_amount');
-        }
-        
-        // 3. COGS (Cost of Goods Sold): Based on actual commercial order quantities * average purchase cost
-        $totalCost = (float) DB::table('order_items')
-            ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->whereIn('orders.status', ['approved', 'processing', 'completed'])
-            ->leftJoin(DB::raw('(SELECT product_id, AVG(unit_cost) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'order_items.product_id', '=', 'costs.product_id')
-            ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
-            ->sum(DB::raw('order_items.quantity * COALESCE(NULLIF(costs.avg_cost, 0), products.purchase_price, 0)'));
-
-        $grossProfit = $totalRevenue - $totalCost;
-
-        // Current Month Purchases for Context
-        $monthlyPurchases = Purchase::whereMonth('date', date('m'))
-            ->whereYear('date', date('Y'))
-            ->sum('total_amount');
-
-        return view('backend.reports.index', compact(
-            'totalStockValue',
-            'totalProducts',
-            'lowStockCount',
-            'monthlyPurchases',
-            'totalRevenue',
-            'grossProfit'
-        ));
+        return redirect()->route('admin.reports.orders');
     }
 
     /**
@@ -303,7 +265,7 @@ class ReportController extends Controller implements HasMiddleware
         
         $categories = Category::where('status', 1)->get();
         $brands = Brand::where('status', 1)->get();
-        $settings = GeneralSetting::first();
+        $settings = GeneralSetting::first() ?? new GeneralSetting(['site_name' => 'B2B Viking ERP', 'currency_icon' => 'Kr.']);
 
         if ($request->ajax()) {
             return response()->json([
@@ -316,7 +278,9 @@ class ReportController extends Controller implements HasMiddleware
             ]);
         }
 
-        return view('backend.reports.stock', compact('products', 'categories', 'brands', 'totalQty', 'totalValue', 'potentialRevenue', 'potentialProfit', 'settings'));
+        $latestPdf = $this->getLatestReportFile('stock_valuation_report', 'admin.reports.stock.pdf.download');
+
+        return view('backend.reports.stock', compact('products', 'categories', 'brands', 'totalQty', 'totalValue', 'potentialRevenue', 'potentialProfit', 'settings', 'latestPdf'));
     }
 
     /**
@@ -416,10 +380,26 @@ class ReportController extends Controller implements HasMiddleware
      */
     public function lowStockReport(Request $request)
     {
-        $query = Product::with(['category', 'unit'])
+        $threshold = 10;
+        $query = Product::with([
+                'category:id,name',
+                'unit:id,name',
+                'brand:id,name',
+                'variants.color:id,name',
+                'variants.size:id,name',
+                'variants.inventoryStocks',
+                'inventoryStocks'
+            ])
             ->withSum('inventoryStocks', 'quantity')
             ->where('status', 1)
-            ->havingRaw('inventory_stocks_sum_quantity <= 100 OR inventory_stocks_sum_quantity IS NULL');
+            ->where(function ($q) use ($threshold) {
+                // Condition 1: Overall product stock <= min_inventory_qty or default threshold
+                $q->whereRaw('(SELECT COALESCE(SUM(quantity), 0) FROM inventory_stocks WHERE inventory_stocks.product_id = products.id) <= COALESCE(products.min_inventory_qty, ?)', [$threshold])
+                  // Condition 2: Product has variants and at least one variant has stock <= min_inventory_qty or default threshold
+                  ->orWhereHas('variants', function ($vq) use ($threshold) {
+                      $vq->whereRaw('(SELECT COALESCE(SUM(quantity), 0) FROM inventory_stocks WHERE inventory_stocks.variant_id = product_variants.id) <= ?', [$threshold]);
+                  });
+            });
 
         // Search functionality
         if ($request->filled('search')) {
@@ -431,8 +411,24 @@ class ReportController extends Controller implements HasMiddleware
                     ->orWhere('barcode', 'like', "%{$search}%")
                     ->orWhereHas('category', function ($subQ) use ($search) {
                         $subQ->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('brand', function ($subQ) use ($search) {
+                        $subQ->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('variants', function ($subQ) use ($search) {
+                        $subQ->where('name', 'like', "%{$search}%");
                     });
             });
+        }
+
+        // Category filter
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // Brand filter
+        if ($request->filled('brand_id')) {
+            $query->where('brand_id', $request->brand_id);
         }
 
         // Vendor filter
@@ -443,9 +439,20 @@ class ReportController extends Controller implements HasMiddleware
         $products = $query->orderBy('inventory_stocks_sum_quantity', 'asc')
             ->paginate(30)->withQueryString();
 
+        if ($request->ajax() || $request->wantsJson()) {
+            $html = view('backend.reports.partials.low_stock_table', compact('products'))->render();
+            return response()->json([
+                'success' => true,
+                'html'    => $html,
+                'total'   => $products->total(),
+            ]);
+        }
+
+        $categories = Category::where('status', 1)->orderBy('name')->get();
+        $brands = Brand::where('status', 1)->orderBy('name')->get();
         $vendors = Vendor::where('status', 1)->orderBy('shop_name')->get();
 
-        return view('backend.reports.low_stock', compact('products', 'vendors'));
+        return view('backend.reports.low_stock', compact('products', 'categories', 'brands', 'vendors'));
     }
 
     /**
@@ -488,10 +495,10 @@ class ReportController extends Controller implements HasMiddleware
 
         $unreadCount = 0;
         
-        // 1. Fetch Low Stock Products (Threshold 100)
+        // 1. Fetch Low Stock Products
         $lowStockProducts = Product::where('status', 1)
             ->withSum('inventoryStocks', 'quantity')
-            ->havingRaw('inventory_stocks_sum_quantity <= 100 OR inventory_stocks_sum_quantity IS NULL')
+            ->havingRaw('inventory_stocks_sum_quantity <= COALESCE(products.min_inventory_qty, 10) OR inventory_stocks_sum_quantity IS NULL')
             ->orderBy('updated_at', 'desc') // Fetch by recent update
             ->take(15)
             ->get();
@@ -674,7 +681,7 @@ class ReportController extends Controller implements HasMiddleware
      */
     public function orderReport(Request $request)
     {
-        $users = User::role(['Outlet User', 'User'])->get(['id', 'name', 'outlet_name']);
+        $users = User::whereHas('roles', fn($q) => $q->whereIn('name', ['Outlet User', 'User']))->get(['id', 'name', 'outlet_name']);
 
         $query = Order::where('status', 'completed');
 
@@ -744,10 +751,12 @@ class ReportController extends Controller implements HasMiddleware
                 ->groupBy('month')->orderBy('month', 'desc')
                 ->get();
 
+            $latestPdf = $this->getLatestReportFile('order_sales_report', 'admin.reports.orders.pdf.download');
+
             return view('backend.reports.orders', compact(
                 'user', 'users', 'summary', 'issueStats', 'orderIds',
                 'paymentStats', 'totalDue', 'issueValue', 'pendingValue',
-                'orders', 'issues', 'payments', 'productComparison', 'monthlyTrend', 'totalRevenue'
+                'orders', 'issues', 'payments', 'productComparison', 'monthlyTrend', 'totalRevenue', 'latestPdf'
             ));
         }
 
@@ -781,172 +790,140 @@ class ReportController extends Controller implements HasMiddleware
             ->get()
             ->keyBy('user_id');
 
+        $latestPdf = $this->getLatestReportFile('order_sales_report', 'admin.reports.orders.pdf.download');
+
         return view('backend.reports.orders', compact(
-            'summary', 'issueStats', 'productFrequency', 'monthlyTrend', 'userSummary', 'users', 'orderIds', 'orders', 'issueValue', 'totalRevenue'
+            'summary', 'issueStats', 'productFrequency', 'monthlyTrend', 'userSummary', 'users', 'orderIds', 'orders', 'issueValue', 'totalRevenue', 'latestPdf'
         ));
     }
 
     /**
-     * Order & Issue Report — PDF Export
+     * Order & Sales Report — Dispatch PDF generation to Background Queue.
      */
-    public function orderReportPdf(Request $request)
-    {
-        $query = Order::with(['user', 'items.product'])->where('status', 'completed');
-
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
-        }
-        if ($request->filled('date_from')) {
-            $query->whereDate('placed_at', '>=', $request->date_from);
-        }
-        if ($request->filled('date_to')) {
-            $query->whereDate('placed_at', '<=', $request->date_to);
-        }
-        if ($request->filled('month')) {
-            $query->whereMonth('placed_at', $request->month);
-        }
-        if ($request->filled('year')) {
-            $query->whereYear('placed_at', $request->year);
-        }
-
-        $orderIds = (clone $query)->pluck('id');
-
-        $summary = (clone $query)->selectRaw('
-            COUNT(*) as total_orders,
-            COALESCE(SUM(total_amount),0) as total_value,
-            COALESCE(AVG(total_amount),0) as avg_order_value
-        ')->first();
-
-        $hasDateFilter = $request->filled('month') || $request->filled('year') || $request->filled('date_from') || $request->filled('date_to');
-
-        $totalRevenue = $summary->total_value;
-        $issueStats = (object)['total_issues' => 0, 'total_issued_qty' => 0];
-
-        $settings = GeneralSetting::first();
-
-        // ─── 360° per-user PDF ───────────────────────────────────
-        if ($request->filled('user_id')) {
-            $user = User::find($request->user_id);
-
-            $paymentStats = OrderPayment::whereIn('order_id', $orderIds)
-                ->selectRaw('COALESCE(SUM(amount),0) as total_paid')->first();
-            $totalDue = $summary->total_value - $paymentStats->total_paid;
-
-            $issueValue = 0;
-            $pendingValue = 0;
-
-            // Orders
-            $orders = $query->with('items')->orderByDesc('placed_at')->get();
-            $issues = collect();
-
-            // Payments
-            $payments = OrderPayment::with('order')
-                ->whereIn('order_id', $orderIds)
-                ->orderByDesc('created_at')
-                ->get();
-
-            // Product comparison
-            $productComparison = OrderItem::whereIn('order_id', $orderIds)
-                ->selectRaw('product_id, product_name, SUM(quantity) as ordered_qty, COALESCE(SUM(line_total),0) as ordered_value')
-                ->groupBy('product_id', 'product_name')
-                ->orderByDesc('ordered_value')
-                ->get()
-                ->map(function ($item) {
-                    $item->issued_qty = (int) $item->ordered_qty;
-                    $item->pending_qty = 0;
-                    return $item;
-                });
-
-            // Monthly trend
-            $monthlyTrend = Order::where('status', 'completed')
-                ->where('user_id', $request->user_id)
-                ->when($request->filled('date_from'), fn($q) => $q->whereDate('placed_at', '>=', $request->date_from))
-                ->when($request->filled('date_to'), fn($q) => $q->whereDate('placed_at', '<=', $request->date_to))
-                ->when($request->filled('month'), fn($q) => $q->whereMonth('placed_at', $request->month))
-                ->when($request->filled('year'), fn($q) => $q->whereYear('placed_at', $request->year))
-                ->selectRaw("DATE_FORMAT(placed_at, '%Y-%m') as month, COUNT(*) as orders_count, COALESCE(SUM(total_amount),0) as total_amount")
-                ->groupBy('month')->orderBy('month', 'desc')
-                ->get();
-
-            $pdf = Pdf::loadView('backend.reports.orders_pdf', compact(
-                'user', 'summary', 'issueStats', 'paymentStats', 'totalDue', 'issueValue', 'pendingValue',
-                'orders', 'issues', 'payments', 'productComparison', 'monthlyTrend', 'settings', 'request', 'totalRevenue', 'orderIds'
-            ))->setPaper('a4', 'landscape');
-        } else {
-            // ─── Global PDF ───────────────────────────────────────
-            $monthlyTrend = Order::where('status', 'completed')
-                ->when($request->filled('user_id'), fn($q) => $q->where('user_id', $request->user_id))
-                ->when($request->filled('date_from'), fn($q) => $q->whereDate('placed_at', '>=', $request->date_from))
-                ->when($request->filled('date_to'), fn($q) => $q->whereDate('placed_at', '<=', $request->date_to))
-                ->when($request->filled('month'), fn($q) => $q->whereMonth('placed_at', $request->month))
-                ->when($request->filled('year'), fn($q) => $q->whereYear('placed_at', $request->year))
-                ->selectRaw("DATE_FORMAT(placed_at, '%Y-%m') as month, COUNT(*) as orders_count, COALESCE(SUM(total_amount),0) as total_amount")
-                ->groupBy('month')->orderBy('month', 'desc')
-                ->get();
-
-            $issueValue = Issue::leftJoin('issue_items', 'issues.id', '=', 'issue_items.issue_id')
-                ->where(function ($q) use ($request) {
-                    if ($request->filled('date_from')) $q->whereDate('issues.created_at', '>=', $request->date_from);
-                    if ($request->filled('date_to')) $q->whereDate('issues.created_at', '<=', $request->date_to);
-                    if ($request->filled('month')) $q->whereMonth('issues.created_at', $request->month);
-                    if ($request->filled('year')) $q->whereYear('issues.created_at', $request->year);
-                })
-                ->sum(DB::raw('issue_items.quantity * COALESCE(issue_items.unit_price, 0)'));
-
-            $productFrequency = OrderItem::whereIn('order_id', $orderIds)
-                ->selectRaw('product_id, product_name, COUNT(*) as times_ordered, SUM(quantity) as total_qty, COALESCE(SUM(line_total),0) as total_value')
-                ->groupBy('product_id', 'product_name')
-                ->orderByDesc('times_ordered')
-                ->get();
-
-            $userSummary = Issue::leftJoin('issue_items', 'issues.id', '=', 'issue_items.issue_id')
-                ->where(function ($q) use ($request) {
-                    if ($request->filled('date_from')) $q->whereDate('issues.created_at', '>=', $request->date_from);
-                    if ($request->filled('date_to')) $q->whereDate('issues.created_at', '<=', $request->date_to);
-                    if ($request->filled('month')) $q->whereMonth('issues.created_at', $request->month);
-                    if ($request->filled('year')) $q->whereYear('issues.created_at', $request->year);
-                })
-                ->selectRaw('COALESCE(outlet_id, 0) as user_id, COUNT(DISTINCT issues.id) as total_orders, COALESCE(SUM(issue_items.quantity * COALESCE(issue_items.unit_price, 0)),0) as total_value, COALESCE(SUM(issue_items.quantity),0) as total_qty')
-                ->groupBy('outlet_id')
-                ->orderByDesc('total_value')
-                ->get()
-                ->keyBy('user_id');
-
-            $pdf = Pdf::loadView('backend.reports.orders_pdf', compact(
-                'summary', 'issueStats', 'productFrequency', 'monthlyTrend', 'userSummary', 'settings', 'request', 'orderIds', 'issueValue', 'totalRevenue'
-            ))->setPaper('a4', 'landscape');
-        }
-
-        $fileName = 'order-issue-report-' . now()->format('Ymd_His') . '.pdf';
-        return $pdf->download($fileName);
-    }
-
-    /**
-     * Order & Issue Report — Async PDF Generation (Background Job)
-     */
-    public function orderReportPdfAsync(Request $request)
+    public function orderReportPdf(Request $request): JsonResponse|RedirectResponse
     {
         $filters = $request->only(['user_id', 'month', 'year', 'date_from', 'date_to']);
 
-        dispatch(new \App\Jobs\GenerateReportPdfJob($filters, auth()->id()));
+        dispatch(new GenerateReportPdfJob($filters, (int) auth()->id()));
 
-        Toastr::info('Order & Issue Report is generating in the background. Check notifications when ready.');
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status'        => 'dispatched',
+                'message'       => 'Order & Sales Report generation started in the background.',
+                'dispatched_at' => time() - 1,
+            ]);
+        }
 
+        Toastr::info('Order & Sales Report is generating in the background. Check notifications when ready.');
         return redirect()->back();
     }
 
     /**
-     * Order & Issue Report — Download Generated PDF
+     * Order & Sales Report — Async PDF Generation alias.
      */
-    public function downloadReportPdf($file)
+    public function orderReportPdfAsync(Request $request): JsonResponse|RedirectResponse
     {
-        $path = storage_path('app/public/reports/' . $file);
+        return $this->orderReportPdf($request);
+    }
 
-        if (!file_exists($path)) {
-            return redirect()->back()->with('error', 'File not found or has expired.');
+    /**
+     * Stock Valuation Report — Dispatch PDF generation to Background Queue.
+     */
+    public function stockReportPdf(Request $request): JsonResponse|RedirectResponse
+    {
+        $filters = [
+            'category_id' => $request->get('category_id'),
+            'brand_id'    => $request->get('brand_id'),
+        ];
+
+        if (empty($filters['category_id']) && empty($filters['brand_id'])) {
+            $msg = 'Please select a Category or Brand filter before exporting PDF. For full inventory, please use Excel export.';
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status'  => 'warning',
+                    'message' => $msg,
+                ], 422);
+            }
+            Toastr::warning($msg, 'Filter Required');
+            return redirect()->back();
         }
 
-        return response()->download($path)->deleteFileAfterSend(true);
+        dispatch(new GenerateStockReportPdfJob($filters, (int) auth()->id()));
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status'        => 'success',
+                'message'       => 'Stock valuation report generation has been dispatched to the background queue.',
+                'dispatched_at' => now()->timestamp,
+            ]);
+        }
+
+        Toastr::info('Stock valuation report is generating in the background. It will be ready in a few moments.');
+        return redirect()->back();
+    }
+
+    /**
+     * Stock Valuation Report — Async PDF Generation alias.
+     */
+    public function stockReportPdfAsync(Request $request): JsonResponse|RedirectResponse
+    {
+        return $this->stockReportPdf($request);
+    }
+
+    /**
+     * Check if an analytics/stock report PDF has completed generating in the background.
+     */
+    public function checkReportStatus(Request $request): JsonResponse
+    {
+        $reportType = (string) $request->get('type', 'order_sales_report');
+        $allowedTypes = ['order_sales_report', 'stock_valuation_report'];
+
+        if (!in_array($reportType, $allowedTypes, true)) {
+            return response()->json(['ready' => false]);
+        }
+
+        $after = (int) $request->get('after', 0);
+
+        $downloadRoute = match ($reportType) {
+            'stock_valuation_report' => 'admin.reports.stock.pdf.download',
+            default                  => 'admin.reports.orders.pdf.download',
+        };
+
+        $latest = $this->getLatestReportFile($reportType, $downloadRoute);
+        if (!$latest) {
+            return response()->json(['ready' => false]);
+        }
+
+        if ($after > 0 && ($latest['timestamp'] ?? 0) < $after) {
+            return response()->json(['ready' => false]);
+        }
+
+        return response()->json([
+            'ready'        => true,
+            'download_url' => $latest['url'],
+            'filename'     => $latest['filename'],
+            'time'         => $latest['time'],
+            'date'         => $latest['date'],
+            'timestamp'    => $latest['timestamp'],
+        ]);
+    }
+
+    /**
+     * Download generated PDF from ephemeral storage.
+     */
+    public function downloadReportPdf(string $file): BinaryFileResponse|RedirectResponse
+    {
+        $cleanFile = basename($file);
+        $path = storage_path('app/temp_reports/' . $cleanFile);
+
+        if (!file_exists($path)) {
+            Toastr::error('The requested report file has expired or was purged. Please generate a fresh report.');
+            return redirect()->back();
+        }
+
+        return response()->download($path, $cleanFile, [
+            'Content-Type' => 'application/pdf',
+        ]);
     }
 
     /**

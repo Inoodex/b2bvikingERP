@@ -1,5 +1,5 @@
 @extends('backend.layouts.master')
-@section('title', $settings->site_name . ' | Stock Report')
+@section('title', ($settings->site_name ?? 'B2B Viking ERP') . ' | Stock Report')
 
 @push('css')
 <style>
@@ -9,7 +9,7 @@
         --sr-amber-deep: #b8852a;
         --sr-amber-soft: rgba(212, 162, 78, 0.08);
         --sr-border: rgba(11, 17, 32, 0.07);
-        --sr-border-hover: rgba(212, 162, 78, 0.18);xzx
+        --sr-border-hover: rgba(212, 162, 78, 0.18);
         --sr-ink: #161e2e;
         --sr-ink-soft: #2d3748;
         --sr-muted: #6b788e;
@@ -67,7 +67,7 @@
     .sr-breadcrumb .active { color: var(--sr-amber-deep); }
 
     /* ============================
-       STAT CARDS — Desktop Grid
+       STAT CARDS — Executive KPI Cards
        ============================ */
     .sr-stats-grid {
         display: grid;
@@ -76,70 +76,94 @@
         margin-bottom: 22px;
     }
     .sr-stat-card {
-        background: #fff;
-        border: 1px solid var(--sr-border);
-        border-radius: var(--sr-radius);
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
         padding: 18px 20px;
-        box-shadow: var(--sr-shadow);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
         display: flex;
-        align-items: center;
-        gap: 16px;
-        transition: all 0.3s cubic-bezier(.2,.8,.2,1);
+        flex-direction: column;
+        justify-content: space-between;
+        transition: all 0.25s cubic-bezier(.2,.8,.2,1);
         position: relative;
         overflow: hidden;
-    }
-    .sr-stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0; height: 3px;
-        border-radius: var(--sr-radius) var(--sr-radius) 0 0;
-        opacity: 0;
-        transition: opacity 0.3s ease;
+        min-height: 120px;
     }
     .sr-stat-card:hover {
-        box-shadow: var(--sr-shadow-hover);
-        border-color: var(--sr-border-hover);
         transform: translateY(-3px);
+        box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.08);
+        border-color: #cbd5e1;
     }
-    .sr-stat-card:hover::before { opacity: 1; }
-    .sr-stat-card:nth-child(1)::before { background: linear-gradient(90deg, #6366f1, #818cf8); }
-    .sr-stat-card:nth-child(2)::before { background: linear-gradient(90deg, #10b981, #34d399); }
-    .sr-stat-card:nth-child(3)::before { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
-    .sr-stat-card:nth-child(4)::before { background: linear-gradient(90deg, var(--sr-amber), var(--sr-amber-bright)); }
+    .sr-stat-stripe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3.5px;
+    }
+    .sr-stat-stripe.indigo { background: linear-gradient(90deg, #6366f1, #818cf8); }
+    .sr-stat-stripe.emerald { background: linear-gradient(90deg, #10b981, #34d399); }
+    .sr-stat-stripe.sky { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
+    .sr-stat-stripe.amber { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
 
+    .sr-stat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+    .sr-stat-label {
+        font-family: var(--sr-font);
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        line-height: 1.2;
+    }
     .sr-stat-icon {
-        width: 44px; height: 44px; min-width: 44px;
-        display: flex; align-items: center; justify-content: center;
-        border-radius: 12px;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 16px;
-        color: #fff;
         flex-shrink: 0;
     }
-    .sr-stat-icon.indigo { background: linear-gradient(145deg, #818cf8, #6366f1); box-shadow: 0 4px 12px -3px rgba(99,102,241,0.35); }
-    .sr-stat-icon.emerald { background: linear-gradient(145deg, #34d399, #10b981); box-shadow: 0 4px 12px -3px rgba(16,185,129,0.35); }
-    .sr-stat-icon.sky { background: linear-gradient(145deg, #38bdf8, #0ea5e9); box-shadow: 0 4px 12px -3px rgba(14,165,233,0.35); }
-    .sr-stat-icon.amber { background: linear-gradient(145deg, var(--sr-amber-bright), var(--sr-amber)); box-shadow: 0 4px 12px -3px rgba(212,162,78,0.35); color: #1a1306; }
+    .sr-stat-icon.indigo { background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; }
+    .sr-stat-icon.emerald { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+    .sr-stat-icon.sky { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
+    .sr-stat-icon.amber { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
 
-    .sr-stat-info { flex: 1; min-width: 0; }
-    .sr-stat-label {
-        font-size: 11px; font-weight: 700;
-        color: var(--sr-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-        margin-bottom: 4px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
     .sr-stat-value {
-        font-size: 18px; font-weight: 800;
-        color: var(--sr-ink);
-        letter-spacing: -0.3px;
-        line-height: 1.2;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: clamp(17px, 1.35vw, 22px);
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        line-height: 1.25;
+        margin: 8px 0 6px 0;
+        white-space: nowrap;
+    }
+    .sr-stat-value.text-emerald { color: #059669; }
+    .sr-stat-value.text-sky { color: #0284c7; }
+    .sr-stat-value.text-amber { color: #b45309; }
+
+    .sr-stat-subtext {
+        font-size: 11px;
+        font-weight: 500;
+        color: #64748b;
+        display: flex;
+        align-items: center;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    .text-indigo { color: #6366f1 !important; }
+    .text-emerald { color: #10b981 !important; }
+    .text-sky { color: #0ea5e9 !important; }
+    .text-amber { color: #f59e0b !important; }
 
     /* ============================
        FILTER CARD
@@ -301,21 +325,15 @@
         min-width: 180px;
     }
     .sr-product-img {
-        width: 36px; height: 36px;
+        width: 38px; height: 38px;
         border-radius: 8px;
-        object-fit: cover;
-        flex-shrink: 0;
-        border: 1px solid var(--sr-border);
-    }
-    .sr-product-placeholder {
-        width: 36px; height: 36px;
-        border-radius: 8px;
-        background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 9px; font-weight: 700;
-        color: #64748b;
+        object-fit: contain;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 2px;
         flex-shrink: 0;
     }
+
     .sr-product-name {
         font-weight: 700;
         font-size: 12.5px;
@@ -466,19 +484,14 @@
         }
         .sr-mobile-card-img {
             width: 40px; height: 40px;
-            border-radius: 10px;
-            object-fit: cover;
-            flex-shrink: 0;
-            border: 1px solid var(--sr-border);
-        }
-        .sr-mobile-card-placeholder {
-            width: 40px; height: 40px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px; font-weight: 700; color: #64748b;
+            border-radius: 8px;
+            object-fit: contain;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 2px;
             flex-shrink: 0;
         }
+
         .sr-mobile-card-name {
             flex: 1; min-width: 0;
         }
@@ -519,13 +532,13 @@
        ============================ */
     @media (min-width: 768px) and (max-width: 991.98px) {
         .sr-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .sr-stat-value { font-size: 16px; }
-        .sr-stat-icon { width: 40px; height: 40px; min-width: 40px; font-size: 15px; }
+        .sr-stat-value { font-size: 18px; }
+        .sr-stat-icon { width: 36px; height: 36px; min-width: 36px; font-size: 14px; }
         #table-stock { min-width: 750px; }
         #table-stock thead th { font-size: 9.5px; padding: 10px 12px; }
         #table-stock tbody td { font-size: 11.5px; padding: 10px 12px; }
         .sr-product-name { max-width: 150px; font-size: 11.5px; }
-        .sr-product-img, .sr-product-placeholder { width: 30px; height: 30px; }
+        .sr-product-img { width: 30px; height: 30px; }
         .sr-grand-total { padding: 14px 18px; }
         .sr-gt-chip-val { font-size: 14px; }
         .sr-table-actions { gap: 4px; }
@@ -542,10 +555,11 @@
         .sr-breadcrumb { font-size: 11px; }
 
         .sr-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
-        .sr-stat-card { padding: 14px 14px; gap: 12px; }
-        .sr-stat-icon { width: 36px; height: 36px; min-width: 36px; font-size: 14px; border-radius: 10px; }
-        .sr-stat-label { font-size: 9.5px; letter-spacing: 0.3px; }
-        .sr-stat-value { font-size: 14px; }
+        .sr-stat-card { padding: 14px 14px; min-height: 105px; }
+        .sr-stat-icon { width: 34px; height: 34px; min-width: 34px; font-size: 14px; border-radius: 8px; }
+        .sr-stat-label { font-size: 9.5px; letter-spacing: 0.04em; }
+        .sr-stat-value { font-size: 16px; margin: 6px 0 4px 0; }
+        .sr-stat-subtext { font-size: 10px; }
 
         .sr-filter-card { margin-bottom: 16px; }
         .sr-filter-head { padding: 12px 16px; }
@@ -634,31 +648,47 @@
             {{-- Summary Stat Cards --}}
             <div class="sr-stats-grid">
                 <div class="sr-stat-card">
-                    <div class="sr-stat-icon indigo"><i class="fas fa-boxes"></i></div>
-                    <div class="sr-stat-info">
-                        <div class="sr-stat-label">Total Stock Qty</div>
-                        <div class="sr-stat-value" id="span-total-qty">{{ number_format($totalQty) }}</div>
+                    <div class="sr-stat-stripe indigo"></div>
+                    <div class="sr-stat-header">
+                        <span class="sr-stat-label">Total Stock Qty</span>
+                        <div class="sr-stat-icon indigo"><i class="fas fa-boxes"></i></div>
+                    </div>
+                    <div class="sr-stat-value" id="span-total-qty">{{ number_format($totalQty) }}</div>
+                    <div class="sr-stat-subtext">
+                        <i class="fas fa-cubes text-indigo mr-1"></i> Total on-hand units
                     </div>
                 </div>
                 <div class="sr-stat-card">
-                    <div class="sr-stat-icon emerald"><i class="fas fa-dollar-sign"></i></div>
-                    <div class="sr-stat-info">
-                        <div class="sr-stat-label">Total Asset Value</div>
-                        <div class="sr-stat-value" id="span-total-value">{{ $settings->currency_icon }}{{ number_format($totalValue, 2) }}</div>
+                    <div class="sr-stat-stripe emerald"></div>
+                    <div class="sr-stat-header">
+                        <span class="sr-stat-label">Total Asset Value</span>
+                        <div class="sr-stat-icon emerald"><i class="fas fa-dollar-sign"></i></div>
+                    </div>
+                    <div class="sr-stat-value text-emerald" id="span-total-value">{{ $settings->currency_icon }}{{ number_format($totalValue, 2) }}</div>
+                    <div class="sr-stat-subtext">
+                        <i class="fas fa-receipt text-emerald mr-1"></i> Cost-basis valuation
                     </div>
                 </div>
                 <div class="sr-stat-card">
-                    <div class="sr-stat-icon sky"><i class="fas fa-tags"></i></div>
-                    <div class="sr-stat-info">
-                        <div class="sr-stat-label">Potential Revenue</div>
-                        <div class="sr-stat-value" id="span-potential-revenue">{{ $settings->currency_icon }}{{ number_format($potentialRevenue, 2) }}</div>
+                    <div class="sr-stat-stripe sky"></div>
+                    <div class="sr-stat-header">
+                        <span class="sr-stat-label">Potential Revenue</span>
+                        <div class="sr-stat-icon sky"><i class="fas fa-tags"></i></div>
+                    </div>
+                    <div class="sr-stat-value text-sky" id="span-potential-revenue">{{ $settings->currency_icon }}{{ number_format($potentialRevenue, 2) }}</div>
+                    <div class="sr-stat-subtext">
+                        <i class="fas fa-chart-pie text-sky mr-1"></i> Gross sales potential
                     </div>
                 </div>
                 <div class="sr-stat-card">
-                    <div class="sr-stat-icon amber"><i class="fas fa-chart-line"></i></div>
-                    <div class="sr-stat-info">
-                        <div class="sr-stat-label">Potential Profit</div>
-                        <div class="sr-stat-value" id="span-potential-profit">{{ $settings->currency_icon }}{{ number_format($potentialProfit, 2) }}</div>
+                    <div class="sr-stat-stripe amber"></div>
+                    <div class="sr-stat-header">
+                        <span class="sr-stat-label">Potential Profit</span>
+                        <div class="sr-stat-icon amber"><i class="fas fa-chart-line"></i></div>
+                    </div>
+                    <div class="sr-stat-value text-amber" id="span-potential-profit">{{ $settings->currency_icon }}{{ number_format($potentialProfit, 2) }}</div>
+                    <div class="sr-stat-subtext">
+                        <i class="fas fa-arrow-trend-up text-amber mr-1"></i> Projected gross margin
                     </div>
                 </div>
             </div>
@@ -707,11 +737,23 @@
                 <div class="sr-table-head">
                     <h4><i class="fas fa-table"></i> Detailed Stock List</h4>
                     <div class="sr-table-actions">
+                        @if(isset($latestPdf) && $latestPdf)
+                            <a href="{{ $latestPdf['url'] }}" id="btn-download-pdf" class="sr-btn emerald btn-download-pdf" title="{{ $latestPdf['filename'] }}">
+                                <i class="fas fa-file-download"></i> Download PDF (Ready: {{ $latestPdf['time'] }})
+                            </a>
+                        @else
+                            <a href="#" id="btn-download-pdf" class="sr-btn emerald btn-download-pdf" style="display:none;">
+                                <i class="fas fa-file-download"></i> Download PDF
+                            </a>
+                        @endif
+                        <button type="button" class="sr-btn amber btn-generate-pdf" id="btn-generate-pdf"
+                            data-url="{{ route('admin.reports.stock.pdf.async') }}"
+                            data-check-url="{{ route('admin.reports.stock.check-status') }}"
+                            data-type="stock_valuation_report">
+                            <i class="fas fa-file-pdf"></i> Export PDF
+                        </button>
                         <button type="button" class="sr-btn indigo" id="btn-export-excel">
                             <i class="fas fa-file-excel"></i> Excel
-                        </button>
-                        <button type="button" class="sr-btn emerald" id="btn-export-pdf">
-                            <i class="fas fa-file-pdf"></i> PDF
                         </button>
                         <button type="button" class="sr-btn rose" id="btn-print">
                             <i class="fas fa-print"></i> Print
@@ -760,11 +802,19 @@
                                     <tr>
                                         <td>
                                             <div class="sr-product-cell">
-                                                @if($product->thumb_image)
-                                                    <img src="{{ asset('storage/'.$product->thumb_image) }}" alt="" class="sr-product-img">
-                                                @else
-                                                    <div class="sr-product-placeholder">N/A</div>
-                                                @endif
+                                                @php
+                                                    $imgSrc = asset('uploads/no-image.svg');
+                                                    if (!empty($product->thumb_image)) {
+                                                        if (str_starts_with($product->thumb_image, 'http')) {
+                                                            $imgSrc = $product->thumb_image;
+                                                        } elseif (file_exists(public_path('storage/' . $product->thumb_image))) {
+                                                            $imgSrc = asset('storage/' . $product->thumb_image);
+                                                        } elseif (file_exists(public_path($product->thumb_image))) {
+                                                            $imgSrc = asset($product->thumb_image);
+                                                        }
+                                                    }
+                                                @endphp
+                                                <img src="{{ $imgSrc }}" onerror="this.onerror=null; this.src='{{ asset('uploads/no-image.svg') }}';" alt="{{ $product->name }}" class="sr-product-img">
                                                 <div class="sr-product-name font-weight-bold">{{ $product->name }}</div>
                                             </div>
                                         </td>
@@ -800,11 +850,19 @@
                             @endphp
                             <div class="sr-mobile-card">
                                 <div class="sr-mobile-card-top">
-                                    @if($product->thumb_image)
-                                        <img src="{{ asset('storage/'.$product->thumb_image) }}" alt="" class="sr-mobile-card-img">
-                                    @else
-                                        <div class="sr-mobile-card-placeholder">N/A</div>
-                                    @endif
+                                    @php
+                                        $imgSrc = asset('uploads/no-image.svg');
+                                        if (!empty($product->thumb_image)) {
+                                            if (str_starts_with($product->thumb_image, 'http')) {
+                                                $imgSrc = $product->thumb_image;
+                                            } elseif (file_exists(public_path('storage/' . $product->thumb_image))) {
+                                                $imgSrc = asset('storage/' . $product->thumb_image);
+                                            } elseif (file_exists(public_path($product->thumb_image))) {
+                                                $imgSrc = asset($product->thumb_image);
+                                            }
+                                        }
+                                    @endphp
+                                    <img src="{{ $imgSrc }}" onerror="this.onerror=null; this.src='{{ asset('uploads/no-image.svg') }}';" alt="{{ $product->name }}" class="sr-mobile-card-img">
                                     <div class="sr-mobile-card-name">
                                         <div class="name">{{ $product->name }}</div>
                                         <div class="meta">
@@ -952,7 +1010,6 @@
 
         function initExportButtons() {
             $('#btn-export-excel').off('click').on('click', function () { table.button(2).trigger(); });
-            $('#btn-export-pdf').off('click').on('click', function () { table.button(3).trigger(); });
             $('#btn-print').off('click').on('click', function () { table.button(4).trigger(); });
         }
         initExportButtons();
@@ -961,4 +1018,5 @@
             $('#stock-filter-form').trigger('submit');
         });
     </script>
+    @include('backend.reports.partials.async_analytics_report_pdf_js')
 @endpush

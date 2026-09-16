@@ -5,17 +5,24 @@
         $assetValue = $qty * $product->purchase_price;
         $potentialSale = $qty * $product->price;
         $profit = $potentialSale - $assetValue;
+
+        $imgSrc = asset('uploads/no-image.svg');
+        if (!empty($product->thumb_image)) {
+            if (str_starts_with($product->thumb_image, 'http')) {
+                $imgSrc = $product->thumb_image;
+            } elseif (file_exists(public_path('storage/' . $product->thumb_image))) {
+                $imgSrc = asset('storage/' . $product->thumb_image);
+            } elseif (file_exists(public_path($product->thumb_image))) {
+                $imgSrc = asset($product->thumb_image);
+            }
+        }
     @endphp
     <tr>
         <td>
             <div class="d-flex align-items-center">
-                @if($product->thumb_image)
-                    <img src="{{ asset('storage/'.$product->thumb_image) }}" alt="" width="32" class="rounded mr-2 box-shadow-1">
-                @else
-                    <div class="rounded mr-2 bg-secondary d-flex align-items-center justify-content-center text-white small" style="width:32px; height:32px;">N/A</div>
-                @endif
+                <img src="{{ $imgSrc }}" onerror="this.onerror=null; this.src='{{ asset('uploads/no-image.svg') }}';" alt="{{ $product->name }}" width="36" height="36" class="rounded mr-2 border p-1" style="object-fit: contain; background: #f8fafc; flex-shrink: 0;">
                 <div>
-            <div class="font-weight-bold">{{ $product->name }}</div>
+                    <div class="font-weight-bold">{{ $product->name }}</div>
                     {{-- <div class="text-small text-muted">SKU: {{ $product->sku }}</div> --}}
                 </div>
             </div>

@@ -121,24 +121,18 @@
                     <div class="card-header">
                         <h4><i class="fas fa-filter"></i> Filter</h4>
                         <div class="card-header-action">
-                            <form method="GET" action="{{ route('admin.reports.orders.pdf.async') }}" style="display:inline">
-                                @if(request('user_id'))
-                                    <input type="hidden" name="user_id" value="{{ request('user_id') }}">
-                                @endif
-                                @if(request('month'))
-                                    <input type="hidden" name="month" value="{{ request('month') }}">
-                                @endif
-                                @if(request('year'))
-                                    <input type="hidden" name="year" value="{{ request('year') }}">
-                                @endif
-                                @if(request('date_from'))
-                                    <input type="hidden" name="date_from" value="{{ request('date_from') }}">
-                                @endif
-                                @if(request('date_to'))
-                                    <input type="hidden" name="date_to" value="{{ request('date_to') }}">
-                                @endif
-                                <button type="submit" class="btn btn-danger"><i class="fas fa-file-pdf"></i> Download PDF</button>
-                            </form>
+                            @if(isset($latestPdf) && $latestPdf)
+                                <a href="{{ $latestPdf['url'] }}" id="btn-download-pdf-user" class="btn btn-success btn-sm font-weight-bold mr-2 btn-download-pdf" title="{{ $latestPdf['filename'] }}">
+                                    <i class="fas fa-file-download mr-1"></i> Download PDF (Ready: {{ $latestPdf['time'] }})
+                                </a>
+                            @else
+                                <a href="#" id="btn-download-pdf-user" class="btn btn-success btn-sm font-weight-bold mr-2 btn-download-pdf" style="display: none;">
+                                    <i class="fas fa-file-download mr-1"></i> Download PDF
+                                </a>
+                            @endif
+                            <button type="button" id="btn-generate-pdf-user" data-type="order_sales_report" data-url="{{ route('admin.reports.orders.pdf') }}" class="btn btn-danger btn-sm font-weight-bold btn-generate-pdf">
+                                <i class="fas fa-file-pdf mr-1"></i> Generate PDF
+                            </button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -480,24 +474,18 @@
                     <div class="card-header">
                         <h4><i class="fas fa-filter"></i> Filter</h4>
                         <div class="card-header-action">
-                            <form method="GET" action="{{ route('admin.reports.orders.pdf.async') }}" style="display:inline">
-                                @if(request('user_id'))
-                                    <input type="hidden" name="user_id" value="{{ request('user_id') }}">
-                                @endif
-                                @if(request('month'))
-                                    <input type="hidden" name="month" value="{{ request('month') }}">
-                                @endif
-                                @if(request('year'))
-                                    <input type="hidden" name="year" value="{{ request('year') }}">
-                                @endif
-                                @if(request('date_from'))
-                                    <input type="hidden" name="date_from" value="{{ request('date_from') }}">
-                                @endif
-                                @if(request('date_to'))
-                                    <input type="hidden" name="date_to" value="{{ request('date_to') }}">
-                                @endif
-                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-file-pdf"></i> Download PDF</button>
-                            </form>
+                            @if(isset($latestPdf) && $latestPdf)
+                                <a href="{{ $latestPdf['url'] }}" id="btn-download-pdf-global" class="btn btn-success btn-sm font-weight-bold mr-2 btn-download-pdf" title="{{ $latestPdf['filename'] }}">
+                                    <i class="fas fa-file-download mr-1"></i> Download PDF (Ready: {{ $latestPdf['time'] }})
+                                </a>
+                            @else
+                                <a href="#" id="btn-download-pdf-global" class="btn btn-success btn-sm font-weight-bold mr-2 btn-download-pdf" style="display: none;">
+                                    <i class="fas fa-file-download mr-1"></i> Download PDF
+                                </a>
+                            @endif
+                            <button type="button" id="btn-generate-pdf-global" data-type="order_sales_report" data-url="{{ route('admin.reports.orders.pdf') }}" class="btn btn-danger btn-sm font-weight-bold btn-generate-pdf">
+                                <i class="fas fa-file-pdf mr-1"></i> Generate PDF
+                            </button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -700,4 +688,5 @@
             $(this).closest('form').submit();
         });
     </script>
+    @include('backend.reports.partials.async_analytics_report_pdf_js')
 @endpush

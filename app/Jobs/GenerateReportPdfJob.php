@@ -15,6 +15,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class GenerateReportPdfJob implements ShouldQueue
@@ -64,28 +65,8 @@ class GenerateReportPdfJob implements ShouldQueue
 
         $hasDateFilter = !empty($this->filters['month']) || !empty($this->filters['year']) || !empty($this->filters['date_from']) || !empty($this->filters['date_to']);
 
-        $issueBase = DB::table('issue_items')
-            ->join('issues', 'issue_items.issue_id', '=', 'issues.id')
-            ->leftJoin('orders', 'issues.order_id', '=', 'orders.id')
-            ->where(function ($q) {
-                $q->whereNotNull('issues.order_id')->where('orders.status', 'completed');
-                if (!empty($this->filters['user_id'])) $q->where('orders.user_id', $this->filters['user_id']);
-                $q->orWhereNull('issues.order_id');
-                if (!empty($this->filters['user_id'])) $q->where('issues.outlet_id', $this->filters['user_id']);
-            });
-
         $totalRevenue = (float) ($summary->total_value ?? 0);
-
-        $issueStats = Issue::leftJoin('issue_items', 'issues.id', '=', 'issue_items.issue_id')
-            ->where(function ($q) {
-                if (!empty($this->filters['user_id'])) $q->where('issues.outlet_id', $this->filters['user_id']);
-                if (!empty($this->filters['date_from'])) $q->whereDate('issues.created_at', '>=', $this->filters['date_from']);
-                if (!empty($this->filters['date_to'])) $q->whereDate('issues.created_at', '<=', $this->filters['date_to']);
-                if (!empty($this->filters['month'])) $q->whereMonth('issues.created_at', $this->filters['month']);
-                if (!empty($this->filters['year'])) $q->whereYear('issues.created_at', $this->filters['year']);
-            })
-            ->selectRaw('COUNT(DISTINCT issues.id) as total_issues, COALESCE(SUM(issue_items.quantity),0) as total_issued_qty')
-            ->first();
+        $issueStats = (object)['total_issues' => 0, 'total_issued_qty' => 0];
 
         $settings = GeneralSetting::first();
 
@@ -149,24 +130,14 @@ class GenerateReportPdfJob implements ShouldQueue
                 ->groupBy('month')->orderBy('month', 'desc')
                 ->get();
 
-            $issueValue = Issue::leftJoin('issue_items', 'issues.id', '=', 'issue_items.issue_id')
-                ->where(function ($q) {
-                    if (!empty($this->filters['date_from'])) $q->whereDate('issues.created_at', '>=', $this->filters['date_from']);
-                    if (!empty($this->filters['date_to'])) $q->whereDate('issues.created_at', '<=', $this->filters['date_to']);
-                    if (!empty($this->filters['month'])) $q->whereMonth('issues.created_at', $this->filters['month']);
-                    if (!empty($this->filters['year'])) $q->whereYear('issues.created_at', $this->filters['year']);
-                })
-                ->sum(DB::raw('issue_items.quantity * COALESCE(issue_items.unit_price, 0)'));
+            $issueValue = $totalRevenue;
 
-            $userSummary = Issue::leftJoin('issue_items', 'issues.id', '=', 'issue_items.issue_id')
-                ->where(function ($q) {
-                    if (!empty($this->filters['date_from'])) $q->whereDate('issues.created_at', '>=', $this->filters['date_from']);
-                    if (!empty($this->filters['date_to'])) $q->whereDate('issues.created_at', '<=', $this->filters['date_to']);
-                    if (!empty($this->filters['month'])) $q->whereMonth('issues.created_at', $this->filters['month']);
-                    if (!empty($this->filters['year'])) $q->whereYear('issues.created_at', $this->filters['year']);
-                })
-                ->selectRaw('COALESCE(outlet_id, 0) as user_id, COUNT(DISTINCT issues.id) as total_orders, COALESCE(SUM(issue_items.quantity * COALESCE(issue_items.unit_price, 0)),0) as total_value, COALESCE(SUM(issue_items.quantity),0) as total_qty')
-                ->groupBy('outlet_id')
+            $userSummary = DB::table('orders')
+                ->leftJoin('order_items', 'orders.id', '=', 'order_items.order_id')
+                ->where('orders.status', 'completed')
+                ->whereIn('orders.id', $orderIds)
+                ->selectRaw('orders.user_id, COUNT(DISTINCT orders.id) as total_orders, COALESCE(SUM(orders.total_amount),0) as total_value, COALESCE(SUM(order_items.quantity),0) as total_qty')
+                ->groupBy('orders.user_id')
                 ->orderByDesc('total_value')
                 ->get()
                 ->keyBy('user_id');
@@ -181,25 +152,23 @@ class GenerateReportPdfJob implements ShouldQueue
 
         $pdf = Pdf::loadView('backend.reports.orders_pdf', $data)->setPaper('a4', 'landscape');
 
-        $userName = 'All_Users';
-        if (!empty($this->filters['user_id'])) {
-            $u = User::find($this->filters['user_id']);
-            $userName = $u ? preg_replace('/[^a-zA-Z0-9_\-]/', '_', $u->name) : 'User_' . $this->filters['user_id'];
+        $tempDir = storage_path('app/temp_reports');
+        if (!File::exists($tempDir)) {
+            File::makeDirectory($tempDir, 0755, true);
         }
-        $filterPart = '';
-        if (!empty($this->filters['month'])) {
-            $filterPart .= date('M', mktime(0, 0, 0, $this->filters['month'], 1));
+
+        // Pre-generation purge: delete previous order_sales_report PDFs for this user
+        $pattern = $tempDir . "/order_sales_report_u{$this->userId}_*.pdf";
+        foreach (glob($pattern) as $oldFile) {
+            if (is_file($oldFile)) {
+                @unlink($oldFile);
+            }
         }
-        if (!empty($this->filters['year'])) {
-            $filterPart .= $this->filters['year'];
-        }
-        if (!empty($this->filters['date_from']) || !empty($this->filters['date_to'])) {
-            $filterPart .= ($this->filters['date_from'] ?? '') . '_' . ($this->filters['date_to'] ?? '');
-        }
-        $filterPart = $filterPart ? '_' . $filterPart : '';
-        $filename = $userName . $filterPart . '_' . now()->format('Ymd_His') . '.pdf';
-        $path = 'reports/' . $filename;
-        Storage::disk('public')->put($path, $pdf->output());
+
+        $timestamp = now()->format('Ymd_His');
+        $filename = "order_sales_report_u{$this->userId}_{$timestamp}.pdf";
+        $filePath = "{$tempDir}/{$filename}";
+        $pdf->save($filePath);
 
         $filterLabel = '';
         if (!empty($this->filters['user_id'])) {
@@ -218,8 +187,8 @@ class GenerateReportPdfJob implements ShouldQueue
 
         $this->addCacheNotification($this->userId, [
             'type' => 'pdf_ready',
-            'title' => 'Report Ready',
-            'desc' => "Order & Issue Report ({$filterLabel}) is ready.",
+            'title' => 'Order & Sales Report Ready',
+            'desc' => "Order & Sales Report ({$filterLabel}) is ready.",
             'url' => route('admin.reports.orders.pdf.download', ['file' => $filename]),
             'icon' => 'fas fa-file-pdf',
             'class' => 'bg-success',

@@ -415,6 +415,10 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
     Route::controller(ReportController::class)->group(function () {
         Route::get('reports', 'index')->name('reports.index');
         Route::get('reports/stock', 'stockReport')->name('reports.stock');
+        Route::get('reports/stock/pdf', 'stockReportPdf')->name('reports.stock.pdf');
+        Route::get('reports/stock/pdf/async', 'stockReportPdfAsync')->name('reports.stock.pdf.async');
+        Route::get('reports/stock/pdf/download/{file}', 'downloadReportPdf')->name('reports.stock.pdf.download');
+        Route::get('reports/stock/check-status', 'checkReportStatus')->name('reports.stock.check-status');
         Route::get('reports/purchase', 'purchaseReport')->name('reports.purchase');
         Route::get('reports/product-purchase-history', 'productPurchaseHistory')->name('reports.product-purchase-history');
         Route::get('reports/low-stock', 'lowStockReport')->name('reports.low-stock');
@@ -426,6 +430,7 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::get('reports/orders/pdf', 'orderReportPdf')->name('reports.orders.pdf');
         Route::get('reports/orders/pdf/async', 'orderReportPdfAsync')->name('reports.orders.pdf.async');
         Route::get('reports/orders/pdf/download/{file}', 'downloadReportPdf')->name('reports.orders.pdf.download');
+        Route::get('reports/orders/check-status', 'checkReportStatus')->name('reports.orders.check-status');
         Route::get('low-stock-check', 'lowStockCheck')->name('low-stock-check'); // AJAX endpoint
         Route::post('low-stock-mark-read', 'markNotificationsRead')->name('low-stock-mark-read');
         Route::get('notifications/all', 'allNotifications')->name('notifications.all');
