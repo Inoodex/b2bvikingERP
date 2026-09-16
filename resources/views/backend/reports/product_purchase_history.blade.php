@@ -1,9 +1,11 @@
 @extends('backend.layouts.master')
 
+@section('title', 'Product Purchase History & Tracking')
+
 @section('content')
     <section class="section">
         <div class="section-header">
-            <h1>Product Purchase History</h1>
+            <h1><i class="fas fa-boxes text-primary mr-2"></i> Product Purchase Tracking</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item active"><a href="{{ route('admin.reports.index') }}">Reports</a></div>
                 <div class="breadcrumb-item">Product Purchase Tracking</div>
@@ -13,95 +15,53 @@
         <div class="section-body">
             <div class="row">
                 <div class="col-12">
-                    <div class="card">
+                    <div class="card card-primary">
                         <div class="card-header">
-                            <h4>Track Product Purchases by Vendor & User</h4>
+                            <h4>Track Product Purchases by Vendor & Date</h4>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('admin.reports.product-purchase-history') }}" method="GET" class="mb-4">
-                                <div class="row">
-                                    <div class="col-md-5">
-                                        <label>Filter by Product</label>
-                                        <select name="product_id" class="form-control select2">
+                            <form id="report-filter-form" action="javascript:void(0);" class="mb-4">
+                                <div class="row align-items-end">
+                                    <div class="col-md-3 col-sm-6 mb-2">
+                                        <label class="font-weight-bold">Filter by Product:</label>
+                                        <select name="product_id" class="form-control select2 filter-input">
                                             <option value="">All Products</option>
                                             @foreach ($products as $product)
-                                                <option value="{{ $product->id }}" {{ request('product_id') == $product->id ? 'selected' : '' }}>{{ $product->name }} ({{ $product->sku }})</option>
+                                                <option value="{{ $product->id }}">
+                                                    {{ $product->name }} ({{ $product->product_number ?? $product->sku ?? ('PROD-' . $product->id) }})
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-md-4">
-                                        <label>&nbsp;</label>
-                                        <div class="d-flex">
-                                            <button type="submit" class="btn btn-primary flex-grow-1 mr-2">
-                                                <i class="fas fa-filter"></i> Filter
-                                            </button>
-                                            <a href="{{ route('admin.reports.product-purchase-history') }}" class="btn btn-secondary">
-                                                <i class="fas fa-redo"></i> Reset
-                                            </a>
-                                        </div>
+                                    <div class="col-md-3 col-sm-6 mb-2">
+                                        <label class="font-weight-bold">Filter by Supplier / Vendor:</label>
+                                        <select name="vendor_id" class="form-control select2 filter-input">
+                                            <option value="">All Vendors</option>
+                                            @foreach ($vendors as $vendor)
+                                                <option value="{{ $vendor->id }}">
+                                                    {{ $vendor->shop_name ?? $vendor->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2 col-sm-6 mb-2">
+                                        <label class="font-weight-bold">Start Date:</label>
+                                        <input type="date" name="start_date" class="form-control filter-input">
+                                    </div>
+                                    <div class="col-md-2 col-sm-6 mb-2">
+                                        <label class="font-weight-bold">End Date:</label>
+                                        <input type="date" name="end_date" class="form-control filter-input">
+                                    </div>
+                                    <div class="col-md-2 col-sm-12 mb-2">
+                                        <button type="button" id="btn-reset-filter" class="btn btn-outline-danger btn-block shadow-sm">
+                                            <i class="fas fa-undo-alt mr-1"></i> Reset Filters
+                                        </button>
                                     </div>
                                 </div>
                             </form>
 
                             <div class="table-responsive">
-                                <table class="table table-striped" id="table-1">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Invoice No</th>
-                                            <th>Product</th>
-                                            <th>Vendor</th>
-                                             <th>Created By</th>
-                                             <th>Qty</th>
-                                             <th>Base Unit Cost</th>
-                                             <th>Vendor Unit Cost</th>
-                                             <th>Base Total</th>
-                                             <th>Vendor Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($details as $detail)
-                                            <tr>
-                                                <td>{{ $detail->purchase->date }}</td>
-                                                <td>{{ $detail->purchase->invoice_no }}</td>
-                                                <td>{{ $detail->product->name }}</td>
-                                                <td>{{ $detail->purchase->vendor->shop_name ?? 'N/A' }}</td>
-                                                <td>{{ $detail->purchase->user->name ?? 'System' }}</td>
-                                                <td>{{ $detail->qty }}</td>
-                                                <td>{!! formatConverted($detail->unit_cost) !!}</td>
-                                                <td>
-                                                    @if($detail->purchase->vendor)
-                                                        {!! formatWithVendor($detail->unit_cost, $detail->purchase->vendor->currency_icon, $detail->purchase->vendor->currency_rate) !!}
-                                                    @else
-                                                        {!! formatConverted($detail->unit_cost) !!}
-                                                    @endif
-                                                </td>
-                                                <td>{!! formatConverted($detail->total) !!}</td>
-                                                <td>
-                                                    @if($detail->purchase->vendor)
-                                                        {!! formatWithVendor($detail->total, $detail->purchase->vendor->currency_icon, $detail->purchase->vendor->currency_rate) !!}
-                                                    @else
-                                                        {!! formatConverted($detail->total) !!}
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                            <p class="text-muted mb-3 text-center" style="font-size: 14px; font-weight: 500;">
-                                Showing 
-                                <span class="text-dark font-weight-bold">
-                                    {{ $details->firstItem() ?? 0 }} - {{ $details->lastItem() ?? 0 }}
-                                </span> 
-                                of 
-                                 <span class="text-dark font-weight-bold">
-                                    {{ $details->total() }}
-                                </span> 
-                                Purchase History
-                            </p>
-                            <div class="d-flex justify-content-center flex-wrap custom-pagination">
-                                {{ $details->links() }}
+                                {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'product-purchase-history-table']) !!}
                             </div>
                         </div>
                     </div>
@@ -112,12 +72,25 @@
 @endsection
 
 @push('scripts')
+    {!! $dataTable->scripts() !!}
     <script>
-        $("#table-1").dataTable({
-            "order": [[0, "desc"]],
-            paging: false,
-            info: false,
-            searching: false
+    $(document).ready(function() {
+        $(document).on('change', '.filter-input', function() {
+            if (window.LaravelDataTables && window.LaravelDataTables['product-purchase-history-table']) {
+                window.LaravelDataTables['product-purchase-history-table'].draw();
+            }
         });
+
+        $('#btn-reset-filter').on('click', function(e) {
+            e.preventDefault();
+            $('#report-filter-form')[0].reset();
+            if ($.fn.select2) {
+                $('.select2').val('').trigger('change');
+            }
+            if (window.LaravelDataTables && window.LaravelDataTables['product-purchase-history-table']) {
+                window.LaravelDataTables['product-purchase-history-table'].draw();
+            }
+        });
+    });
     </script>
 @endpush

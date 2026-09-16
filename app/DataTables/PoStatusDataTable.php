@@ -15,14 +15,30 @@ class PoStatusDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->editColumn('po_no', fn($row) => '<code>' . e($row->po_no) . '</code>')
+            ->editColumn('po_no', fn($row) => '<a href="' . route('admin.purchase-orders.show', $row->id) . '" class="font-weight-bold text-primary" target="_blank"><code>' . e($row->po_no) . '</code></a>')
             ->editColumn('date', fn($row) => $row->date ? $row->date->format('d M Y') : 'N/A')
-            ->addColumn('vendor_name', fn($row) => '<strong>' . e($row->vendor?->shop_name ?? $row->vendor?->name ?? 'N/A') . '</strong>')
+            ->addColumn('vendor_name', function($row) {
+                if ($row->vendor_id) {
+                    return '<a href="' . route('admin.vendor-ledger.show', $row->vendor_id) . '" class="font-weight-bold text-dark" target="_blank" title="View Vendor Ledger">' . e($row->vendor?->shop_name ?? $row->vendor?->name ?? 'N/A') . '</a>';
+                }
+                return '<span class="text-muted">N/A</span>';
+            })
             ->addColumn('type_badge', fn($row) => '<span class="badge badge-' . ($row->purchase_type == 'foreign' ? 'info' : 'secondary') . '">' . ucfirst($row->purchase_type ?? 'local') . '</span>')
             ->editColumn('total_amount', fn($row) => formatConverted($row->total_amount))
-            ->addColumn('milestone_badge', fn($row) => '<span class="badge badge-primary">' . ucfirst(str_replace('_', ' ', $row->milestone_status ?? 'issued')) . '</span>')
+            ->addColumn('milestone_badge', function($row) {
+                $status = $row->milestone_status ?? 'draft';
+                $badge = match($status) {
+                    'goods_received' => 'success',
+                    'shipped' => 'info',
+                    'lc_opened' => 'warning',
+                    'approved' => 'primary',
+                    'po_sent' => 'secondary',
+                    default => 'light text-dark',
+                };
+                return '<span class="badge badge-' . $badge . '">' . ucfirst(str_replace('_', ' ', $status)) . '</span>';
+            })
             ->addColumn('payment_badge', fn($row) => '<span class="badge badge-' . ($row->payment_status == 'paid' ? 'success' : ($row->payment_status == 'partial' ? 'warning' : 'danger')) . '">' . ucfirst($row->payment_status ?? 'unpaid') . '</span>')
-            ->addColumn('action', fn($row) => '<a href="' . route('admin.purchase-orders.show', $row->id) . '" class="btn btn-sm btn-info" target="_blank"><i class="fas fa-eye"></i> View PO</a>')
+            ->addColumn('action', fn($row) => '<a href="' . route('admin.purchase-orders.show', $row->id) . '" class="btn btn-sm btn-info shadow-sm" target="_blank" title="View Procurement PO Details"><i class="fas fa-eye"></i> View PO</a>')
             ->rawColumns(['po_no', 'vendor_name', 'type_badge', 'milestone_badge', 'payment_badge', 'action'])
             ->setRowId('id');
     }
@@ -38,6 +54,15 @@ class PoStatusDataTable extends DataTable
         if ($request->filled('end_date')) {
             $query->whereDate('date', '<=', $request->end_date);
         }
+        if ($request->filled('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+        if ($request->filled('purchase_type')) {
+            $query->where('purchase_type', $request->purchase_type);
+        }
+        if ($request->filled('milestone_status')) {
+            $query->where('milestone_status', $request->milestone_status);
+        }
 
         return $query->latest('id');
     }
@@ -48,7 +73,7 @@ class PoStatusDataTable extends DataTable
             ->setTableId('po-status-table')
             ->columns($this->getColumns())
             ->ajax([
-                'data' => 'function(d) { d.start_date = $("input[name=\"start_date\"]").val(); d.end_date = $("input[name=\"end_date\"]").val(); }'
+                'data' => 'function(d) { d.start_date = $("input[name=\"start_date\"]").val(); d.end_date = $("input[name=\"end_date\"]").val(); d.vendor_id = $("select[name=\"vendor_id\"]").val(); d.purchase_type = $("select[name=\"purchase_type\"]").val(); d.milestone_status = $("select[name=\"milestone_status\"]").val(); }'
             ])
             ->stateSave(false)
             ->pageLength(10)

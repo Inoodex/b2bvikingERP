@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ProductRequest;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseReportService
 {
@@ -26,27 +27,30 @@ class PurchaseReportService
             $query->where('vendor_id', $filters['vendor_id']);
         }
 
-        $purchases = $query->get();
+        return $query->get()->groupBy('vendor_id')->map(function ($purchases) {
+            $first = $purchases->first();
+            $vendor = $first->vendor;
 
-        return $purchases->groupBy('vendor_id')->map(function ($group) {
-            $first = $group->first();
-            return [
-                'vendor_name' => $first->vendor?->name ?? 'Unknown Vendor',
-                'vendor_code' => $first->vendor?->code ?? 'N/A',
-                'po_count' => $group->count(),
-                'total_base_amount' => round($group->sum('total_amount'), 2),
-                'total_paid' => round($group->sum('paid_amount'), 2),
-                'total_due' => round($group->sum('due_amount'), 2),
+            return (object)[
+                'vendor_id' => $vendor ? $vendor->id : null,
+                'supplier_name' => $vendor ? ($vendor->shop_name ?? $vendor->name) : 'N/A',
+                'po_count' => $purchases->count(),
+                'currency' => $vendor && $vendor->currency ? $vendor->currency->currency_code : 'DKK',
+                'currency_icon' => $vendor && $vendor->currency ? $vendor->currency->currency_icon : 'Kr.',
+                'total_foreign_amount' => round($purchases->sum('foreign_amount'), 2),
+                'total_base_amount' => round($purchases->sum('total_amount'), 2),
+                'total_paid' => round($purchases->sum('paid_amount'), 2),
+                'total_due' => round($purchases->sum('due_amount'), 2),
             ];
         })->values();
     }
 
     /**
-     * Client Req 2.24 & 2.26: Item-wise Purchase Report with Pagination
+     * Client Req 2.24: Item-wise Purchase Report
      */
-    public function getItemWisePurchase(array $filters = [], int $perPage = 25)
+    public function getItemWisePurchase(array $filters = [], int $perPage = 15): \Illuminate\Pagination\LengthAwarePaginator
     {
-        $query = PurchaseDetail::with(['purchase.vendor', 'product', 'variant'])
+        $query = PurchaseDetail::with(['purchase.vendor', 'product'])
             ->whereHas('purchase', function ($q) use ($filters) {
                 $q->where('status', 1);
                 if (!empty($filters['start_date'])) {
@@ -64,18 +68,25 @@ class PurchaseReportService
             $query->where('product_id', $filters['product_id']);
         }
 
-        $details = $query->get();
+        $allDetails = $query->get();
 
-        $grouped = $details->groupBy('product_id')->map(function ($group) {
-            $first = $group->first();
-            $productCode = $first->product?->product_number ?? $first->product?->sku ?? ($first->product_id ? 'PROD-'.$first->product_id : 'N/A');
-            return [
-                'product_name' => $first->product?->name ?? 'Unknown Product',
-                'product_code' => $productCode,
-                'total_qty' => $group->sum('qty'),
-                'avg_unit_price' => round($group->avg('unit_cost'), 2),
-                'avg_landed_cost' => round($group->avg('landed_cost'), 2),
-                'total_value' => round($group->sum('total'), 2),
+        $grouped = $allDetails->groupBy('product_id')->map(function ($details) {
+            $first = $details->first();
+            $product = $first->product;
+
+            $totalQty = $details->sum('qty');
+            $totalAmount = $details->sum('total');
+            $avgCost = $totalQty > 0 ? round($totalAmount / $totalQty, 2) : 0;
+            $avgLandedCost = $totalQty > 0 ? round($details->sum(fn($d) => ($d->landed_cost ?? $d->unit_cost) * $d->qty) / $totalQty, 2) : 0;
+
+            return (object)[
+                'product_id' => $product ? $product->id : null,
+                'item_name' => $product ? $product->name : 'N/A',
+                'sku' => $product ? ($product->product_number ?? $product->sku) : 'N/A',
+                'total_quantity_purchased' => $totalQty,
+                'average_unit_cost' => $avgCost,
+                'average_landed_cost' => $avgLandedCost,
+                'total_purchase_value' => round($totalAmount, 2),
             ];
         })->values();
 
@@ -104,14 +115,18 @@ class PurchaseReportService
         if (!empty($filters['end_date'])) {
             $query->whereDate('date', '<=', $filters['end_date']);
         }
+        if (!empty($filters['vendor_id'])) {
+            $query->where('vendor_id', $filters['vendor_id']);
+        }
 
-        $purchases = $query->get();
+        $purchases = $query->orderBy('date', 'asc')->get();
 
         $byMonth = $purchases->groupBy(function ($p) {
             return \Carbon\Carbon::parse($p->date)->format('Y-m');
-        })->map(function ($group, $month) {
+        })->sortKeys()->map(function ($group, $month) {
             return (object)[
                 'period' => \Carbon\Carbon::createFromFormat('Y-m', $month)->format('F Y'),
+                'month_key' => $month,
                 'po_count' => $group->count(),
                 'subtotal' => round($group->sum('total_amount'), 2),
                 'discount' => round($group->sum('discount') ?? 0, 2),
@@ -151,12 +166,44 @@ class PurchaseReportService
             ? round((($currentYearPurchases - $lastYearPurchases) / $lastYearPurchases) * 100, 2)
             : 100.0;
 
+        // 12-month Comparative Matrix
+        $monthlyCurrent = Purchase::where('status', 1)
+            ->whereYear('date', $year)
+            ->select(DB::raw('MONTH(date) as month'), DB::raw('SUM(total_amount) as total'))
+            ->groupBy(DB::raw('MONTH(date)'))
+            ->pluck('total', 'month');
+
+        $monthlyLast = Purchase::where('status', 1)
+            ->whereYear('date', $year - 1)
+            ->select(DB::raw('MONTH(date) as month'), DB::raw('SUM(total_amount) as total'))
+            ->groupBy(DB::raw('MONTH(date)'))
+            ->pluck('total', 'month');
+
+        $monthlyMatrix = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $monthName = \Carbon\Carbon::create($year, $m, 1)->format('F');
+            $cVal = (float) round($monthlyCurrent->get($m, 0), 2);
+            $lVal = (float) round($monthlyLast->get($m, 0), 2);
+            $varKr = round($cVal - $lVal, 2);
+            $growthMo = $lVal > 0 ? round(($varKr / $lVal) * 100, 2) : ($cVal > 0 ? 100.0 : 0.0);
+
+            $monthlyMatrix[] = [
+                'month' => $monthName,
+                'month_num' => $m,
+                'current_year_value' => $cVal,
+                'last_year_value' => $lVal,
+                'variance_amount' => $varKr,
+                'growth_percentage' => $growthMo,
+            ];
+        }
+
         return [
             'current_year' => $year,
             'current_year_value' => round($currentYearPurchases, 2),
             'last_year' => $year - 1,
             'last_year_value' => round($lastYearPurchases, 2),
             'growth_percentage' => $growth,
+            'monthly_matrix' => $monthlyMatrix,
         ];
     }
 

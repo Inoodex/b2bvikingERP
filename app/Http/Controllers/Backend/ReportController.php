@@ -16,8 +16,11 @@ use App\Models\Purchase;
 use App\Models\PurchaseDetail;
 use App\Models\User;
 use App\Models\Vendor;
+use App\DataTables\ProductPurchaseHistoryDataTable;
+use App\DataTables\PurchaseHistoryDataTable;
 use App\Jobs\GenerateReportPdfJob;
 use App\Jobs\GenerateStockReportPdfJob;
+use App\Jobs\GenerateProcurementReportPdfJob;
 use App\Traits\HasEphemeralPdfReports;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Brian2694\Toastr\Facades\Toastr;
@@ -334,45 +337,23 @@ class ReportController extends Controller implements HasMiddleware
     /**
      * Purchase History Report
      */
-    public function purchaseReport(Request $request)
+    public function purchaseReport(PurchaseHistoryDataTable $dataTable, Request $request)
     {
-        $query = Purchase::with(['vendor', 'user', 'details']);
+        $vendors = Vendor::where('status', 1)->orderBy('shop_name')->get();
+        $latestPdf = $this->getLatestReportFile('procurement_report', 'admin.reports.procurement.pdf.download');
 
-        // Date Range Filter
-        if ($request->start_date) {
-            $query->where('date', '>=', $request->start_date);
-        }
-        if ($request->end_date) {
-            $query->where('date', '<=', $request->end_date);
-        }
-
-        // Vendor Filter
-        if ($request->vendor_id) {
-            $query->where('vendor_id', $request->vendor_id);
-        }
-
-        $purchases = $query->orderBy('date', 'desc')->paginate(30)->withQueryString();
-        $vendors = Vendor::where('status', 1)->get();
-
-        return view('backend.reports.purchase', compact('purchases', 'vendors'));
+        return $dataTable->render('backend.reports.purchase', compact('vendors', 'latestPdf'));
     }
 
     /**
      * Product-wise Purchase History (Track same product from different vendors)
      */
-    public function productPurchaseHistory(Request $request)
+    public function productPurchaseHistory(ProductPurchaseHistoryDataTable $dataTable, Request $request)
     {
-        $query = PurchaseDetail::with(['product', 'purchase.vendor', 'purchase.user']);
+        $products = Product::where('status', 1)->orderBy('name')->get();
+        $vendors = Vendor::where('status', 1)->orderBy('shop_name')->get();
 
-        // Product Filter
-        if ($request->product_id) {
-            $query->where('product_id', $request->product_id);
-        }
-
-        $details = $query->orderBy('id', 'desc')->paginate(30)->withQueryString();
-        $products = Product::where('status', 1)->get();
-
-        return view('backend.reports.product_purchase_history', compact('details', 'products'));
+        return $dataTable->render('backend.reports.product_purchase_history', compact('products', 'vendors'));
     }
 
     /**
@@ -871,12 +852,41 @@ class ReportController extends Controller implements HasMiddleware
     }
 
     /**
-     * Check if an analytics/stock report PDF has completed generating in the background.
+     * Procurement Report — Dispatch PDF generation to Background Queue.
+     */
+    public function procurementReportPdf(Request $request): JsonResponse|RedirectResponse
+    {
+        $filters = $request->only(['start_date', 'end_date', 'vendor_id', 'purchase_type', 'milestone_status']);
+
+        dispatch(new GenerateProcurementReportPdfJob($filters, (int) auth()->id()));
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status'        => 'success',
+                'message'       => 'Procurement report generation has been dispatched to the background queue.',
+                'dispatched_at' => now()->timestamp,
+            ]);
+        }
+
+        Toastr::info('Procurement report is generating in the background. It will be ready in a few moments.');
+        return redirect()->back();
+    }
+
+    /**
+     * Procurement Report — Async PDF Generation alias.
+     */
+    public function procurementReportPdfAsync(Request $request): JsonResponse|RedirectResponse
+    {
+        return $this->procurementReportPdf($request);
+    }
+
+    /**
+     * Check if an analytics/stock/procurement report PDF has completed generating in the background.
      */
     public function checkReportStatus(Request $request): JsonResponse
     {
         $reportType = (string) $request->get('type', 'order_sales_report');
-        $allowedTypes = ['order_sales_report', 'stock_valuation_report'];
+        $allowedTypes = ['order_sales_report', 'stock_valuation_report', 'procurement_report'];
 
         if (!in_array($reportType, $allowedTypes, true)) {
             return response()->json(['ready' => false]);
@@ -886,6 +896,7 @@ class ReportController extends Controller implements HasMiddleware
 
         $downloadRoute = match ($reportType) {
             'stock_valuation_report' => 'admin.reports.stock.pdf.download',
+            'procurement_report'     => 'admin.reports.procurement.pdf.download',
             default                  => 'admin.reports.orders.pdf.download',
         };
 

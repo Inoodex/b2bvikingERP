@@ -420,6 +420,10 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::get('reports/stock/pdf/download/{file}', 'downloadReportPdf')->name('reports.stock.pdf.download');
         Route::get('reports/stock/check-status', 'checkReportStatus')->name('reports.stock.check-status');
         Route::get('reports/purchase', 'purchaseReport')->name('reports.purchase');
+        Route::get('reports/purchase/pdf', 'procurementReportPdf')->name('reports.procurement.pdf');
+        Route::get('reports/purchase/pdf/async', 'procurementReportPdfAsync')->name('reports.procurement.pdf.async');
+        Route::get('reports/purchase/pdf/download/{file}', 'downloadReportPdf')->name('reports.procurement.pdf.download');
+        Route::get('reports/purchase/check-status', 'checkReportStatus')->name('reports.procurement.check-status');
         Route::get('reports/product-purchase-history', 'productPurchaseHistory')->name('reports.product-purchase-history');
         Route::get('reports/low-stock', 'lowStockReport')->name('reports.low-stock');
         Route::get('reports/profit-loss', 'profitLossReport')->name('reports.profit-loss');
@@ -696,7 +700,13 @@ Route::controller(BackendAccountController::class)->group(function () {
         Route::get('/supplier-wise', 'supplierWise')->name('supplier-wise');
         Route::get('/item-wise', 'itemWise')->name('item-wise');
         Route::get('/total-value', 'totalValue')->name('total-value');
+        Route::get('/total-value/pdf/async', 'totalValuePdfAsync')->name('total-value.pdf.async');
+        Route::get('/total-value/pdf/download/{file}', 'downloadReportPdf')->name('total-value.pdf.download');
+        Route::get('/total-value/check-status', 'checkReportStatus')->name('total-value.check-status');
         Route::get('/vs-last-year', 'vsLastYear')->name('vs-last-year');
+        Route::get('/vs-last-year/pdf/async', 'vsLastYearPdfAsync')->name('vs-last-year.pdf.async');
+        Route::get('/vs-last-year/pdf/download/{file}', 'downloadReportPdf')->name('vs-last-year.pdf.download');
+        Route::get('/vs-last-year/check-status', 'checkReportStatus')->name('vs-last-year.check-status');
         Route::get('/pr-status', 'prStatus')->name('pr-status');
         Route::get('/po-status', 'poStatus')->name('po-status');
     });

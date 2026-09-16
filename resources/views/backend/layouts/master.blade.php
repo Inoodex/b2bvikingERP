@@ -41,6 +41,7 @@
   <!-- custom css -->
   <link rel="stylesheet" href="{{ asset('backend/assets/css/custom.css') }}">
   @stack('css')
+  @stack('styles')
   <style>
   @media (min-width: 1200px) {
     .main-wrapper.container {

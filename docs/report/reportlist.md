@@ -53,7 +53,7 @@ Below is the complete list of all 24 report endpoints found under the **Reports*
 
 ---
 
-### 4. Procurement Reports & Audit
+### 4. Procurement Reports & Audit ([Documentation: 04_procurement_reports_and_audit/feature.md](04_procurement_reports_and_audit/feature.md) | [Plan: 04_procurement_reports_and_audit/4_procurement_reports_and_audit_async_pdf_engine.md](04_procurement_reports_and_audit/4_procurement_reports_and_audit_async_pdf_engine.md))
 | # | Report Name | Route Name | Controller & Method | Export Status / Type | Crash Risk |
 |:--|:---|:---|:---|:---|:---:|
 | 16 | **Purchase History** | `admin.reports.purchase` | `ReportController@purchaseReport` | Blade View | Low |

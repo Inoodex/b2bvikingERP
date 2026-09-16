@@ -21,17 +21,46 @@
             <div class="card-body">
                 <form id="report-filter-form" action="javascript:void(0);" class="mb-4">
                     <div class="row align-items-end">
-                        <div class="col-md-5">
+                        <div class="col-md-2 mb-2">
                             <label class="font-weight-bold">Start Date:</label>
                             <input type="date" name="start_date" class="form-control filter-input">
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-2 mb-2">
                             <label class="font-weight-bold">End Date:</label>
                             <input type="date" name="end_date" class="form-control filter-input">
                         </div>
-                        <div class="col-md-2">
-                            <button type="button" id="btn-reset-filter" class="btn btn-outline-danger btn-block shadow-sm">
-                                <i class="fas fa-undo-alt mr-1"></i> Reset Filters
+                        <div class="col-md-3 mb-2">
+                            <label class="font-weight-bold">Supplier / Vendor:</label>
+                            <select name="vendor_id" class="form-control filter-input select2">
+                                <option value="">All Suppliers</option>
+                                @foreach($vendors ?? [] as $vendor)
+                                    <option value="{{ $vendor->id }}">{{ $vendor->shop_name ?? $vendor->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="font-weight-bold">Type:</label>
+                            <select name="purchase_type" class="form-control filter-input">
+                                <option value="">All Types</option>
+                                <option value="local">Local</option>
+                                <option value="foreign">Foreign</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="font-weight-bold">Milestone:</label>
+                            <select name="milestone_status" class="form-control filter-input">
+                                <option value="">All Statuses</option>
+                                <option value="draft">Draft</option>
+                                <option value="approved">Approved</option>
+                                <option value="po_sent">PO Sent</option>
+                                <option value="lc_opened">LC Opened</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="goods_received">Goods Received</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 mb-2">
+                            <button type="button" id="btn-reset-filter" class="btn btn-outline-danger btn-block shadow-sm" title="Reset Filters">
+                                <i class="fas fa-undo-alt"></i>
                             </button>
                         </div>
                     </div>

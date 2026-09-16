@@ -69,17 +69,34 @@
             <div class="card-body">
                 <form id="report-filter-form" action="javascript:void(0);" class="mb-4">
                     <div class="row align-items-end">
-                        <div class="col-md-5">
+                        <div class="col-md-3 mb-2">
                             <label class="font-weight-bold">Start Date:</label>
                             <input type="date" name="start_date" class="form-control filter-input">
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-3 mb-2">
                             <label class="font-weight-bold">End Date:</label>
                             <input type="date" name="end_date" class="form-control filter-input">
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 mb-2">
+                            <label class="font-weight-bold">Department:</label>
+                            <select name="department_id" class="form-control filter-input">
+                                <option value="">All Departments</option>
+                                @foreach($departments ?? [] as $dept)
+                                    <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="font-weight-bold">PR Status:</label>
+                            <select name="status" class="form-control filter-input">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="draft">Draft</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
                             <button type="button" id="btn-reset-filter" class="btn btn-outline-danger btn-block shadow-sm">
-                                <i class="fas fa-undo-alt mr-1"></i> Reset Filters
+                                <i class="fas fa-undo-alt mr-1"></i> Reset
                             </button>
                         </div>
                     </div>
