@@ -103,31 +103,31 @@
 ## 📋 3. Step-by-Step Implementation Checklist
 
 ### Phase 1: Legacy Route Decoupling & Navigation Integrity
-- [ ] Retarget line 77 of `purchase.blade.php` to `admin.purchase-orders.show`.
-- [ ] Ensure all PO references across procurement reports link to `admin.purchase-orders.show`.
-- [ ] Ensure Supplier names link to `admin.vendor-ledger.show`.
+- [x] Retarget line 77 of `purchase.blade.php` to `admin.purchase-orders.show`.
+- [x] Ensure all PO references across procurement reports link to `admin.purchase-orders.show`.
+- [x] Ensure Supplier names link to `admin.vendor-ledger.show`.
 
 ### Phase 2: Database Query Performance & N+1 Elimination
-- [ ] Rewrite `SupplierWisePurchaseDataTable` query to use a single SQL aggregate (eliminating 200+ queries).
-- [ ] Rewrite `ItemWisePurchaseDataTable` query to use an eager-loaded aggregate (eliminating 100+ queries).
-- [ ] Verify query execution count < 5 queries per report.
+- [x] Rewrite `SupplierWisePurchaseDataTable` query to use a single SQL aggregate (eliminating 200+ queries).
+- [x] Rewrite `ItemWisePurchaseDataTable` query to use an eager-loaded aggregate (eliminating 100+ queries).
+- [x] Verify query execution count < 5 queries per report.
 
 ### Phase 3: Filter Modernization & 12-Month YoY Matrix
-- [ ] Add Vendor and Date Range filters to `product_purchase_history.blade.php`.
-- [ ] Add Vendor filter to `total_value.blade.php`.
-- [ ] Add Department & Status filters to `pr_status.blade.php`.
-- [ ] Implement 12-month comparative breakdown matrix in `PurchaseReportService@getPurchaseVsLastYear` and render in `value_vs_last_year.blade.php`.
+- [x] Add Vendor and Date Range filters to `product_purchase_history.blade.php`.
+- [x] Add Vendor filter to `total_value.blade.php`.
+- [x] Add Department & Status filters to `pr_status.blade.php`.
+- [x] Implement 12-month comparative breakdown matrix in `PurchaseReportService@getPurchaseVsLastYear` and render in `value_vs_last_year.blade.php`.
 
 ### Phase 4: Async Background PDF Engine & Corporate Templates
-- [ ] Create `GenerateProcurementReportPdfJob` implementing `ShouldQueue` (`512MB RAM`, `600s timeout`).
-- [ ] Create `procurement_report_pdf.blade.php` corporate template with verified company details.
-- [ ] Add on-page green **"Download PDF (Ready: {time})"** buttons with 2s polling.
-- [ ] Ensure automatic pre-purge of old user temporary files in `storage/app/temp_reports/`.
+- [x] Create `GenerateProcurementReportPdfJob` implementing `ShouldQueue` (`512MB RAM`, `600s timeout`).
+- [x] Create `procurement_report_pdf.blade.php` corporate template with verified company details.
+- [x] Add on-page green **"Download PDF (Ready: {time})"** buttons with 2s polling.
+- [x] Ensure automatic pre-purge of old user temporary files in `storage/app/temp_reports/`.
 
 ### Phase 5: Automated Testing & Verification
-- [ ] Create `ProcurementReportsAuditTest.php` testing:
+- [x] Create `ProcurementReportsAuditTest.php` testing:
   - Route decoupling (view button links to `admin.purchase-orders.show`).
   - Zero N+1 query performance (< 5 queries per DataTable).
   - Async PDF dispatch and background job execution.
   - YoY 12-month comparative matrix generation.
-- [ ] Run full test suite across Steps 1, 2, 3, and 4.
+- [x] Run full test suite across Steps 1, 2, 3, and 4.

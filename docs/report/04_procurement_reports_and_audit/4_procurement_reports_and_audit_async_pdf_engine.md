@@ -29,7 +29,7 @@ PROCUREMENT REPORTS & AUDIT
 ├── 6. Purchase vs Last Year         (admin.purchase-reports.vs-last-year)     ── 12-Month YoY Comparative Matrix, PDF
 ├── 7. PR Status & Pending           (admin.purchase-reports.pr-status)        ── Department & Status filters, PDF
 ├── 8. PO Issued & Items             (admin.purchase-reports.po-status)        ── PO Registry styling, Filter sync
-└── 9. Audit Log Report              (admin.reports.audit)                     ── Regulatory Compliance Export
+└── 9. Audit Log Report              (admin.reports.audit)                     ── Regulatory Compliance Export ([Plan: audit_log_enterprise_cockpit_plan.md](audit_log_enterprise_cockpit_plan.md))
 ```
 
 ---

@@ -426,8 +426,10 @@ Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin',
         Route::get('reports/purchase/check-status', 'checkReportStatus')->name('reports.procurement.check-status');
         Route::get('reports/product-purchase-history', 'productPurchaseHistory')->name('reports.product-purchase-history');
         Route::get('reports/low-stock', 'lowStockReport')->name('reports.low-stock');
-        Route::get('reports/profit-loss', 'profitLossReport')->name('reports.profit-loss');
         Route::get('reports/audit', 'auditReport')->name('reports.audit');
+        Route::get('reports/audit/pdf/async', 'auditReportPdfAsync')->name('reports.audit.pdf.async');
+        Route::get('reports/audit/pdf/download/{file}', 'downloadReportPdf')->name('reports.audit.pdf.download');
+        Route::get('reports/audit/check-status', 'checkReportStatus')->name('reports.audit.check-status');
         Route::get('reports/best-sellers', 'bestSellers')->name('reports.best-sellers');
         Route::get('reports/top-customers', 'topCustomers')->name('reports.top-customers');
         Route::get('reports/orders', 'orderReport')->name('reports.orders');

@@ -195,6 +195,61 @@
         vertical-align: middle;
         font-size: 13px;
     }
+    /* Executive Select2 Year Dropdown Styling */
+    .executive-header-bar .select2-container--default .select2-selection--single {
+        border: none !important;
+        background: transparent !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        height: 24px !important;
+        line-height: 24px !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+    .executive-header-bar .select2-container--default .select2-selection--single .select2-selection__rendered {
+        padding-left: 2px !important;
+        padding-right: 18px !important;
+        color: #0f172a !important;
+        line-height: 24px !important;
+    }
+    .executive-header-bar .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 24px !important;
+        right: 0 !important;
+    }
+    .select2-dropdown {
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 12px !important;
+        overflow: hidden !important;
+        z-index: 1050 !important;
+    }
+    .select2-dropdown .select2-search--dropdown {
+        padding: 6px !important;
+    }
+    .select2-dropdown .select2-search--dropdown .select2-search__field {
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 6px !important;
+        padding: 4px 8px !important;
+        font-size: 11.5px !important;
+        outline: none !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+    .select2-dropdown .select2-search--dropdown .select2-search__field:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15) !important;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+    }
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background-color: #eff6ff !important;
+        color: #1d4ed8 !important;
+        font-weight: 700 !important;
+    }
     </style>
 
     <div class="executive-wrapper">
@@ -212,14 +267,14 @@
             </div>
 
             <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
-                {{-- Enterprise Dual-Year Calendar & Benchmark Selector Form --}}
-                <form action="{{ route('admin.purchase-reports.vs-last-year') }}" method="GET" id="comparativeFilterForm" class="d-inline-flex align-items-center flex-wrap" style="gap: 6px;">
-                    <div class="d-inline-flex align-items-center p-1" style="background: #f1f5f9; border-radius: 8px; border: 1px solid #e2e8f0; gap: 4px;">
-                        {{-- Active Evaluation Year (with Calendar Icon) --}}
+                {{-- Enterprise Dual-Year Calendar & Benchmark Selector Form (Select2 Integrated) --}}
+                <form action="{{ route('admin.purchase-reports.vs-last-year') }}" method="GET" id="comparativeFilterForm" class="d-inline-flex align-items-center flex-wrap" style="gap: 8px;">
+                    <div class="d-inline-flex align-items-center p-1" style="background: #f1f5f9; border-radius: 8px; border: 1px solid #e2e8f0; gap: 6px;">
+                        {{-- Active Evaluation Year (Select2) --}}
                         <div class="d-inline-flex align-items-center px-2 py-1 bg-white" style="border-radius: 6px; border: 1px solid #cbd5e1; gap: 6px;">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                             <span class="text-muted font-weight-bold text-uppercase" style="font-size: 9.5px; letter-spacing: 0.05em;">Year:</span>
-                            <select name="year" id="selectTargetYear" class="border-0 font-weight-bold text-dark p-0" style="font-size: 12px; background: transparent; cursor: pointer; outline: none;" onchange="document.getElementById('comparativeFilterForm').submit();">
+                            <select name="year" id="selectTargetYear" class="select2-year" style="width: 85px;">
                                 @foreach($availableYears as $yr)
                                     <option value="{{ $yr }}" {{ $year == $yr ? 'selected' : '' }}>{{ $yr }}</option>
                                 @endforeach
@@ -229,11 +284,11 @@
                         {{-- VS Badge --}}
                         <span class="font-weight-bold text-muted px-1" style="font-size: 11px; letter-spacing: 0.05em;">vs</span>
 
-                        {{-- Benchmark Comparison Year (with Calendar Icon) --}}
+                        {{-- Benchmark Comparison Year (Select2) --}}
                         <div class="d-inline-flex align-items-center px-2 py-1 bg-white" style="border-radius: 6px; border: 1px solid #cbd5e1; gap: 6px;">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                             <span class="text-muted font-weight-bold text-uppercase" style="font-size: 9.5px; letter-spacing: 0.05em;">Benchmark:</span>
-                            <select name="benchmark_year" id="selectBenchmarkYear" class="border-0 font-weight-bold text-dark p-0" style="font-size: 12px; background: transparent; cursor: pointer; outline: none;" onchange="document.getElementById('comparativeFilterForm').submit();">
+                            <select name="benchmark_year" id="selectBenchmarkYear" class="select2-year" style="width: 140px;">
                                 @foreach($availableYears as $byr)
                                     <option value="{{ $byr }}" {{ $benchmarkYear == $byr ? 'selected' : '' }}>
                                         {{ $byr }} {{ $byr == ($year - 1) ? '(Last Year)' : '' }}
@@ -964,6 +1019,16 @@ function switchYoyChart(mode) {
 
 $(document).ready(function() {
     renderYoyChart('bar');
+
+    // Initialize Select2 on Year and Benchmark selectors with instant search enabled
+    if ($.fn.select2) {
+        $('.select2-year').select2({
+            dropdownAutoWidth: true,
+            minimumResultsForSearch: 0
+        }).on('change', function() {
+            $('#comparativeFilterForm').submit();
+        });
+    }
 
     // Export Table to CSV
     $('#btnExportCsv').on('click', function() {

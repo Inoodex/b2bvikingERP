@@ -21,6 +21,7 @@ use App\DataTables\PurchaseHistoryDataTable;
 use App\Jobs\GenerateReportPdfJob;
 use App\Jobs\GenerateStockReportPdfJob;
 use App\Jobs\GenerateProcurementReportPdfJob;
+use App\Jobs\GenerateAuditReportPdfJob;
 use App\Traits\HasEphemeralPdfReports;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Brian2694\Toastr\Facades\Toastr;
@@ -886,7 +887,7 @@ class ReportController extends Controller implements HasMiddleware
     public function checkReportStatus(Request $request): JsonResponse
     {
         $reportType = (string) $request->get('type', 'order_sales_report');
-        $allowedTypes = ['order_sales_report', 'stock_valuation_report', 'procurement_report'];
+        $allowedTypes = ['order_sales_report', 'stock_valuation_report', 'procurement_report', 'audit_report'];
 
         if (!in_array($reportType, $allowedTypes, true)) {
             return response()->json(['ready' => false]);
@@ -897,6 +898,7 @@ class ReportController extends Controller implements HasMiddleware
         $downloadRoute = match ($reportType) {
             'stock_valuation_report' => 'admin.reports.stock.pdf.download',
             'procurement_report'     => 'admin.reports.procurement.pdf.download',
+            'audit_report'           => 'admin.reports.audit.pdf.download',
             default                  => 'admin.reports.orders.pdf.download',
         };
 
@@ -938,6 +940,31 @@ class ReportController extends Controller implements HasMiddleware
     }
 
     /**
+     * Async PDF Generation Dispatch for Audit Log Report
+     */
+    public function auditReportPdfAsync(Request $request): JsonResponse
+    {
+        $filters = $request->only([
+            'module',
+            'action',
+            'user_id',
+            'vendor_id',
+            'reference',
+            'start_date',
+            'end_date',
+            'critical_only',
+        ]);
+
+        GenerateAuditReportPdfJob::dispatch($filters, auth()->id() ?? 0);
+
+        return response()->json([
+            'status'        => 'success',
+            'message'       => 'Audit Log PDF generation started in background.',
+            'dispatched_at' => time(),
+        ]);
+    }
+
+    /**
      * Audit trail report.
      */
     public function auditReport(Request $request)
@@ -973,21 +1000,58 @@ class ReportController extends Controller implements HasMiddleware
             $query->where('created_at', '<=', Carbon::parse($request->end_date)->endOfDay());
         }
 
+        if ($request->boolean('critical_only')) {
+            $query->where(function ($q) {
+                $q->where('action', 'like', '%delete%')
+                  ->orWhere('action', 'like', '%void%')
+                  ->orWhere('action', 'like', '%cancel%');
+            });
+        }
+
         $logs = $query->paginate(30)->withQueryString();
         $summaryQuery = clone $query;
 
         $summary = [
-            'count' => (clone $summaryQuery)->count(),
-            'today_count' => (clone $summaryQuery)->whereDate('created_at', today())->count(),
-            'modules' => (clone $summaryQuery)->select('module')->distinct()->count('module'),
-            'users' => (clone $summaryQuery)->whereNotNull('user_id')->distinct()->count('user_id'),
+            'count'          => (clone $summaryQuery)->count(),
+            'today_count'    => (clone $summaryQuery)->whereDate('created_at', today())->count(),
+            'modules'        => (clone $summaryQuery)->select('module')->distinct()->count('module'),
+            'users'          => (clone $summaryQuery)->whereNotNull('user_id')->distinct()->count('user_id'),
+            'critical_count' => (clone $summaryQuery)->where(function ($q) {
+                $q->where('action', 'like', '%delete%')
+                  ->orWhere('action', 'like', '%void%')
+                  ->orWhere('action', 'like', '%cancel%');
+            })->count(),
         ];
 
-        $modules = AuditLog::query()
+        $enterpriseModules = [
+            'purchases'             => 'Purchases & Invoicing',
+            'purchase_orders'       => 'Purchase Orders (PO)',
+            'purchase_requisitions' => 'Purchase Requisitions (PR)',
+            'inventory'             => 'Inventory & Stock Control',
+            'orders'                => 'Sales Orders & Invoicing',
+            'pos'                   => 'POS & Retail Counter',
+            'accounts'              => 'Finance & General Ledger',
+            'vendor_payments'       => 'Vendor Payments & Disbursals',
+            'vendors'               => 'Vendors & Supplier Directory',
+            'customers'             => 'Customers & Receivables',
+            'users'                 => 'Staff & Identity Access',
+            'roles'                 => 'Roles & Permissions (RBAC)',
+            'auth'                  => 'Security & Authentication',
+            'reports'               => 'Compliance & Analytics Reports',
+            'settings'              => 'System Settings & Config',
+        ];
+
+        $dbModules = AuditLog::query()
             ->whereNotNull('module')
             ->distinct()
-            ->orderBy('module')
-            ->pluck('module');
+            ->pluck('module')
+            ->toArray();
+
+        $modules = collect(array_keys($enterpriseModules))
+            ->merge($dbModules)
+            ->unique()
+            ->sort()
+            ->values();
 
         $actions = AuditLog::query()
             ->whereNotNull('action')
@@ -997,8 +1061,8 @@ class ReportController extends Controller implements HasMiddleware
 
         $users = User::query()->orderBy('name')->get(['id', 'name']);
         $vendors = Vendor::query()->orderBy('shop_name')->get(['id', 'shop_name']);
+        $latestPdf = $this->getLatestReportFile('audit_report', 'admin.reports.audit.pdf.download');
 
-        return view('backend.reports.audit', compact('logs', 'summary', 'modules', 'actions', 'users', 'vendors'));
+        return view('backend.reports.audit', compact('logs', 'summary', 'modules', 'enterpriseModules', 'actions', 'users', 'vendors', 'latestPdf'));
     }
-
 }

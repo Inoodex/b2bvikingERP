@@ -34,8 +34,9 @@ $(document).ready(function() {
             formData = window.location.search.replace(/^\?/, '');
         }
 
-        // Disable button and show spinner
-        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Generating in Background...');
+        // Disable button and show spinner (compact to prevent layout shift)
+        var loadingHtml = $btn.data('loading-html') || '<span class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true" style="width: 12px; height: 12px; border-width: 2px;"></span> Exporting...';
+        $btn.prop('disabled', true).html(loadingHtml);
 
         if (typeof toastr !== 'undefined') {
             toastr.info('Generating PDF report in the background. The Download button will appear when ready.', 'Processing PDF');
@@ -69,13 +70,20 @@ $(document).ready(function() {
                                 clearInterval(pollInterval);
                                 $btn.prop('disabled', false).html(originalHtml);
 
+                                // Hide placeholder disabled download button if present
+                                $('#btn-download-pdf-placeholder').hide();
+
                                 // Update and reveal the download button
                                 var $dlBtn = $('#btn-download-pdf, .btn-download-pdf');
                                 if ($dlBtn.length) {
                                     $dlBtn.attr('href', statusRes.download_url);
                                     $dlBtn.attr('title', statusRes.filename || 'Download PDF');
-                                    $dlBtn.html('<i class="fas fa-file-download mr-1"></i> Download PDF (Ready: ' + (statusRes.time || 'Now') + ')');
-                                    $dlBtn.fadeIn(300);
+                                    if ($dlBtn.find('svg').length > 0) {
+                                        $dlBtn.css('display', 'inline-flex').fadeIn(300);
+                                    } else {
+                                        $dlBtn.html('<i class="fas fa-file-download mr-1"></i> Download PDF (Ready: ' + (statusRes.time || 'Now') + ')');
+                                        $dlBtn.fadeIn(300);
+                                    }
                                 }
 
                                 if (typeof toastr !== 'undefined') {
