@@ -656,3 +656,77 @@ input[type="number"]::-webkit-outer-spin-button {
 .dataTables_wrapper > .row:nth-child(2)::-webkit-scrollbar-thumb:hover {
     background: #224abe !important;
 }
+
+/* =============================================
+   UNIVERSAL ENTERPRISE DROPDOWN MOTION
+   Smooth micro-animation across ALL dropdowns
+   ============================================= */
+
+/* Modern visual elevation for standard dropdowns */
+.dropdown-menu:not(.main-sidebar .dropdown-menu):not(.daterangepicker) {
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 14px 35px -6px rgba(0, 0, 0, 0.16), 0 6px 14px -4px rgba(0, 0, 0, 0.08);
+    padding: 6px;
+}
+
+/* Universal Smooth Entrance Animation */
+.dropdown-menu.show:not(.main-sidebar .dropdown-menu):not(.daterangepicker) {
+    display: block !important;
+    animation: erpDropdownFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    will-change: opacity, margin-top;
+}
+
+/* Dropup variant (slides smoothly up from below) */
+.dropup .dropdown-menu.show:not(.main-sidebar .dropdown-menu):not(.daterangepicker) {
+    animation-name: erpDropupFadeIn !important;
+    will-change: opacity, margin-bottom;
+}
+
+/* Exclude sidebar navigation accordion */
+.main-sidebar .dropdown-menu {
+    animation: none !important;
+}
+
+@keyframes erpDropdownFadeIn {
+    0% {
+        opacity: 0;
+        margin-top: -18px;
+    }
+    70% {
+        opacity: 1;
+        margin-top: 2px;
+    }
+    100% {
+        opacity: 1;
+        margin-top: 0;
+    }
+}
+
+@keyframes erpDropupFadeIn {
+    0% {
+        opacity: 0;
+        margin-bottom: -18px;
+    }
+    70% {
+        opacity: 1;
+        margin-bottom: 2px;
+    }
+    100% {
+        opacity: 1;
+        margin-bottom: 0;
+    }
+}
+
+/* Micro-interaction for all dropdown menu items */
+.dropdown-menu .dropdown-item {
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+    border-radius: 6px;
+    padding: 8px 14px;
+}
+
+.dropdown-menu:not(.topbar *) .dropdown-item:hover {
+    transform: translateX(4px);
+    background-color: rgba(103, 119, 239, 0.08);
+    color: #6777ef;
+}

@@ -39,7 +39,7 @@
     href="{{ asset('backend/assets/css/style.css') }}?v={{ filemtime(public_path('backend/assets/css/style.css')) }}">
   <link rel="stylesheet" href="{{ asset('backend/assets/css/components.css') }}">
   <!-- custom css -->
-  <link rel="stylesheet" href="{{ asset('backend/assets/css/custom.css') }}">
+  <link rel="stylesheet" href="{{ asset('backend/assets/css/custom.css') }}?v={{ filemtime(public_path('backend/assets/css/custom.css')) }}">
   @stack('css')
   @stack('styles')
   <style>

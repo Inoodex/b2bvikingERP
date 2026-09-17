@@ -28,12 +28,19 @@ class OrderApprovalWorkflowGatingTest extends TestCase
         parent::setUp();
         $this->withoutMiddleware();
 
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Outlet User', 'guard_name' => 'web']);
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'User', 'guard_name' => 'web']);
+        $adminRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);
+
         $this->user = User::first() ?? User::create([
             'name' => 'Admin User',
             'email' => 'admin_' . uniqid() . '@example.com',
             'password' => bcrypt('password123'),
             'role_id' => 1,
         ]);
+        if (!$this->user->hasRole('Admin')) {
+            $this->user->assignRole($adminRole);
+        }
         $this->actingAs($this->user);
 
         $this->product = Product::first() ?? Product::create([

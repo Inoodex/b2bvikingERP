@@ -108,15 +108,15 @@
                                             <i class="fas fa-download text-info mr-2" style="width: 18px;"></i> Download PDF
                                         </a>
                                         @if($existingCommercialInvoice)
+                                            <div class="dropdown-divider"></div>
+                                            <h6 class="dropdown-header text-uppercase text-muted font-weight-bold" style="font-size: 11px; letter-spacing: 0.5px;">Commercial Billing</h6>
                                             <a class="dropdown-item py-2 d-flex align-items-center font-weight-bold text-primary" href="{{ route('admin.sales-invoices.show', $existingCommercialInvoice->id) }}">
                                                 <i class="fas fa-file-invoice-dollar text-primary mr-2" style="width: 18px;"></i> Commercial Invoice (#{{ $existingCommercialInvoice->invoice_no }})
                                             </a>
+                                            <a class="dropdown-item py-2 d-flex align-items-center" href="{{ route('admin.sales-invoices.pdf', $existingCommercialInvoice->id) }}">
+                                                <i class="fas fa-file-pdf text-danger mr-2" style="width: 18px;"></i> Download Commercial Invoice (PDF)
+                                            </a>
                                         @endif
-                                        <div class="dropdown-divider"></div>
-                                        <h6 class="dropdown-header text-uppercase text-muted font-weight-bold" style="font-size: 11px; letter-spacing: 0.5px;">Customer Copy</h6>
-                                        <a class="dropdown-item py-2 d-flex align-items-center" href="{{ route('admin.orders.download-customer-invoice', $order->id) }}">
-                                            <i class="fas fa-receipt text-dark mr-2" style="width: 18px;"></i> Customer Invoice
-                                        </a>
                                     </div>
                                 </div>
                             </div>

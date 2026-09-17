@@ -250,7 +250,7 @@ body.sidebar-collapsed .topbar { left: 0; }
   padding-right: 4px;
 }
 
-.navbar-right > li { display: flex; align-items: center; height: 100%; }
+.navbar-right > li { display: flex; align-items: center; height: 100%; position: relative; }
 
 .divider-vertical {
   width: 1px;
@@ -261,11 +261,11 @@ body.sidebar-collapsed .topbar { left: 0; }
 
 /* Notification dropdown */
 .notif-dropdown {
-  width: 372px !important;
+  width: 372px;
+  max-width: 90vw;
   padding: 0 !important;
   border-radius: 18px !important;
   overflow: hidden;
-  position: relative;
 }
 
 .notif-dropdown::before {
@@ -511,23 +511,48 @@ body.sidebar-collapsed .topbar { left: 0; }
 .navbar-right .nav-link-user:hover img { border-color: var(--nb-gold-bright); }
 
 .topbar .dropdown-menu {
-  position: relative;
   background: var(--glass-bg-strong);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   border-radius: 15px;
   padding: 6px;
-  margin-top: 6px !important;
   min-width: 210px;
   box-shadow: var(--nb-shadow-lg), inset 0 1px 0 var(--glass-highlight);
   overflow: hidden;
-  animation: nbDropdownIn 0.18s cubic-bezier(.2,.8,.2,1);
+  z-index: 1050 !important;
+  transform-origin: top right;
+  will-change: transform, opacity;
+}
+
+@media (min-width: 576px) {
+  .topbar .dropdown-menu {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    left: auto !important;
+    margin-top: 0 !important;
+  }
+}
+
+.topbar .dropdown-menu.show {
+  display: block !important;
+  animation: nbDropdownIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes nbDropdownIn {
-  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.94);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(1px) scale(1.004);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .topbar .dropdown-menu::before {
@@ -1070,7 +1095,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
       $pendingApprovalsCount = \App\Models\Approval::where('status', 'pending')->count();
     @endphp
     <li class="dropdown dropdown-list-toggle">
-      <a href="javascript:void(0)" data-toggle="dropdown" class="notification-toggle" title="Pending Approvals ({{ $pendingApprovalsCount }})">
+      <a href="javascript:void(0)" data-toggle="dropdown" data-display="static" class="notification-toggle" title="Pending Approvals ({{ $pendingApprovalsCount }})">
         <i class="fas fa-check-double text-warning"></i>
         @if($pendingApprovalsCount > 0)
           <span class="badge" style="background: #10b981; color: #fff; font-weight: 700; font-size: 10px; border-radius: 999px;">{{ $pendingApprovalsCount }}</span>
@@ -1126,7 +1151,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
     </li>
 
     <li class="dropdown dropdown-list-toggle">
-      <a id="low-stock-count-toggle" href="#" data-toggle="dropdown" class="notification-toggle" aria-label="Notifications">
+      <a id="low-stock-count-toggle" href="#" data-toggle="dropdown" data-display="static" class="notification-toggle" aria-label="Notifications">
         <i class="fas fa-bell"></i>
         <span id="low-stock-count-badge" class="badge" style="display: none;">0</span>
       </a>
@@ -1152,7 +1177,7 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
     </li>
 
     <li class="dropdown">
-      <a href="#" data-toggle="dropdown" class="nav-link-user">
+      <a href="#" data-toggle="dropdown" data-display="static" class="nav-link-user">
         <img alt="image" height="32px" width="32px" src="https://ui-avatars.com/api/?background=cda05a&color=1a1408&bold=true&name={{ urlencode(Auth::user()?->name ?? 'Admin') }}" class="rounded-circle">
       </a>
       <div class="dropdown-menu dropdown-menu-right">
@@ -1786,5 +1811,10 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
   });
 })();
 
-
+// Ensure topbar dropdowns use static display to avoid Popper coordinate conflicts
+if (window.jQuery) {
+  jQuery(function ($) {
+    $('.topbar [data-toggle="dropdown"]').dropdown({ display: 'static' });
+  });
+}
 </script>
