@@ -1,0 +1,82 @@
+name: Deploy to Production
+
+# -------------------------------------------------------
+# Trigger: runs on every push to main branch
+# -------------------------------------------------------
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # allows manual trigger from GitHub UI
+
+# -------------------------------------------------------
+# Jobs
+# -------------------------------------------------------
+jobs:
+  deploy:
+    name: Deploy to Shared Hosting
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Pull the latest code from GitHub
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Install PHP with required extensions
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_mysql, xml, bcmath, gd, zip
+
+      # Step 3: Install Node.js for building frontend assets
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # Step 4: Install PHP packages (production only, no dev dependencies)
+      - name: Install PHP Dependencies
+        run: composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader
+
+      # Step 5: Compile CSS and JS assets
+      - name: Build Frontend Assets
+        run: |
+          npm ci
+          npm run build
+
+      # Step 6: Upload all files to Namecheap server via FTP
+      #         Excluded: git files, node_modules, .env, tests, docs, logs
+      - name: Upload to Namecheap via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          local-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .env
+            **/tests/**
+            **/docs/**
+            **/storage/logs/**
+            README.md
+
+      # Step 7: Call deploy.php on the server to run artisan commands
+      #         (config:cache, route:cache, migrate, optimize, queue:restart)
+      - name: Run Laravel Post-Deploy Commands
+        run: |
+          curl -s -X POST \
+            -H "X-Deploy-Secret: ${{ secrets.DEPLOY_SECRET }}" \
+            "${{ secrets.DEPLOY_WEBHOOK_URL }}"
+
+      # Step 8: Print deployment summary
+      - name: Deployment Complete
+        run: |
+          echo "Deployed Successfully!"
+          echo "Commit : ${{ github.event.head_commit.message }}"
+          echo "Author : ${{ github.actor }}"
+          echo "Branch : ${{ github.ref_name }}"
