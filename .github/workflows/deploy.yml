@@ -1,7 +1,7 @@
 name: Deploy to Production
 
 # -----------------------------------------------------------------------------
-# Trigger: runs on every push to main branch or via manual dispatch
+# Trigger: runs on push to main or via manual dispatch
 # -----------------------------------------------------------------------------
 on:
   push:
@@ -9,12 +9,12 @@ on:
   workflow_dispatch:
     inputs:
       force_vendor:
-        description: 'Force re-bundle and upload vendor.zip archive?'
+        description: 'Force re-bundle and upload vendor archive?'
         type: boolean
         default: false
 
 # -----------------------------------------------------------------------------
-# Concurrency: prevent simultaneous overlapping deployments
+# Concurrency: prevent overlapping deployments
 # -----------------------------------------------------------------------------
 concurrency:
   group: production_deploy
@@ -27,13 +27,13 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      # Step 1: Checkout Repository (fetch last 2 commits to inspect diffs)
+      # Step 1: Checkout Repository
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
-      # Step 2: Setup PHP 8.3 with extensions and Composer caching
+      # Step 2: Setup PHP 8.3 & Composer tools
       - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
@@ -41,75 +41,76 @@ jobs:
           extensions: mbstring, pdo, pdo_mysql, xml, bcmath, gd, zip
           tools: composer:v2
 
-      # Step 3: Setup Node.js 20 with npm caching
+      # Step 3: Setup Node.js 20
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      # Step 4: Detect whether composer.lock was modified
+      # Step 4: Detect whether composer.lock changed
       - name: Detect Composer Changes
         id: composer_diff
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force_vendor }}" = "true" ]; then
             echo "CHANGED=true" >> $GITHUB_OUTPUT
-            echo "Vendor sync forced by manual workflow trigger."
+            echo "Vendor sync forced by manual workflow dispatch."
           elif git rev-parse HEAD~1 >/dev/null 2>&1; then
             if git diff --name-only HEAD~1 HEAD | grep -q "composer.lock"; then
               echo "CHANGED=true" >> $GITHUB_OUTPUT
-              echo "composer.lock changes detected in this commit."
+              echo "composer.lock changes detected."
             else
               echo "CHANGED=false" >> $GITHUB_OUTPUT
-              echo "No composer changes detected. Skipping vendor bundle."
+              echo "No composer changes detected."
             fi
           else
             echo "CHANGED=false" >> $GITHUB_OUTPUT
           fi
 
-      # Step 5: Install PHP Dependencies in CI
+      # Step 5: Install PHP Dependencies (Build only, not uploaded directly)
       - name: Install PHP Dependencies
         run: composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader
 
-      # Step 6: Create vendor.zip archive ONLY when packages changed
-      - name: Bundle Vendor Archive (Conditional)
-        if: steps.composer_diff.outputs.CHANGED == 'true'
-        run: |
-          echo "Packaging vendor/ into vendor.zip archive..."
-          zip -rq vendor.zip vendor/
-          echo "vendor.zip created successfully:"
-          ls -lh vendor.zip
-
-      # Step 7: Compile Vite / Tailwind Frontend Assets
+      # Step 6: Build Frontend Assets (Vite -> public/build)
       - name: Build Frontend Assets
         run: |
           npm ci
           npm run build
 
-      # Step 8: Upload to Namecheap via Secure FTP
-      #         CRITICAL: vendor/, node_modules/, .env, and storage/ are strictly EXCLUDED!
-      #         Only the modified application files (and vendor.zip if created) are transferred.
-      - name: Upload to Namecheap via FTP
+      # Step 7: Prepare High-Speed Single Archive Artifact (Instant FTP Upload)
+      - name: Package Release Artifact
+        run: |
+          echo "Packaging application into release.zip..."
+          mkdir -p build_artifact/public
+          
+          # Compress application files excluding vendor, storage, git, and dev files
+          zip -rq build_artifact/release.zip . \
+            -x ".git/*" ".github/*" "node_modules/*" "vendor/*" "storage/*" \
+               "tests/*" "docs/*" ".env*" "README.md" "phpunit.xml" "build_artifact/*"
+          
+          # Copy deploy webhook to artifact directory
+          cp public/deploy.php build_artifact/public/deploy.php
+          
+          # If composer packages changed, bundle vendor archive
+          if [ "${{ steps.composer_diff.outputs.CHANGED }}" = "true" ]; then
+            echo "Packaging vendor.zip archive..."
+            zip -rq build_artifact/vendor.zip vendor/
+          fi
+          
+          echo "Artifact directory ready for rapid transfer:"
+          ls -lh build_artifact/
+
+      # Step 8: Upload Release via FTP (Transfers ONLY release.zip and deploy.php in seconds)
+      - name: Upload Release Artifact via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ${{ secrets.FTP_SERVER_DIR }}
-          local-dir: ./
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/vendor/**
-            .env
-            **/tests/**
-            **/docs/**
-            **/storage/**
-            README.md
-            phpunit.xml
+          local-dir: ./build_artifact/
 
-      # Step 9: Call deploy.php to extract vendor.zip, run migrations & optimize
+      # Step 9: Call deploy.php to extract release.zip, run migrations & optimize
       - name: Run Server Post-Deploy Automation
         run: |
           echo "Calling deployment webhook on server..."

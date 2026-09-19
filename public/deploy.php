@@ -5,8 +5,8 @@
  * Location: public/deploy.php
  * URL: https://test.b2bviking.com/deploy.php
  *
- * This script is triggered by GitHub Actions after deployment.
- * It unpacks vendor archives (if updated), runs migrations, and optimizes Laravel.
+ * This script is triggered by GitHub Actions after FTP upload.
+ * It unpacks release.zip, runs migrations, and optimizes Laravel caches.
  */
 
 // -----------------------------------------------------------------------------
@@ -24,9 +24,9 @@ if (!hash_equals(DEPLOY_SECRET, $providedSecret)) {
     exit;
 }
 
-// -----------------------------------------------------------------------------
-// 2. ENVIRONMENT & PATH INITIALIZATION
-// -----------------------------------------------------------------------------
+// Ignore user abort and allow sufficient execution time
+ignore_user_abort(true);
+set_time_limit(300);
 
 // Since this file is in public/, dirname(__DIR__) is the project root
 $projectPath = dirname(__DIR__);
@@ -46,29 +46,62 @@ function runCmd(string $command, string $workingDir): array
 }
 
 // -----------------------------------------------------------------------------
-// 3. VENDOR ARCHIVE EXTRACTION (If new packages were deployed)
+// 2. UNPACK RELEASE ARCHIVE (release.zip)
+// -----------------------------------------------------------------------------
+
+$releaseZipPath = $projectPath . '/release.zip';
+
+if (file_exists($releaseZipPath)) {
+    if (class_exists('ZipArchive')) {
+        $zip = new ZipArchive();
+        $res = $zip->open($releaseZipPath);
+        if ($res === true) {
+            $zip->extractTo($projectPath);
+            $zip->close();
+            @unlink($releaseZipPath);
+            $log[] = [
+                'step'   => 'unpack_release',
+                'status' => 'success',
+                'note'   => 'release.zip extracted successfully into project root',
+            ];
+        } else {
+            $log[] = [
+                'step'   => 'unpack_release',
+                'status' => 'error',
+                'note'   => "Failed to open release.zip (Error Code: {$res})",
+            ];
+        }
+    } else {
+        // Fallback: unzip via shell if ZipArchive is not enabled
+        $log[] = runCmd("unzip -o release.zip && rm -f release.zip", $projectPath);
+    }
+} else {
+    $log[] = [
+        'step'   => 'unpack_release',
+        'status' => 'skipped',
+        'note'   => 'release.zip not found (standalone sync or already extracted)',
+    ];
+}
+
+// -----------------------------------------------------------------------------
+// 3. UNPACK VENDOR ARCHIVE (If vendor.zip was included)
 // -----------------------------------------------------------------------------
 
 $vendorZipPath = $projectPath . '/vendor.zip';
 
-if (file_exists($vendorZipPath) && class_exists('ZipArchive')) {
-    $zip = new ZipArchive();
-    $res = $zip->open($vendorZipPath);
-    if ($res === true) {
-        $zip->extractTo($projectPath . '/vendor');
-        $zip->close();
-        @unlink($vendorZipPath);
-        $log[] = [
-            'action' => 'vendor_extract',
-            'status' => 'success',
-            'note'   => 'vendor.zip extracted successfully into vendor/',
-        ];
-    } else {
-        $log[] = [
-            'action' => 'vendor_extract',
-            'status' => 'error',
-            'note'   => "Failed to open vendor.zip (Code: {$res})",
-        ];
+if (file_exists($vendorZipPath)) {
+    if (class_exists('ZipArchive')) {
+        $zip = new ZipArchive();
+        if ($zip->open($vendorZipPath) === true) {
+            $zip->extractTo($projectPath . '/vendor');
+            $zip->close();
+            @unlink($vendorZipPath);
+            $log[] = [
+                'step'   => 'unpack_vendor',
+                'status' => 'success',
+                'note'   => 'vendor.zip extracted successfully into vendor/',
+            ];
+        }
     }
 }
 
@@ -77,10 +110,7 @@ if (file_exists($vendorZipPath) && class_exists('ZipArchive')) {
 // -----------------------------------------------------------------------------
 
 try {
-    // Put application into maintenance mode temporarily
-    $log[] = runCmd('php artisan down --render="errors::503" || true', $projectPath);
-
-    // Run database migrations
+    // Run database migrations (--force skips confirmation in production)
     $log[] = runCmd('php artisan migrate --force', $projectPath);
 
     // Clear and rebuild all application caches
@@ -92,12 +122,15 @@ try {
     // Ensure symbolic link for storage is intact
     $log[] = runCmd('php artisan storage:link --force', $projectPath);
 
-    // Restart queue workers to pick up fresh code
+    // Restart queue workers
     $log[] = runCmd('php artisan queue:restart || true', $projectPath);
 
-} finally {
-    // ALWAYS bring application back online even if any command threw an error
-    $log[] = runCmd('php artisan up', $projectPath);
+} catch (\Throwable $e) {
+    $log[] = [
+        'step'   => 'artisan_execution',
+        'status' => 'exception',
+        'error'  => $e->getMessage(),
+    ];
 }
 
 // -----------------------------------------------------------------------------
