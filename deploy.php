@@ -79,7 +79,7 @@ function runCmd(string $command, string $workingDir): array
 // -----------------------------------------------------------------------------
 
 // Disable legacy platform_check if present
-@unlink($projectPath . "/vendor/composer/platform_check.php");
+@file_put_contents($projectPath . "/vendor/composer/platform_check.php", "<?php\n// Platform check disabled\n");
 
 $releaseZipPath = $projectPath . '/release.zip';
 
