@@ -1,5 +1,5 @@
 @extends('backend.layouts.master')
-@section('title', 'Executive Dashboard')
+@section('title', 'Dashboard')
 @section('content')
     <section class="section">
         {{-- =========================================================================
@@ -1127,9 +1127,9 @@
                                     const val = data.datasets[0].data[tooltipItem.index];
                                     const label = data.labels[tooltipItem.index] || '';
                                     return ' ' + label + ': kr. ' + Number(val).toLocaleString(
-                                    'da-DK', {
-                                        minimumFractionDigits: 2
-                                    });
+                                        'da-DK', {
+                                            minimumFractionDigits: 2
+                                        });
                                 }
                             }
                         }
