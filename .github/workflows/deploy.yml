@@ -39,9 +39,9 @@ jobs:
           npm ci
           npm run build
 
-      # Step 4: Upload Application Code via FTP
-      #         CRITICAL: vendor/, node_modules/, .env, and storage/ are strictly EXCLUDED!
-      #         Only your edited application files and compiled assets are uploaded.
+      # Step 4: Upload Changed Files via Standard GitHub Marketplace FTP Action
+      #         CRITICAL: vendor/, node_modules/, .env, storage/, and static
+      #         modules/ (4,500 files already on server) are strictly EXCLUDED!
       - name: Upload Changed Files via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -59,9 +59,13 @@ jobs:
             **/tests/**
             **/docs/**
             **/storage/**
+            public/backend/assets/modules/**
+            erp_database_v4/**
+            plan/**
             README.md
             phpunit.xml
             *.zip
+            *.bak
 
       # Step 5: Trigger Post-Deploy Webhook (Runs migrations, clears & rebuilds caches)
       - name: Run Server Post-Deploy Automation
