@@ -1,0 +1,100 @@
+name: Rollback Deployment
+
+# -----------------------------------------------------------------------------
+# Manual trigger to redeploy a previous commit SHA or Tag
+# -----------------------------------------------------------------------------
+on:
+  workflow_dispatch:
+    inputs:
+      commit_ref:
+        description: 'Commit SHA or Tag to rollback to (e.g. 72eb8e9 or v1.0.0)'
+        required: true
+        type: string
+
+concurrency:
+  group: production_deploy
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    name: Execute Rollback
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # Step 1: Checkout specified commit or tag
+      - name: Checkout Target Ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit_ref }}
+          fetch-depth: 1
+
+      # Step 2: Setup PHP & Node
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo, pdo_mysql, xml, bcmath, gd, zip
+          tools: composer:v2
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # Step 3: Rebuild Dependencies & Frontend
+      - name: Install PHP Dependencies
+        run: composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader
+
+      - name: Build Frontend Assets
+        run: |
+          npm ci
+          npm run build
+
+      # Step 4: Package Rollback Release Archive
+      - name: Package Rollback Artifact
+        run: |
+          mkdir -p build_artifact/public
+          zip -rq build_artifact/release.zip . \
+            -x ".git/*" ".github/*" "node_modules/*" "vendor/*" "storage/*" \
+               "tests/*" "docs/*" ".env*" "README.md" "phpunit.xml" "build_artifact/*"
+          cp public/deploy.php build_artifact/public/deploy.php
+          cp public/deploy.php build_artifact/deploy.php
+
+      # Step 5: Upload Rollback Artifact via FTP
+      - name: Upload Rollback Artifact via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          local-dir: ./build_artifact/
+
+      # Step 6: Trigger Post-Deploy on Server
+      - name: Run Server Post-Deploy Automation
+        run: |
+          echo "Calling deployment webhook on server..."
+          WEBHOOK_URL="${{ secrets.DEPLOY_WEBHOOK_URL }}"
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "X-Deploy-Secret: ${{ secrets.DEPLOY_SECRET }}" \
+            "$WEBHOOK_URL")
+          HTTP_STATUS=$(echo "$RESPONSE" | tail -n 1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          if [ "$HTTP_STATUS" -ne 200 ] && [[ "$WEBHOOK_URL" != *"public/deploy.php"* ]]; then
+            ALT_URL="https://test.b2bviking.com/public/deploy.php"
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+              -H "X-Deploy-Secret: ${{ secrets.DEPLOY_SECRET }}" \
+              "$ALT_URL")
+            HTTP_STATUS=$(echo "$RESPONSE" | tail -n 1)
+            BODY=$(echo "$RESPONSE" | sed '$d')
+          fi
+          
+          echo "Server Response (HTTP $HTTP_STATUS):"
+          echo "$BODY"
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "::error::Rollback webhook failed with status $HTTP_STATUS"
+            exit 1
+          fi
