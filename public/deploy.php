@@ -2,11 +2,10 @@
 
 /**
  * Enterprise Deploy Webhook — b2bvikingERP
- * Location: public/deploy.php
- * URL: https://test.b2bviking.com/deploy.php
+ * Location: public/deploy.php & deploy.php
  *
  * This script is triggered by GitHub Actions after FTP upload.
- * It unpacks release.zip, runs migrations, and optimizes Laravel caches.
+ * It unpacks release.zip, auto-detects PHP 8.3+, runs migrations, and optimizes Laravel caches.
  */
 
 // -----------------------------------------------------------------------------
@@ -24,13 +23,43 @@ if (!hash_equals(DEPLOY_SECRET, $providedSecret)) {
     exit;
 }
 
-// Ignore user abort and allow sufficient execution time
 ignore_user_abort(true);
 set_time_limit(300);
 
-// Since this file is in public/, dirname(__DIR__) is the project root
-$projectPath = dirname(__DIR__);
+// Determine project path (handles being in public/ or project root)
+$projectPath = file_exists(__DIR__ . '/artisan') ? __DIR__ : dirname(__DIR__);
 $log = [];
+
+// -----------------------------------------------------------------------------
+// 2. AUTO-DETECT PHP 8.3+ BINARY ON CPANEL
+// -----------------------------------------------------------------------------
+
+function getPhpBinary(): string
+{
+    $candidates = [
+        '/opt/cpanel/ea-php83/root/usr/bin/php',
+        '/usr/local/bin/ea-php83',
+        '/usr/bin/ea-php83',
+        'ea-php83',
+        'php8.3',
+        'php83',
+        'php',
+    ];
+    foreach ($candidates as $bin) {
+        $output = @shell_exec("{$bin} -r 'echo PHP_VERSION;' 2>/dev/null");
+        if ($output && version_compare(trim($output), '8.3.0', '>=')) {
+            return $bin;
+        }
+    }
+    return 'php';
+}
+
+$phpBin = getPhpBinary();
+$log[] = [
+    'action'         => 'php_detection',
+    'selected_php'   => $phpBin,
+    'php_version'    => trim(@shell_exec("{$phpBin} -r 'echo PHP_VERSION;' 2>/dev/null") ?? PHP_VERSION),
+];
 
 function runCmd(string $command, string $workingDir): array
 {
@@ -46,7 +75,7 @@ function runCmd(string $command, string $workingDir): array
 }
 
 // -----------------------------------------------------------------------------
-// 2. UNPACK RELEASE ARCHIVE (release.zip)
+// 3. UNPACK RELEASE ARCHIVE (release.zip)
 // -----------------------------------------------------------------------------
 
 $releaseZipPath = $projectPath . '/release.zip';
@@ -72,19 +101,18 @@ if (file_exists($releaseZipPath)) {
             ];
         }
     } else {
-        // Fallback: unzip via shell if ZipArchive is not enabled
         $log[] = runCmd("unzip -o release.zip && rm -f release.zip", $projectPath);
     }
 } else {
     $log[] = [
         'step'   => 'unpack_release',
         'status' => 'skipped',
-        'note'   => 'release.zip not found (standalone sync or already extracted)',
+        'note'   => 'release.zip not found (already extracted)',
     ];
 }
 
 // -----------------------------------------------------------------------------
-// 3. UNPACK VENDOR ARCHIVE (If vendor.zip was included)
+// 4. UNPACK VENDOR ARCHIVE (If vendor.zip was included)
 // -----------------------------------------------------------------------------
 
 $vendorZipPath = $projectPath . '/vendor.zip';
@@ -106,25 +134,17 @@ if (file_exists($vendorZipPath)) {
 }
 
 // -----------------------------------------------------------------------------
-// 4. ARTISAN LIFECYCLE & CACHE OPTIMIZATION
+// 5. ARTISAN LIFECYCLE & CACHE OPTIMIZATION
 // -----------------------------------------------------------------------------
 
 try {
-    // Run database migrations (--force skips confirmation in production)
-    $log[] = runCmd('php artisan migrate --force', $projectPath);
-
-    // Clear and rebuild all application caches
-    $log[] = runCmd('php artisan optimize:clear', $projectPath);
-    $log[] = runCmd('php artisan config:cache', $projectPath);
-    $log[] = runCmd('php artisan route:cache', $projectPath);
-    $log[] = runCmd('php artisan view:cache', $projectPath);
-
-    // Ensure symbolic link for storage is intact
-    $log[] = runCmd('php artisan storage:link --force', $projectPath);
-
-    // Restart queue workers
-    $log[] = runCmd('php artisan queue:restart || true', $projectPath);
-
+    $log[] = runCmd("{$phpBin} artisan migrate --force", $projectPath);
+    $log[] = runCmd("{$phpBin} artisan optimize:clear", $projectPath);
+    $log[] = runCmd("{$phpBin} artisan config:cache", $projectPath);
+    $log[] = runCmd("{$phpBin} artisan route:cache", $projectPath);
+    $log[] = runCmd("{$phpBin} artisan view:cache", $projectPath);
+    $log[] = runCmd("{$phpBin} artisan storage:link --force", $projectPath);
+    $log[] = runCmd("{$phpBin} artisan queue:restart || true", $projectPath);
 } catch (\Throwable $e) {
     $log[] = [
         'step'   => 'artisan_execution',
@@ -134,7 +154,7 @@ try {
 }
 
 // -----------------------------------------------------------------------------
-// 5. DEPLOYMENT LOGGING & RESPONSE
+// 6. DEPLOYMENT LOGGING & RESPONSE
 // -----------------------------------------------------------------------------
 
 $logDir = $projectPath . '/storage/logs';

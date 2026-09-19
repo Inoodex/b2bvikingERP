@@ -88,8 +88,9 @@ jobs:
             -x ".git/*" ".github/*" "node_modules/*" "vendor/*" "storage/*" \
                "tests/*" "docs/*" ".env*" "README.md" "phpunit.xml" "build_artifact/*"
           
-          # Copy deploy webhook to artifact directory
+          # Copy deploy webhook to both root and public/ for fail-safe HTTP routing
           cp public/deploy.php build_artifact/public/deploy.php
+          cp public/deploy.php build_artifact/deploy.php
           
           # If composer packages changed, bundle vendor archive
           if [ "${{ steps.composer_diff.outputs.CHANGED }}" = "true" ]; then
@@ -114,12 +115,25 @@ jobs:
       - name: Run Server Post-Deploy Automation
         run: |
           echo "Calling deployment webhook on server..."
+          WEBHOOK_URL="${{ secrets.DEPLOY_WEBHOOK_URL }}"
+          
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             -H "X-Deploy-Secret: ${{ secrets.DEPLOY_SECRET }}" \
-            "${{ secrets.DEPLOY_WEBHOOK_URL }}")
+            "$WEBHOOK_URL")
           
           HTTP_STATUS=$(echo "$RESPONSE" | tail -n 1)
           BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          # If root endpoint returned error, attempt public/deploy.php
+          if [ "$HTTP_STATUS" -ne 200 ] && [[ "$WEBHOOK_URL" != *"public/deploy.php"* ]]; then
+            ALT_URL="https://test.b2bviking.com/public/deploy.php"
+            echo "Attempting alternative endpoint: $ALT_URL"
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+              -H "X-Deploy-Secret: ${{ secrets.DEPLOY_SECRET }}" \
+              "$ALT_URL")
+            HTTP_STATUS=$(echo "$RESPONSE" | tail -n 1)
+            BODY=$(echo "$RESPONSE" | sed '$d')
+          fi
           
           echo "Server Response (HTTP $HTTP_STATUS):"
           echo "$BODY"
@@ -142,4 +156,4 @@ jobs:
             fi
             sleep 3
           done
-          echo "::warning::Health check returned non-200 status: $STATUS"
+          echo "::warning::Health check returned status: $STATUS"
