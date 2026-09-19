@@ -78,6 +78,9 @@ function runCmd(string $command, string $workingDir): array
 // 3. UNPACK RELEASE ARCHIVE (release.zip)
 // -----------------------------------------------------------------------------
 
+// Disable legacy platform_check if present
+@unlink($projectPath . "/vendor/composer/platform_check.php");
+
 $releaseZipPath = $projectPath . '/release.zip';
 
 if (file_exists($releaseZipPath)) {
