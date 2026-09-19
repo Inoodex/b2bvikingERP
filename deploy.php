@@ -4,8 +4,8 @@
  * Enterprise Deploy Webhook — b2bvikingERP
  * Location: public/deploy.php & deploy.php
  *
- * This script is triggered by GitHub Actions after FTP upload.
- * It unpacks release.zip, auto-detects PHP 8.3+, runs migrations, and optimizes Laravel caches.
+ * Triggered by GitHub Actions to run database migrations and optimize Laravel caches.
+ * Lightweight, zero-overhead, zero-archive extraction.
  */
 
 // -----------------------------------------------------------------------------
@@ -24,14 +24,14 @@ if (!hash_equals(DEPLOY_SECRET, $providedSecret)) {
 }
 
 ignore_user_abort(true);
-set_time_limit(300);
+set_time_limit(120);
 
-// Determine project path (handles being in public/ or project root)
+// Determine project path (handles both public/ and project root)
 $projectPath = file_exists(__DIR__ . '/artisan') ? __DIR__ : dirname(__DIR__);
 $log = [];
 
 // -----------------------------------------------------------------------------
-// 2. AUTO-DETECT PHP 8.3+ BINARY ON CPANEL
+// 2. AUTO-DETECT PHP BINARY ON CPANEL
 // -----------------------------------------------------------------------------
 
 function getPhpBinary(): string
@@ -47,7 +47,7 @@ function getPhpBinary(): string
     ];
     foreach ($candidates as $bin) {
         $output = @shell_exec("{$bin} -r 'echo PHP_VERSION;' 2>/dev/null");
-        if ($output && version_compare(trim($output), '8.3.0', '>=')) {
+        if ($output && version_compare(trim($output), '8.2.0', '>=')) {
             return $bin;
         }
     }
@@ -55,11 +55,6 @@ function getPhpBinary(): string
 }
 
 $phpBin = getPhpBinary();
-$log[] = [
-    'action'         => 'php_detection',
-    'selected_php'   => $phpBin,
-    'php_version'    => trim(@shell_exec("{$phpBin} -r 'echo PHP_VERSION;' 2>/dev/null") ?? PHP_VERSION),
-];
 
 function runCmd(string $command, string $workingDir): array
 {
@@ -75,70 +70,14 @@ function runCmd(string $command, string $workingDir): array
 }
 
 // -----------------------------------------------------------------------------
-// 3. UNPACK RELEASE ARCHIVE (release.zip)
+// 3. ARTISAN LIFECYCLE & CACHE OPTIMIZATION
 // -----------------------------------------------------------------------------
 
-// Disable legacy platform_check if present
-@file_put_contents($projectPath . "/vendor/composer/platform_check.php", "<?php\n// Platform check disabled\n");
-
-$releaseZipPath = $projectPath . '/release.zip';
-
-if (file_exists($releaseZipPath)) {
-    if (class_exists('ZipArchive')) {
-        $zip = new ZipArchive();
-        $res = $zip->open($releaseZipPath);
-        if ($res === true) {
-            $zip->extractTo($projectPath);
-            $zip->close();
-            @unlink($releaseZipPath);
-            $log[] = [
-                'step'   => 'unpack_release',
-                'status' => 'success',
-                'note'   => 'release.zip extracted successfully into project root',
-            ];
-        } else {
-            $log[] = [
-                'step'   => 'unpack_release',
-                'status' => 'error',
-                'note'   => "Failed to open release.zip (Error Code: {$res})",
-            ];
-        }
-    } else {
-        $log[] = runCmd("unzip -o release.zip && rm -f release.zip", $projectPath);
-    }
-} else {
-    $log[] = [
-        'step'   => 'unpack_release',
-        'status' => 'skipped',
-        'note'   => 'release.zip not found (already extracted)',
-    ];
+// Ensure platform check doesn't block legacy autoloader
+$platformCheck = $projectPath . '/vendor/composer/platform_check.php';
+if (file_exists(dirname($platformCheck))) {
+    @file_put_contents($platformCheck, "<?php\n// Platform check disabled\n");
 }
-
-// -----------------------------------------------------------------------------
-// 4. UNPACK VENDOR ARCHIVE (If vendor.zip was included)
-// -----------------------------------------------------------------------------
-
-$vendorZipPath = $projectPath . '/vendor.zip';
-
-if (file_exists($vendorZipPath)) {
-    if (class_exists('ZipArchive')) {
-        $zip = new ZipArchive();
-        if ($zip->open($vendorZipPath) === true) {
-            $zip->extractTo($projectPath . '/vendor');
-            $zip->close();
-            @unlink($vendorZipPath);
-            $log[] = [
-                'step'   => 'unpack_vendor',
-                'status' => 'success',
-                'note'   => 'vendor.zip extracted successfully into vendor/',
-            ];
-        }
-    }
-}
-
-// -----------------------------------------------------------------------------
-// 5. ARTISAN LIFECYCLE & CACHE OPTIMIZATION
-// -----------------------------------------------------------------------------
 
 try {
     $log[] = runCmd("{$phpBin} artisan migrate --force", $projectPath);
@@ -157,7 +96,7 @@ try {
 }
 
 // -----------------------------------------------------------------------------
-// 6. DEPLOYMENT LOGGING & RESPONSE
+// 4. DEPLOYMENT LOGGING & RESPONSE
 // -----------------------------------------------------------------------------
 
 $logDir = $projectPath . '/storage/logs';
