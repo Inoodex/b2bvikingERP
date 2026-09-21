@@ -88,7 +88,6 @@
                                     <div class="stk-barcode-box text-center">
                                         {!! $sticker['barcode_svg'] !!}
                                     </div>
-
                                     @if($toggles['show_barcode_text'])
                                         <div class="stk-code text-center">{{ $sticker['barcode'] }}</div>
                                     @endif
@@ -112,7 +111,11 @@
             {{-- Thermal Continuous Roll: Single Centered Sample Card per Item --}}
             <div class="thermal-roll-wrapper">
                 @foreach($labels as $index => $lbl)
-                    @php $copies = max(1, (int)($lbl['copies'] ?? 1)); @endphp
+                    @php
+                        $copies = max(1, (int)($lbl['copies'] ?? 1));
+                        $labelFormat = $toggles['label_format'] ?? 'hybrid';
+                        $showQr = !empty($toggles['show_qr_code']);
+                    @endphp
                     <div class="thermal-sticker-card mb-3 shadow-sm {{ $preset['css_class'] }}">
                         <div class="sticker-centered-layout">
                             @if($toggles['show_brand'] && !empty($lbl['company']))
@@ -130,7 +133,6 @@
                             <div class="stk-barcode-box text-center">
                                 {!! $lbl['barcode_svg'] !!}
                             </div>
-
                             @if($toggles['show_barcode_text'])
                                 <div class="stk-code text-center">{{ $lbl['barcode'] }}</div>
                             @endif
@@ -233,6 +235,15 @@
     height: auto;
     margin: 0 auto;
     display: block;
+}
+
+.stk-qr-area svg, .stk-qr-only-box svg {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    margin: 0 auto !important;
 }
 
 .stk-code {

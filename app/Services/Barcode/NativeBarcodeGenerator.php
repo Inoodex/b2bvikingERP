@@ -118,4 +118,268 @@ class NativeBarcodeGenerator
             $rects
         );
     }
+
+    /**
+     * Generate an inline, vector SVG 2D QR Code.
+     *
+     * @param string $data URL or barcode payload for customer/smartphone scanning
+     * @param int $size Width/height in pixels
+     * @param int $margin Quiet zone around QR code
+     * @return string Inline SVG XML string
+     */
+    public function getQrCodeSvg(string $data, int $size = 70, int $margin = 1): string
+    {
+        $cleanData = trim($data);
+        if (empty($cleanData)) {
+            $cleanData = 'https://b2bviking.com';
+        }
+
+        return $this->generatePureNativeQrSvg($cleanData, $margin);
+    }
+
+    /**
+     * Pure Native PHP QR Code Model 2 SVG Generator (Zero External Composer Packages).
+     */
+    protected function generatePureNativeQrSvg(string $text, int $margin = 1): string
+    {
+        $len = strlen($text);
+        if ($len <= 17) {
+            $version = 1; $dataCap = 19; $ecLen = 7;
+        } elseif ($len <= 32) {
+            $version = 2; $dataCap = 34; $ecLen = 10;
+        } elseif ($len <= 53) {
+            $version = 3; $dataCap = 55; $ecLen = 15;
+        } else {
+            $version = 4; $dataCap = 80; $ecLen = 20;
+        }
+
+        $matrixSize = $version * 4 + 17;
+
+        // Byte Mode encoding
+        $bits = '0100'; // Byte mode
+        $bits .= sprintf('%08b', $len);
+        for ($i = 0; $i < $len; $i++) {
+            $bits .= sprintf('%08b', ord($text[$i]));
+        }
+
+        // Terminator up to 4 bits
+        $neededBits = $dataCap * 8;
+        $termLen = min(4, $neededBits - strlen($bits));
+        $bits .= str_repeat('0', max(0, $termLen));
+
+        // Pad to byte
+        if (strlen($bits) % 8 !== 0) {
+            $bits .= str_repeat('0', 8 - (strlen($bits) % 8));
+        }
+
+        // Pad bytes
+        $padBytes = [0xEC, 0x11];
+        $padIdx = 0;
+        while (strlen($bits) < $neededBits) {
+            $bits .= sprintf('%08b', $padBytes[$padIdx]);
+            $padIdx = 1 - $padIdx;
+        }
+
+        // Convert bits to data bytes
+        $dataBytes = [];
+        for ($i = 0; $i < strlen($bits); $i += 8) {
+            $dataBytes[] = bindec(substr($bits, $i, 8));
+        }
+
+        // Generate RS Error Correction
+        $ecBytes = $this->rsEncode($dataBytes, $ecLen);
+        $allCodewords = array_merge($dataBytes, $ecBytes);
+
+        // Matrix initialization
+        $matrix = array_fill(0, $matrixSize, array_fill(0, $matrixSize, null));
+        $reserved = array_fill(0, $matrixSize, array_fill(0, $matrixSize, false));
+
+        // Place Finder Patterns
+        $setFinder = function($r, $c) use (&$matrix, &$reserved) {
+            for ($i = -1; $i <= 7; $i++) {
+                for ($j = -1; $j <= 7; $j++) {
+                    $row = $r + $i; $col = $c + $j;
+                    if ($row >= 0 && $row < count($matrix) && $col >= 0 && $col < count($matrix)) {
+                        $isBlack = ($i >= 0 && $i <= 6 && ($j === 0 || $j === 6)) ||
+                                   ($j >= 0 && $j <= 6 && ($i === 0 || $i === 6)) ||
+                                   ($i >= 2 && $i <= 4 && $j >= 2 && $j <= 4);
+                        $matrix[$row][$col] = $isBlack ? 1 : 0;
+                        $reserved[$row][$col] = true;
+                    }
+                }
+            }
+        };
+
+        $setFinder(0, 0);
+        $setFinder(0, $matrixSize - 7);
+        $setFinder($matrixSize - 7, 0);
+
+        // Timing patterns
+        for ($i = 8; $i < $matrixSize - 8; $i++) {
+            $val = ($i % 2 === 0) ? 1 : 0;
+            if (!$reserved[6][$i]) { $matrix[6][$i] = $val; $reserved[6][$i] = true; }
+            if (!$reserved[$i][6]) { $matrix[$i][6] = $val; $reserved[$i][6] = true; }
+        }
+
+        // Alignment pattern for V2, V3, V4
+        if ($version >= 2) {
+            $alignPos = [
+                2 => 18,
+                3 => 22,
+                4 => 26
+            ][$version];
+            for ($i = -2; $i <= 2; $i++) {
+                for ($j = -2; $j <= 2; $j++) {
+                    $row = $alignPos + $i; $col = $alignPos + $j;
+                    $isBlack = (abs($i) === 2 || abs($j) === 2 || ($i === 0 && $j === 0));
+                    $matrix[$row][$col] = $isBlack ? 1 : 0;
+                    $reserved[$row][$col] = true;
+                }
+            }
+        }
+
+        // Dark module
+        $matrix[$matrixSize - 8][8] = 1;
+        $reserved[$matrixSize - 8][8] = true;
+
+        // Reserve Format Information areas
+        for ($i = 0; $i <= 8; $i++) {
+            $reserved[8][$i] = true;
+            $reserved[$i][8] = true;
+            $reserved[8][$matrixSize - 1 - $i] = true;
+            $reserved[$matrixSize - 1 - $i][8] = true;
+        }
+
+        // Place Data Codewords into matrix (snake path)
+        $allBits = '';
+        foreach ($allCodewords as $b) {
+            $allBits .= sprintf('%08b', $b);
+        }
+
+        $bitIdx = 0;
+        $totalBits = strlen($allBits);
+        $col = $matrixSize - 1;
+        $dir = -1; // -1 = up, 1 = down
+
+        while ($col > 0) {
+            if ($col === 6) $col--; // skip vertical timing line
+            $row = ($dir === -1) ? $matrixSize - 1 : 0;
+            while ($row >= 0 && $row < $matrixSize) {
+                for ($c = 0; $c < 2; $c++) {
+                    $currCol = $col - $c;
+                    if (!$reserved[$row][$currCol]) {
+                        $bit = ($bitIdx < $totalBits) ? (int)$allBits[$bitIdx++] : 0;
+                        // Apply mask 0: (row + col) % 2 === 0
+                        if (($row + $currCol) % 2 === 0) {
+                            $bit ^= 1;
+                        }
+                        $matrix[$row][$currCol] = $bit;
+                    }
+                }
+                $row += $dir;
+            }
+            $dir = -$dir;
+            $col -= 2;
+        }
+
+        // Format Info (Level L, Mask 0 = 0b111011111000100)
+        $formatBits = '111011111000100';
+        $matrix[8][0] = (int)$formatBits[0];
+        $matrix[8][1] = (int)$formatBits[1];
+        $matrix[8][2] = (int)$formatBits[2];
+        $matrix[8][3] = (int)$formatBits[3];
+        $matrix[8][4] = (int)$formatBits[4];
+        $matrix[8][5] = (int)$formatBits[5];
+        $matrix[8][7] = (int)$formatBits[6];
+        $matrix[8][8] = (int)$formatBits[7];
+        $matrix[7][8] = (int)$formatBits[8];
+        $matrix[5][8] = (int)$formatBits[9];
+        $matrix[4][8] = (int)$formatBits[10];
+        $matrix[3][8] = (int)$formatBits[11];
+        $matrix[2][8] = (int)$formatBits[12];
+        $matrix[1][8] = (int)$formatBits[13];
+        $matrix[0][8] = (int)$formatBits[14];
+
+        for ($i = 0; $i < 7; $i++) {
+            $matrix[$matrixSize - 1 - $i][8] = (int)$formatBits[$i];
+        }
+        for ($i = 0; $i < 8; $i++) {
+            $matrix[8][$matrixSize - 8 + $i] = (int)$formatBits[7 + $i];
+        }
+
+        // Fast SVG generation with crisp vector paths
+        $viewSize = $matrixSize + ($margin * 2);
+        $path = '';
+        for ($r = 0; $r < $matrixSize; $r++) {
+            for ($c = 0; $c < $matrixSize; $c++) {
+                if ($matrix[$r][$c] === 1) {
+                    $x = $c + $margin;
+                    $y = $r + $margin;
+                    $path .= "M{$x},{$y}h1v1h-1z";
+                }
+            }
+        }
+
+        return "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 {$viewSize} {$viewSize}\" width=\"100%\" height=\"100%\" shape-rendering=\"crispEdges\"><rect width=\"100%\" height=\"100%\" fill=\"#ffffff\"/><path d=\"{$path}\" fill=\"#000000\"/></svg>";
+    }
+
+    private static ?array $gfExp = null;
+    private static ?array $gfLog = null;
+
+    private function initGf(): void
+    {
+        if (self::$gfExp !== null) return;
+        self::$gfExp = [];
+        self::$gfLog = [];
+        $x = 1;
+        for ($i = 0; $i < 255; $i++) {
+            self::$gfExp[$i] = $x;
+            self::$gfLog[$x] = $i;
+            $x <<= 1;
+            if ($x & 0x100) $x ^= 0x11D;
+        }
+        for ($i = 255; $i < 512; $i++) {
+            self::$gfExp[$i] = self::$gfExp[$i - 255];
+        }
+    }
+
+    private function gfMul(int $x, int $y): int
+    {
+        if ($x === 0 || $y === 0) return 0;
+        return self::$gfExp[self::$gfLog[$x] + self::$gfLog[$y]];
+    }
+
+    private function rsGenPoly(int $ecLen): array
+    {
+        $poly = [1];
+        for ($i = 0; $i < $ecLen; $i++) {
+            $root = self::$gfExp[$i];
+            $temp = [];
+            for ($j = 0; $j < count($poly); $j++) {
+                $temp[$j + 1] = $poly[$j];
+            }
+            $temp[0] = 0;
+            for ($j = 0; $j < count($poly); $j++) {
+                $temp[$j] ^= $this->gfMul($poly[$j], $root);
+            }
+            $poly = $temp;
+        }
+        return $poly;
+    }
+
+    private function rsEncode(array $data, int $ecLen): array
+    {
+        $this->initGf();
+        $poly = $this->rsGenPoly($ecLen);
+        $res = array_fill(0, $ecLen, 0);
+        foreach ($data as $byte) {
+            $factor = $byte ^ $res[0];
+            array_shift($res);
+            $res[] = 0;
+            for ($i = 0; $i < $ecLen; $i++) {
+                $res[$i] ^= $this->gfMul($poly[$i], $factor);
+            }
+        }
+        return $res;
+    }
 }

@@ -273,8 +273,7 @@
                                                     id="toggleBarcodeText" name="show_barcode_text" value="1"
                                                     checked>
                                                 <span class="small font-weight-bold text-dark"><i
-                                                        class="fas fa-ellipsis-h text-dark mr-1 opacity-75"></i> Barcode
-                                                    Digits</span>
+                                                        class="fas fa-ellipsis-h text-dark mr-1 opacity-75"></i> Barcode Digits</span>
                                             </label>
                                         </div>
                                     </div>
@@ -933,6 +932,7 @@
                                 <span class="font-weight-bold text-dark text-truncate" style="font-size: 13.5px;" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
                             </div>
                             <div class="small text-muted d-flex flex-wrap align-items-center" style="row-gap: 4px; column-gap: 8px;">
+                                ${item.gpc_code ? `<span class="badge badge-primary font-weight-bold py-1 px-2" style="font-family: monospace;" title="GS1 GPC Brick: ${escapeHtml(item.gpc_title || item.category)}"><i class="fas fa-barcode mr-1"></i>GS1: ${escapeHtml(item.gpc_code)}</span>` : ''}
                                 <span class="badge badge-light border text-secondary font-weight-normal py-1 px-2">${escapeHtml(item.category || 'General')}</span>
                                 <span><small class="text-secondary font-weight-bold">SKU:</small> <span class="font-monospace text-dark font-weight-bold">${escapeHtml(item.sku)}</span></span>
                                 ${barcodeIndicator}
@@ -1644,6 +1644,8 @@
                         show_brand: $('#toggleBrand').is(':checked') ? 1 : 0,
                         show_barcode_text: $('#toggleBarcodeText').is(':checked') ? 1 : 0,
                         show_variant_spec: $('#toggleVariantSpec').is(':checked') ? 1 : 0,
+                        show_qr_code: 0,
+                        label_format: '1d',
                         items: itemsPayload
                     };
 
@@ -1707,6 +1709,11 @@
                     } else {
                         $(this).closest('.customizer-chip').removeClass('active');
                     }
+                    triggerPreviewUpdate();
+                });
+
+                // Label Format Radio Change
+                $(document).on('change', 'input[name="label_format"]', function() {
                     triggerPreviewUpdate();
                 });
 

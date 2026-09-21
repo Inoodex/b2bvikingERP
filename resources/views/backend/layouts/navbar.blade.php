@@ -1881,6 +1881,8 @@
                                 auth()->user()?->hasRole('Admin'))
                             <li><a href="{{ route('admin.barcode-labels.index') }}"><i class="fas fa-barcode"></i>
                                     Barcode Labels</a></li>
+                            <li><a href="{{ route('admin.packaging-units.index') }}"><i class="fas fa-boxes"></i>
+                                    Packaging & Cartons</a></li>
                         @endif
                     </ul>
                 </li>

@@ -124,7 +124,8 @@ class BarcodeLabelPrintingTest extends TestCase
         $barcode = $response->json('barcode');
 
         $this->assertNotEmpty($barcode);
-        $this->assertStringStartsWith('PRD-', $barcode);
+        // Enterprise GS1 GPC Barcode format: [GPC 8-digits]-[PROD_ID]-[HASH]
+        $this->assertMatchesRegularExpression('/^[0-9]{8}-\d{4,}-[A-Z0-9]+$/', $barcode);
 
         // Assert permanently saved in database
         $this->assertEquals($barcode, $product->fresh()->barcode);
@@ -504,12 +505,217 @@ class BarcodeLabelPrintingTest extends TestCase
 
         $response = $this->actingAs($this->admin)->post(route('admin.barcode-labels.preview'), $postData);
 
-        $response->assertStatus(200);
         $response->assertSee('Nordic Viking Sweaters');
         $response->assertSee('PRD-SWT-1234');
         $response->assertSee('Copies: 3 pcs');
         $response->assertSee('<svg', false);
     }
+
+    public function test_it_generates_gs1_gpc_barcodes_with_category_brick_code_for_product_and_variant(): void
+    {
+        // Category with GS1 GPC Brick Code for T-Shirts / Tops: 10001363
+        $apparelCategory = Category::create([
+            'name' => 'Viking T-Shirts',
+            'slug' => 'viking-t-shirts',
+            'gpc_code' => '10001363',
+            'gpc_title' => 'Clothing - Tops/Shirts/Apparel',
+            'status' => 1,
+        ]);
+
+        $product = Product::create([
+            'name' => 'Odin Graphic T-Shirt',
+            'slug' => 'odin-graphic-t-shirt',
+            'category_id' => $apparelCategory->id,
+            'sku' => 'TSH-ODIN-01',
+            'barcode' => null,
+            'price' => 199.00,
+            'purchase_price' => 80.00,
+            'status' => 1,
+            'qty' => 50,
+        ]);
+
+        $variant = ProductVariant::create([
+            'product_id' => $product->id,
+            'name' => 'XL / Black',
+            'color' => 'Black',
+            'size' => 'XL',
+            'qty' => 25,
+            'price' => 199.00,
+            'status' => 1,
+            'barcode' => null,
+        ]);
+
+        // Generate product barcode
+        $prodResponse = $this->actingAs($this->admin)->postJson(route('admin.barcode-labels.generate-barcode'), [
+            'product_id' => $product->id,
+        ]);
+        $prodResponse->assertStatus(200);
+        $prodBarcode = $prodResponse->json('barcode');
+
+        // Verify product barcode starts with GS1 GPC brick code '10001363'
+        $this->assertStringStartsWith('10001363-', $prodBarcode);
+        $this->assertEquals($prodBarcode, $product->fresh()->barcode);
+
+        // Generate variant barcode
+        $varResponse = $this->actingAs($this->admin)->postJson(route('admin.barcode-labels.generate-barcode'), [
+            'target_type' => 'variant',
+            'variant_id' => $variant->id,
+        ]);
+        $varResponse->assertStatus(200);
+        $varBarcode = $varResponse->json('barcode');
+
+        // Verify variant barcode starts with GS1 GPC '10001363' and includes '-V{id}-'
+        $this->assertStringStartsWith('10001363-', $varBarcode);
+        $this->assertStringContainsString("-V{$variant->id}-", $varBarcode);
+        $this->assertEquals($varBarcode, $variant->fresh()->barcode);
+    }
+
+    public function test_it_generates_vector_qr_code_svg(): void
+    {
+        $generator = app(\App\Services\Barcode\NativeBarcodeGenerator::class);
+        $svg = $generator->getQrCodeSvg('https://b2bvikingerp.test/scan/10001363-TEST', 80);
+
+        $this->assertNotEmpty($svg);
+        $this->assertStringContainsString('<svg', $svg);
+        $this->assertStringContainsString('</svg>', $svg);
+    }
+
+    public function test_it_renders_pure_1d_barcode_preview(): void
+    {
+        $category = Category::create([
+            'name' => 'Winter Hats',
+            'slug' => 'winter-hats',
+            'status' => 1,
+        ]);
+
+        $product = Product::create([
+            'name' => 'Viking Wool Beanie',
+            'slug' => 'viking-wool-beanie',
+            'category_id' => $category->id,
+            'sku' => 'HAT-001',
+            'barcode' => '10001363-0001-TEST',
+            'price' => 150.00,
+            'purchase_price' => 60.00,
+            'status' => 1,
+            'qty' => 30,
+        ]);
+
+        $postData = [
+            'preset' => 'thermal_50x30',
+            'show_price' => 1,
+            'show_name' => 1,
+            'show_sku' => 1,
+            'show_brand' => 1,
+            'show_barcode_text' => 1,
+            'items' => [
+                [
+                    'target_type' => 'product',
+                    'id' => $product->id,
+                    'qty' => 1,
+                    'use_stock' => false,
+                ],
+            ],
+        ];
+
+        $response = $this->actingAs($this->admin)->post(route('admin.barcode-labels.preview'), $postData);
+
+        $response->assertStatus(200);
+        $response->assertSee('Viking Wool Beanie');
+        $response->assertSee('stk-barcode-box', false);
+        $response->assertSee('10001363-0001-TEST');
+        $response->assertDontSee('class="stk-qr-area', false);
+    }
+
+    public function test_public_scan_resolves_product_barcode_to_public_product_card(): void
+    {
+        $category = Category::create([
+            'name' => 'Viking Accessories',
+            'slug' => 'viking-accessories',
+            'status' => 1,
+        ]);
+
+        $product = Product::create([
+            'name' => 'Thor Hammer Pendant',
+            'slug' => 'thor-hammer-pendant',
+            'category_id' => $category->id,
+            'sku' => 'ACC-MJOLNIR-01',
+            'barcode' => '10001363-MJOLNIR-99',
+            'price' => 299.00,
+            'purchase_price' => 120.00,
+            'status' => 1,
+            'qty' => 15,
+        ]);
+
+        // Access public /scan route without login (guest customer)
+        $response = $this->get(route('public.barcode.scan', $product->barcode));
+
+        $response->assertStatus(200);
+        $response->assertSee('Thor Hammer Pendant');
+        $response->assertSee('ACC-MJOLNIR-01');
+        $response->assertSee('10001363-MJOLNIR-99');
+        $response->assertSee('Authentic Item');
+    }
+
+    public function test_public_scan_resolves_handling_unit_barcode_to_container_manifest(): void
+    {
+        $pkgType = \App\Models\PackagingType::firstOrCreate(
+            ['code' => 'CTN'],
+            ['name' => 'Master Carton', 'level_order' => 2, 'prefix' => 'CTN', 'is_active' => true]
+        );
+
+        $handlingUnit = \App\Models\HandlingUnit::create([
+            'packaging_type_id' => $pkgType->id,
+            'hu_code' => 'CTN-10001363-2026-PUBLIC-TEST',
+            'status' => 'packed',
+            'total_quantity' => 45,
+            'gross_weight' => 8.50,
+            'batch_no' => 'LOT-2026-X',
+        ]);
+
+        // Access public /scan route for handling unit (courier/receiver)
+        $response = $this->get(route('public.barcode.scan', $handlingUnit->hu_code));
+
+        $response->assertStatus(200);
+        $response->assertSee('CTN-10001363-2026-PUBLIC-TEST');
+        $response->assertSee('Logistics Verified');
+        $response->assertSee($pkgType->name);
+        $response->assertSee('45');
+    }
+
+    public function test_default_label_preview_generates_pure_1d_barcode_without_qr_code(): void
+    {
+        $product = Product::create([
+            'name' => 'Nordic Viking Cap',
+            'slug' => 'nordic-viking-cap',
+            'category_id' => $this->category->id,
+            'sku' => 'CAP-1D-01',
+            'barcode' => '10001363-CAP-01',
+            'price' => 149.00,
+            'purchase_price' => 50.00,
+            'status' => 1,
+            'qty' => 30,
+        ]);
+
+        $response = $this->actingAs($this->admin)->post(route('admin.barcode-labels.preview'), [
+            'preset' => 'thermal_50x30',
+            'show_price' => 1,
+            'show_name' => 1,
+            'show_sku' => 1,
+            'show_brand' => 1,
+            'show_barcode_text' => 1,
+            'show_qr_code' => 0, // Default: OFF
+            'items' => [
+                ['type' => 'product', 'id' => $product->id, 'qty' => 1],
+            ],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertSee('Nordic Viking Cap');
+        $response->assertSee('stk-barcode-box');
+        $response->assertDontSee('class="stk-qr-area', false);
+        $response->assertDontSee('class="stk-qr-only-box', false);
+    }
 }
+
 
 

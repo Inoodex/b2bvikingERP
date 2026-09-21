@@ -21,7 +21,7 @@ class BarcodeSearchRequest extends FormRequest
         return [
             'q' => ['nullable', 'string', 'max:255'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
-            'limit' => ['nullable', 'integer', 'min:1', 'max:500'],
+            'limit' => ['nullable', 'integer', 'min:0', 'max:2500'],
         ];
     }
 }

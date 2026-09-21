@@ -16,9 +16,14 @@ use Illuminate\Support\Collection;
  */
 class BarcodeLabelService
 {
+    protected Gs1BarcodeService $gs1Service;
+
     public function __construct(
-        protected NativeBarcodeGenerator $generator
-    ) {}
+        protected NativeBarcodeGenerator $generator,
+        ?Gs1BarcodeService $gs1Service = null
+    ) {
+        $this->gs1Service = $gs1Service ?? app(Gs1BarcodeService::class);
+    }
 
     /**
      * Get all supported enterprise label presets for retail products and bulk lots.
@@ -137,7 +142,7 @@ class BarcodeLabelService
     }
 
     /**
-     * Generate or resolve a collision-free barcode for a parent product.
+     * Generate or resolve a collision-free barcode for a parent product using GS1 GPC classification.
      */
     public function ensureProductBarcode(Product $product, bool $forceNew = false): string
     {
@@ -145,9 +150,7 @@ class BarcodeLabelService
             return $product->barcode;
         }
 
-        $catId = $product->category_id ?? 0;
-        $hash = strtoupper(substr(md5($product->id.'-'.($product->sku ?? $product->name)), 0, 4));
-        $generatedBarcode = "PRD-{$catId}-{$product->id}-{$hash}";
+        $generatedBarcode = $this->gs1Service->generateProductBarcode($product);
 
         $product->barcode = $generatedBarcode;
         $product->saveQuietly();
@@ -169,7 +172,7 @@ class BarcodeLabelService
     }
 
     /**
-     * Generate or resolve a collision-free barcode for a product variant.
+     * Generate or resolve a collision-free barcode for a product variant using GS1 GPC classification.
      */
     public function ensureVariantBarcode(ProductVariant $variant, bool $forceNew = false): string
     {
@@ -177,14 +180,7 @@ class BarcodeLabelService
             return $variant->barcode;
         }
 
-        if (! $variant->relationLoaded('product')) {
-            $variant->load('product.category');
-        }
-
-        $catId = $variant->product?->category_id ?? 0;
-        $productId = $variant->product_id;
-        $hash = strtoupper(substr(md5($variant->id.'-'.($variant->name ?? 'VAR')), 0, 4));
-        $generatedBarcode = "PRD-{$catId}-{$productId}-V{$variant->id}-{$hash}";
+        $generatedBarcode = $this->gs1Service->generateVariantBarcode($variant);
 
         $variant->barcode = $generatedBarcode;
         $variant->saveQuietly();
@@ -227,7 +223,7 @@ class BarcodeLabelService
             ])
             ->withSum('inventoryStocks as total_stock', 'quantity')
             ->with([
-                'category:id,name',
+                'category:id,name,gpc_code,gpc_title',
                 'brand:id,name',
                 'variants' => function ($q) {
                     $q->select([
@@ -281,6 +277,8 @@ class BarcodeLabelService
                 'has_barcode' => ! empty($product->barcode),
                 'price' => (float) $product->price,
                 'category' => $product->category?->name ?? 'General',
+                'gpc_code' => $this->gs1Service->resolveGpcCode($product->category),
+                'gpc_title' => $product->category?->gpc_title ?? ($product->category ? app(\App\Services\Barcode\Gs1TaxonomyResolver::class)->resolve($product->category->name)['title'] : 'General Merchandise'),
                 'brand' => $product->brand?->name ?? '',
                 'stock' => $stock,
                 'image' => $product->thumb_image ? asset('storage/'.$product->thumb_image) : null,
@@ -350,6 +348,8 @@ class BarcodeLabelService
      */
     public function parseToggles(array $input): array
     {
+        $showQr = filter_var($input['show_qr_code'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
         return [
             'show_price' => filter_var($input['show_price'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'show_name' => filter_var($input['show_name'] ?? true, FILTER_VALIDATE_BOOLEAN),
@@ -357,6 +357,8 @@ class BarcodeLabelService
             'show_brand' => filter_var($input['show_brand'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'show_barcode_text' => filter_var($input['show_barcode_text'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'show_variant_spec' => filter_var($input['show_variant_spec'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            'show_qr_code' => $showQr,
+            'label_format' => $showQr ? 'hybrid' : '1d',
         ];
     }
 
@@ -443,6 +445,9 @@ class BarcodeLabelService
                     ? $this->generator->getBarcodeSvg($barcode, 45, 1.4, 8)
                     : null;
 
+                $scanUrl = $barcode ? route('public.barcode.scan', $barcode) : '';
+                $qrSvg = null;
+
                 $labels->push([
                     'type' => 'variant',
                     'id' => $variant->id,
@@ -457,6 +462,8 @@ class BarcodeLabelService
                     'has_barcode' => true,
                     'is_pending' => $isPending,
                     'barcode_svg' => $svg,
+                    'qr_svg' => $qrSvg,
+                    'scan_url' => $scanUrl,
                     'price' => $itemPrice,
                     'currency' => 'kr.',
                     'copies' => $copies,
@@ -494,6 +501,9 @@ class BarcodeLabelService
                     ? $this->generator->getBarcodeSvg($barcode, 45, 1.4, 8)
                     : null;
 
+                $scanUrl = $barcode ? route('public.barcode.scan', $barcode) : '';
+                $qrSvg = null;
+
                 $labels->push([
                     'type' => 'product',
                     'id' => $product->id,
@@ -508,6 +518,8 @@ class BarcodeLabelService
                     'has_barcode' => true,
                     'is_pending' => $isPending,
                     'barcode_svg' => $svg,
+                    'qr_svg' => $qrSvg,
+                    'scan_url' => $scanUrl,
                     'price' => (float) $product->price,
                     'currency' => 'kr.',
                     'copies' => $copies,

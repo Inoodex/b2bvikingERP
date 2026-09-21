@@ -84,7 +84,14 @@
         .stk-barcode-box { width: 100%; display: flex; justify-content: center; align-items: center; margin: 0 auto; text-align: center; }
         .stk-barcode-box svg { margin: 0 auto; display: block; }
         .stk-code    { text-align: center; font-family: monospace; font-weight: 800; width: 100%; }
-        .stk-footer-centered { text-align: center; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .stk-footer-centered { text-align: center; width: 100%; display: flex; justify-content: space-between; align-items: center; }
+
+        /* General Hybrid & QR Scaling */
+        .stk-hybrid-row { width: 100%; display: flex; justify-content: space-between; align-items: center; overflow: hidden; }
+        .stk-1d-area { flex: 1; min-width: 0; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .stk-qr-area { flex-shrink: 0; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+        .stk-qr-area svg, .stk-qr-only-box svg { max-width: 100% !important; max-height: 100% !important; width: 100% !important; height: 100% !important; display: block !important; margin: 0 auto !important; }
+        .stk-qr-hint { font-size: 4pt; font-weight: 800; text-transform: uppercase; line-height: 1; margin-top: 0.3mm; letter-spacing: 0.5px; }
 
         /* Media Print Direct Styling */
         @media print {
@@ -113,18 +120,20 @@
                 page-break-inside: avoid;
                 display: flex;
                 flex-direction: column;
-                justify-content: center;
+                justify-content: space-between;
                 align-items: center;
                 text-align: center;
                 overflow: hidden;
             }
-            .stk-company { font-size: 6.5pt; line-height: 1; letter-spacing: 0.5px; }
-            .stk-title   { font-size: 6.5pt; max-height: 15pt; overflow: hidden; line-height: 1.1; margin: 1px 0; }
-            .stk-variant-badge { font-size: 6pt; }
-            .stk-barcode-box { height: 11mm; }
-            .stk-barcode-box svg { height: 100%; width: 92%; }
-            .stk-code    { font-size: 6.5pt; letter-spacing: 1px; }
-            .stk-footer-centered { font-size: 7pt; border-top: 0.5pt solid #000; padding-top: 1px; margin-top: 1px; }
+            .stk-company { font-size: 6pt; line-height: 1; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 800; }
+            .stk-title   { font-size: 6.5pt; max-height: 12pt; overflow: hidden; line-height: 1.1; margin: 0.3mm 0; font-weight: 700; }
+            .stk-variant-badge { font-size: 5.5pt; }
+            .stk-hybrid-row { height: 11mm; margin: 0.3mm 0; }
+            .stk-barcode-box { height: 8mm; width: 100%; }
+            .stk-barcode-box svg { height: 100% !important; width: 95% !important; }
+            .stk-code    { font-size: 5.5pt; letter-spacing: 0.5px; line-height: 1; margin-top: 0.3mm; }
+            .stk-qr-area { width: 10.5mm; height: 10.5mm; margin-left: 1.5mm; }
+            .stk-footer-centered { font-size: 6.5pt; border-top: 0.5pt solid #000; padding-top: 0.8mm; margin-top: 0.3mm; width: 100%; display: flex; justify-content: space-between; align-items: center; }
             .stk-price   { font-weight: 900; font-size: 7.5pt; }
 
         @elseif($presetKey === 'thermal_38x25')
@@ -141,18 +150,20 @@
                 page-break-inside: avoid;
                 display: flex;
                 flex-direction: column;
-                justify-content: center;
+                justify-content: space-between;
                 align-items: center;
                 text-align: center;
                 overflow: hidden;
             }
-            .stk-company { font-size: 5.5pt; }
-            .stk-title   { font-size: 5.5pt; max-height: 11pt; overflow: hidden; line-height: 1; margin: 1px 0; }
+            .stk-company { font-size: 5pt; line-height: 1; font-weight: 800; }
+            .stk-title   { font-size: 5.5pt; max-height: 10pt; overflow: hidden; line-height: 1; margin: 0.3mm 0; font-weight: 700; }
             .stk-variant-badge { font-size: 5pt; }
-            .stk-barcode-box { height: 9mm; }
-            .stk-barcode-box svg { height: 100%; width: 92%; }
-            .stk-code    { font-size: 5.5pt; letter-spacing: 0.5px; }
-            .stk-footer-centered { font-size: 6pt; border-top: 0.5pt solid #000; padding-top: 1px; }
+            .stk-hybrid-row { height: 9mm; margin: 0.3mm 0; }
+            .stk-barcode-box { height: 6.5mm; width: 100%; }
+            .stk-barcode-box svg { height: 100% !important; width: 95% !important; }
+            .stk-code    { font-size: 4.5pt; letter-spacing: 0.3px; line-height: 1; margin-top: 0.3mm; }
+            .stk-qr-area { width: 8.5mm; height: 8.5mm; margin-left: 1mm; }
+            .stk-footer-centered { font-size: 5.5pt; border-top: 0.5pt solid #000; padding-top: 0.5mm; margin-top: 0.3mm; width: 100%; display: flex; justify-content: space-between; align-items: center; }
             .stk-price   { font-weight: 900; font-size: 6.5pt; }
 
         @elseif($presetKey === 'thermal_100x150')
@@ -351,7 +362,6 @@
                             <div class="stk-barcode-box">
                                 {!! $sticker['barcode_svg'] !!}
                             </div>
-
                             @if($toggles['show_barcode_text'])
                                 <div class="stk-code">{{ $sticker['barcode'] }}</div>
                             @endif
@@ -373,7 +383,9 @@
             {{-- Thermal Continuous Roll: Centered Stickers --}}
             <div>
                 @foreach($labels as $lbl)
-                    @php $copies = max(1, (int)($lbl['copies'] ?? 1)); @endphp
+                    @php
+                        $copies = max(1, (int)($lbl['copies'] ?? 1));
+                    @endphp
                     @for($c = 0; $c < $copies; $c++)
                         <div class="thermal-page">
                             @if($toggles['show_brand'] && !empty($lbl['company']))
@@ -391,7 +403,6 @@
                             <div class="stk-barcode-box">
                                 {!! $lbl['barcode_svg'] !!}
                             </div>
-
                             @if($toggles['show_barcode_text'])
                                 <div class="stk-code">{{ $lbl['barcode'] }}</div>
                             @endif

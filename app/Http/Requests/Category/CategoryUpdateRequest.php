@@ -29,6 +29,8 @@ class CategoryUpdateRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255', 'unique:categories,name,' . $id],
+            'gpc_code' => ['nullable', 'string', 'max:20'],
+            'gpc_title' => ['nullable', 'string', 'max:255'],
             'status' => ['required', 'boolean'],
             'frontend_show' => ['nullable', 'boolean'],
         ];

@@ -37,6 +37,7 @@ use App\Http\Controllers\Backend\FrontendOrderController;
 use App\Http\Controllers\Backend\FundTransferController;
 use App\Http\Controllers\Backend\GiftCardController;
 use App\Http\Controllers\Backend\GoodsReceiptController;
+use App\Http\Controllers\Backend\HandlingUnitController;
 use App\Http\Controllers\Backend\InventoryReportController;
 use App\Http\Controllers\Backend\JournalVoucherController;
 use App\Http\Controllers\Backend\LandedCostController;
@@ -598,6 +599,20 @@ Route::middleware('auth')->group(function () {
             Route::post('/preview', 'preview')->name('preview');
             Route::post('/print', 'printView')->name('print');
         });
+
+        /** Enterprise Packaging Units & Handling Units (Cartons, Boxes, Pallets, Containers) */
+        Route::controller(HandlingUnitController::class)->prefix('packaging-units')->name('packaging-units.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{handlingUnit}', 'show')->name('show');
+            Route::get('/{handlingUnit}/print', 'printLabel')->name('print');
+            Route::post('/{handlingUnit}/nest', 'nestUnit')->name('nest');
+            Route::post('/{handlingUnit}/unpack', 'unpack')->name('unpack');
+            Route::delete('/{handlingUnit}', 'destroy')->name('destroy');
+            Route::post('/scan-receive', 'scanReceive')->name('scan-receive');
+            Route::post('/scan-ship', 'scanShip')->name('scan-ship');
+        });
         Route::controller(InventoryReportController::class)->group(function () {
             Route::get('inventory-reports/export-pdf', 'exportPdf')->name('inventory-reports.export-pdf');
             Route::get('inventory-reports', 'index')->name('inventory-reports.index');
@@ -809,5 +824,8 @@ Route::controller(InvoicePaymentController::class)->group(function () {
     Route::get('/invoices/pay/{token}/paypal/success', 'paypalSuccess')->name('invoices.pay.paypal.success');
     Route::get('/invoices/pay/{token}/paypal/cancel', 'paypalCancel')->name('invoices.pay.paypal.cancel');
 });
+
+/** Public QR Code & Barcode Scan Resolver for Customers & Couriers (GS1 Digital Link) */
+Route::get('/scan/{code}', [\App\Http\Controllers\Frontend\BarcodeScanController::class, 'resolveScan'])->name('public.barcode.scan');
 
 require __DIR__.'/auth.php';

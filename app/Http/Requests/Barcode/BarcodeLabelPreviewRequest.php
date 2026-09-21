@@ -28,6 +28,8 @@ class BarcodeLabelPreviewRequest extends FormRequest
             'show_brand' => ['nullable', 'boolean'],
             'show_barcode_text' => ['nullable', 'boolean'],
             'show_variant_spec' => ['nullable', 'boolean'],
+            'show_qr_code' => ['nullable', 'boolean'],
+            'label_format' => ['nullable', 'string', 'in:hybrid,1d,2d'],
         ];
     }
 }
