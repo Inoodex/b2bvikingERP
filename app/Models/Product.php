@@ -99,6 +99,11 @@ class Product extends Model
         return $this->hasMany(InventoryStock::class);
     }
 
+    public function stockBatches()
+    {
+        return $this->hasMany(StockBatch::class);
+    }
+
     public function stockLedgers()
     {
         return $this->hasMany(StockLedger::class, 'variant_id');
