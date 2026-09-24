@@ -136,7 +136,7 @@
                                                             <i class="fas fa-money-bill-wave"></i>
                                                         </a>
                                                     @endif
-                                                    <a href="{{ route('admin.purchases.show', $purchase->id) }}" class="btn btn-primary btn-sm ml-1" title="View Details">
+                                                    <a href="{{ route('admin.purchase-orders.show', $purchase->id) }}" class="btn btn-primary btn-sm ml-1" title="View Details">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     <a href="{{ route('admin.purchases.view-invoice', $purchase->id) }}" target="_blank" class="btn btn-warning btn-sm" title="View Invoice"><i class="fas fa-file-invoice"></i></a>

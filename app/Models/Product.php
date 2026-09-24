@@ -88,6 +88,14 @@ class Product extends Model
         return $this->hasMany(PurchaseDetail::class);
     }
 
+    public function activePurchaseDetails()
+    {
+        return $this->hasMany(PurchaseDetail::class)
+            ->whereHas('purchase', function ($q) {
+                $q->whereNotIn('milestone_status', ['goods_received', 'cancelled']);
+            });
+    }
+
     public function getTotalAttribute()
     {
         // Return latest purchase total safely using collection

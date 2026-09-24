@@ -255,6 +255,10 @@ Route::middleware('auth')->group(function () {
         Route::post('sales-quotations/{salesQuotation}/clone', [SalesQuotationController::class, 'clone'])->name('sales-quotations.clone');
         Route::post('sales-quotations/{salesQuotation}/convert-to-order', [SalesQuotationController::class, 'convertToOrder'])->name('sales-quotations.convert-to-order');
         Route::get('sales-quotations/{salesQuotation}/pdf', [SalesQuotationController::class, 'pdf'])->name('sales-quotations.pdf');
+        Route::get('sales-quotations/{salesQuotation}/excel', [SalesQuotationController::class, 'excel'])->name('sales-quotations.excel');
+        Route::post('sales-quotations/{salesQuotation}/catalog-pdf-async', [SalesQuotationController::class, 'catalogPdfAsync'])->name('sales-quotations.catalog-pdf.async');
+        Route::get('sales-quotations/catalog-pdf/status', [SalesQuotationController::class, 'checkCatalogStatus'])->name('sales-quotations.catalog-pdf.status');
+        Route::get('sales-quotations/catalog-pdf/download/{file}', [SalesQuotationController::class, 'downloadCatalogPdf'])->name('sales-quotations.catalog-pdf.download');
         Route::resource('sales-quotations', SalesQuotationController::class);
 
         /** Sales Order Routes */
@@ -463,6 +467,9 @@ Route::middleware('auth')->group(function () {
             Route::get('reports/audit/pdf/download/{file}', 'downloadReportPdf')->name('reports.audit.pdf.download');
             Route::get('reports/audit/check-status', 'checkReportStatus')->name('reports.audit.check-status');
             Route::get('reports/best-sellers', 'bestSellers')->name('reports.best-sellers');
+            Route::get('reports/procurement-split', 'procurementSplit')->name('reports.procurement-split');
+            Route::get('reports/supplier-negotiation', 'supplierNegotiation')->name('reports.supplier-negotiation');
+            Route::get('reports/reorder-risk', 'reorderRiskReport')->name('reports.reorder-risk');
             Route::get('reports/top-customers', 'topCustomers')->name('reports.top-customers');
             Route::get('reports/orders', 'orderReport')->name('reports.orders');
             Route::get('reports/orders/pdf', 'orderReportPdf')->name('reports.orders.pdf');

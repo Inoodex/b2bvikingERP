@@ -28,7 +28,6 @@
         'admin.coupons.*',
         'admin.gift-cards.*',
     );
-    $purchaseActive = request()->routeIs('admin.bookings.*', 'admin.purchases.*');
     $procurementActive = request()->routeIs(
         'admin.rfqs.*',
         'admin.purchase-orders.*',
@@ -36,6 +35,7 @@
         'admin.shipments.*',
         'admin.goods-receipts.*',
         'admin.vendor-returns.*',
+        'admin.purchases.*',
     );
     $reportsActive = request()->routeIs(
         'admin.reports.*',
@@ -1593,7 +1593,7 @@
         {{-- Topbar Procurement Cart (RFQ / PO) --}}
         <li>
             <a id="topbar-booking-cart-toggle" href="javascript:void(0)" onclick="openCartDrawer('booking')"
-                class="notification-toggle" title="Procurement Cart (RFQ / Purchase)">
+                class="notification-toggle" title="Procurement Cart (RFQ / PO)">
                 <i class="fas fa-shopping-basket"></i>
                 <span id="topbar-booking-cart-badge" class="badge"
                     style="display: none; background: #eab308; color: #1a1408; font-weight: 700; font-size: 10px; border-radius: 999px;">0</span>
@@ -2072,6 +2072,10 @@
                         <li class="sb-submenu-header">Analytics & Stock Reports</li>
                         <li><a href="{{ route('admin.reports.orders') }}"><i class="fas fa-file-invoice"></i> Order &
                                 Sales Report</a></li>
+                        <li><a href="{{ route('admin.reports.best-sellers') }}"><i class="fas fa-fire text-danger"></i> Best
+                                Seller Products</a></li>
+                        <li><a href="{{ route('admin.reports.reorder-risk') }}"><i
+                                    class="fas fa-exclamation-triangle text-danger"></i> Reorder Risk & Pipeline</a></li>
                         <li><a href="{{ route('admin.reports.stock') }}"><i class="fas fa-boxes"></i> Stock Valuation
                                 Reports</a></li>
                         <li><a href="{{ route('admin.reports.low-stock') }}"><i
@@ -2082,6 +2086,8 @@
                                     class="fas fa-user-tie"></i> Sales Rep Performance</a></li>
 
                         <li class="sb-submenu-header">Procurement Reports</li>
+                        <li><a href="{{ route('admin.reports.supplier-negotiation') }}"><i
+                                    class="fas fa-handshake text-primary"></i> Supplier Negotiation Suite</a></li>
                         <li><a href="{{ route('admin.reports.purchase') }}"><i class="fas fa-shopping-bag"></i>
                                 Purchase History</a></li>
                         <li><a href="{{ route('admin.reports.product-purchase-history') }}"><i

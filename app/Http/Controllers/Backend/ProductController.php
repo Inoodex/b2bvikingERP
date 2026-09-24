@@ -34,6 +34,7 @@ use App\Jobs\DispatchProductAnnouncementChunksJob;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ProductsImport;
 use App\Events\ProductsPublished;
+use App\Models\PurchaseDetail;
 
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -54,7 +55,15 @@ class ProductController extends Controller implements HasMiddleware
      */
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'variants.color', 'variants.size', 'inventoryStocks', 'vendor']);
+        $query = Product::with([
+            'category',
+            'variants.color',
+            'variants.size',
+            'inventoryStocks',
+            'vendor',
+            'activePurchaseDetails.purchase.vendor',
+            'activePurchaseDetails.purchase.shipments'
+        ]);
         
         // Visibility Constraints for non-admins and non-product-managers
         if (!Auth::user()->hasRole('Admin') && !Auth::user()->can('Manage Products')) {
@@ -124,6 +133,25 @@ class ProductController extends Controller implements HasMiddleware
 
         if ($request->has('vendor') && $request->vendor != '') {
             $query->where('vendor_id', $request->vendor);
+        }
+
+        if ($request->filled('order_status')) {
+            $os = $request->order_status;
+            if ($os === 'in_stock') {
+                $query->whereHas('inventoryStocks', function($q) {
+                    $q->havingRaw('SUM(quantity) > 0');
+                });
+            } elseif ($os === 'on_order') {
+                $query->whereHas('activePurchaseDetails');
+            } elseif ($os === 'out_of_stock_not_ordered') {
+                $query->whereDoesntHave('activePurchaseDetails')
+                    ->where(function($q) {
+                        $q->whereDoesntHave('inventoryStocks')
+                          ->orWhereHas('inventoryStocks', function($sq) {
+                              $sq->havingRaw('SUM(quantity) <= 0');
+                          });
+                    });
+            }
         }
 
         $products = $query->paginate(20)->withQueryString();

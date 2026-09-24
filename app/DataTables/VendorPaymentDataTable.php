@@ -25,7 +25,7 @@ class VendorPaymentDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addColumn('invoice_link', function ($payment) {
                 if ($payment->purchase) {
-                    return '<a href="' . route('admin.purchases.show', $payment->purchase->id) . '" class="font-weight-bold text-primary font-monospace">' . e($payment->purchase->invoice_no ?? 'PO-' . $payment->purchase->id) . '</a>';
+                    return '<a href="' . route('admin.purchase-orders.show', $payment->purchase->id) . '" class="font-weight-bold text-primary font-monospace">' . e($payment->purchase->invoice_no ?? 'PO-' . $payment->purchase->id) . '</a>';
                 }
                 return '<span class="text-muted font-monospace small">' . e($payment->payment_no ?? '—') . '</span>';
             })
