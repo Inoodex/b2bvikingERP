@@ -16,11 +16,16 @@ class WarehouseBinControllerTest extends TestCase
 
     protected function getOrCreateUser(): User
     {
-        return User::first() ?? User::create([
+        $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);
+        $user = User::first() ?? User::create([
             'name' => 'Admin User',
             'email' => 'admin_' . uniqid() . '@example.com',
             'password' => bcrypt('password123'),
         ]);
+        if (!$user->hasRole('Admin')) {
+            $user->assignRole($role);
+        }
+        return $user;
     }
 
     protected function getOrCreateZone(): WarehouseZone
@@ -94,6 +99,112 @@ class WarehouseBinControllerTest extends TestCase
             'id' => $bin->id,
             'name' => 'New Bin Name',
             'status' => 0,
+        ]);
+    }
+
+    public function test_it_can_delete_a_warehouse_bin_via_ajax(): void
+    {
+        $user = $this->getOrCreateUser();
+        $zone = $this->getOrCreateZone();
+
+        $bin = WarehouseBin::create([
+            'zone_id' => $zone->id,
+            'name' => 'Bin to Delete',
+            'barcode' => 'DEL-123',
+            'status' => 1,
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->deleteJson(route('admin.warehouse-bins.destroy', $bin->id));
+
+        $response->assertOk();
+        $response->assertJson([
+            'status' => 'success',
+            'message' => 'Warehouse Bin deleted successfully.',
+        ]);
+
+        $this->assertDatabaseMissing('warehouse_bins', [
+            'id' => $bin->id,
+        ]);
+    }
+
+    public function test_it_can_delete_a_warehouse_bin_via_standard_request(): void
+    {
+        $user = $this->getOrCreateUser();
+        $zone = $this->getOrCreateZone();
+
+        $bin = WarehouseBin::create([
+            'zone_id' => $zone->id,
+            'name' => 'Bin to Delete Standard',
+            'barcode' => 'DEL-STD-123',
+            'status' => 1,
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->delete(route('admin.warehouse-bins.destroy', $bin->id));
+
+        $response->assertRedirect(route('admin.warehouse-bins.index'));
+
+        $this->assertDatabaseMissing('warehouse_bins', [
+            'id' => $bin->id,
+        ]);
+    }
+
+    public function test_it_cannot_delete_a_warehouse_bin_with_active_inventory(): void
+    {
+        $user = $this->getOrCreateUser();
+        $zone = $this->getOrCreateZone();
+
+        $bin = WarehouseBin::create([
+            'zone_id' => $zone->id,
+            'name' => 'Bin With Stock',
+            'barcode' => 'BIN-STOCK-1',
+            'status' => 1,
+        ]);
+
+        $category = \App\Models\Category::first() ?? \App\Models\Category::create([
+            'name' => 'Test Cat ' . uniqid(),
+            'slug' => 'test-cat-' . uniqid(),
+            'status' => 1,
+        ]);
+
+        $product = \App\Models\Product::first() ?? \App\Models\Product::create([
+            'name' => 'Test Product ' . uniqid(),
+            'slug' => 'test-prod-' . uniqid(),
+            'product_number' => 'SKU-' . rand(1000, 9999),
+            'sku' => 'SKU-' . rand(1000, 9999),
+            'category_id' => $category->id,
+            'thumb_image' => 'uploads/products/default.jpg',
+            'qty' => 50,
+            'purchase_price' => 20,
+            'price' => 50,
+            'outlet_price' => 40,
+            'status' => 1,
+            'is_approved' => 1,
+        ]);
+
+        \App\Models\InventoryStock::create([
+            'product_id' => $product->id,
+            'variant_id' => null,
+            'outlet_id' => $zone->outlet_id,
+            'bin_id' => $bin->id,
+            'quantity' => 15,
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->deleteJson(route('admin.warehouse-bins.destroy', $bin->id));
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            'status' => 'error',
+            'message' => 'Cannot delete bin: Active inventory stock exists in this bin location. Please transfer stock first.',
+        ]);
+
+        $this->assertDatabaseHas('warehouse_bins', [
+            'id' => $bin->id,
         ]);
     }
 }

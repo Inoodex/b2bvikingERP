@@ -47,10 +47,15 @@ class ShipmentDataTable extends DataTable
                 
                 $editBtn = '';
                 if ($row->status !== 'cancelled' && $row->goodsReceiptsCount() == 0) {
-                    $editBtn = '<a href="' . route('admin.shipments.edit', $row->id) . '" class="btn btn-sm btn-primary mr-1" title="Edit Shipment"><i class="fas fa-edit"></i> </a>';
+                    $editBtn = '<a href="' . route('admin.shipments.edit', $row->id) . '" class="btn btn-sm btn-primary mr-1" title="Edit Shipment"><i class="fas fa-edit"></i></a>';
+                }
+
+                $deleteBtn = '';
+                if ($row->goodsReceiptsCount() == 0) {
+                    $deleteBtn = '<a href="' . route('admin.shipments.destroy', $row->id) . '" class="btn btn-sm btn-danger delete-item" title="Delete Shipment"><i class="fas fa-trash"></i></a>';
                 }
                 
-                return $viewBtn . $editBtn;
+                return '<div class="btn-group" role="group">' . $viewBtn . $editBtn . $deleteBtn . '</div>';
             })
             ->rawColumns(['po_no', 'supplier', 'vessel_container', 'bl_awb', 'ports', 'etd_eta', 'status_badge', 'action'])
             ->setRowId('id');

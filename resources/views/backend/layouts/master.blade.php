@@ -208,7 +208,7 @@
     $('body').on('click', '.delete-item', function(event) {
       event.preventDefault();
 
-      let deletUrl = $(this).attr('href');
+      let deletUrl = $(this).attr('href') || $(this).data('url');
       let bookingNo = $(this).data('booking-no');
       let message = bookingNo ? `This will delete the entire order group (${bookingNo})!` :
         "You won't be able to revert this!";
@@ -233,24 +233,32 @@
               booking_no: bookingNo
             },
             success: function(data) {
-              if (data.status == 'success') {
+              if (data && (data.status == 'success' || data.success === true)) {
                 Swal.fire(
                   'Deleted',
-                  data.message,
+                  data.message || 'Deleted Successfully!',
                   'success'
                 ).then(() => {
                   window.location.reload();
                 });
-              } else if (data.status == 'error') {
+              } else {
+                let errorMsg = (data && data.message) ? data.message : "Failed to delete item.";
                 Swal.fire(
                   "Can't Delete!",
-                  data.message,
+                  errorMsg,
                   'error'
                 );
               }
             },
             error: function(xhr, status, error) {
-              console.log(error);
+              let msg = (xhr.responseJSON && xhr.responseJSON.message) 
+                ? xhr.responseJSON.message 
+                : (xhr.statusText ? xhr.statusText : "Failed to delete item.");
+              Swal.fire(
+                "Can't Delete!",
+                msg,
+                'error'
+              );
             }
           });
         }

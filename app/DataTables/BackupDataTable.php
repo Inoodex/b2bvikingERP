@@ -49,13 +49,9 @@ class BackupDataTable extends DataTable
                     <a href="' . $downloadUrl . '" class="btn btn-sm btn-primary mr-1" title="Download SQL Dump">
                         <i class="fas fa-download mr-1"></i> Download
                     </a>
-                    <form action="' . $deleteUrl . '" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to permanently delete this backup file?\')">
-                        <input type="hidden" name="_token" value="' . csrf_token() . '">
-                        <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="btn btn-sm btn-danger" title="Delete Backup Archive">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </form>
+                    <a href="' . $deleteUrl . '" class="btn btn-sm btn-danger delete-item" title="Delete Backup Archive">
+                        <i class="fas fa-trash"></i>
+                    </a>
                 ';
             })
             ->rawColumns(['file_name', 'status', 'action']);

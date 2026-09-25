@@ -259,11 +259,21 @@
                         type: 'DELETE',
                         data: { _token: '{{ csrf_token() }}' },
                         success: function(resp) {
-                            toastr.success(resp.message || 'Deleted successfully');
-                            window.location.reload();
+                            if (resp && (resp.status === 'success' || resp.success === true)) {
+                                Swal.fire(
+                                    'Deleted',
+                                    resp.message || 'Deleted Successfully!',
+                                    'success'
+                                ).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire("Can't Delete!", resp.message || 'Failed to delete handling unit', 'error');
+                            }
                         },
-                        error: function() {
-                            toastr.error('Failed to delete handling unit');
+                        error: function(xhr) {
+                            let msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to delete handling unit';
+                            Swal.fire("Can't Delete!", msg, 'error');
                         }
                     });
                 }

@@ -113,19 +113,18 @@
         transform: rotate(-45deg);
     }
 
-    /* Target Scope Segmented Tabs (Company / Outlet / Buyer Phone) */
+    /* Target Scope Segmented Tabs (Company / Outlet / Buyer / Phone) */
     #matrix-scope-group,
     #modal-scope-pills {
         background: #f1f5f9 !important;
-        padding: 3px !important;
-        border-radius: 9px !important;
+        padding: 4px !important;
+        border-radius: 10px !important;
         border: 1px solid #cbd5e1 !important;
         display: flex !important;
         align-items: center !important;
-        gap: 3px !important;
-        height: 38px !important;
+        gap: 4px !important;
+        height: 40px !important;
         box-sizing: border-box !important;
-        overflow: hidden !important;
         width: 100% !important;
     }
     #matrix-scope-group label.btn,
@@ -133,10 +132,10 @@
         border: none !important;
         background: transparent !important;
         color: #64748b !important;
-        font-size: 12px !important;
+        font-size: 11.5px !important;
         font-weight: 600 !important;
-        border-radius: 6px !important;
-        padding: 0 6px !important;
+        border-radius: 7px !important;
+        padding: 0 8px !important;
         height: 32px !important;
         transition: all 0.15s ease !important;
         box-shadow: none !important;
@@ -144,7 +143,7 @@
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 5px !important;
+        gap: 4px !important;
         cursor: pointer !important;
         margin-bottom: 0 !important;
         flex: 1 1 0 !important;
@@ -164,7 +163,7 @@
         border-color: #6777ef !important;
         color: #ffffff !important;
         font-weight: 600 !important;
-        box-shadow: 0 2px 6px rgba(103, 119, 239, 0.4) !important;
+        box-shadow: 0 2px 6px rgba(103, 119, 239, 0.35) !important;
     }
     #matrix-scope-group label.btn.active i,
     #modal-scope-pills label.btn.active i {
@@ -231,11 +230,200 @@
     .select2-container .select2-selection--single .select2-selection__arrow {
         height: 36px !important;
     }
-    .btn-matrix-toggle {
-        font-size: 11px !important;
-        padding: 4px 10px !important;
-        border-radius: 6px !important;
-        transition: all 0.2s ease !important;
+    /* Linear / Apple-Style Segmented Status Control */
+    .matrix-segmented-control {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 2px;
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+        user-select: none;
+    }
+    .matrix-seg-btn {
+        border: none !important;
+        background: transparent !important;
+        color: #64748b;
+        font-size: 11.5px;
+        font-weight: 600;
+        padding: 5px 9px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        line-height: 1.2;
+        outline: none !important;
+    }
+    .matrix-seg-btn:hover:not(.active) {
+        background: rgba(226, 232, 240, 0.8) !important;
+        color: #1e293b;
+    }
+    .matrix-seg-btn.seg-in-stock.active {
+        background: #059669 !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35) !important;
+    }
+    .matrix-seg-btn.seg-oos.active {
+        background: #dc2626 !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.35) !important;
+    }
+    .matrix-seg-btn.seg-auto.active {
+        background: #475569 !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 6px rgba(71, 85, 105, 0.3) !important;
+    }
+
+    /* Inline Virtual Stock Quota Box */
+    .matrix-quota-wrapper {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        position: relative;
+    }
+    .matrix-quota-box {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        background: #f8fafc;
+        overflow: hidden;
+        height: 29px;
+        transition: all 0.2s ease;
+    }
+    .matrix-quota-wrapper.active .matrix-quota-box {
+        border-color: #86efac;
+        background: #ffffff;
+        box-shadow: 0 1px 3px rgba(16, 185, 129, 0.15);
+    }
+    .matrix-quota-wrapper.active .matrix-quota-box:focus-within {
+        border-color: #059669;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+    .matrix-quota-wrapper.disabled {
+        opacity: 0.38;
+        pointer-events: none;
+    }
+    .matrix-quota-input {
+        width: 58px;
+        height: 27px;
+        border: none;
+        outline: none;
+        padding: 0 4px;
+        text-align: center;
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #0f172a;
+        background: transparent;
+    }
+    .matrix-quota-wrapper.active .matrix-quota-input {
+        color: #059669;
+    }
+    .matrix-quota-unit {
+        font-size: 10px;
+        font-weight: 600;
+        color: #64748b;
+        background: #f1f5f9;
+        padding: 0 6px;
+        height: 27px;
+        display: flex;
+        align-items: center;
+        border-left: 1px solid #e2e8f0;
+    }
+    .matrix-quota-wrapper.active .matrix-quota-unit {
+        background: #ecfdf5;
+        color: #059669;
+        border-left-color: #a7f3d0;
+    }
+    .matrix-quota-feedback {
+        position: absolute;
+        right: -18px;
+        top: 6px;
+        font-size: 12px;
+        animation: fadeInOut 1.5s forwards;
+    }
+    @keyframes fadeInOut {
+        0% { opacity: 0; transform: scale(0.6); }
+        30% { opacity: 1; transform: scale(1.1); }
+        50% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(0.8); }
+    }
+
+    /* Modern Matrix Status Badges (Column 3) */
+    .matrix-status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        transition: all 0.2s ease;
+    }
+    .matrix-status-green {
+        background: rgba(16, 185, 129, 0.12);
+        color: #059669;
+        border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .matrix-status-red {
+        background: rgba(239, 68, 68, 0.12);
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+    .matrix-status-slate {
+        background: rgba(100, 116, 139, 0.15);
+        color: #475569;
+        border: 1px solid rgba(100, 116, 139, 0.35);
+    }
+    .matrix-status-auto {
+        background: #f8fafc;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        font-weight: 500;
+    }
+
+    /* Catalog Scope Quick Filter Segmented Pills */
+    .matrix-catalog-scope-pills {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 3px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        height: 38px;
+    }
+    .matrix-catalog-pill-btn {
+        border: none !important;
+        background: transparent !important;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 6px;
+        padding: 0 12px;
+        height: 32px;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        cursor: pointer;
+        flex: 1;
+        outline: none !important;
+    }
+    .matrix-catalog-pill-btn:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+    .matrix-catalog-pill-btn.active {
+        background-color: #6777ef !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 6px rgba(103, 119, 239, 0.4) !important;
     }
 
     /* Enterprise Slide-Over Drawer Styling (ZERO FLASH ON REFRESH) */
@@ -497,8 +685,20 @@
                             </select>
                         </div>
 
-                        {{-- Row 2: Product Category & Availability Policy --}}
-                        <div class="col-lg-6 col-md-6 col-12 mb-1">
+                        {{-- Row 2: Target Buyer, Product Category & Availability Policy --}}
+                        <div class="col-lg-4 col-md-6 col-12 mb-2">
+                            <label class="small text-muted font-weight-bold mb-1 d-block">
+                                <i class="fas fa-user-check text-dark mr-1"></i> Target Buyer / Customer
+                            </label>
+                            <select name="user_id" id="filter_user_id" class="form-control select2 filter-select w-100">
+                                <option value="">-- All Registered Buyers --</option>
+                                @foreach($registeredBuyers as $buyer)
+                                    <option value="{{ $buyer->id }}">{{ $buyer->name }} ({{ $buyer->phone ?? 'No phone' }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6 col-12 mb-2">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-tags text-success mr-1"></i> Product Category
                             </label>
@@ -510,7 +710,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-6 col-md-6 col-12 mb-1">
+                        <div class="col-lg-4 col-md-12 col-12 mb-2">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-shield-alt text-danger mr-1"></i> Availability Policy
                             </label>
@@ -566,7 +766,7 @@
             <div class="card-body p-4">
                 {{-- Row 1: Target Account Selection (Scope, Account, Load Button) --}}
                 <div class="row align-items-end mb-3">
-                    <div class="col-lg-4 col-md-12 mb-3 mb-lg-0">
+                    <div class="col-lg-5 col-md-12 col-12 mb-3 mb-lg-0">
                         <label class="small text-muted font-weight-bold mb-1 d-block">
                             <i class="fas fa-layer-group text-primary mr-1"></i> 1. Select Target Type
                         </label>
@@ -579,21 +779,25 @@
                                 <input type="radio" name="matrix_scope" value="outlet" autocomplete="off">
                                 <i class="fas fa-store mr-1"></i> Outlet
                             </label>
+                            <label class="btn btn-sm font-weight-bold flex-fill" data-target="buyer">
+                                <input type="radio" name="matrix_scope" value="buyer" autocomplete="off">
+                                <i class="fas fa-user-check mr-1"></i> Buyer
+                            </label>
                             <label class="btn btn-sm font-weight-bold flex-fill" data-target="phone">
                                 <input type="radio" name="matrix_scope" value="phone" autocomplete="off">
-                                <i class="fas fa-phone mr-1"></i> Buyer Phone
+                                <i class="fas fa-phone-alt mr-1"></i> Phone
                             </label>
                         </div>
                     </div>
 
-                    <div class="col-lg-5 col-md-8 col-12 mb-3 mb-lg-0">
-                        <label class="small text-muted font-weight-bold mb-1 d-block">
-                            <i class="fas fa-building text-info mr-1"></i> 2. Choose Specific Account
+                    <div class="col-lg-4 col-md-8 col-12 mb-3 mb-lg-0">
+                        <label class="small text-muted font-weight-bold mb-1 d-block" id="matrix-account-field-label">
+                            <i class="fas fa-building text-info mr-1"></i> 2. Choose Company Account
                         </label>
                         
                         {{-- Company Selector --}}
                         <div class="matrix-scope-box" id="matrix-scope-company">
-                            <select id="matrix_company_id" class="form-control select2 matrix-select2" style="width: 100%;">
+                            <select id="matrix_company_id" class="form-control select2 matrix-select2 w-100">
                                 <option value="">-- Choose Company Account --</option>
                                 @foreach($companies as $company)
                                     <option value="{{ $company->id }}">{{ $company->name }}</option>
@@ -603,7 +807,7 @@
 
                         {{-- Outlet Selector --}}
                         <div class="matrix-scope-box" id="matrix-scope-outlet" style="display: none;">
-                            <select id="matrix_outlet_id" class="form-control select2 matrix-select2" style="width: 100%;">
+                            <select id="matrix_outlet_id" class="form-control select2 matrix-select2 w-100">
                                 <option value="">-- Choose Retail Branch Outlet --</option>
                                 @foreach($outlets as $outlet)
                                     <option value="{{ $outlet->id }}">{{ $outlet->name }} [{{ $outlet->code }}]</option>
@@ -611,32 +815,33 @@
                             </select>
                         </div>
 
-                        {{-- Buyer / Phone Selector --}}
+                        {{-- Registered Buyer Selector --}}
+                        <div class="matrix-scope-box" id="matrix-scope-buyer" style="display: none;">
+                            <select id="matrix_user_id" class="form-control select2 matrix-select2 w-100">
+                                <option value="">-- Choose Registered Buyer --</option>
+                                @foreach($registeredBuyers as $buyer)
+                                    <option value="{{ $buyer->id }}" data-phone="{{ $buyer->phone }}">
+                                        {{ $buyer->name }} {{ $buyer->phone ? '(' . $buyer->phone . ')' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Unregistered Phone Number Selector --}}
                         <div class="matrix-scope-box" id="matrix-scope-phone" style="display: none;">
-                            <div class="row" style="margin-left: -4px; margin-right: -4px;">
-                                <div class="col-7" style="padding-left: 4px; padding-right: 4px;">
-                                    <select id="matrix_user_id" class="form-control select2 matrix-select2" style="width: 100%;">
-                                        <option value="">-- Registered Buyer --</option>
-                                        @foreach($registeredBuyers as $buyer)
-                                            <option value="{{ $buyer->id }}" data-phone="{{ $buyer->phone }}">{{ $buyer->name }}</option>
-                                        @endforeach
-                                    </select>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-white text-primary border-right-0" style="height: 38px; border-radius: 8px 0 0 8px; border-color: #cbd5e1; font-size: 13px;">
+                                        <i class="fas fa-phone-alt"></i>
+                                    </span>
                                 </div>
-                                <div class="col-5" style="padding-left: 4px; padding-right: 4px;">
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white text-muted border-right-0" style="height: 38px; border-radius: 8px 0 0 8px; border-color: #cbd5e1; font-size: 11px;">
-                                                <i class="fas fa-phone-alt"></i>
-                                            </span>
-                                        </div>
-                                        <input type="text" id="matrix_phone_number" class="form-control border-left-0" placeholder="Phone" style="height: 38px; border-radius: 0 8px 8px 0; border-color: #cbd5e1; font-size: 12.5px;">
-                                    </div>
-                                </div>
+                                <input type="text" id="matrix_phone_number" class="form-control border-left-0" placeholder="Enter Buyer Phone (e.g. +880 1712-345678)" style="height: 38px; border-radius: 0 8px 8px 0; border-color: #cbd5e1; font-size: 13px;">
                             </div>
                         </div>
                     </div>
 
                     <div class="col-lg-3 col-md-4 col-12">
+                        <label class="small font-weight-bold mb-1 d-none d-lg-block" style="visibility: hidden;">Action</label>
                         <button type="button" class="btn btn-primary btn-block font-weight-bold shadow-sm" id="btn-load-matrix" style="height: 38px; border-radius: 8px;">
                             <i class="fas fa-sync-alt mr-2"></i>
                             <span>Load Matrix Grid</span>
@@ -644,9 +849,9 @@
                     </div>
                 </div>
 
-                {{-- Row 2: Product Search & Category Filter --}}
+                {{-- Row 2: Product Search, Category Filter & Catalog Scope Toggle --}}
                 <div class="row align-items-center pt-3 border-top">
-                    <div class="col-lg-6 col-md-6 col-12 mb-3 mb-md-0">
+                    <div class="col-lg-5 col-md-6 col-12 mb-3 mb-md-0">
                         <label class="small text-muted font-weight-bold mb-1 d-block">
                             <i class="fas fa-search text-primary mr-1"></i> Search Catalog Products
                         </label>
@@ -660,7 +865,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-6 col-md-6 col-12">
+                    <div class="col-lg-4 col-md-6 col-12 mb-3 mb-md-0">
                         <label class="small text-muted font-weight-bold mb-1 d-block">
                             <i class="fas fa-tags text-success mr-1"></i> Product Category
                         </label>
@@ -670,6 +875,20 @@
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                             @endforeach
                         </select>
+                    </div>
+
+                    <div class="col-lg-3 col-md-12 col-12">
+                        <label class="small text-muted font-weight-bold mb-1 d-block">
+                            <i class="fas fa-sliders-h text-info mr-1"></i> Catalog Scope
+                        </label>
+                        <div class="matrix-catalog-scope-pills" id="matrix-catalog-scope-group">
+                            <button type="button" class="matrix-catalog-pill-btn active" data-scope="all">
+                                <i class="fas fa-cubes"></i> All Items
+                            </button>
+                            <button type="button" class="matrix-catalog-pill-btn" data-scope="overrides">
+                                <i class="fas fa-bolt"></i> Overrides Only
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -693,10 +912,10 @@
                     <table class="table table-striped table-hover align-middle w-100 mb-0" id="matrix-table" style="font-size: 13px;">
                         <thead class="bg-light">
                             <tr>
-                                <th style="width: 38%;">Product & Category</th>
+                                <th style="width: 34%;">Product & Category</th>
                                 <th style="width: 18%; text-align: center;">Physical Warehouse Stock</th>
-                                <th style="width: 20%; text-align: center;">Active Override Status</th>
-                                <th style="width: 24%; text-align: right;">1-Click Status Override</th>
+                                <th style="width: 22%; text-align: center;">Active Override Status</th>
+                                <th style="width: 26%; text-align: right;">1-Click Status & Quota</th>
                             </tr>
                         </thead>
                         <tbody id="matrix-table-body">
@@ -782,11 +1001,15 @@
                     </label>
                     <label class="btn btn-sm font-weight-bold flex-fill" data-target="outlet">
                         <input type="radio" name="target_scope" value="outlet" autocomplete="off">
-                        <i class="fas fa-store mr-1"></i> Outlet (23 Branches)
+                        <i class="fas fa-store mr-1"></i> Outlet
+                    </label>
+                    <label class="btn btn-sm font-weight-bold flex-fill" data-target="buyer">
+                        <input type="radio" name="target_scope" value="buyer" autocomplete="off">
+                        <i class="fas fa-user-check mr-1"></i> Buyer
                     </label>
                     <label class="btn btn-sm font-weight-bold flex-fill" data-target="phone">
                         <input type="radio" name="target_scope" value="phone" autocomplete="off">
-                        <i class="fas fa-phone mr-1"></i> Buyer / Phone
+                        <i class="fas fa-phone-alt mr-1"></i> Phone
                     </label>
                 </div>
 
@@ -800,7 +1023,7 @@
                     </select>
                 </div>
 
-                {{-- Scope Field 2: Outlet (23 retail branches) --}}
+                {{-- Scope Field 2: Outlet --}}
                 <div class="modal-scope-container" id="modal-box-outlet" style="display: none;">
                     <select name="outlet_id" id="modal_outlet_id" class="form-control select2 modal-select2" style="width: 100%;">
                         <option value="">-- Choose Retail Branch Outlet --</option>
@@ -810,20 +1033,27 @@
                     </select>
                 </div>
 
-                {{-- Scope Field 3: Buyer & Phone --}}
+                {{-- Scope Field 3: Registered Buyer --}}
+                <div class="modal-scope-container" id="modal-box-buyer" style="display: none;">
+                    <select name="user_id" id="modal_user_id" class="form-control select2 modal-select2" style="width: 100%;">
+                        <option value="">-- Choose Registered Buyer --</option>
+                        @foreach($registeredBuyers as $buyer)
+                            <option value="{{ $buyer->id }}" data-phone="{{ $buyer->phone }}">
+                                {{ $buyer->name }} {{ $buyer->phone ? '(' . $buyer->phone . ')' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Scope Field 4: Direct Phone --}}
                 <div class="modal-scope-container" id="modal-box-phone" style="display: none;">
-                    <div class="row no-gutters">
-                        <div class="col-7 pr-1">
-                            <select name="user_id" id="modal_user_id" class="form-control select2 modal-select2" style="width: 100%;">
-                                <option value="">-- Registered Buyer --</option>
-                                @foreach($registeredBuyers as $buyer)
-                                    <option value="{{ $buyer->id }}" data-phone="{{ $buyer->phone }}">{{ $buyer->name }}</option>
-                                @endforeach
-                            </select>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-white text-primary border-right-0" style="height: 38px; border-radius: 8px 0 0 8px; border-color: #cbd5e1; font-size: 13px;">
+                                <i class="fas fa-phone-alt"></i>
+                            </span>
                         </div>
-                        <div class="col-5 pl-1">
-                            <input type="text" name="phone_number" id="modal_phone_number" class="form-control" placeholder="Buyer Phone / ID" style="height: 38px; border-radius: 8px; border-color: #cbd5e1; font-size: 13px;">
-                        </div>
+                        <input type="text" name="phone_number" id="modal_phone_number" class="form-control border-left-0" placeholder="Enter Buyer Phone (e.g. +880 1712-345678)" style="height: 38px; border-radius: 0 8px 8px 0; border-color: #cbd5e1; font-size: 13px;">
                     </div>
                 </div>
             </div>
@@ -840,6 +1070,24 @@
                 </select>
                 <small class="text-muted d-block mt-1">
                     Priority Available overrides zero warehouse stock; Restricted blocks booking regardless of actual inventory.
+                </small>
+            </div>
+
+            {{-- 3b. Virtual Stock / Quota Quantity (Active for Priority Available) --}}
+            <div class="form-group mb-3" id="modal-box-reserved-qty">
+                <label class="font-weight-bold text-dark small mb-1">
+                    Virtual Stock / Quota Quantity (Optional)
+                </label>
+                <div class="input-group">
+                    <input type="number" name="reserved_qty" id="modal_reserved_qty" class="form-control" min="1" placeholder="e.g. 100 (Leave blank for General In-Stock)" style="border-radius: 8px 0 0 8px; height: 38px; border-color: #cbd5e1; font-size: 13px;">
+                    <div class="input-group-append">
+                        <span class="input-group-text bg-white text-muted small px-3" style="border-radius: 0 8px 8px 0; border-color: #cbd5e1; font-size: 12px; font-weight: 600;">
+                            Pieces (Pcs)
+                        </span>
+                    </div>
+                </div>
+                <small class="text-muted d-block mt-1">
+                    Enter specific virtual quota (e.g. 100 pcs) or leave blank to show as general In-Stock.
                 </small>
             </div>
 
@@ -921,21 +1169,36 @@
                 let option = new Option(rule.product_name, rule.product_id, true, true);
                 $('#modal_product_id').empty().append(option).trigger('change');
 
-                $('#modal-scope-pills label[data-target="' + rule.target_type + '"]').click();
-                if (rule.target_type === 'company') {
+                let targetType = rule.target_type;
+                if (!targetType) {
+                    targetType = rule.company_id ? 'company' : (rule.outlet_id ? 'outlet' : (rule.user_id ? 'buyer' : 'phone'));
+                }
+                $('#modal-scope-pills label[data-target="' + targetType + '"]').click();
+                if (targetType === 'company') {
                     $('#modal_company_id').val(rule.company_id).trigger('change');
-                } else if (rule.target_type === 'outlet') {
+                } else if (targetType === 'outlet') {
                     $('#modal_outlet_id').val(rule.outlet_id).trigger('change');
-                } else {
+                } else if (targetType === 'buyer') {
                     $('#modal_user_id').val(rule.user_id).trigger('change');
+                } else {
                     $('#modal_phone_number').val(rule.phone_number);
                 }
 
                 $('#modal_visibility_mode').val(rule.visibility_mode).trigger('change');
+                $('#modal_reserved_qty').val(rule.reserved_qty || '');
                 $('#modal_notes').val(rule.notes);
             } else {
                 $('#b2bRuleDrawerTitle').text('Configure Customer Stock Rule');
+                $('#modal_reserved_qty').val('');
+                $('#modal_visibility_mode').val('force_in_stock').trigger('change');
                 $('#modal-scope-pills label[data-target="company"]').click();
+            }
+
+            // Toggle reserved quantity box based on visibility mode
+            if ($('#modal_visibility_mode').val() === 'force_in_stock') {
+                $('#modal-box-reserved-qty').show();
+            } else {
+                $('#modal-box-reserved-qty').hide();
             }
 
             // Zero-flash display transition
@@ -971,6 +1234,14 @@
         $(document).on('keydown', function(e) {
             if (e.key === 'Escape' && $('#b2bRuleDrawer').hasClass('is-active')) {
                 closeRuleDrawer();
+            }
+        });
+
+        $('#modal_visibility_mode').on('change', function() {
+            if ($(this).val() === 'force_in_stock') {
+                $('#modal-box-reserved-qty').slideDown(150);
+            } else {
+                $('#modal-box-reserved-qty').slideUp(150);
             }
         });
 
@@ -1020,22 +1291,23 @@
         // -------------------------------------------------------------
         // Instant Server-Side Filter Engine
         // -------------------------------------------------------------
-        $('.filter-select').on('change', function() {
-            let table = window.LaravelDataTables['b2b-visibility-table'];
-            if (table) {
-                let params = $('#filter-form').serialize();
-                table.ajax.url("{{ route('admin.b2b-stock-rules.index') }}?" + params).load();
+        function reloadMasterRulesTable() {
+            if ($.fn.DataTable.isDataTable('#b2b-visibility-table')) {
+                $('#b2b-visibility-table').DataTable().ajax.reload(null, false);
+            } else if (window.LaravelDataTables && window.LaravelDataTables['b2b-visibility-table']) {
+                window.LaravelDataTables['b2b-visibility-table'].ajax.reload(null, false);
             }
+        }
+
+        $(document).on('change', '.filter-select', function() {
+            reloadMasterRulesTable();
         });
 
         $('#btn-reset-filters').on('click', function(e) {
             e.preventDefault();
             $('#filter-form')[0].reset();
-            $('.filter-select').val('').trigger('change');
-            let table = window.LaravelDataTables['b2b-visibility-table'];
-            if (table) {
-                table.ajax.url("{{ route('admin.b2b-stock-rules.index') }}").load();
-            }
+            $('.filter-select').val('').trigger('change.select2');
+            reloadMasterRulesTable();
         });
 
         // -------------------------------------------------------------
@@ -1136,16 +1408,24 @@
                         },
                         success: function(res) {
                             if (res.status === 'success') {
-                                toastr.success(res.message);
-                                let table = window.LaravelDataTables['b2b-visibility-table'];
-                                if (table) table.ajax.reload(null, false);
-                                if ($('#view-mode-matrix-wrapper').is(':visible')) {
-                                    loadCustomerMatrix(1);
-                                }
+                                Swal.fire(
+                                    'Deleted',
+                                    res.message || 'Deleted Successfully!',
+                                    'success'
+                                ).then(() => {
+                                    let table = window.LaravelDataTables['b2b-visibility-table'];
+                                    if (table) table.ajax.reload(null, false);
+                                    if ($('#view-mode-matrix-wrapper').is(':visible')) {
+                                        loadCustomerMatrix(1);
+                                    }
+                                });
+                            } else {
+                                Swal.fire("Can't Delete!", res.message || 'Error removing rule', 'error');
                             }
                         },
                         error: function(xhr) {
-                            toastr.error('Error removing rule');
+                            let msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error removing rule';
+                            Swal.fire("Can't Delete!", msg, 'error');
                         }
                     });
                 }
@@ -1158,10 +1438,25 @@
         $('#matrix-scope-group label').on('click', function() {
             $('#matrix-scope-group label').removeClass('active');
             $(this).addClass('active');
+            $(this).find('input[type="radio"]').prop('checked', true);
             let target = $(this).data('target');
+            
+            // Dynamic Label update for Step 2
+            let labelConfig = {
+                company: { icon: 'fas fa-building text-primary', text: '2. Choose Company Account' },
+                outlet:  { icon: 'fas fa-store text-info', text: '2. Choose Retail Branch Outlet' },
+                buyer:   { icon: 'fas fa-user-check text-success', text: '2. Choose Registered Buyer' },
+                phone:   { icon: 'fas fa-phone-alt text-warning', text: '2. Enter Buyer Phone Number' }
+            };
+            let cfg = labelConfig[target] || labelConfig['company'];
+            $('#matrix-account-field-label').html(`<i class="${cfg.icon} mr-1"></i> ${cfg.text}`);
+
             $('.matrix-scope-box').hide();
             $('#matrix-scope-' + target).show();
             $('#matrix-scope-' + target + ' .matrix-select2').select2({ width: '100%' });
+            if (target === 'phone') {
+                setTimeout(function() { $('#matrix_phone_number').focus(); }, 50);
+            }
         });
 
         $('#matrix_user_id').on('change', function() {
@@ -1171,8 +1466,17 @@
             }
         });
 
+        $('#matrix_phone_number').on('keypress', function(e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                loadCustomerMatrix(1);
+            }
+        });
+
         function loadCustomerMatrix(page = 1) {
-            let scope = $('#matrix-scope-group input[name="matrix_scope"]:checked').val() || 'company';
+            let scope = $('#matrix-scope-group input[name="matrix_scope"]:checked').val() 
+                     || $('#matrix-scope-group label.active').data('target') 
+                     || 'company';
             let companyId = $('#matrix_company_id').val();
             let outletId = $('#matrix_outlet_id').val();
             let userId = $('#matrix_user_id').val();
@@ -1181,15 +1485,19 @@
             let search = $('#matrix-search-input').val();
 
             if (scope === 'company' && !companyId) {
-                toastr.warning('Please select a Company first.');
+                toastr.warning('Please select a Company account first.');
                 return;
             }
             if (scope === 'outlet' && !outletId) {
-                toastr.warning('Please select an Outlet first.');
+                toastr.warning('Please select an Outlet branch first.');
                 return;
             }
-            if (scope === 'phone' && !userId && !phone) {
-                toastr.warning('Please enter a phone number or select a buyer.');
+            if (scope === 'buyer' && !userId) {
+                toastr.warning('Please select a Registered Buyer first.');
+                return;
+            }
+            if (scope === 'phone' && !phone) {
+                toastr.warning('Please enter a Buyer Phone Number first.');
                 return;
             }
 
@@ -1202,9 +1510,12 @@
             } else if (scope === 'outlet') {
                 label = $('#matrix_outlet_id option:selected').text();
                 icon = '<i class="fas fa-store text-info mr-1"></i>';
+            } else if (scope === 'buyer') {
+                label = $('#matrix_user_id option:selected').text();
+                icon = '<i class="fas fa-user-check text-success mr-1"></i>';
             } else {
-                label = phone || $('#matrix_user_id option:selected').text();
-                icon = '<i class="fas fa-phone-alt text-dark mr-1"></i>';
+                label = phone;
+                icon = '<i class="fas fa-phone-alt text-warning mr-1"></i>';
             }
             $('#matrix-selected-account-label').html(`
                 <span class="badge px-3 py-1 font-weight-bold" style="background: rgba(103, 119, 239, 0.12); color: #6777ef; border: 1px solid rgba(103, 119, 239, 0.3); border-radius: 20px; font-size: 12px;">
@@ -1221,6 +1532,9 @@
                 </tr>
             `);
 
+            let catalogScope = $('#matrix-catalog-scope-group .matrix-catalog-pill-btn.active').data('scope') || 'all';
+            let overridesOnly = (catalogScope === 'overrides') ? 1 : 0;
+
             $.ajax({
                 url: "{{ route('admin.b2b-stock-rules.matrix-data') }}",
                 method: 'GET',
@@ -1232,7 +1546,8 @@
                     user_id: userId,
                     phone_number: phone,
                     category_id: categoryId,
-                    search: search
+                    search: search,
+                    overrides_only: overridesOnly
                 },
                 success: function(html) {
                     $('#matrix-table-body').html(html);
@@ -1263,14 +1578,25 @@
             loadCustomerMatrix(1);
         });
 
+        // Catalog Scope Toggle (All Items vs Overrides Only)
+        $('#matrix-catalog-scope-group .matrix-catalog-pill-btn').on('click', function(e) {
+            e.preventDefault();
+            $('#matrix-catalog-scope-group .matrix-catalog-pill-btn').removeClass('active');
+            $(this).addClass('active');
+            loadCustomerMatrix(1);
+        });
+
         $('#btn-matrix-reset-filter').on('click', function(e) {
             e.preventDefault();
+            $('#matrix-scope-group label[data-target="company"]').click();
             $('#matrix-search-input').val('');
             $('#matrix-category-filter').val('').trigger('change');
             $('#matrix_company_id').val('').trigger('change');
             $('#matrix_outlet_id').val('').trigger('change');
             $('#matrix_user_id').val('').trigger('change');
             $('#matrix_phone_number').val('');
+            $('#matrix-catalog-scope-group .matrix-catalog-pill-btn').removeClass('active');
+            $('#matrix-catalog-scope-group .matrix-catalog-pill-btn[data-scope="all"]').addClass('active');
             $('#matrix-selected-account-label').html(`
                 <span class="badge badge-light border text-muted px-3 py-1 font-weight-normal" style="font-size: 12px;">
                     <i class="fas fa-info-circle text-info mr-1"></i> Select an account above and click Load Matrix Grid
@@ -1308,13 +1634,21 @@
             }
         });
 
-        // 1-Click Matrix Toggle Action
-        $('body').on('click', '.btn-matrix-toggle', function(e) {
+        // -------------------------------------------------------------
+        // Executive Linear-Style Segmented Status Toggle
+        // -------------------------------------------------------------
+        $('body').on('click', '.matrix-seg-btn', function(e) {
             e.preventDefault();
             let btn = $(this);
+            if (btn.hasClass('active')) return;
+
             let mode = btn.data('mode');
-            let group = btn.closest('.matrix-toggle-group');
-            let productId = group.data('product-id');
+            let control = btn.closest('.matrix-segmented-control');
+            let productId = control.data('product-id');
+            let row = $('#matrix-product-row-' + productId);
+            let quotaWrapper = row.find('.matrix-quota-wrapper');
+            let quotaInput = row.find('.matrix-quota-input');
+            let currentQty = quotaInput.val();
 
             let scope = $('#matrix-scope-group input[name="matrix_scope"]:checked').val() || 'company';
             let companyId = $('#matrix_company_id').val();
@@ -1322,7 +1656,7 @@
             let userId = $('#matrix_user_id').val();
             let phone = $('#matrix_phone_number').val();
 
-            btn.prop('disabled', true);
+            control.find('.matrix-seg-btn').prop('disabled', true);
 
             $.ajax({
                 url: "{{ route('admin.b2b-stock-rules.matrix-toggle') }}",
@@ -1335,55 +1669,120 @@
                     product_id: productId,
                     target_scope: scope,
                     mode: mode,
+                    reserved_qty: (mode === 'force_in_stock' && currentQty) ? currentQty : null,
                     company_id: companyId,
                     outlet_id: outletId,
                     user_id: userId,
                     phone_number: phone
                 },
                 success: function(res) {
-                    btn.prop('disabled', false);
+                    control.find('.matrix-seg-btn').prop('disabled', false);
                     if (res.status === 'success') {
                         toastr.success(res.message);
-                        // Update active state in button group
-                        group.find('.btn-matrix-toggle').removeClass('active text-white');
-                        group.find('[data-mode="force_in_stock"]').removeClass('btn-success').addClass('btn-outline-success');
-                        group.find('[data-mode="force_out_of_stock"]').removeClass('btn-danger').addClass('btn-outline-danger');
-                        group.find('[data-mode="standard"]').removeClass('btn-secondary').addClass('btn-outline-secondary');
+                        control.find('.matrix-seg-btn').removeClass('active');
+                        btn.addClass('active');
 
+                        let statusCell = row.find('.matrix-status-cell');
                         if (mode === 'force_in_stock') {
-                            btn.removeClass('btn-outline-success').addClass('btn-success text-white font-weight-bold active');
-                        } else if (mode === 'force_out_of_stock') {
-                            btn.removeClass('btn-outline-danger').addClass('btn-danger text-white font-weight-bold active');
-                        } else {
-                            btn.removeClass('btn-outline-secondary').addClass('btn-secondary text-white font-weight-bold active');
-                        }
-
-                        // Update Status Cell
-                        let statusCell = $('#matrix-product-row-' + productId).find('td:eq(2)');
-                        if (mode === 'force_in_stock') {
+                            quotaWrapper.removeClass('disabled').addClass('active');
+                            quotaInput.prop('disabled', false);
+                            let qtyText = res.reserved_qty ? Number(res.reserved_qty).toLocaleString() + ' pcs' : 'Quota';
                             statusCell.html(`
-                                <span class="badge px-3 py-1 font-weight-bold" style="background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; font-size: 11px;">
-                                    <i class="fas fa-check-circle mr-1"></i> Priority In-Stock
+                                <span class="matrix-status-pill matrix-status-green">
+                                    <i class="fas fa-bolt mr-1"></i> Priority (${qtyText})
                                 </span>
                             `);
                         } else if (mode === 'force_out_of_stock') {
+                            quotaWrapper.removeClass('active').addClass('disabled');
+                            quotaInput.prop('disabled', true);
                             statusCell.html(`
-                                <span class="badge px-3 py-1 font-weight-bold" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 20px; font-size: 11px;">
+                                <span class="matrix-status-pill matrix-status-red">
                                     <i class="fas fa-ban mr-1"></i> Restricted (OOS)
                                 </span>
                             `);
                         } else {
+                            quotaWrapper.removeClass('active').addClass('disabled');
+                            quotaInput.prop('disabled', true).val('');
                             statusCell.html(`
-                                <span class="badge badge-light border text-muted px-2 py-1 font-weight-bold" style="font-size: 11px;">
-                                    <i class="fas fa-cube mr-1"></i> Real Warehouse Stock
+                                <span class="matrix-status-pill matrix-status-auto">
+                                    <i class="fas fa-warehouse mr-1"></i> Real Warehouse Stock
                                 </span>
                             `);
                         }
+
+                        // Keep Master Rules DataTable in background sync
+                        reloadMasterRulesTable();
                     }
                 },
                 error: function(xhr) {
-                    btn.prop('disabled', false);
-                    toastr.error('Failed to update status');
+                    control.find('.matrix-seg-btn').prop('disabled', false);
+                    toastr.error(xhr.responseJSON?.message || 'Failed to update availability');
+                }
+            });
+        });
+
+        // -------------------------------------------------------------
+        // Inline Virtual Stock Quota Auto-Save Engine
+        // -------------------------------------------------------------
+        $('body').on('change blur keydown', '.matrix-quota-input', function(e) {
+            if (e.type === 'keydown' && e.keyCode !== 13) return;
+            if (e.type === 'keydown' && e.keyCode === 13) {
+                e.preventDefault();
+                $(this).blur();
+                return;
+            }
+
+            let input = $(this);
+            let productId = input.data('product-id');
+            let row = $('#matrix-product-row-' + productId);
+            let control = row.find('.matrix-segmented-control');
+            let activeMode = control.find('.matrix-seg-btn.active').data('mode');
+
+            if (activeMode !== 'force_in_stock') return;
+
+            let prevVal = input.data('saved-val');
+            let newVal = input.val();
+            if (prevVal !== undefined && String(prevVal) === String(newVal)) return;
+
+            let scope = $('#matrix-scope-group input[name="matrix_scope"]:checked').val() || 'company';
+            let companyId = $('#matrix_company_id').val();
+            let outletId = $('#matrix_outlet_id').val();
+            let userId = $('#matrix_user_id').val();
+            let phone = $('#matrix_phone_number').val();
+            let feedback = $('#quota-feedback-' + productId);
+
+            $.ajax({
+                url: "{{ route('admin.b2b-stock-rules.matrix-toggle') }}",
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                data: {
+                    product_id: productId,
+                    target_scope: scope,
+                    mode: 'force_in_stock',
+                    reserved_qty: newVal ? newVal : null,
+                    company_id: companyId,
+                    outlet_id: outletId,
+                    user_id: userId,
+                    phone_number: phone
+                },
+                success: function(res) {
+                    input.data('saved-val', newVal);
+                    feedback.show();
+                    setTimeout(function() { feedback.fadeOut(); }, 1800);
+                    let qtyText = res.reserved_qty ? Number(res.reserved_qty).toLocaleString() + ' pcs' : 'Quota';
+                    row.find('.matrix-status-cell').html(`
+                        <span class="matrix-status-pill matrix-status-green">
+                            <i class="fas fa-bolt mr-1"></i> Priority (${qtyText})
+                        </span>
+                    `);
+                    toastr.success(res.message);
+                    reloadMasterRulesTable();
+                },
+                error: function(xhr) {
+                    toastr.error('Failed to update quota quantity');
                 }
             });
         });

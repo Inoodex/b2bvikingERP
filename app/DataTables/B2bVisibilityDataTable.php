@@ -106,9 +106,10 @@ class B2bVisibilityDataTable extends DataTable
             })
             ->addColumn('visibility_badge', function ($row) {
                 if ($row->visibility_mode === 'force_in_stock') {
+                    $qtyLabel = $row->reserved_qty ? ' (' . number_format($row->reserved_qty) . ' pcs)' : ' (In-Stock)';
                     return '
                         <span class="badge px-3 py-1 font-weight-bold" style="background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; font-size: 11.5px;">
-                            <i class="fas fa-check-circle mr-1"></i> Priority Available (In-Stock)
+                            <i class="fas fa-check-circle mr-1"></i> Priority Available' . $qtyLabel . '
                         </span>';
                 } elseif ($row->visibility_mode === 'force_out_of_stock') {
                     return '
@@ -133,7 +134,7 @@ class B2bVisibilityDataTable extends DataTable
                 return '<span class="small text-muted font-weight-500">' . ($row->created_at ? $row->created_at->format('d M, Y') : '—') . '</span>';
             })
             ->addColumn('action', function ($row) {
-                $targetType = $row->company_id ? 'company' : ($row->outlet_id ? 'outlet' : 'phone');
+                $targetType = $row->company_id ? 'company' : ($row->outlet_id ? 'outlet' : ($row->user_id ? 'buyer' : 'phone'));
                 $targetId = $row->company_id ?? $row->outlet_id ?? $row->user_id ?? '';
                 
                 $editData = htmlspecialchars(json_encode([
@@ -146,6 +147,7 @@ class B2bVisibilityDataTable extends DataTable
                     'user_id' => $row->user_id,
                     'phone_number' => $row->phone_number,
                     'visibility_mode' => $row->visibility_mode,
+                    'reserved_qty' => $row->reserved_qty,
                     'notes' => $row->notes,
                 ]), ENT_QUOTES, 'UTF-8');
 
@@ -179,6 +181,10 @@ class B2bVisibilityDataTable extends DataTable
 
         if ($req->filled('outlet_id')) {
             $query->where('outlet_id', $req->get('outlet_id'));
+        }
+
+        if ($req->filled('user_id')) {
+            $query->where('user_id', $req->get('user_id'));
         }
 
         if ($req->filled('visibility_mode')) {
@@ -217,7 +223,7 @@ class B2bVisibilityDataTable extends DataTable
         return $this->builder()
             ->setTableId('b2b-visibility-table')
             ->columns($this->getColumns())
-            ->minifiedAjax()
+            ->minifiedAjax('', 'data.target_scope = $("#filter_target_scope").val(); data.company_id = $("#filter_company_id").val(); data.outlet_id = $("#filter_outlet_id").val(); data.user_id = $("#filter_user_id").val(); data.category_id = $("#filter_category_id").val(); data.visibility_mode = $("#filter_visibility_mode").val();')
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
             ->pageLength(10)

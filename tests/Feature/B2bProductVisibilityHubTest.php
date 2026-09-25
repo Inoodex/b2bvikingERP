@@ -109,6 +109,53 @@ class B2bProductVisibilityHubTest extends TestCase
         ]);
     }
 
+    public function test_b2b_visibility_datatable_filters_work()
+    {
+        $product1 = $this->createProduct('Filter Test Item 1');
+        $product2 = $this->createProduct('Filter Test Item 2');
+        $company = $this->createCompany('Filter Company');
+        $outlet = \App\Models\Outlet::create([
+            'name' => 'Filter Outlet',
+            'code' => 'FO-' . rand(100, 999),
+            'type' => 'retail',
+            'status' => 1,
+        ]);
+
+        CustomerProductVisibility::create([
+            'product_id' => $product1->id,
+            'company_id' => $company->id,
+            'visibility_mode' => 'force_in_stock',
+            'created_by' => $this->admin->id,
+        ]);
+
+        CustomerProductVisibility::create([
+            'product_id' => $product2->id,
+            'outlet_id' => $outlet->id,
+            'visibility_mode' => 'force_out_of_stock',
+            'created_by' => $this->admin->id,
+        ]);
+
+        // Filter by company_id
+        $respCompany = $this->actingAs($this->admin, 'web')->get(
+            route('admin.b2b-stock-rules.index', ['company_id' => $company->id]),
+            ['HTTP_X-Requested-With' => 'XMLHttpRequest', 'HTTP_ACCEPT' => 'application/json']
+        );
+        $respCompany->assertStatus(200);
+        $dataCompany = $respCompany->json('data');
+        $this->assertNotEmpty($dataCompany);
+        $this->assertTrue(collect($dataCompany)->every(fn($r) => str_contains($r['target_entity'], 'Filter Company')));
+
+        // Filter by visibility_mode = force_out_of_stock
+        $respOos = $this->actingAs($this->admin, 'web')->get(
+            route('admin.b2b-stock-rules.index', ['visibility_mode' => 'force_out_of_stock']),
+            ['HTTP_X-Requested-With' => 'XMLHttpRequest', 'HTTP_ACCEPT' => 'application/json']
+        );
+        $respOos->assertStatus(200);
+        $dataOos = $respOos->json('data');
+        $this->assertNotEmpty($dataOos);
+        $this->assertTrue(collect($dataOos)->every(fn($r) => str_contains($r['visibility_badge'], 'Restricted')));
+    }
+
     public function test_store_b2b_visibility_rule_with_company_scope()
     {
         $product = $this->createProduct('Horn Mug Classic');
@@ -251,9 +298,11 @@ class B2bProductVisibilityHubTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Valhalla Pendant');
-        $response->assertSee('Force In-Stock');
-        $response->assertSee('Force OOS');
-        $response->assertSee('Reset Real Stock');
+        $response->assertSee('matrix-segmented-control');
+        $response->assertSee('matrix-quota-input');
+        $response->assertSee('In-Stock');
+        $response->assertSee('OOS');
+        $response->assertSee('Auto');
     }
 
     public function test_matrix_toggle_1_click_availability_and_revert()
@@ -261,7 +310,7 @@ class B2bProductVisibilityHubTest extends TestCase
         $product = $this->createProduct('Rune Stone');
         $company = $this->createCompany('Rune Crafters');
 
-        // 1. Force In-Stock via 1-click toggle
+        // 1. Force In-Stock via 1-click toggle with quota
         $response1 = $this->actingAs($this->admin, 'web')->postJson(
             route('admin.b2b-stock-rules.matrix-toggle'),
             [
@@ -269,15 +318,17 @@ class B2bProductVisibilityHubTest extends TestCase
                 'target_scope' => 'company',
                 'company_id' => $company->id,
                 'mode' => 'force_in_stock',
+                'reserved_qty' => 150,
             ]
         );
 
         $response1->assertStatus(200);
-        $response1->assertJson(['status' => 'success', 'mode' => 'force_in_stock']);
+        $response1->assertJson(['status' => 'success', 'mode' => 'force_in_stock', 'reserved_qty' => 150]);
         $this->assertDatabaseHas('customer_product_visibilities', [
             'product_id' => $product->id,
             'company_id' => $company->id,
             'visibility_mode' => 'force_in_stock',
+            'reserved_qty' => 150,
         ]);
 
         // 2. Revert to standard warehouse real stock
@@ -454,6 +505,51 @@ class B2bProductVisibilityHubTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee($prodA->name);
         $response->assertDontSee($prodB->name);
+    }
+
+    public function test_store_and_toggle_b2b_visibility_rule_with_buyer_and_phone_scope()
+    {
+        $product = $this->createProduct('Buyer Phone Target Item');
+        $buyer = User::create([
+            'name' => 'Buyer Test',
+            'email' => 'buyer_' . uniqid() . '@example.com',
+            'phone' => '+8801700998877',
+            'password' => bcrypt('password123'),
+        ]);
+
+        // 1. Store with buyer scope
+        $respBuyer = $this->actingAs($this->admin, 'web')->postJson(route('admin.b2b-stock-rules.store'), [
+            'product_id' => $product->id,
+            'target_scope' => 'buyer',
+            'user_id' => $buyer->id,
+            'visibility_mode' => 'force_in_stock',
+            'reserved_qty' => 50,
+        ]);
+        $respBuyer->assertStatus(200);
+        $respBuyer->assertJson(['status' => 'success']);
+
+        $this->assertDatabaseHas('customer_product_visibilities', [
+            'product_id' => $product->id,
+            'user_id' => $buyer->id,
+            'visibility_mode' => 'force_in_stock',
+            'reserved_qty' => 50,
+        ]);
+
+        // 2. Matrix toggle with phone scope
+        $respPhone = $this->actingAs($this->admin, 'web')->postJson(route('admin.b2b-stock-rules.matrix-toggle'), [
+            'product_id' => $product->id,
+            'target_scope' => 'phone',
+            'phone_number' => '+8801999112233',
+            'mode' => 'force_out_of_stock',
+        ]);
+        $respPhone->assertStatus(200);
+        $respPhone->assertJson(['status' => 'success', 'mode' => 'force_out_of_stock']);
+
+        $this->assertDatabaseHas('customer_product_visibilities', [
+            'product_id' => $product->id,
+            'phone_number' => '+8801999112233',
+            'visibility_mode' => 'force_out_of_stock',
+        ]);
     }
 }
 

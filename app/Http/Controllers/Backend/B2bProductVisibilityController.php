@@ -74,13 +74,20 @@ class B2bProductVisibilityController extends Controller
 
         $companyId = $request->target_scope === 'company' ? $request->company_id : null;
         $outletId = $request->target_scope === 'outlet' ? $request->outlet_id : null;
-        $userId = in_array($request->target_scope, ['phone', 'user', 'buyer']) ? $request->user_id : null;
-        $phone = in_array($request->target_scope, ['phone', 'user', 'buyer']) ? $request->phone_number : null;
+        $userId = in_array($request->target_scope, ['buyer', 'user']) ? $request->user_id : null;
+        $phone = $request->target_scope === 'phone' ? $request->phone_number : null;
+
+        if ($request->target_scope === 'buyer' && $userId && !$phone) {
+            $buyerUser = User::find($userId);
+            if ($buyerUser && !empty($buyerUser->phone)) {
+                $phone = $buyerUser->phone;
+            }
+        }
 
         if (!$companyId && !$outletId && !$userId && !$phone) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Please select at least one target Company, Outlet, or Buyer Phone.',
+                'message' => 'Please select at least one target Company, Outlet, Registered Buyer, or Phone.',
             ], 422);
         }
 
@@ -96,6 +103,7 @@ class B2bProductVisibilityController extends Controller
                 ],
                 [
                     'visibility_mode' => $request->visibility_mode,
+                    'reserved_qty' => ($request->visibility_mode === 'force_in_stock' && $request->filled('reserved_qty')) ? (int) $request->reserved_qty : null,
                     'notes' => $request->notes,
                     'created_by' => Auth::id() ?? 1,
                 ]
@@ -126,11 +134,13 @@ class B2bProductVisibilityController extends Controller
 
         $request->validate([
             'visibility_mode' => 'required|in:force_in_stock,force_out_of_stock,hide_product',
+            'reserved_qty' => 'nullable|integer|min:1',
             'notes' => 'nullable|string|max:255',
         ]);
 
         $rule->update([
             'visibility_mode' => $request->visibility_mode,
+            'reserved_qty' => ($request->visibility_mode === 'force_in_stock' && $request->filled('reserved_qty')) ? (int) $request->reserved_qty : null,
             'notes' => $request->notes,
         ]);
 
@@ -201,8 +211,15 @@ class B2bProductVisibilityController extends Controller
         $targetScope = $request->get('target_scope', 'company');
         $companyId = $targetScope === 'company' ? $request->get('company_id') : null;
         $outletId = $targetScope === 'outlet' ? $request->get('outlet_id') : null;
-        $userId = in_array($targetScope, ['buyer', 'phone', 'user']) ? $request->get('user_id') : null;
-        $phone = in_array($targetScope, ['buyer', 'phone', 'user']) ? $request->get('phone_number') : null;
+        $userId = in_array($targetScope, ['buyer', 'user']) ? $request->get('user_id') : null;
+        $phone = $targetScope === 'phone' ? $request->get('phone_number') : null;
+
+        if ($targetScope === 'buyer' && $userId && empty($phone)) {
+            $buyerUser = User::find($userId);
+            if ($buyerUser && !empty($buyerUser->phone)) {
+                $phone = $buyerUser->phone;
+            }
+        }
         $categoryId = $request->get('category_id');
         $search = $request->get('search');
 
@@ -224,16 +241,39 @@ class B2bProductVisibilityController extends Controller
             });
         }
 
+        $overridesOnly = $request->boolean('overrides_only');
+        $hasTarget = !empty($companyId) || !empty($outletId) || !empty($userId) || !empty($phone);
+
+        if ($overridesOnly && $hasTarget) {
+            $productIdsWithOverrides = CustomerProductVisibility::query()
+                ->when($companyId, fn($q) => $q->where('company_id', $companyId))
+                ->when($outletId, fn($q) => $q->where('outlet_id', $outletId))
+                ->when($userId, fn($q) => $q->where(function($sub) use ($userId, $phone) {
+                    $sub->where('user_id', $userId);
+                    if ($phone) {
+                        $sub->orWhere('phone_number', $phone);
+                    }
+                }))
+                ->when(!$userId && $phone, fn($q) => $q->where('phone_number', $phone))
+                ->pluck('product_id');
+
+            $productsQuery->whereIn('id', $productIdsWithOverrides);
+        }
+
         $products = $productsQuery->orderBy('name')->paginate(20)->withQueryString();
 
         // Fetch existing overrides for this target entity ONLY if a target is selected
-        $hasTarget = !empty($companyId) || !empty($outletId) || !empty($userId) || !empty($phone);
         $overrides = $hasTarget
             ? CustomerProductVisibility::query()
                 ->when($companyId, fn($q) => $q->where('company_id', $companyId))
                 ->when($outletId, fn($q) => $q->where('outlet_id', $outletId))
-                ->when($userId, fn($q) => $q->where('user_id', $userId))
-                ->when($phone, fn($q) => $q->where('phone_number', $phone))
+                ->when($userId, fn($q) => $q->where(function($sub) use ($userId, $phone) {
+                    $sub->where('user_id', $userId);
+                    if ($phone) {
+                        $sub->orWhere('phone_number', $phone);
+                    }
+                }))
+                ->when(!$userId && $phone, fn($q) => $q->where('phone_number', $phone))
                 ->get()
                 ->keyBy('product_id')
             : collect();
@@ -259,6 +299,7 @@ class B2bProductVisibilityController extends Controller
             'product_id' => 'required|exists:products,id',
             'target_scope' => 'required|in:company,outlet,buyer,phone',
             'mode' => 'required|in:force_in_stock,force_out_of_stock,hide_product,standard',
+            'reserved_qty' => 'nullable|numeric|min:0',
             'company_id' => 'nullable|exists:companies,id',
             'outlet_id' => 'nullable|exists:outlets,id',
             'user_id' => 'nullable|exists:users,id',
@@ -269,6 +310,13 @@ class B2bProductVisibilityController extends Controller
         $outletId = $request->target_scope === 'outlet' ? $request->outlet_id : null;
         $userId = $request->target_scope === 'buyer' ? $request->user_id : null;
         $phone = $request->target_scope === 'phone' ? $request->phone_number : null;
+
+        if ($request->target_scope === 'buyer' && $userId && empty($phone)) {
+            $buyerUser = User::find($userId);
+            if ($buyerUser && !empty($buyerUser->phone)) {
+                $phone = $buyerUser->phone;
+            }
+        }
 
         if (!$companyId && !$outletId && !$userId && !$phone) {
             return response()->json(['status' => 'error', 'message' => 'Target entity missing.'], 422);
@@ -287,11 +335,25 @@ class B2bProductVisibilityController extends Controller
             return response()->json([
                 'status' => 'success',
                 'mode' => 'standard',
+                'reserved_qty' => null,
                 'message' => 'Override removed. Product reverted to standard warehouse stock.',
             ]);
         }
 
-        // Upsert rule
+        // Upsert rule with optional quota quantity
+        $updateData = [
+            'visibility_mode' => $request->mode,
+            'created_by' => Auth::id() ?? 1,
+        ];
+
+        if ($request->mode === 'force_in_stock') {
+            if ($request->has('reserved_qty')) {
+                $updateData['reserved_qty'] = $request->filled('reserved_qty') ? (float) $request->reserved_qty : null;
+            }
+        } else {
+            $updateData['reserved_qty'] = null;
+        }
+
         $rule = CustomerProductVisibility::updateOrCreate(
             [
                 'product_id' => $request->product_id,
@@ -300,16 +362,14 @@ class B2bProductVisibilityController extends Controller
                 'user_id' => $userId,
                 'phone_number' => $phone,
             ],
-            [
-                'visibility_mode' => $request->mode,
-                'created_by' => Auth::id() ?? 1,
-            ]
+            $updateData
         );
 
         return response()->json([
             'status' => 'success',
             'mode' => $request->mode,
-            'message' => 'Availability rule updated to ' . str_replace('_', ' ', $request->mode),
+            'reserved_qty' => $rule->reserved_qty,
+            'message' => 'Availability rule updated to ' . str_replace('_', ' ', $request->mode) . ($rule->reserved_qty ? ' (' . number_format($rule->reserved_qty) . ' pcs)' : ''),
             'rule' => $rule,
         ]);
     }

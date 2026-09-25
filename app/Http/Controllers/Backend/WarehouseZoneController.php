@@ -46,7 +46,16 @@ class WarehouseZoneController extends Controller
     public function destroy(WarehouseZone $warehouseZone)
     {
         $warehouseZone->delete();
-        Toastr::success('Warehouse Zone deleted successfully.', 'Success');
+        $message = __('Warehouse Zone deleted successfully.');
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $message,
+            ]);
+        }
+
+        Toastr::success($message, 'Success');
         return redirect()->route('admin.warehouse-zones.index');
     }
 }
