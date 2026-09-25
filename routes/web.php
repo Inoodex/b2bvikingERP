@@ -5,6 +5,7 @@ use App\Http\Controllers\Backend\ApprovalInboxController;
 use App\Http\Controllers\Backend\ApprovalWorkflowController;
 // use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Backend\AssetController;
+use App\Http\Controllers\Backend\B2bProductVisibilityController;
 use App\Http\Controllers\Backend\BackupController;
 use App\Http\Controllers\Backend\BankAccountController;
 use App\Http\Controllers\Backend\BankReconciliationController;
@@ -272,6 +273,18 @@ Route::middleware('auth')->group(function () {
         Route::get('pricelists/resolve-price', [PricelistController::class, 'resolvePrice'])->name('pricelists.resolve-price');
         Route::resource('pricelists', PricelistController::class);
 
+        /** B2B Customer & Outlet Stock Availability Matrix (Tier 1 Central Hub) */
+        Route::controller(B2bProductVisibilityController::class)->prefix('b2b-stock-rules')->name('b2b-stock-rules.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+            Route::get('/search-products', 'searchProducts')->name('search-products');
+            Route::get('/matrix-data', 'matrixData')->name('matrix-data');
+            Route::post('/matrix-toggle', 'matrixToggle')->name('matrix-toggle');
+            Route::post('/bulk-store', 'bulkStore')->name('bulk-store');
+        });
+
         /** Coupon Routes */
         Route::put('coupons/change-status', [CouponController::class, 'changeStatus'])->name('coupons.change-status');
         Route::get('coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
@@ -296,6 +309,10 @@ Route::middleware('auth')->group(function () {
             Route::get('products/announcement', 'announcementIndex')->name('products.announcement.index');
             Route::post('products/announcement/send', 'sendAnnouncement')->name('products.announcement.send');
             Route::get('products/{id}/variants', 'getVariants')->name('products.variants');
+            Route::get('products/{id}/stock-movement', 'stockMovement')->name('products.stock-movement');
+            Route::get('products/{id}/velocity-metrics', 'velocityMetrics')->name('products.velocity-metrics');
+            Route::post('products/{id}/b2b-visibility', 'saveB2bVisibility')->name('products.b2b-visibility.store');
+            Route::delete('products/b2b-visibility/{id}', 'deleteB2bVisibility')->name('products.b2b-visibility.destroy');
         });
         Route::resource('products', ProductController::class);
 

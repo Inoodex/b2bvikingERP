@@ -10,8 +10,8 @@
 <div class="row" style="margin: 0 -6px;">
     @foreach ($products as $key => $product)
         <div class="col-6 col-md-4 col-lg-5th col-xl-5th mb-3" style="padding: 0 6px;">
-            <div class="card h-100 border-0 shadow-sm pp-card">
-                <div class="pp-card-img-wrap d-flex align-items-center justify-content-center">
+            <div class="card h-100 border-0 shadow-sm pp-card" id="product-card-{{ $product->id }}">
+                <div class="pp-card-img-wrap d-flex align-items-center justify-content-center position-relative">
                     @php
                         $imgSrc = $product->thumb_image
                             ? (strpos($product->thumb_image, 'http') === 0
@@ -203,14 +203,21 @@
                     </div>
 
                     @can('Manage Products')
-                        <div class="mt-2 d-flex" style="gap: 4px;">
+                        <div class="mt-2 d-flex" style="gap: 6px;">
+                            <button type="button" class="btn btn-outline-info btn-sm flex-fill pp-edit-btn view-stock-movement"
+                                data-id="{{ $product->id }}" data-toggle="tooltip" title="Stock Movement & History"
+                                style="padding: 6px 0; font-size: 13px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-history"></i>
+                            </button>
                             <a href="{{ route('admin.products.edit', ['product' => $product->id] + request()->query()) }}"
-                                class="btn btn-outline-primary btn-sm flex-fill pp-edit-btn">
-                                <i class="fas fa-edit mr-1"></i> Edit
+                                class="btn btn-outline-primary btn-sm flex-fill pp-edit-btn" data-toggle="tooltip" title="Edit Product"
+                                style="padding: 6px 0; font-size: 13px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-edit"></i>
                             </a>
                             <a href="{{ route('admin.products.destroy', $product->id) }}"
-                                class="btn btn-outline-danger btn-sm flex-fill pp-edit-btn delete-item">
-                                <i class="fas fa-trash mr-1"></i> Delete
+                                class="btn btn-outline-danger btn-sm flex-fill pp-edit-btn delete-item" data-toggle="tooltip" title="Delete Product"
+                                style="padding: 6px 0; font-size: 13px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-trash"></i>
                             </a>
                         </div>
                     @endcan

@@ -21,9 +21,10 @@ class ProductDataTable extends DataTable
                 if (!$user->can('Manage Products')) {
                     return '';
                 }
+                $history = '<button type="button" class="btn btn-info btn-sm view-stock-movement mr-1" data-id="' . $query->id . '" title="Stock Movement & History"><i class="fas fa-history"></i></button>';
                 $edit = '<a href="' . route('admin.products.edit', $query->id) . '" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></a>';
                 $delete = '<a href="' . route('admin.products.destroy', $query->id) . '" class="btn btn-danger btn-sm delete-item ml-1"><i class="fas fa-trash"></i></a>';
-                return $edit . $delete;
+                return $history . $edit . $delete;
             })
             ->addColumn('thumb_image', function ($query) {
                 return $query->thumb_image ? '<img src="' . asset('storage/' . $query->thumb_image) . '" width="60px" class="img-thumbnail rounded shadow-sm">' : '';

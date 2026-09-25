@@ -305,6 +305,68 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Stock Movement, Inflows, Velocity & B2B Rules Card (Collapsible) --}}
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0" style="border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0 !important;">
+                        <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between"
+                             role="button"
+                             data-toggle="collapse"
+                             data-target="#collapseStockMovement"
+                             aria-expanded="false"
+                             aria-controls="collapseStockMovement"
+                             id="headingStockMovement"
+                             style="cursor: pointer; user-select: none; transition: all 0.2s ease;">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-3" style="width: 42px; height: 42px; border-radius: 10px; background: rgba(103, 119, 239, 0.1); display: flex; align-items: center; justify-content: center; color: #6777ef; font-size: 19px;">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-weight-bold text-dark mb-0" style="font-size: 16px; line-height: 1.3;">
+                                        Stock Movement, Inflow History & Consumption Velocity
+                                    </h4>
+                                    <small class="text-muted" style="font-size: 12px;">Click to expand/minimize movement ledger, purchase history and customer rules</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center" style="gap: 10px;">
+                                <span class="badge badge-light border text-dark font-weight-bold px-3 py-2" style="font-size: 12px; border-radius: 20px;">
+                                    <i class="fas fa-boxes text-info mr-1"></i> Stock: <strong>{{ number_format($currentStock ?? 0) }}</strong>
+                                </span>
+                                @if(isset($velocity['classification']))
+                                    <span class="badge {{ $velocity['classification']['badge'] }} px-3 py-2 font-weight-bold d-none d-md-inline-block" style="font-size: 11px; border-radius: 20px;">
+                                        <i class="{{ $velocity['classification']['icon'] }} mr-1"></i> {{ $velocity['classification']['label'] }}
+                                    </span>
+                                @endif
+                                <div class="stock-collapse-icon-btn d-flex align-items-center justify-content-center ml-1" 
+                                     title="Expand / Minimize"
+                                     style="width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; transition: all 0.25s ease;">
+                                    <i class="fas fa-chevron-down" id="stock-collapse-chevron" style="font-size: 13px; transition: transform 0.3s ease;"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse" id="collapseStockMovement" aria-labelledby="headingStockMovement">
+                            <div class="card-body p-4" id="stock-movement-content-container" style="background: #fafbfe !important;">
+                                @include('backend.product.partials.stock_movement_modal')
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <style>
+                #headingStockMovement:hover {
+                    background-color: #f8fafc !important;
+                }
+                #headingStockMovement:hover .stock-collapse-icon-btn {
+                    background-color: #e2e8f0 !important;
+                    color: #1e293b !important;
+                    border-color: #94a3b8 !important;
+                }
+                #headingStockMovement[aria-expanded="true"] #stock-collapse-chevron {
+                    transform: rotate(180deg);
+                }
+            </style>
         </div>
     </section>
 @endsection
@@ -416,6 +478,263 @@
                 if (e.which == 13) {
                     e.preventDefault();
                     return false;
+                }
+            });
+
+            // Toggle Custom Month / Date range box in Stock Movement Section
+            $('body').on('click', '#btn-toggle-custom-filter', function() {
+                $('#velocity-custom-filter-box').slideToggle(200);
+            });
+
+            // Handle Velocity Preset Radio Click
+            $('body').on('change', 'input[name="velocity_preset"]', function() {
+                let preset = $(this).val();
+                if (preset === 'custom') {
+                    $('#velocity-custom-filter-box').slideDown(200);
+                    return;
+                }
+                $('#velocity-custom-filter-box').slideUp(200);
+                recalculateVelocityMetrics({ preset: preset });
+            });
+
+            // Handle Custom Month/Year or Date Range Apply
+            $('body').on('click', '#btn-apply-custom-velocity', function() {
+                let month = $('#vel_filter_month').val();
+                let year = $('#vel_filter_year').val();
+                let start_date = $('#vel_filter_start').val();
+                let end_date = $('#vel_filter_end').val();
+
+                recalculateVelocityMetrics({
+                    preset: 'custom',
+                    month: month,
+                    year: year,
+                    start_date: start_date,
+                    end_date: end_date
+                });
+            });
+
+            function recalculateVelocityMetrics(params) {
+                let productId = window.currentStockMovementProductId || {{ $product->id }};
+                if (!productId) return;
+
+                let url = "{{ route('admin.products.velocity-metrics', ':id') }}".replace(':id', productId);
+                
+                // Show loading state in velocity badge
+                $('#velocity-label-text').text('Calculating...');
+                $('#velocity-progress-bar').css('opacity', '0.5');
+
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    data: params,
+                    success: function(res) {
+                        if (res.status === 'success' && res.metrics) {
+                            let m = res.metrics;
+                            // Update KPIs
+                            $('#kpi-period-inflow').text(Number(m.inflow_qty).toLocaleString());
+                            $('#kpi-period-sold').text(Number(m.sold_qty).toLocaleString());
+                            $('#kpi-period-inflow-sub').text('In ' + m.period_label);
+
+                            // Update Badge
+                            let badgeHtml = `
+                                <span class="badge ${m.classification.badge} px-3 py-1 font-weight-bold" style="font-size: 12px; border-radius: 20px;">
+                                    <i class="${m.classification.icon} mr-1"></i>
+                                    <span id="velocity-label-text">${m.classification.label}</span>: 
+                                    <span id="velocity-rate-text">${m.sell_through_rate}%</span> Sold
+                                </span>
+                            `;
+                            $('#velocity-badge-container').html(badgeHtml);
+
+                            // Update Progress Bar & Advice
+                            $('#progress-rate-label').text(m.sell_through_rate + '%');
+                            $('#velocity-advice-text').text(m.classification.advice);
+                            $('#velocity-progress-bar')
+                                .css('width', m.sell_through_rate + '%')
+                                .css('background-color', m.classification.bg_color)
+                                .css('opacity', '1')
+                                .attr('aria-valuenow', m.sell_through_rate);
+                        }
+                    },
+                    error: function() {
+                        $('#velocity-label-text').text('Error');
+                        $('#velocity-progress-bar').css('opacity', '1');
+                    }
+                });
+            }
+
+            // Collapsible Stock Movement Card Toggle Icon State
+            $('#collapseStockMovement').on('show.bs.collapse', function () {
+                $('#headingStockMovement').attr('aria-expanded', 'true');
+                $('#stock-collapse-chevron').css('transform', 'rotate(180deg)');
+            });
+            $('#collapseStockMovement').on('shown.bs.collapse', function () {
+                $('.b2b-select2').select2({ width: '100%' });
+            });
+            $('#collapseStockMovement').on('hide.bs.collapse', function () {
+                $('#headingStockMovement').attr('aria-expanded', 'false');
+                $('#stock-collapse-chevron').css('transform', 'rotate(0deg)');
+            });
+
+            // Handle Target Scope switching (Company / Outlet / Phone) in B2B Rule tab
+            $('body').on('click', '.b2b-scope-pill', function() {
+                let target = $(this).data('target');
+                $('.b2b-scope-pill').removeClass('active');
+                $(this).addClass('active');
+
+                $('.b2b-scope-container').hide();
+                $('#scope-box-' + target).fadeIn(150, function() {
+                    $('#scope-box-' + target + ' .b2b-select2').select2({
+                        width: '100%'
+                    });
+                });
+
+                // Clear unselected inputs so only active scope is submitted
+                if (target === 'company') {
+                    $('#b2b_outlet_id').val('').trigger('change');
+                    $('#b2b_user_id').val('').trigger('change');
+                    $('#b2b_phone').val('');
+                } else if (target === 'outlet') {
+                    $('#b2b_company_id').val('').trigger('change');
+                    $('#b2b_user_id').val('').trigger('change');
+                    $('#b2b_phone').val('');
+                } else if (target === 'phone') {
+                    $('#b2b_company_id').val('').trigger('change');
+                    $('#b2b_outlet_id').val('').trigger('change');
+                }
+            });
+
+            // Auto-fill buyer phone when selecting a registered user
+            $('body').on('change', '#b2b_user_id', function() {
+                let phone = $(this).find(':selected').data('phone');
+                if (phone) {
+                    $('#b2b_phone').val(phone);
+                }
+            });
+
+            // Initialize select2 on tab show
+            $('body').on('shown.bs.tab', 'a[data-toggle="tab"], a[role="tab"]', function(e) {
+                if ($(e.target).attr('href') === '#tab-visibility' || $(e.target).attr('id') === 'visibility-tab') {
+                    $('.b2b-select2').select2({ width: '100%' });
+                }
+            });
+
+            // Remove lingering focus outlines on button clicks
+            $('body').on('click', '#velocity-preset-group .btn, #b2b-scope-pill-group .btn', function() {
+                $(this).blur();
+            });
+
+            // Save B2B Visibility Rule via AJAX (Module 7)
+            $('body').on('click', '#btn-save-b2b-visibility', function(e) {
+                e.preventDefault();
+                let productId = window.currentStockMovementProductId || {{ $product->id }};
+                if (!productId) return;
+
+                let form = $('#form-add-b2b-visibility');
+                let data = form.serialize();
+
+                let url = "{{ route('admin.products.b2b-visibility.store', ':id') }}".replace(':id', productId);
+                let btn = $(this);
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: data,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    success: function(res) {
+                        btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save B2B Rule');
+                        if (res.status === 'success') {
+                            if (window.toastr) toastr.success(res.message);
+                            let reloadUrl = "{{ route('admin.products.stock-movement', ':id') }}".replace(':id', productId);
+                            $.get(reloadUrl, function(html) {
+                                $('#stock-movement-content-container').html(html);
+                                $('#visibility-tab').tab('show');
+                                $('.b2b-select2').select2({ width: '100%' });
+                            }).fail(function() {
+                                location.reload();
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save B2B Rule');
+                        let msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error saving visibility rule';
+                        if (window.toastr) toastr.error(msg);
+                    }
+                });
+            });
+
+            // Delete B2B Visibility Rule via AJAX (Module 7)
+            $('body').on('click', '.btn-delete-b2b-rule', function(e) {
+                e.preventDefault();
+                let btn = $(this);
+                let ruleId = btn.data('id');
+                if (!ruleId) return;
+
+                let executeDelete = function() {
+                    let url = "{{ route('admin.products.b2b-visibility.destroy', ':id') }}".replace(':id', ruleId);
+                    btn.prop('disabled', true);
+
+                    $.ajax({
+                        url: url,
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        success: function(res) {
+                            if (res.status === 'success') {
+                                if (window.toastr) toastr.success(res.message);
+                                $(`#b2b-rule-row-${ruleId}`).fadeOut(300, function() {
+                                    $(this).remove();
+                                    let remainingRows = $('#table-b2b-visibilities tbody tr[id^="b2b-rule-row-"]').length;
+                                    $('#b2b-rules-count-badge').text(remainingRows + ' Rules');
+                                    if (remainingRows === 0) {
+                                        $('#table-b2b-visibilities tbody').html(`
+                                            <tr id="no-b2b-rules-row">
+                                                <td colspan="4" class="text-center py-4 bg-white">
+                                                    <div class="py-2">
+                                                        <div class="mb-2" style="width: 44px; height: 44px; border-radius: 50%; background: #f1f5f9; display: inline-flex; align-items: center; justify-content: center;">
+                                                            <i class="fas fa-shield-alt text-muted" style="font-size: 18px;"></i>
+                                                        </div>
+                                                        <div class="font-weight-bold text-dark" style="font-size: 13px;">Standard Inventory Rules Active</div>
+                                                        <div class="text-muted small mt-1" style="max-width: 400px; margin: 0 auto; font-size: 11px;">
+                                                            No customer overrides set for this item. All buyers and outlets see actual warehouse stock.
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        `);
+                                    }
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            btn.prop('disabled', false);
+                            let msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error deleting rule';
+                            if (window.toastr) toastr.error(msg);
+                        }
+                    });
+                };
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: "Remove B2B Stock Rule?",
+                        text: "This customer/outlet override will be removed. The entity will revert to seeing actual warehouse stock.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#ef4444",
+                        cancelButtonColor: "#64748b",
+                        confirmButtonText: "<i class='fas fa-trash-alt mr-1'></i> Yes, remove it!",
+                        cancelButtonText: "Cancel",
+                        reverseButtons: true,
+                        focusConfirm: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            executeDelete();
+                        }
+                    });
+                } else if (confirm('Are you sure you want to remove this B2B stock rule?')) {
+                    executeDelete();
                 }
             });
         });

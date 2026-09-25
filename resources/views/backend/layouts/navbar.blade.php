@@ -25,6 +25,7 @@
         'admin.sales-returns.*',
         'admin.credit-notes.*',
         'admin.pricelists.*',
+        'admin.b2b-stock-rules.*',
         'admin.coupons.*',
         'admin.gift-cards.*',
     );
@@ -1806,6 +1807,7 @@
                         <li class="sb-flyout-title">Products</li>
                         <li><a href="{{ route('admin.products.index') }}"><i class="fas fa-cubes"></i> All
                                 Products</a></li>
+                        <li><a href="{{ route('admin.b2b-stock-rules.index') }}"><i class="fas fa-users-cog"></i> Customer Stock Rules</a></li>
                         <li class="sb-submenu-header">Attributes</li>
                         <li><a href="{{ route('admin.units.index') }}"><i class="fas fa-weight-hanging"></i>
                                 Units</a></li>
@@ -1929,6 +1931,8 @@
                         @if (auth()->user()?->can('Manage Pricelists') || auth()->user()?->hasRole('Admin'))
                             <li><a href="{{ route('admin.pricelists.index') }}"><i class="fas fa-tags"></i> Customer
                                     Pricelists</a></li>
+                            <li><a href="{{ route('admin.b2b-stock-rules.index') }}"><i class="fas fa-users-cog"></i> Customer
+                                    Stock Rules</a></li>
                         @endif
                         @if (auth()->user()?->can('Manage Discounts') || auth()->user()?->hasRole('Admin'))
                             <li><a href="{{ route('admin.coupons.index') }}"><i class="fas fa-ticket-alt"></i> Promo

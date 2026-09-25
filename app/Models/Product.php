@@ -165,4 +165,12 @@ class Product extends Model
             return 0;
         }
     }
+
+    /**
+     * Customer and outlet specific stock visibility overrides
+     */
+    public function customerVisibilities()
+    {
+        return $this->hasMany(\App\Models\CustomerProductVisibility::class);
+    }
 }

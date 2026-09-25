@@ -948,6 +948,429 @@
                 padding: 3px 7px !important;
             }
         }
+
+        /* =========================================================================
+               SLIDE-OVER STOCK & VELOCITY INSPECTOR DRAWER (Exact Match to Audit Drawer)
+               ========================================================================= */
+        .audit-drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.12);
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            z-index: 100000 !important;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        .audit-drawer-backdrop.is-active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .audit-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: min(860px, 94vw);
+            height: 100vh;
+            background: #ffffff;
+            border-left: 1px solid #e2e8f0;
+            box-shadow: -15px 0 45px rgba(0, 0, 0, 0.18), -2px 0 8px rgba(0, 0, 0, 0.06);
+            z-index: 100001 !important;
+            transform: translateX(100%);
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .audit-drawer.is-active {
+            transform: translateX(0);
+        }
+
+        .audit-drawer .drawer-header {
+            padding: 18px 24px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+
+        .audit-drawer .drawer-header-kicker {
+            font-size: 10.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .audit-drawer .drawer-header-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 3px;
+            line-height: 1.25;
+        }
+
+        .audit-drawer .drawer-header-sub {
+            font-size: 12px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .audit-drawer .drawer-close-btn {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #64748b;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .audit-drawer .drawer-close-btn i,
+        .audit-drawer .drawer-close-btn svg {
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-block;
+        }
+
+        .audit-drawer .drawer-close-btn:hover {
+            background: #fee2e2 !important;
+            color: #ef4444 !important;
+            border-color: #fca5a5 !important;
+            transform: scale(1.08);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .audit-drawer .drawer-close-btn:hover i,
+        .audit-drawer .drawer-close-btn:hover svg {
+            transform: rotate(90deg);
+        }
+
+        .audit-drawer .drawer-close-btn:active {
+            transform: scale(0.92);
+            background: #fecaca !important;
+        }
+
+        .audit-drawer .drawer-close-btn:active i,
+        .audit-drawer .drawer-close-btn:active svg {
+            transform: rotate(180deg) scale(0.9);
+        }
+
+        .audit-drawer .drawer-body {
+            padding: 22px 24px;
+            overflow-y: auto;
+            flex: 1;
+            background: #ffffff;
+        }
+
+        .audit-drawer .drawer-footer {
+            padding: 14px 24px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            .audit-drawer {
+                width: 100vw;
+                max-width: 100vw;
+            }
+
+            .audit-drawer .drawer-header {
+                padding: 14px 16px;
+            }
+
+            .audit-drawer .drawer-body {
+                padding: 14px 16px;
+            }
+
+            .audit-drawer .drawer-footer {
+                padding: 10px 16px;
+            }
+        }
+
+        /* =========================================================================
+               SELECT2 STYLING INSIDE OFF-CANVAS DRAWER (Zero Text Clipping)
+               ========================================================================= */
+        #stockMovementDrawer .select2-container {
+            width: 100% !important;
+            display: block;
+        }
+
+        #stockMovementDrawer .select2-container .select2-selection--single {
+            height: 38px !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            background: #ffffff !important;
+            padding: 0 10px !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+            transition: all 0.2s ease !important;
+        }
+
+        #stockMovementDrawer .select2-container--open .select2-selection--single,
+        #stockMovementDrawer .select2-container--focus .select2-selection--single {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+        }
+
+        #stockMovementDrawer .select2-container .select2-selection--single .select2-selection__rendered {
+            line-height: 36px !important;
+            font-size: 12.5px !important;
+            color: #1e293b !important;
+            font-weight: 500 !important;
+            padding-left: 2px !important;
+            padding-right: 20px !important;
+        }
+
+        #stockMovementDrawer .select2-container .select2-selection--single .select2-selection__arrow {
+            height: 36px !important;
+            right: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        #stockMovementDrawer .select2-dropdown {
+            z-index: 100010 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+            overflow: hidden !important;
+        }
+
+        #stockMovementDrawer .select2-results__option {
+            font-size: 12px !important;
+            padding: 8px 12px !important;
+        }
+
+        #stockMovementDrawer .select2-results__option--highlighted[aria-selected] {
+            background: #3b82f6 !important;
+            color: #ffffff !important;
+        }
+
+        /* B2B Table Header Uniform Styling */
+        #table-b2b-visibilities thead th {
+            background: #f8fafc !important;
+            background-color: #f8fafc !important;
+            color: #475569 !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            font-size: 11.5px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.02em !important;
+        }
+
+        /* =========================================================================
+           VELOCITY WINDOW SEGMENTED CONTROL & BUTTON FOCUS (Zero Outline / Zero Glow)
+           ========================================================================= */
+        /* Remove harsh browser outline and Bootstrap focus glow across all drawer controls */
+        #stockMovementDrawer .btn:focus,
+        #stockMovementDrawer .btn.focus,
+        #stockMovementDrawer .btn:active:focus,
+        #stockMovementDrawer .btn.active:focus,
+        #stockMovementDrawer button:focus,
+        #stockMovementDrawer .nav-pills .nav-link:focus,
+        #stockMovementDrawer input:focus,
+        #stockMovementDrawer select:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Modern segmented pill container for Velocity Presets */
+        #velocity-preset-group {
+            background: #f1f5f9 !important;
+            padding: 3px !important;
+            border-radius: 8px !important;
+            border: 1px solid #cbd5e1 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 2px !important;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+        }
+
+        #velocity-preset-group .btn {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            color: #64748b !important;
+            font-size: 11.5px !important;
+            font-weight: 600 !important;
+            padding: 5px 12px !important;
+            border-radius: 6px !important;
+            transition: all 0.16s ease-in-out !important;
+            cursor: pointer !important;
+            line-height: 1.3 !important;
+            margin: 0 !important;
+            white-space: nowrap !important;
+        }
+
+        #velocity-preset-group .btn:hover {
+            color: #0f172a !important;
+            background: rgba(255, 255, 255, 0.75) !important;
+            outline: none !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        #velocity-preset-group .btn.active,
+        #velocity-preset-group .btn:active,
+        #velocity-preset-group .btn.active:hover {
+            background: #2563eb !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3) !important;
+            outline: none !important;
+            border: none !important;
+        }
+
+        #velocity-preset-group .btn:focus,
+        #velocity-preset-group .btn.focus,
+        #velocity-preset-group .btn:active:focus,
+        #velocity-preset-group .btn.active:focus,
+        #velocity-preset-group .btn input:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Scope Pills in B2B tab (Company / Outlet / Buyer Phone) */
+        #b2b-scope-pill-group {
+            background: #f1f5f9 !important;
+            padding: 3px !important;
+            border-radius: 8px !important;
+            border: 1px solid #cbd5e1 !important;
+            display: flex !important;
+            gap: 2px !important;
+            width: 100% !important;
+        }
+
+        #b2b-scope-pill-group .b2b-scope-pill {
+            flex: 1 !important;
+            text-align: center !important;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            color: #64748b !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            padding: 6px 8px !important;
+            border-radius: 6px !important;
+            transition: all 0.16s ease-in-out !important;
+            cursor: pointer !important;
+            margin: 0 !important;
+        }
+
+        #b2b-scope-pill-group .b2b-scope-pill:hover {
+            color: #0f172a !important;
+            background: rgba(255, 255, 255, 0.75) !important;
+            outline: none !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        #b2b-scope-pill-group .b2b-scope-pill.active {
+            background: #2563eb !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3) !important;
+            outline: none !important;
+            border: none !important;
+        }
+
+        #b2b-scope-pill-group .b2b-scope-pill:focus,
+        #b2b-scope-pill-group .b2b-scope-pill.focus,
+        #b2b-scope-pill-group .b2b-scope-pill input:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Stock Movement bottom tabs clean pill transition */
+        #stockMovementTab .nav-link {
+            outline: none !important;
+            box-shadow: none !important;
+            transition: all 0.16s ease-in-out !important;
+            border: 1px solid transparent !important;
+        }
+
+        #stockMovementTab .nav-link:focus,
+        #stockMovementTab .nav-link.focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        #stockMovementTab .nav-link:not(.active):hover {
+            background: #f1f5f9 !important;
+            color: #1e293b !important;
+        }
+
+        /* Unified Seamless Phone Input Wrap */
+        .b2b-phone-input-wrap {
+            display: flex;
+            align-items: center;
+            height: 38px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 0 12px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease-in-out;
+            width: 100%;
+        }
+        .b2b-phone-input-wrap:focus-within {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+        }
+        .b2b-phone-input-wrap i {
+            color: #64748b;
+            font-size: 13px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .b2b-phone-input-wrap input {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            width: 100%;
+            height: 100%;
+            font-size: 12.5px;
+            color: #1e293b;
+            font-weight: 500;
+            padding: 0;
+        }
+        .b2b-phone-input-wrap input::placeholder {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 400;
+        }
     </style>
 @endpush
 
@@ -1019,7 +1442,7 @@
                                 </div>
                                 <hr style="border-top: 1px solid var(--pp-border); margin: 6px 0 10px;">
                                 <div class="row g-4 align-items-end">
-                                    <div class="col-12 col-md-2">
+                                    <div class="col-12 col-md-3">
                                         <select name="sort" id="sort" class="form-control select2 pp-select2">
                                             <option value="">Sort by</option>
                                             <option value="latest"
@@ -1046,24 +1469,24 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-2">
-                                        <select name="product_type" id="product_type_filter"
-                                            class="form-control select2 pp-select2">
-                                            <option value="">Occasion / Type</option>
-                                            <option value="new_arrival"
-                                                {{ request('product_type') == 'new_arrival' ? 'selected' : '' }}>New
-                                                Arrival</option>
-                                            <option value="upcoming"
-                                                {{ request('product_type') == 'upcoming' ? 'selected' : '' }}>Upcoming
-                                            </option>
-                                            @foreach ($productTypes as $type)
-                                                <option value="{{ $type->id }}"
-                                                    {{ request('product_type') == $type->id ? 'selected' : '' }}>
-                                                    {{ $type->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
                                     @if (isset($vendors) && $vendors->count() > 0)
+                                        <div class="col-12 col-md-3">
+                                            <select name="product_type" id="product_type_filter"
+                                                class="form-control select2 pp-select2">
+                                                <option value="">Occasion / Type</option>
+                                                <option value="new_arrival"
+                                                    {{ request('product_type') == 'new_arrival' ? 'selected' : '' }}>New
+                                                    Arrival</option>
+                                                <option value="upcoming"
+                                                    {{ request('product_type') == 'upcoming' ? 'selected' : '' }}>Upcoming
+                                                    </option>
+                                                @foreach ($productTypes as $type)
+                                                    <option value="{{ $type->id }}"
+                                                        {{ request('product_type') == $type->id ? 'selected' : '' }}>
+                                                        {{ $type->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                         <div class="col-12 col-md-2">
                                             <select name="vendor" id="vendor_filter"
                                                 class="form-control select2 pp-select2">
@@ -1075,11 +1498,30 @@
                                                 @endforeach
                                             </select>
                                         </div>
+                                    @else
+                                        <div class="col-12 col-md-5">
+                                            <select name="product_type" id="product_type_filter"
+                                                class="form-control select2 pp-select2">
+                                                <option value="">Occasion / Type</option>
+                                                <option value="new_arrival"
+                                                    {{ request('product_type') == 'new_arrival' ? 'selected' : '' }}>New
+                                                    Arrival</option>
+                                                <option value="upcoming"
+                                                    {{ request('product_type') == 'upcoming' ? 'selected' : '' }}>Upcoming
+                                                    </option>
+                                                @foreach ($productTypes as $type)
+                                                    <option value="{{ $type->id }}"
+                                                        {{ request('product_type') == $type->id ? 'selected' : '' }}>
+                                                        {{ $type->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     @endif
-                                    <div class="col-12 col-md-1">
+                                    <div class="col-12 col-md-2">
                                         <button type="button" id="reset-filters"
-                                            class="btn pp-btn pp-btn-reset btn-sm shadow-sm w-100">
-                                            <i class="fas fa-redo mr-1"></i>
+                                            class="btn pp-btn pp-btn-reset btn-sm shadow-sm w-100 d-flex align-items-center justify-content-center"
+                                            style="height: 36px;">
+                                            <i class="fas fa-undo mr-1"></i> Reset Filters
                                         </button>
                                     </div>
                                 </div>
@@ -1151,6 +1593,49 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Stock Movement & Velocity Slide-Over Inspector Drawer (Exact Same Structure as Audit Inspector) -->
+    <div class="audit-drawer-backdrop" id="stockMovementDrawerBackdrop"></div>
+    <div class="audit-drawer" id="stockMovementDrawer" style="width: min(860px, 94vw);">
+        {{-- Drawer Header --}}
+        <div class="drawer-header">
+            <div>
+                <div class="d-flex align-items-center mb-1" style="gap: 6px;">
+                    <span class="chip-severity"
+                        style="background: rgba(212, 162, 78, 0.15); color: #b8852a; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Inventory</span>
+                    <span class="chip-module"
+                        style="background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase;">Movement Ledger</span>
+                </div>
+                <h3 class="drawer-header-title">Stock Movement & Consumption Velocity</h3>
+                <p class="drawer-header-sub">Movement history, consumption analysis and customer visibility rules</p>
+            </div>
+            <button type="button" class="drawer-close-btn" id="btn-close-stock-drawer" title="Close (Esc)">
+                <i class="fas fa-times" style="font-size: 16px;"></i>
+            </button>
+        </div>
+
+        {{-- Drawer Body --}}
+        <div class="drawer-body" id="stockMovementDrawerBody">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;">
+                    <span class="sr-only">Loading stock movement data...</span>
+                </div>
+                <div class="mt-3 text-muted font-weight-500" style="font-size: 13px;">
+                    <i class="fas fa-sync fa-spin mr-1 text-primary"></i> Loading stock movement data...
+                </div>
+            </div>
+        </div>
+
+        {{-- Drawer Footer --}}
+        <div class="drawer-footer d-flex align-items-center justify-content-between">
+            <span class="small text-muted font-weight-500">
+                <i class="fas fa-database text-primary mr-1"></i> Inventory Movement Ledger & Customer Visibility Rules
+            </span>
+            <span class="badge badge-light border text-muted px-2 py-1 small" style="font-size: 11px;">
+                Press <kbd style="padding: 1px 4px; font-size: 10px; background: #e2e8f0; color: #334155; border-radius: 3px;">ESC</kbd> to close
+            </span>
         </div>
     </div>
 
@@ -1338,11 +1823,11 @@
                 $('#variant_modal_product_vendor').text(vendorName);
                 $('#quickVariantModalTitle').html(
                     `<i class="fas ${cartType === 'booking' ? 'fa-shopping-basket text-warning' : 'fa-file-invoice text-primary'} mr-2"></i>Select Variants for ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'}`
-                    );
+                );
 
                 $('#quick_variant_modal_tbody').html(
                     '<tr><td colspan="3" class="text-center py-3 text-muted"><div class="spinner-border spinner-border-sm text-warning mr-1"></div> Loading variants...</td></tr>'
-                    );
+                );
                 $('#quickVariantModal').modal('show');
 
                 $.ajax({
@@ -1376,7 +1861,8 @@
                                 }
 
                                 const existingItem = storeItems.find(i => Number(i
-                                    .product_id) === productId && Number(i.variant_id) ===
+                                        .product_id) === productId && Number(i
+                                    .variant_id) ===
                                     Number(v.id));
                                 // Default quantity is 0 on initial add, or keep existing cart quantity if already added
                                 const defaultQty = existingItem ? (parseFloat(existingItem
@@ -1400,13 +1886,13 @@
                         } else {
                             $('#quick_variant_modal_tbody').html(
                                 '<tr><td colspan="3" class="text-center py-3 text-muted">No variants found for this product.</td></tr>'
-                                );
+                            );
                         }
                     },
                     error: function() {
                         $('#quick_variant_modal_tbody').html(
                             '<tr><td colspan="3" class="text-center py-3 text-danger">Failed to load variants.</td></tr>'
-                            );
+                        );
                     }
                 });
             }
@@ -1461,7 +1947,7 @@
                     $(`${targetBtnClass}[data-id="${productId}"]`).removeClass('added').html(defaultLabel);
                     if (window.toastr) toastr.info(
                         `Removed from ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`
-                        );
+                    );
                     $('#quickVariantModal').modal('hide');
 
                     $.ajax({
@@ -1520,7 +2006,7 @@
                     '<i class="fas fa-check"></i>').attr('title', 'Added');
                 if (window.toastr) toastr.success(
                     `Added ${variantsToAdd.length} variant(s) to ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`
-                    );
+                );
                 $('#quickVariantModal').modal('hide');
 
                 // 3. Background MySQL sync
@@ -1815,7 +2301,7 @@
                                 $.each(data, function(i, item) {
                                     $('#sub_category').append(
                                         `<option value="${item.id}">${item.name}</option>`
-                                        );
+                                    );
                                 });
                             }
                         });
@@ -1855,7 +2341,7 @@
                                 $.each(data, function(i, item) {
                                     $('#child_category').append(
                                         `<option value="${item.id}">${item.name}</option>`
-                                        );
+                                    );
                                 });
                             }
                         });
@@ -1919,6 +2405,384 @@
                 fetchProducts(url, true); // Pass true to scroll to top
             });
 
-        })
+            // =========================================================================
+            // SLIDE-OVER STOCK & VELOCITY DRAWER (Exact Same Engine as Audit Inspector)
+            // =========================================================================
+            // Teleport drawer elements directly to <body> so they escape any component stacking context
+            if ($('#stockMovementDrawerBackdrop').parent().not('body').length) {
+                $('body').append($('#stockMovementDrawerBackdrop'), $('#stockMovementDrawer'));
+            }
+
+            function openStockDrawer() {
+                $('#stockMovementDrawer .drawer-body').scrollTop(0);
+                $('#stockMovementDrawerBackdrop').addClass('is-active');
+                $('#stockMovementDrawer').addClass('is-active');
+                $('body').css('overflow', 'hidden');
+            }
+
+            function closeStockDrawer() {
+                $('#stockMovementDrawer').removeClass('is-active');
+                $('#stockMovementDrawerBackdrop').removeClass('is-active');
+                $('body').css('overflow', '');
+            }
+
+            // Close on close button or backdrop click
+            $(document).on('click',
+                '#btn-close-stock-drawer, #stockMovementDrawerBackdrop',
+                function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeStockDrawer();
+                });
+
+            // Click anywhere outside the drawer to close it (with strict guards for SweetAlert2, Select2, and Toasts)
+            $(document).on('click', function(e) {
+                if ($('#stockMovementDrawer').hasClass('is-active')) {
+                    // NEVER close drawer if SweetAlert2 is open or if click target is inside SweetAlert2
+                    if ($(e.target).closest('.swal2-container, .swal2-popup, .swal2-modal, .swal2-backdrop').length || (typeof Swal !== 'undefined' && Swal.isVisible())) {
+                        return;
+                    }
+                    // NEVER close drawer if clicking inside Select2 dropdown or toast notifications
+                    if ($(e.target).closest('.select2-container, .select2-dropdown, #toast-container, .toast').length) {
+                        return;
+                    }
+                    // NEVER close if clicking inside the drawer or the trigger button
+                    if ($(e.target).closest('#stockMovementDrawer').length || $(e.target).closest('.view-stock-movement').length) {
+                        return;
+                    }
+                    closeStockDrawer();
+                }
+            });
+
+            // Prevent clicks inside the drawer from bubbling to the document
+            $(document).on('click', '#stockMovementDrawer', function(e) {
+                e.stopPropagation();
+            });
+
+            // Keyboard ESC key closes drawer, unless SweetAlert2 is currently open
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape' && $('#stockMovementDrawer').hasClass('is-active')) {
+                    if ($('.swal2-container:visible').length > 0 || (typeof Swal !== 'undefined' && Swal.isVisible())) {
+                        return; // Let SweetAlert dismiss itself without closing the drawer
+                    }
+                    closeStockDrawer();
+                }
+            });
+
+            // Open Stock Movement & Velocity Off-Canvas Drawer (Client Voice Module 5 & 6)
+            $('body').on('click', '.view-stock-movement', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                let productId = $(this).data('id');
+                if (!productId) return;
+
+                window.currentStockMovementProductId = productId;
+
+                $('#stockMovementDrawerBody').html(`
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;">
+                            <span class="sr-only">Loading stock flow...</span>
+                        </div>
+                        <div class="mt-3 text-muted font-weight-500" style="font-size: 13px;">
+                            <i class="fas fa-sync fa-spin mr-1 text-primary"></i> Loading product stock inflow & velocity metrics...
+                        </div>
+                    </div>
+                `);
+
+                openStockDrawer();
+
+                let url = "{{ route('admin.products.stock-movement', ':id') }}".replace(':id', productId);
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(html) {
+                        $('#stockMovementDrawerBody').html(html);
+                        initB2bSelect2();
+                    },
+                    error: function() {
+                        $('#stockMovementDrawerBody').html(`
+                            <div class="alert alert-danger text-center my-4">
+                                <i class="fas fa-exclamation-triangle mr-2"></i> Failed to load stock movement data. Please try again.
+                            </div>
+                        `);
+                    }
+                });
+            });
+
+            // Toggle Custom Month / Date range box in Stock Movement Modal
+            $('body').on('click', '#btn-toggle-custom-filter', function() {
+                $('#velocity-custom-filter-box').slideToggle(200);
+            });
+
+            // Handle Velocity Preset Radio Click
+            $('body').on('change', 'input[name="velocity_preset"]', function() {
+                let preset = $(this).val();
+                if (preset === 'custom') {
+                    $('#velocity-custom-filter-box').slideDown(200);
+                    return;
+                }
+                $('#velocity-custom-filter-box').slideUp(200);
+                recalculateVelocityMetrics({
+                    preset: preset
+                });
+            });
+
+            // Handle Custom Month/Year or Date Range Apply
+            $('body').on('click', '#btn-apply-custom-velocity', function() {
+                let month = $('#vel_filter_month').val();
+                let year = $('#vel_filter_year').val();
+                let start_date = $('#vel_filter_start').val();
+                let end_date = $('#vel_filter_end').val();
+
+                recalculateVelocityMetrics({
+                    preset: 'custom',
+                    month: month,
+                    year: year,
+                    start_date: start_date,
+                    end_date: end_date
+                });
+            });
+
+            function recalculateVelocityMetrics(params) {
+                let productId = window.currentStockMovementProductId;
+                if (!productId) return;
+
+                let url = "{{ route('admin.products.velocity-metrics', ':id') }}".replace(':id', productId);
+
+                // Show loading state in velocity badge
+                $('#velocity-label-text').text('Calculating...');
+                $('#velocity-progress-bar').css('opacity', '0.5');
+
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    data: params,
+                    success: function(res) {
+                        if (res.status === 'success' && res.metrics) {
+                            let m = res.metrics;
+                            // Update KPIs
+                            $('#kpi-period-inflow').text(Number(m.inflow_qty).toLocaleString());
+                            $('#kpi-period-sold').text(Number(m.sold_qty).toLocaleString());
+                            $('#kpi-period-inflow-sub').text('In ' + m.period_label);
+
+                            // Update Badge
+                            let badgeHtml = `
+                                <span class="badge ${m.classification.badge} px-3 py-1 font-weight-bold" style="font-size: 12px; border-radius: 20px;">
+                                    <i class="${m.classification.icon} mr-1"></i>
+                                    <span id="velocity-label-text">${m.classification.label}</span>: 
+                                    <span id="velocity-rate-text">${m.sell_through_rate}%</span> Sold
+                                </span>
+                            `;
+                            $('#velocity-badge-container').html(badgeHtml);
+
+                            // Update Progress Bar & Advice
+                            $('#progress-rate-label').text(m.sell_through_rate + '%');
+                            $('#velocity-advice-text').text(m.classification.advice);
+                            $('#velocity-progress-bar')
+                                .css('width', m.sell_through_rate + '%')
+                                .css('background-color', m.classification.bg_color)
+                                .css('opacity', '1')
+                                .attr('aria-valuenow', m.sell_through_rate);
+                        }
+                    },
+                    error: function() {
+                        $('#velocity-label-text').text('Error');
+                        $('#velocity-progress-bar').css('opacity', '1');
+                    }
+                });
+            }
+
+            // Global Select2 initialisation helper for B2B drawer controls
+            function initB2bSelect2() {
+                if (!$.fn.select2) return;
+                $('#stockMovementDrawerBody .b2b-select2').each(function() {
+                    if ($(this).hasClass("select2-hidden-accessible")) {
+                        $(this).select2('destroy');
+                    }
+                    $(this).select2({
+                        dropdownParent: $('#stockMovementDrawer'),
+                        width: '100%'
+                    });
+                });
+            }
+            window.initB2bSelect2 = initB2bSelect2;
+
+            // Recalculate Select2 dimensions whenever Visibility tab is clicked
+            $('body').on('shown.bs.tab', 'a[data-toggle="tab"], a[role="tab"]', function(e) {
+                if ($(e.target).attr('href') === '#tab-visibility' || $(e.target).attr('id') ===
+                    'visibility-tab') {
+                    initB2bSelect2();
+                }
+            });
+
+            // Save B2B Visibility Rule via AJAX (Module 7)
+            $('body').on('click', '#btn-save-b2b-visibility', function(e) {
+                e.preventDefault();
+                let productId = window.currentStockMovementProductId;
+                if (!productId) return;
+
+                let form = $('#form-add-b2b-visibility');
+                let data = form.serialize();
+
+                let url = "{{ route('admin.products.b2b-visibility.store', ':id') }}".replace(':id',
+                    productId);
+                let btn = $(this);
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: data,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(res) {
+                        btn.prop('disabled', false).html(
+                            '<i class="fas fa-save mr-1"></i> Save B2B Rule');
+                        if (res.status === 'success') {
+                            if (window.toastr) toastr.success(res.message);
+                            // Refresh drawer content
+                            let reloadUrl =
+                                "{{ route('admin.products.stock-movement', ':id') }}".replace(
+                                    ':id', productId);
+                            $.get(reloadUrl, function(html) {
+                                $('#stockMovementDrawerBody').html(html);
+                                $('#visibility-tab').tab('show');
+                                initB2bSelect2();
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        btn.prop('disabled', false).html(
+                            '<i class="fas fa-save mr-1"></i> Save B2B Rule');
+                        let msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr
+                            .responseJSON.message : 'Error saving visibility rule';
+                        if (window.toastr) toastr.error(msg);
+                    }
+                });
+            });
+
+            // Delete B2B Visibility Rule via AJAX (Module 7)
+            $('body').on('click', '.btn-delete-b2b-rule', function(e) {
+                e.preventDefault();
+                let btn = $(this);
+                let ruleId = btn.data('id');
+                if (!ruleId) return;
+
+                let executeDelete = function() {
+                    let url = "{{ route('admin.products.b2b-visibility.destroy', ':id') }}".replace(':id', ruleId);
+                    btn.prop('disabled', true);
+
+                    $.ajax({
+                        url: url,
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        success: function(res) {
+                            if (res.status === 'success') {
+                                if (window.toastr) toastr.success(res.message);
+                                $(`#b2b-rule-row-${ruleId}`).fadeOut(300, function() {
+                                    $(this).remove();
+                                    let remainingRows = $('#table-b2b-visibilities tbody tr[id^="b2b-rule-row-"]').length;
+                                    $('#b2b-rules-count-badge').text(remainingRows + ' Rules');
+                                    if (remainingRows === 0) {
+                                        $('#table-b2b-visibilities tbody').html(`
+                                            <tr id="no-b2b-rules-row">
+                                                <td colspan="4" class="text-center py-4 bg-white">
+                                                    <div class="py-2">
+                                                        <div class="mb-2" style="width: 44px; height: 44px; border-radius: 50%; background: #f1f5f9; display: inline-flex; align-items: center; justify-content: center;">
+                                                            <i class="fas fa-shield-alt text-muted" style="font-size: 18px;"></i>
+                                                        </div>
+                                                        <div class="font-weight-bold text-dark" style="font-size: 13px;">Standard Inventory Rules Active</div>
+                                                        <div class="text-muted small mt-1" style="max-width: 400px; margin: 0 auto; font-size: 11px;">
+                                                            No customer overrides set for this item. All buyers and outlets see actual warehouse stock.
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        `);
+                                    }
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            btn.prop('disabled', false);
+                            let msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error deleting rule';
+                            if (window.toastr) toastr.error(msg);
+                        }
+                    });
+                };
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: "Remove B2B Stock Rule?",
+                        text: "This customer/outlet override will be removed. The entity will revert to seeing actual warehouse stock.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#ef4444",
+                        cancelButtonColor: "#64748b",
+                        confirmButtonText: "<i class='fas fa-trash-alt mr-1'></i> Yes, remove it!",
+                        cancelButtonText: "Cancel",
+                        reverseButtons: true,
+                        focusConfirm: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            executeDelete();
+                        }
+                    });
+                } else if (confirm('Are you sure you want to remove this B2B stock rule?')) {
+                    executeDelete();
+                }
+            });
+
+            // Handle Target Scope switching (Company / Outlet / Phone) in B2B Rule tab
+            $('body').on('click', '.b2b-scope-pill', function() {
+                let target = $(this).data('target');
+                $('.b2b-scope-pill').removeClass('active');
+                $(this).addClass('active');
+
+                $('.b2b-scope-container').hide();
+                $('#scope-box-' + target).fadeIn(150, function() {
+                    $('#scope-box-' + target + ' .b2b-select2').select2({
+                        dropdownParent: $('#stockMovementDrawer'),
+                        width: '100%'
+                    });
+                });
+
+                // Clear unselected inputs so only the active scope is submitted
+                if (target === 'company') {
+                    $('#b2b_outlet_id').val('').trigger('change');
+                    $('#b2b_user_id').val('').trigger('change');
+                    $('#b2b_phone').val('');
+                } else if (target === 'outlet') {
+                    $('#b2b_company_id').val('').trigger('change');
+                    $('#b2b_user_id').val('').trigger('change');
+                    $('#b2b_phone').val('');
+                } else if (target === 'phone') {
+                    $('#b2b_company_id').val('').trigger('change');
+                    $('#b2b_outlet_id').val('').trigger('change');
+                }
+            });
+
+            // Auto-fill buyer phone when selecting a registered user
+            $('body').on('change', '#b2b_user_id', function() {
+                let phone = $(this).find(':selected').data('phone');
+                if (phone) {
+                    $('#b2b_phone').val(phone);
+                }
+            });
+
+            // Remove lingering browser focus outline on preset/scope clicks
+            $('body').on('click', '#velocity-preset-group .btn, #b2b-scope-pill-group .btn, #stockMovementDrawer button', function() {
+                $(this).blur();
+                $(this).find('input').blur();
+            });
+
+        });
     </script>
 @endpush
