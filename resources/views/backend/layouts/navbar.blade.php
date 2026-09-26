@@ -6,7 +6,7 @@
         'admin.slider.*',
         'admin.product-types.*',
     );
-    $productsActive = request()->routeIs('admin.products.*', 'admin.units.*', 'admin.colors.*', 'admin.sizes.*');
+    $productsActive = request()->routeIs('admin.products.*', 'admin.units.*', 'admin.colors.*', 'admin.sizes.*', 'admin.reviews.*');
     $inventoryActive = request()->routeIs(
         'admin.inventory-reports.*',
         'admin.stock-adjustments.*',
@@ -1808,6 +1808,7 @@
                         <li><a href="{{ route('admin.products.index') }}"><i class="fas fa-cubes"></i> All
                                 Products</a></li>
                         <li><a href="{{ route('admin.b2b-stock-rules.index') }}"><i class="fas fa-users-cog"></i> Customer Stock Rules</a></li>
+                        <li><a href="{{ route('admin.reviews.index') }}"><i class="fas fa-star-half-alt"></i> Product Reviews</a></li>
                         <li class="sb-submenu-header">Attributes</li>
                         <li><a href="{{ route('admin.units.index') }}"><i class="fas fa-weight-hanging"></i>
                                 Units</a></li>

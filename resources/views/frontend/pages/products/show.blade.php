@@ -304,7 +304,25 @@
                             </div>
 
                             <p class="mt-3 text-sm font-semibold text-slate-700" x-text="reviewCountText"></p>
-                            <p class="mt-1 text-xs text-slate-500">Latest reviews are shown below. Submitting again updates your existing review.</p>
+                            <p class="mt-1 text-xs text-slate-500">Verified outlet feedback. Click any rating bar below to filter.</p>
+
+                            {{-- Rating-wise Breakdown Progress Bars --}}
+                            <div class="mt-4 space-y-1.5 border-t border-slate-200/80 pt-3" x-show="totalReviews > 0">
+                                <template x-for="item in [5, 4, 3, 2, 1]" :key="`breakdown-${item}`">
+                                    <button type="button"
+                                        @click="filterByRating(item)"
+                                        class="group flex w-full items-center gap-2 rounded-lg px-2 py-1 text-xs transition"
+                                        :class="activeRatingFilter === item ? 'bg-blue-50 font-bold text-blue-700 ring-1 ring-blue-300' : 'text-slate-600 hover:bg-slate-100'">
+                                        <span class="w-8 text-left font-semibold" x-text="`${item} ★`"></span>
+                                        <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
+                                            <div class="h-full rounded-full transition-all duration-300"
+                                                :class="activeRatingFilter === item ? 'bg-blue-600' : 'bg-amber-400'"
+                                                :style="`width: ${breakdown[item]?.percentage || 0}%`"></div>
+                                        </div>
+                                        <span class="w-10 text-right font-medium text-slate-400" x-text="`${breakdown[item]?.count || 0}`"></span>
+                                    </button>
+                                </template>
+                            </div>
                         </div>
 
                         <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
@@ -398,6 +416,14 @@
                                 <div>
                                     <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">All Reviews</p>
                                     <h3 class="mt-1 text-lg font-bold text-slate-900">What customers are saying</h3>
+                                    <div class="mt-1 flex items-center gap-2" x-show="activeRatingFilter !== null">
+                                        <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 border border-blue-200">
+                                            Showing only <span x-text="activeRatingFilter" class="mx-0.5"></span>★ reviews
+                                        </span>
+                                        <button type="button" @click="filterByRating(null)" class="text-xs font-medium text-slate-500 hover:text-slate-900 underline">
+                                            Clear filter
+                                        </button>
+                                    </div>
                                 </div>
                                 <button type="button"
                                     @click="fetchReviews()"
@@ -425,6 +451,9 @@
                                             <div>
                                                 <div class="flex flex-wrap items-center gap-2">
                                                     <p class="text-sm font-bold text-slate-900" x-text="review.user"></p>
+                                                    <span x-show="review.outlet" class="text-xs text-slate-500 font-normal">
+                                                        (<span x-text="review.outlet"></span>)
+                                                    </span>
                                                     <span x-show="isOwnReview(review.id)"
                                                         class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">
                                                         You
@@ -495,6 +524,8 @@
                 starRange: [1, 2, 3, 4, 5],
                 averageRating: 0,
                 totalReviews: 0,
+                breakdown: {},
+                activeRatingFilter: null,
                 reviews: [],
                 userReview: null,
                 form: {
@@ -514,6 +545,15 @@
                     if (this.config.canSubmit && this.config.userReviewUrl) {
                         this.fetchUserReview();
                     }
+                },
+
+                filterByRating(star) {
+                    if (this.activeRatingFilter === star || star === null) {
+                        this.activeRatingFilter = null;
+                    } else {
+                        this.activeRatingFilter = star;
+                    }
+                    this.fetchReviews();
                 },
 
                 get averageRatingDisplay() {
@@ -587,15 +627,21 @@
                     this.loadError = '';
 
                     try {
-                        const payload = await this.request(this.config.listUrl);
+                        let url = this.config.listUrl;
+                        if (this.activeRatingFilter) {
+                            url += (url.includes('?') ? '&' : '?') + 'rating=' + this.activeRatingFilter;
+                        }
+                        const payload = await this.request(url);
                         this.averageRating = Number(payload?.average_rating || 0);
                         this.totalReviews = Number(payload?.total_reviews || 0);
+                        this.breakdown = payload?.breakdown || {};
                         this.reviews = Array.isArray(payload?.reviews) ? payload.reviews : [];
                     } catch (error) {
                         this.loadError = error.message || 'Unable to load reviews right now.';
                         this.reviews = [];
                         this.averageRating = 0;
                         this.totalReviews = 0;
+                        this.breakdown = {};
                     } finally {
                         this.loadingReviews = false;
                     }

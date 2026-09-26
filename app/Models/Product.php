@@ -143,26 +143,55 @@ class Product extends Model
     }
 
     /**
-     * Get average rating for product
+     * Get average rating for product (published only)
      */
     public function getAverageRatingAttribute()
     {
         try {
-            return $this->reviews()->avg('rating') ?? 0;
+            return round((float) ($this->reviews()->where('status', 1)->avg('rating') ?? 0), 1);
         } catch (\Exception $e) {
             return 0;
         }
     }
 
     /**
-     * Get total review count
+     * Get total review count (published only)
      */
     public function getTotalReviewsAttribute()
     {
         try {
-            return $this->reviews()->count();
+            return (int) ($this->reviews()->where('status', 1)->count());
         } catch (\Exception $e) {
             return 0;
+        }
+    }
+
+    /**
+     * Get detailed breakdown per star rating (5, 4, 3, 2, 1)
+     */
+    public function getRatingBreakdownAttribute(): array
+    {
+        try {
+            $total = $this->total_reviews;
+            $counts = $this->reviews()->where('status', 1)
+                ->selectRaw('rating, count(*) as count')
+                ->groupBy('rating')
+                ->pluck('count', 'rating')
+                ->toArray();
+
+            $breakdown = [];
+            for ($star = 5; $star >= 1; $star--) {
+                $count = (int) ($counts[$star] ?? 0);
+                $percentage = $total > 0 ? round(($count / $total) * 100, 1) : 0;
+                $breakdown[$star] = [
+                    'star' => $star,
+                    'count' => $count,
+                    'percentage' => $percentage,
+                ];
+            }
+            return $breakdown;
+        } catch (\Exception $e) {
+            return [];
         }
     }
 

@@ -14,10 +14,12 @@ class Review extends Model
         'user_id',
         'rating',
         'comment',
+        'status',
     ];
 
     protected $casts = [
         'rating' => 'integer',
+        'status' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -39,11 +41,34 @@ class Review extends Model
     }
 
     /**
+     * Scope: Only published / active reviews
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('status', 1);
+    }
+
+    /**
+     * Scope: Filter by rating
+     */
+    public function scopeRating($query, $rating)
+    {
+        if ($rating) {
+            return $query->where('rating', (int) $rating);
+        }
+        return $query;
+    }
+
+    /**
      * Scope: Get reviews for a specific product
      */
-    public function scopeForProduct($query, $productId)
+    public function scopeForProduct($query, $productId, bool $onlyPublished = false)
     {
-        return $query->where('product_id', $productId)->orderBy('created_at', 'desc');
+        $query->where('product_id', $productId);
+        if ($onlyPublished) {
+            $query->where('status', 1);
+        }
+        return $query->orderBy('created_at', 'desc');
     }
 
     /**

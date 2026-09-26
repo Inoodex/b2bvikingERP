@@ -654,6 +654,9 @@ Route::middleware('auth')->group(function () {
             Route::get('reviews/user-product/{productId}', 'getUserProductReview')->name('reviews.user-product');
             Route::post('reviews/store', 'store')->name('reviews.store');
             Route::get('reviews/product/{productId}', 'getProductReviews')->name('reviews.product');
+            Route::get('reviews/best-rated', 'bestRatedProducts')->name('reviews.best-rated');
+            Route::get('reviews/show/{review}', 'show')->name('reviews.show');
+            Route::post('reviews/change-status', 'changeStatus')->name('reviews.change-status');
             Route::delete('reviews/{reviewId}', 'destroy')->name('reviews.destroy');
             Route::get('reviews', 'index')->name('reviews.index');
         });

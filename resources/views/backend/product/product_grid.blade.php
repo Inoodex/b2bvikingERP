@@ -96,7 +96,10 @@
                     @endphp
 
                     <div class="d-flex align-items-center mb-2" style="margin-top: 3px;">
-                        <div class="d-flex align-items-center" style="gap: 2px;">
+                        <a href="{{ route('admin.reviews.index', ['product_id' => $product->id]) }}" 
+                           class="d-flex align-items-center text-decoration-none" 
+                           style="gap: 2px;" 
+                           title="{{ $reviewCount > 0 ? 'View ' . $reviewCount . ' review(s) for this product' : 'Inspect reviews' }}">
                             @for ($i = 1; $i <= 5; $i++)
                                 <i class="fas fa-star"
                                     style="color: {{ $i <= round($avgRating) ? '#f59e0b' : '#d1d5db' }}; font-size: 9px;"></i>
@@ -105,7 +108,7 @@
                                 <span
                                     style="color: var(--pp-muted); font-size: 9px; font-weight: 600; margin-left: 3px;">({{ $reviewCount }})</span>
                             @endif
-                        </div>
+                        </a>
                     </div>
 
                     <div class="pp-price-box">
