@@ -35,11 +35,11 @@
                                 </div> --}}
                                 <div class="row">
                                     <div class="form-group col-md-6">
-                                        <label>Category Name</label>
+                                        <label>Category Name <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" name="name"
-                                            value="{{ $category->name }}">
+                                            value="{{ old('name', $category->name) }}" required>
                                     </div>
-                                    <div class="form-group col-md-6">
+                                    <div class="form-group col-md-3">
                                         <label for="inputState">Status</label>
                                         <select id="inputState" class="form-control" name="status">
                                             <option {{ $category->status == 1 ? 'selected' : '' }} value="1">Active
@@ -48,12 +48,31 @@
                                             </option>
                                         </select>
                                     </div>
-                                    <div class="form-group col-md-6">
+                                    <div class="form-group col-md-3">
                                         <label for="frontendShow">Show on Home</label>
                                         <select id="frontendShow" class="form-control" name="frontend_show">
                                             <option value="1" {{ $category->frontend_show ? 'selected' : '' }}>On</option>
                                             <option value="0" {{ !$category->frontend_show ? 'selected' : '' }}>Off</option>
                                         </select>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label>
+                                            <i class="fas fa-barcode text-primary mr-1"></i> GS1 GPC Brick Code (8 Digits)
+                                            <a href="https://gpc-browser.gs1.org/" target="_blank" class="badge badge-info ml-1" style="font-size: 11px;" title="Lookup official GS1 code">
+                                                <i class="fas fa-external-link-alt"></i> GS1 Browser
+                                            </a>
+                                        </label>
+                                        <input type="text" class="form-control font-weight-bold" name="gpc_code"
+                                            placeholder="e.g. 10001363" maxlength="20"
+                                            value="{{ old('gpc_code', $category->gpc_code) }}">
+                                        <small class="form-text text-muted">Used as prefix for all barcode labels under this category (e.g. 10001363 for Apparel).</small>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label>GS1 GPC Classification Title</label>
+                                        <input type="text" class="form-control" name="gpc_title"
+                                            placeholder="e.g. Clothing - Tops/Shirts/Apparel"
+                                            value="{{ old('gpc_title', $category->gpc_title) }}">
+                                        <small class="form-text text-muted">Official GS1 Brick name or descriptive taxonomy title.</small>
                                     </div>
                                 </div>
                                 <div class="text-right">

@@ -11,6 +11,7 @@ use App\Http\Requests\Category\CategoryToggleFrontendShowRequest;
 use App\Http\Requests\Category\CategoryToggleStatusRequest;
 use App\Http\Requests\Category\CategoryUpdateRequest;
 use App\Models\Category;
+use App\Services\Barcode\Gs1TaxonomyResolver;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -40,9 +41,20 @@ class CategoryController extends Controller
      */
     public function store(CategoryCreateRequest $request): RedirectResponse
     {
+        $gpcCode = $request->validated('gpc_code');
+        $gpcTitle = $request->validated('gpc_title');
+
+        if (empty($gpcCode)) {
+            $resolved = app(Gs1TaxonomyResolver::class)->resolve($request->validated('name'));
+            $gpcCode = $resolved['code'];
+            $gpcTitle = $resolved['title'];
+        }
+
         Category::create([
             'name' => $request->validated('name'),
             'slug' => Str::slug($request->validated('name')),
+            'gpc_code' => $gpcCode,
+            'gpc_title' => $gpcTitle,
             'status' => (bool) $request->validated('status'),
             'frontend_show' => (bool) $request->validated('frontend_show', false),
         ]);
@@ -65,9 +77,20 @@ class CategoryController extends Controller
      */
     public function update(CategoryUpdateRequest $request, Category $category): RedirectResponse
     {
+        $gpcCode = $request->validated('gpc_code');
+        $gpcTitle = $request->validated('gpc_title');
+
+        if (empty($gpcCode)) {
+            $resolved = app(Gs1TaxonomyResolver::class)->resolve($request->validated('name'));
+            $gpcCode = $resolved['code'];
+            $gpcTitle = $resolved['title'];
+        }
+
         $category->update([
             'name' => $request->validated('name'),
             'slug' => Str::slug($request->validated('name')),
+            'gpc_code' => $gpcCode,
+            'gpc_title' => $gpcTitle,
             'status' => (bool) $request->validated('status'),
             'frontend_show' => (bool) $request->validated('frontend_show', false),
         ]);

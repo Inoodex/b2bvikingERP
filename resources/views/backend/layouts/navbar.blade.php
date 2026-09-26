@@ -1,1199 +1,1747 @@
 @php
-  $categoriesActive = request()->routeIs('admin.category.*', 'admin.sub-category.*', 'admin.child-category.*', 'admin.slider.*', 'admin.product-types.*');
-  $productsActive   = request()->routeIs('admin.products.*', 'admin.units.*', 'admin.colors.*', 'admin.sizes.*');
-  $inventoryActive  = request()->routeIs('admin.inventory-reports.*', 'admin.stock-adjustments.*', 'admin.stock-transfers.*', 'admin.stock-ledger.*', 'admin.stock-batches.*', 'admin.month-end-snapshots.*');
-  $ordersActive     = request()->routeIs('admin.orders.*', 'admin.sales-orders.*', 'admin.sales-quotations.*', 'admin.custom-product-requests.*', 'admin.product-requests.*', 'admin.delivery-orders.*', 'admin.sales-returns.*', 'admin.credit-notes.*', 'admin.pricelists.*', 'admin.coupons.*', 'admin.gift-cards.*');
-  $purchaseActive   = request()->routeIs('admin.bookings.*', 'admin.purchases.*');
-  $procurementActive = request()->routeIs('admin.rfqs.*', 'admin.purchase-orders.*', 'admin.letters-of-credit.*', 'admin.shipments.*', 'admin.goods-receipts.*', 'admin.vendor-returns.*');
-  $reportsActive    = request()->routeIs('admin.reports.*', 'admin.purchase-reports.*', 'admin.vendor-ledger.*', 'admin.accounts.index', 'admin.accounts.vendor-payments.index');
-  $accountsActive   = (request()->routeIs('admin.accounts.*', 'admin.sales-invoices.*', 'admin.customer-payments.*', 'admin.vendor-bills.*', 'admin.purchase-payments.*', 'admin.chart-of-accounts.*', 'admin.fiscal-years.*', 'admin.bank-accounts.*', 'admin.bank-reconciliation.*', 'admin.petty-cash.*', 'admin.fund-transfers.*', 'admin.assets.*', 'admin.journal-vouchers.*')) && !request()->routeIs('admin.accounts.index', 'admin.accounts.vendor-payments.index');
-  $paymentsActive   = request()->routeIs('admin.payments.*');
-  $brandsActive     = request()->routeIs('admin.brand.*');
-  $vendorsActive    = request()->routeIs('admin.vendor.*');
-  $masterActive     = request()->routeIs('admin.master.*');
-  $systemActive     = request()->routeIs('admin.users.*', 'admin.role.*', 'admin.permission.*', 'admin.pricing-rules.*', 'admin.taxes.*', 'admin.discounts.*', 'admin.document-sequences.*', 'admin.products.announcement.*', 'admin.settings.*', 'admin.payment-settings.*', 'admin.backups.*', 'admin.recycle-bin.*');
+    $categoriesActive = request()->routeIs(
+        'admin.category.*',
+        'admin.sub-category.*',
+        'admin.child-category.*',
+        'admin.slider.*',
+        'admin.product-types.*',
+    );
+    $productsActive = request()->routeIs('admin.products.*', 'admin.units.*', 'admin.colors.*', 'admin.sizes.*');
+    $inventoryActive = request()->routeIs(
+        'admin.inventory-reports.*',
+        'admin.stock-adjustments.*',
+        'admin.stock-transfers.*',
+        'admin.stock-ledger.*',
+        'admin.stock-batches.*',
+        'admin.month-end-snapshots.*',
+    );
+    $ordersActive = request()->routeIs(
+        'admin.orders.*',
+        'admin.sales-orders.*',
+        'admin.sales-quotations.*',
+        'admin.custom-product-requests.*',
+        'admin.product-requests.*',
+        'admin.delivery-orders.*',
+        'admin.sales-returns.*',
+        'admin.credit-notes.*',
+        'admin.pricelists.*',
+        'admin.coupons.*',
+        'admin.gift-cards.*',
+    );
+    $purchaseActive = request()->routeIs('admin.bookings.*', 'admin.purchases.*');
+    $procurementActive = request()->routeIs(
+        'admin.rfqs.*',
+        'admin.purchase-orders.*',
+        'admin.letters-of-credit.*',
+        'admin.shipments.*',
+        'admin.goods-receipts.*',
+        'admin.vendor-returns.*',
+    );
+    $reportsActive = request()->routeIs(
+        'admin.reports.*',
+        'admin.purchase-reports.*',
+        'admin.vendor-ledger.*',
+        'admin.accounts.index',
+        'admin.accounts.vendor-payments.index',
+    );
+    $accountsActive =
+        request()->routeIs(
+            'admin.accounts.*',
+            'admin.sales-invoices.*',
+            'admin.customer-payments.*',
+            'admin.vendor-bills.*',
+            'admin.purchase-payments.*',
+            'admin.chart-of-accounts.*',
+            'admin.fiscal-years.*',
+            'admin.bank-accounts.*',
+            'admin.bank-reconciliation.*',
+            'admin.petty-cash.*',
+            'admin.fund-transfers.*',
+            'admin.assets.*',
+            'admin.journal-vouchers.*',
+        ) && !request()->routeIs('admin.accounts.index', 'admin.accounts.vendor-payments.index');
+    $paymentsActive = request()->routeIs('admin.payments.*');
+    $brandsActive = request()->routeIs('admin.brand.*');
+    $vendorsActive = request()->routeIs('admin.vendor.*');
+    $masterActive = request()->routeIs('admin.master.*');
+    $systemActive = request()->routeIs(
+        'admin.users.*',
+        'admin.role.*',
+        'admin.permission.*',
+        'admin.pricing-rules.*',
+        'admin.taxes.*',
+        'admin.discounts.*',
+        'admin.document-sequences.*',
+        'admin.products.announcement.*',
+        'admin.settings.*',
+        'admin.payment-settings.*',
+        'admin.backups.*',
+        'admin.recycle-bin.*',
+    );
 @endphp
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
 <style>
-:root {
-  --sb-width: 268px;
-  --sb-width-collapsed: 80px;
-  --tb-height: 68px;
-  --tb-height-mobile: 58px;
+    :root {
+        --sb-width: 268px;
+        --sb-width-collapsed: 80px;
+        --tb-height: 68px;
+        --tb-height-mobile: 58px;
 
-  /* ---- Premium brushed-gold on deep navy ---- */
-  --nb-bg: #0a0e1a;
-  --nb-bg-2: #0d1220;
-  --nb-surface: #131a2b;
-  --nb-surface-2: #161e33;
-  --nb-border: rgba(201, 168, 106, 0.10);
-  --nb-border-strong: rgba(201, 168, 106, 0.22);
+        /* ---- Premium brushed-gold on deep navy ---- */
+        --nb-bg: #0a0e1a;
+        --nb-bg-2: #0d1220;
+        --nb-surface: #131a2b;
+        --nb-surface-2: #161e33;
+        --nb-border: rgba(201, 168, 106, 0.10);
+        --nb-border-strong: rgba(201, 168, 106, 0.22);
 
-  --nb-gold: #cda05a;
-  --nb-gold-bright: #e3bd7c;
-  --nb-gold-soft: rgba(205, 160, 90, 0.12);
-  --nb-gold-glow: rgba(205, 160, 90, 0.45);
+        --nb-gold: #cda05a;
+        --nb-gold-bright: #e3bd7c;
+        --nb-gold-soft: rgba(205, 160, 90, 0.12);
+        --nb-gold-glow: rgba(205, 160, 90, 0.45);
 
-  --nb-text: rgba(248, 246, 240, 0.96);
-  --nb-muted: rgba(226, 220, 205, 0.40);
-  --nb-muted-2: rgba(226, 220, 205, 0.60);
+        --nb-text: rgba(248, 246, 240, 0.96);
+        --nb-muted: rgba(226, 220, 205, 0.40);
+        --nb-muted-2: rgba(226, 220, 205, 0.60);
 
-  --nb-danger: #e2685f;
-  --nb-danger-soft: rgba(226, 104, 95, 0.12);
+        --nb-danger: #e2685f;
+        --nb-danger-soft: rgba(226, 104, 95, 0.12);
 
-  --nb-font-display: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
-  --nb-font-body: 'Inter', 'Segoe UI', sans-serif;
+        --nb-font-display: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+        --nb-font-body: 'Inter', 'Segoe UI', sans-serif;
 
-  --nb-shadow-lg: 0 24px 60px -12px rgba(0, 0, 0, 0.65), 0 4px 16px rgba(0, 0, 0, 0.35);
-  --nb-shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.3);
+        --nb-shadow-lg: 0 24px 60px -12px rgba(0, 0, 0, 0.65), 0 4px 16px rgba(0, 0, 0, 0.35);
+        --nb-shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.3);
 
-  /* ---- Glass layer ---- */
-  --glass-bg: rgba(19, 24, 41, 0.55);
-  --glass-bg-strong: rgba(24, 30, 50, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.09);
-  --glass-highlight: rgba(255, 255, 255, 0.14);
-  --glass-blur: blur(22px) saturate(160%);
-}
+        /* ---- Glass layer ---- */
+        --glass-bg: rgba(19, 24, 41, 0.55);
+        --glass-bg-strong: rgba(24, 30, 50, 0.72);
+        --glass-border: rgba(255, 255, 255, 0.09);
+        --glass-highlight: rgba(255, 255, 255, 0.14);
+        --glass-blur: blur(22px) saturate(160%);
+    }
 
-*, *::before, *::after { box-sizing: border-box; }
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
 
-body {
-  padding-left: var(--sb-width);
-  padding-top: var(--tb-height);
-  transition: padding-left 0.15s ease;
-  background: #eef0f4;
-  overflow-x: hidden;
-  font-family: var(--nb-font-body);
-  position: relative;
-}
+    body {
+        padding-left: var(--sb-width);
+        padding-top: var(--tb-height);
+        transition: padding-left 0.15s ease;
+        background: #eef0f4;
+        overflow-x: hidden;
+        font-family: var(--nb-font-body);
+        position: relative;
+    }
 
-/* Ambient aurora glow — sits behind the glass sidebar/topbar so the blur has depth to pick up */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(560px 420px at -6% -8%, rgba(205, 160, 90, 0.35), transparent 60%),
-    radial-gradient(480px 480px at 18% 55%, rgba(88, 101, 242, 0.16), transparent 65%),
-    radial-gradient(520px 420px at 4% 96%, rgba(205, 160, 90, 0.20), transparent 60%),
-    #0a0e1a;
-  opacity: 0.9;
-}
+    /* Ambient aurora glow — sits behind the glass sidebar/topbar so the blur has depth to pick up */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background:
+            radial-gradient(560px 420px at -6% -8%, rgba(205, 160, 90, 0.35), transparent 60%),
+            radial-gradient(480px 480px at 18% 55%, rgba(88, 101, 242, 0.16), transparent 65%),
+            radial-gradient(520px 420px at 4% 96%, rgba(205, 160, 90, 0.20), transparent 60%),
+            #0a0e1a;
+        opacity: 0.9;
+    }
 
-.main-wrapper {
-  max-width: 100% !important;
-  width: 100% !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100vh - var(--tb-height));
-}
-.main-content {
-  background: #fff;
-  flex: 1;
-  padding: 0 26px 26px !important;
-  border-radius: 0;
-  margin: 0;
-  box-shadow: none;
-}
+    .main-wrapper {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - var(--tb-height));
+    }
 
-.main-footer {
-  padding-left: calc(var(--sb-width) + 28px);
-  padding-right: 28px;
-  background: transparent;
-  transition: padding-left 0.3s cubic-bezier(.4,0,.2,1);
-}
-.main-footer .footer-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px 20px;
-  padding: 18px 28px;
-  background: linear-gradient(145deg, rgba(13, 18, 32, 0.85), rgba(10, 14, 26, 0.94));
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 16px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px -12px rgba(0,0,0,0.3);
-  position: relative;
-  width: 100%;
-}
-.main-footer .footer-inner::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1.5px;
-  background: linear-gradient(90deg, transparent 5%, rgba(205,160,90,0.3) 30%, rgba(227,189,124,0.5) 50%, rgba(205,160,90,0.3) 70%, transparent 95%);
-}
-.main-footer a { color: #e3bd7c; text-decoration: none; font-weight: 600; font-size: 13px; transition: color 0.2s; }
-.main-footer a:hover { color: #f5d6a0; }
-.main-footer .footer-left { color: rgba(248,246,240,0.5); font-size: 13px; display: flex; align-items: center; gap: 6px; line-height: 1.4; }
-.main-footer .footer-left a { font-size: 13px; }
-.main-footer .footer-center { display: flex; align-items: center; gap: 6px; }
-.main-footer .footer-copyright { color: rgba(248,246,240,0.3); font-size: 12px; font-weight: 500; letter-spacing: 0.3px; line-height: 1.4; }
-.main-footer .footer-right { color: rgba(248,246,240,0.5); font-size: 13px; display: flex; align-items: center; gap: 6px; line-height: 1.4; }
-.main-footer .footer-right a { font-size: 13px; }
+    .main-content {
+        background: #fff;
+        flex: 1;
+        padding: 0 26px 26px !important;
+        border-radius: 0;
+        margin: 0;
+        box-shadow: none;
+    }
 
-body.sidebar-collapsed { padding-left: 0; }
-body.sidebar-collapsed .main-footer { padding-left: 28px; }
+    .main-footer {
+        padding-left: calc(var(--sb-width) + 28px);
+        padding-right: 28px;
+        background: transparent;
+        transition: padding-left 0.3s cubic-bezier(.4, 0, .2, 1);
+    }
 
-@media (max-width: 991.98px) {
-  body { padding-left: 0 !important; padding-top: calc(var(--tb-height-mobile) + env(safe-area-inset-top)); }
-  .main-wrapper { min-height: calc(100vh - var(--tb-height-mobile) - env(safe-area-inset-top)); }
-  .main-footer { padding-left: 16px !important; padding-right: 16px; }
-  .main-footer .footer-inner { padding: 14px 18px; }
-}
+    .main-footer .footer-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px 20px;
+        padding: 18px 28px;
+        background: linear-gradient(145deg, rgba(13, 18, 32, 0.85), rgba(10, 14, 26, 0.94));
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 32px -12px rgba(0, 0, 0, 0.3);
+        position: relative;
+        width: 100%;
+    }
 
-@media (max-width: 767.98px) {
-  .main-footer .footer-inner {
-    flex-direction: column;
-    text-align: center;
-    padding: 14px 18px;
-    gap: 6px;
-  }
-  .main-footer .footer-center { order: -1; }
-  .main-footer .footer-left,
-  .main-footer .footer-right { justify-content: center; }
-}
+    .main-footer .footer-inner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1.5px;
+        background: linear-gradient(90deg, transparent 5%, rgba(205, 160, 90, 0.3) 30%, rgba(227, 189, 124, 0.5) 50%, rgba(205, 160, 90, 0.3) 70%, transparent 95%);
+    }
 
-@media (max-width: 374.98px) {
-  .main-footer { padding-left: 12px !important; padding-right: 12px; }
-  .main-footer .footer-inner { padding: 12px 14px; border-radius: 12px; }
-  .main-footer a { font-size: 11.5px; }
-  .main-footer .footer-left,
-  .main-footer .footer-right,
-  .main-footer .footer-copyright { font-size: 11px; }
-}
+    .main-footer a {
+        color: #e3bd7c;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+        transition: color 0.2s;
+    }
 
-/* ========================================
+    .main-footer a:hover {
+        color: #f5d6a0;
+    }
+
+    .main-footer .footer-left {
+        color: rgba(248, 246, 240, 0.5);
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        line-height: 1.4;
+    }
+
+    .main-footer .footer-left a {
+        font-size: 13px;
+    }
+
+    .main-footer .footer-center {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .main-footer .footer-copyright {
+        color: rgba(248, 246, 240, 0.3);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+        line-height: 1.4;
+    }
+
+    .main-footer .footer-right {
+        color: rgba(248, 246, 240, 0.5);
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        line-height: 1.4;
+    }
+
+    .main-footer .footer-right a {
+        font-size: 13px;
+    }
+
+    body.sidebar-collapsed {
+        padding-left: 0;
+    }
+
+    body.sidebar-collapsed .main-footer {
+        padding-left: 28px;
+    }
+
+    @media (max-width: 991.98px) {
+        body {
+            padding-left: 0 !important;
+            padding-top: calc(var(--tb-height-mobile) + env(safe-area-inset-top));
+        }
+
+        .main-wrapper {
+            min-height: calc(100vh - var(--tb-height-mobile) - env(safe-area-inset-top));
+        }
+
+        .main-footer {
+            padding-left: 16px !important;
+            padding-right: 16px;
+        }
+
+        .main-footer .footer-inner {
+            padding: 14px 18px;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .main-footer .footer-inner {
+            flex-direction: column;
+            text-align: center;
+            padding: 14px 18px;
+            gap: 6px;
+        }
+
+        .main-footer .footer-center {
+            order: -1;
+        }
+
+        .main-footer .footer-left,
+        .main-footer .footer-right {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 374.98px) {
+        .main-footer {
+            padding-left: 12px !important;
+            padding-right: 12px;
+        }
+
+        .main-footer .footer-inner {
+            padding: 12px 14px;
+            border-radius: 12px;
+        }
+
+        .main-footer a {
+            font-size: 11.5px;
+        }
+
+        .main-footer .footer-left,
+        .main-footer .footer-right,
+        .main-footer .footer-copyright {
+            font-size: 11px;
+        }
+    }
+
+    /* ========================================
    TOPBAR
    ======================================== */
 
-.topbar {
-  position: fixed;
-  top: 0;
-  left: var(--sb-width);
-  right: 0;
-  height: var(--tb-height);
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--glass-border);
-  box-shadow: var(--nb-shadow-sm), inset 0 1px 0 var(--glass-highlight);
-  z-index: 1030;
-  display: flex;
-  align-items: center;
-  padding: 0 22px;
-  transition: left 0.15s ease;
-}
+    .topbar {
+        position: fixed;
+        top: 0;
+        left: var(--sb-width);
+        right: 0;
+        height: var(--tb-height);
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border-bottom: 1px solid var(--glass-border);
+        box-shadow: var(--nb-shadow-sm), inset 0 1px 0 var(--glass-highlight);
+        z-index: 1030;
+        display: flex;
+        align-items: center;
+        padding: 0 22px;
+        transition: left 0.15s ease;
+    }
 
-.topbar::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; bottom: -1px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--nb-gold-glow) 18%, transparent 40%);
-  opacity: 0.6;
-}
+    .topbar::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -1px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--nb-gold-glow) 18%, transparent 40%);
+        opacity: 0.6;
+    }
 
-body.sidebar-collapsed .topbar { left: 0; }
+    body.sidebar-collapsed .topbar {
+        left: 0;
+    }
 
-.hamburger-toggle {
-  position: relative;
-  color: var(--nb-text) !important;
-  padding: 9px 11px;
-  border-radius: 10px;
-  transition: all 0.22s cubic-bezier(.2,.8,.2,1);
-  font-size: 17px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--glass-border);
-  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 2px 8px rgba(0,0,0,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  overflow: hidden;
-}
+    .hamburger-toggle {
+        position: relative;
+        color: var(--nb-text) !important;
+        padding: 9px 11px;
+        border-radius: 10px;
+        transition: all 0.22s cubic-bezier(.2, .8, .2, 1);
+        font-size: 17px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        box-shadow: inset 0 1px 0 var(--glass-highlight), 0 2px 8px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
 
-.hamburger-toggle:hover {
-  background: var(--nb-gold-soft);
-  border-color: var(--nb-border-strong);
-  color: var(--nb-gold-bright) !important;
-  transform: translateY(-1px);
-  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 20px rgba(205, 160, 90, 0.22);
-}
-.hamburger-toggle:active { transform: translateY(0) scale(0.94); }
+    .hamburger-toggle:hover {
+        background: var(--nb-gold-soft);
+        border-color: var(--nb-border-strong);
+        color: var(--nb-gold-bright) !important;
+        transform: translateY(-1px);
+        box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 20px rgba(205, 160, 90, 0.22);
+    }
 
-.topbar-title {
-  font-family: var(--nb-font-display);
-  color: var(--nb-muted-2);
-  font-size: 12.5px;
-  font-weight: 600;
-  margin-left: 18px;
-  letter-spacing: 0.4px;
-}
+    .hamburger-toggle:active {
+        transform: translateY(0) scale(0.94);
+    }
 
-.navbar-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: auto;
-  height: 100%;
-  padding-right: 4px;
-}
+    .topbar-title {
+        font-family: var(--nb-font-display);
+        color: var(--nb-muted-2);
+        font-size: 12.5px;
+        font-weight: 600;
+        margin-left: 18px;
+        letter-spacing: 0.4px;
+    }
 
-.navbar-right > li { display: flex; align-items: center; height: 100%; position: relative; }
+    .navbar-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+        height: 100%;
+        padding-right: 4px;
+    }
 
-.divider-vertical {
-  width: 1px;
-  height: 26px;
-  background: linear-gradient(180deg, transparent, var(--nb-border-strong), transparent);
-  margin: 0 6px;
-}
+    .navbar-right>li {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        position: relative;
+    }
 
-/* Notification dropdown */
-.notif-dropdown {
-  width: 372px;
-  max-width: 90vw;
-  padding: 0 !important;
-  border-radius: 18px !important;
-  overflow: hidden;
-}
+    .divider-vertical {
+        width: 1px;
+        height: 26px;
+        background: linear-gradient(180deg, transparent, var(--nb-border-strong), transparent);
+        margin: 0 6px;
+    }
 
-.notif-dropdown::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--glass-highlight) 30%, var(--glass-highlight) 70%, transparent);
-  z-index: 2;
-}
+    /* Notification dropdown */
+    .notif-dropdown {
+        width: 372px;
+        max-width: 90vw;
+        padding: 0 !important;
+        border-radius: 18px !important;
+        overflow: hidden;
+    }
 
-.notif-dropdown .notif-header {
-  position: relative;
-  padding: 18px 20px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--glass-border);
-  background: linear-gradient(180deg, rgba(205,160,90,0.08), transparent);
-}
+    .notif-dropdown::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--glass-highlight) 30%, var(--glass-highlight) 70%, transparent);
+        z-index: 2;
+    }
 
-.notif-dropdown .notif-header .notif-title {
-  font-family: var(--nb-font-display);
-  font-size: 14.5px;
-  font-weight: 700;
-  color: var(--nb-text);
-  letter-spacing: 0.2px;
-}
+    .notif-dropdown .notif-header {
+        position: relative;
+        padding: 18px 20px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--glass-border);
+        background: linear-gradient(180deg, rgba(205, 160, 90, 0.08), transparent);
+    }
 
-.notif-dropdown .notif-header .notif-mark-read {
-  font-size: 11px;
-  color: var(--nb-gold-bright);
-  text-decoration: none;
-  font-weight: 600;
-  transition: opacity 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
+    .notif-dropdown .notif-header .notif-title {
+        font-family: var(--nb-font-display);
+        font-size: 14.5px;
+        font-weight: 700;
+        color: var(--nb-text);
+        letter-spacing: 0.2px;
+    }
 
-.notif-dropdown .notif-header .notif-mark-read:hover { opacity: 0.75; }
+    .notif-dropdown .notif-header .notif-mark-read {
+        font-size: 11px;
+        color: var(--nb-gold-bright);
+        text-decoration: none;
+        font-weight: 600;
+        transition: opacity 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
 
-.notif-dropdown .notif-body { max-height: 350px; overflow-y: auto; padding: 8px; }
+    .notif-dropdown .notif-header .notif-mark-read:hover {
+        opacity: 0.75;
+    }
 
-.notif-dropdown .notif-body::-webkit-scrollbar { width: 4px; }
-.notif-dropdown .notif-body::-webkit-scrollbar-thumb { background: var(--nb-gold-glow); border-radius: 10px; }
+    .notif-dropdown .notif-body {
+        max-height: 350px;
+        overflow-y: auto;
+        padding: 8px;
+    }
 
-.notif-dropdown .notif-body .notif-empty {
-  text-align: center;
-  padding: 40px 16px;
-  color: var(--nb-muted);
-  font-size: 12px;
-}
+    .notif-dropdown .notif-body::-webkit-scrollbar {
+        width: 4px;
+    }
 
-.notif-dropdown .notif-body .notif-empty i {
-  font-size: 30px;
-  display: block;
-  margin-bottom: 10px;
-  opacity: 0.25;
-  color: var(--nb-gold);
-}
+    .notif-dropdown .notif-body::-webkit-scrollbar-thumb {
+        background: var(--nb-gold-glow);
+        border-radius: 10px;
+    }
 
-.notif-dropdown .notif-footer { padding: 13px 20px; text-align: center; border-top: 1px solid var(--nb-border); }
+    .notif-dropdown .notif-body .notif-empty {
+        text-align: center;
+        padding: 40px 16px;
+        color: var(--nb-muted);
+        font-size: 12px;
+    }
 
-.notif-dropdown .notif-footer a {
-  color: var(--nb-gold-bright);
-  text-decoration: none;
-  font-size: 12.5px;
-  font-weight: 600;
-  transition: opacity 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
+    .notif-dropdown .notif-body .notif-empty i {
+        font-size: 30px;
+        display: block;
+        margin-bottom: 10px;
+        opacity: 0.25;
+        color: var(--nb-gold);
+    }
 
-.notif-dropdown .notif-footer a:hover { opacity: 0.75; }
+    .notif-dropdown .notif-footer {
+        padding: 13px 20px;
+        text-align: center;
+        border-top: 1px solid var(--nb-border);
+    }
 
-.notif-dropdown .notif-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 13px 14px;
-  border-radius: 10px;
-  transition: background 0.15s;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-}
+    .notif-dropdown .notif-footer a {
+        color: var(--nb-gold-bright);
+        text-decoration: none;
+        font-size: 12.5px;
+        font-weight: 600;
+        transition: opacity 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
 
-.notif-dropdown .notif-item:last-child { border-bottom: none; }
-.notif-dropdown .notif-item:hover { background: rgba(255, 255, 255, 0.035); }
+    .notif-dropdown .notif-footer a:hover {
+        opacity: 0.75;
+    }
 
-.notif-dropdown .notif-item .notif-icon {
-  width: 38px; height: 38px; min-width: 38px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 11px;
-  font-size: 14px;
-  color: #1a1408;
-  background: linear-gradient(135deg, var(--nb-gold-bright), var(--nb-gold));
-}
+    .notif-dropdown .notif-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 13px 14px;
+        border-radius: 10px;
+        transition: background 0.15s;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
 
-.notif-dropdown .notif-item .notif-content { flex: 1; min-width: 0; }
+    .notif-dropdown .notif-item:last-child {
+        border-bottom: none;
+    }
 
-.notif-dropdown .notif-item .notif-content .notif-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: rgba(248, 246, 240, 0.88);
-  line-height: 1.35;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+    .notif-dropdown .notif-item:hover {
+        background: rgba(255, 255, 255, 0.035);
+    }
 
-.notif-dropdown .notif-item .notif-content .notif-desc {
-  font-size: 11.5px;
-  color: var(--nb-muted);
-  margin-top: 2px;
-}
+    .notif-dropdown .notif-item .notif-icon {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        font-size: 14px;
+        color: #1a1408;
+        background: linear-gradient(135deg, var(--nb-gold-bright), var(--nb-gold));
+    }
 
-.notif-dropdown .notif-item .notif-content .notif-time {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--nb-gold-bright);
-  margin-top: 0px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
+    .notif-dropdown .notif-item .notif-content {
+        flex: 1;
+        min-width: 0;
+    }
 
-.notif-dropdown .notif-item.unread {
-  background: var(--nb-gold-soft);
-  border-left: 3px solid var(--nb-gold);
-}
+    .notif-dropdown .notif-item .notif-content .notif-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: rgba(248, 246, 240, 0.88);
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
 
-.notif-dropdown .notif-item.out-of-stock.unread {
-  background: var(--nb-danger-soft);
-  border-left: 3px solid var(--nb-danger);
-}
-.notif-dropdown .notif-item.out-of-stock .notif-icon {
-  background: linear-gradient(135deg, #ef8983, var(--nb-danger));
-  color: #fff;
-}
+    .notif-dropdown .notif-item .notif-content .notif-desc {
+        font-size: 11.5px;
+        color: var(--nb-muted);
+        margin-top: 2px;
+    }
 
-@keyframes nbBellRing {
-  0%, 100% { transform: rotate(0); }
-  10% { transform: rotate(14deg); }
-  20% { transform: rotate(-10deg); }
-  30% { transform: rotate(8deg); }
-  40% { transform: rotate(-6deg); }
-  50% { transform: rotate(4deg); }
-  60% { transform: rotate(-2deg); }
-  70%, 90% { transform: rotate(0); }
-}
+    .notif-dropdown .notif-item .notif-content .notif-time {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--nb-gold-bright);
+        margin-top: 0px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
 
-@keyframes nbBadgePulse {
-  0% { box-shadow: 0 0 0 0 rgba(226, 104, 95, 0.55); }
-  70% { box-shadow: 0 0 0 8px rgba(226, 104, 95, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(226, 104, 95, 0); }
-}
+    .notif-dropdown .notif-item.unread {
+        background: var(--nb-gold-soft);
+        border-left: 3px solid var(--nb-gold);
+    }
 
-.navbar-right .notification-toggle {
-  position: relative;
-  padding: 0;
-  width: 42px;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 13px;
-  transition: all 0.25s cubic-bezier(.2,.8,.2,1);
-  color: var(--nb-text) !important;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--glass-border);
-  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 2px 8px rgba(0,0,0,0.2);
-  overflow: hidden;
-  line-height: 1;
-}
+    .notif-dropdown .notif-item.out-of-stock.unread {
+        background: var(--nb-danger-soft);
+        border-left: 3px solid var(--nb-danger);
+    }
 
-.navbar-right .notification-toggle i { line-height: 1; font-size: 16px; position: relative; z-index: 1; }
+    .notif-dropdown .notif-item.out-of-stock .notif-icon {
+        background: linear-gradient(135deg, #ef8983, var(--nb-danger));
+        color: #fff;
+    }
 
-.navbar-right .notification-toggle:hover {
-  background: var(--nb-gold-soft);
-  border-color: var(--nb-border-strong);
-  color: var(--nb-gold-bright) !important;
-  transform: translateY(-2px);
-  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 10px 22px rgba(205, 160, 90, 0.25);
-}
-.navbar-right .notification-toggle:active { transform: translateY(0) scale(0.95); }
+    @keyframes nbBellRing {
 
-.navbar-right .notification-toggle.has-count {
-  background: var(--nb-danger-soft);
-  border-color: rgba(226, 104, 95, 0.22);
-}
+        0%,
+        100% {
+            transform: rotate(0);
+        }
 
-.navbar-right .notification-toggle.has-count i {
-  animation: nbBellRing 1.2s ease-in-out;
-  transform-origin: top center;
-  color: var(--nb-danger);
-}
+        10% {
+            transform: rotate(14deg);
+        }
 
-.navbar-right .notification-toggle .badge {
-  position: absolute;
-  top: -3px;
-  right: -3px;
-  background: linear-gradient(135deg, #ef8983, var(--nb-danger));
-  color: #fff;
-  font-size: 8px;
-  font-weight: 700;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--nb-bg);
-  box-shadow: 0 2px 8px rgba(226, 104, 95, 0.4);
-  animation: nbBadgePulse 2s infinite;
-}
+        20% {
+            transform: rotate(-10deg);
+        }
 
-.navbar-right .nav-link-user {
-  display: flex;
-  align-items: center;
-  padding: 3px;
-  border-radius: 100px;
-  border: 1px solid var(--glass-border);
-  background: rgba(255,255,255,0.04);
-  box-shadow: inset 0 1px 0 var(--glass-highlight);
-  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s cubic-bezier(.2,.8,.2,1);
-}
-.navbar-right .nav-link-user:hover {
-  border-color: var(--nb-border-strong);
-  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 0 0 5px rgba(205, 160, 90, 0.12);
-  transform: translateY(-2px);
-}
+        30% {
+            transform: rotate(8deg);
+        }
 
-.navbar-right .nav-link-user img {
-  border: 2px solid var(--nb-gold);
-  border-radius: 50%;
-  transition: all 0.2s ease;
-}
+        40% {
+            transform: rotate(-6deg);
+        }
 
-.navbar-right .nav-link-user:hover img { border-color: var(--nb-gold-bright); }
+        50% {
+            transform: rotate(4deg);
+        }
 
-.topbar .dropdown-menu {
-  background: var(--glass-bg-strong);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: 15px;
-  padding: 6px;
-  min-width: 210px;
-  box-shadow: var(--nb-shadow-lg), inset 0 1px 0 var(--glass-highlight);
-  overflow: hidden;
-  z-index: 1050 !important;
-  transform-origin: top right;
-  will-change: transform, opacity;
-}
+        60% {
+            transform: rotate(-2deg);
+        }
 
-@media (min-width: 576px) {
-  .topbar .dropdown-menu {
-    position: absolute !important;
-    top: calc(100% + 8px) !important;
-    right: 0 !important;
-    left: auto !important;
-    margin-top: 0 !important;
-  }
-}
+        70%,
+        90% {
+            transform: rotate(0);
+        }
+    }
 
-.topbar .dropdown-menu.show {
-  display: block !important;
-  animation: nbDropdownIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+    @keyframes nbBadgePulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(226, 104, 95, 0.55);
+        }
 
-@keyframes nbDropdownIn {
-  0% {
-    opacity: 0;
-    transform: translateY(-14px) scale(0.94);
-  }
-  70% {
-    opacity: 1;
-    transform: translateY(1px) scale(1.004);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
+        70% {
+            box-shadow: 0 0 0 8px rgba(226, 104, 95, 0);
+        }
 
-.topbar .dropdown-menu::before {
-  content: '';
-  position: absolute;
-  top: -40%; right: -30%;
-  width: 60%; height: 90%;
-  background: radial-gradient(circle, rgba(205, 160, 90, 0.10), transparent 70%);
-  pointer-events: none;
-}
+        100% {
+            box-shadow: 0 0 0 0 rgba(226, 104, 95, 0);
+        }
+    }
 
-.topbar .dropdown-menu .dropdown-item {
-  padding: 9px 13px;
-  color: var(--nb-muted-2) !important;
-  font-size: 12px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-radius: 8px;
-  transition: all 0.15s ease;
-}
+    .navbar-right .notification-toggle {
+        position: relative;
+        padding: 0;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        transition: all 0.25s cubic-bezier(.2, .8, .2, 1);
+        color: var(--nb-text) !important;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        box-shadow: inset 0 1px 0 var(--glass-highlight), 0 2px 8px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        line-height: 1;
+    }
 
-.topbar .dropdown-menu .dropdown-item i { font-size: 13px; width: 16px; color: var(--nb-muted); }
-.topbar .dropdown-menu .dropdown-item:hover { background: var(--nb-gold-soft) !important; color: var(--nb-text) !important; transform: translateX(2px); }
-.topbar .dropdown-menu .dropdown-item:hover i { color: var(--nb-gold-bright); }
-.topbar .dropdown-menu .dropdown-item.text-danger:hover { background: var(--nb-danger-soft) !important; color: #fff !important; }
-.topbar .dropdown-menu .dropdown-item.text-danger:hover i { color: var(--nb-danger); }
-.topbar .dropdown-menu .dropdown-divider { margin: 4px 8px; border-color: var(--nb-border); }
+    .navbar-right .notification-toggle i {
+        line-height: 1;
+        font-size: 16px;
+        position: relative;
+        z-index: 1;
+    }
 
-/* ========================================
+    .navbar-right .notification-toggle:hover {
+        background: var(--nb-gold-soft);
+        border-color: var(--nb-border-strong);
+        color: var(--nb-gold-bright) !important;
+        transform: translateY(-2px);
+        box-shadow: inset 0 1px 0 var(--glass-highlight), 0 10px 22px rgba(205, 160, 90, 0.25);
+    }
+
+    .navbar-right .notification-toggle:active {
+        transform: translateY(0) scale(0.95);
+    }
+
+    .navbar-right .notification-toggle.has-count {
+        background: var(--nb-danger-soft);
+        border-color: rgba(226, 104, 95, 0.22);
+    }
+
+    .navbar-right .notification-toggle.has-count i {
+        animation: nbBellRing 1.2s ease-in-out;
+        transform-origin: top center;
+        color: var(--nb-danger);
+    }
+
+    .navbar-right .notification-toggle .badge {
+        position: absolute;
+        top: -3px;
+        right: -3px;
+        background: linear-gradient(135deg, #ef8983, var(--nb-danger));
+        color: #fff;
+        font-size: 8px;
+        font-weight: 700;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 4px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--nb-bg);
+        box-shadow: 0 2px 8px rgba(226, 104, 95, 0.4);
+        animation: nbBadgePulse 2s infinite;
+    }
+
+    .navbar-right .nav-link-user {
+        display: flex;
+        align-items: center;
+        padding: 3px;
+        border-radius: 100px;
+        border: 1px solid var(--glass-border);
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: inset 0 1px 0 var(--glass-highlight);
+        transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .navbar-right .nav-link-user:hover {
+        border-color: var(--nb-border-strong);
+        box-shadow: inset 0 1px 0 var(--glass-highlight), 0 0 0 5px rgba(205, 160, 90, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .navbar-right .nav-link-user img {
+        border: 2px solid var(--nb-gold);
+        border-radius: 50%;
+        transition: all 0.2s ease;
+    }
+
+    .navbar-right .nav-link-user:hover img {
+        border-color: var(--nb-gold-bright);
+    }
+
+    .topbar .dropdown-menu {
+        background: var(--glass-bg-strong);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+        padding: 6px;
+        min-width: 210px;
+        box-shadow: var(--nb-shadow-lg), inset 0 1px 0 var(--glass-highlight);
+        overflow: hidden;
+        z-index: 1050 !important;
+        transform-origin: top right;
+        will-change: transform, opacity;
+    }
+
+    @media (min-width: 576px) {
+        .topbar .dropdown-menu {
+            position: absolute !important;
+            top: calc(100% + 8px) !important;
+            right: 0 !important;
+            left: auto !important;
+            margin-top: 0 !important;
+        }
+    }
+
+    .topbar .dropdown-menu.show {
+        display: block !important;
+        animation: nbDropdownIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes nbDropdownIn {
+        0% {
+            opacity: 0;
+            transform: translateY(-14px) scale(0.94);
+        }
+
+        70% {
+            opacity: 1;
+            transform: translateY(1px) scale(1.004);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .topbar .dropdown-menu::before {
+        content: '';
+        position: absolute;
+        top: -40%;
+        right: -30%;
+        width: 60%;
+        height: 90%;
+        background: radial-gradient(circle, rgba(205, 160, 90, 0.10), transparent 70%);
+        pointer-events: none;
+    }
+
+    .topbar .dropdown-menu .dropdown-item {
+        padding: 9px 13px;
+        color: var(--nb-muted-2) !important;
+        font-size: 12px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-radius: 8px;
+        transition: all 0.15s ease;
+    }
+
+    .topbar .dropdown-menu .dropdown-item i {
+        font-size: 13px;
+        width: 16px;
+        color: var(--nb-muted);
+    }
+
+    .topbar .dropdown-menu .dropdown-item:hover {
+        background: var(--nb-gold-soft) !important;
+        color: var(--nb-text) !important;
+        transform: translateX(2px);
+    }
+
+    .topbar .dropdown-menu .dropdown-item:hover i {
+        color: var(--nb-gold-bright);
+    }
+
+    .topbar .dropdown-menu .dropdown-item.text-danger:hover {
+        background: var(--nb-danger-soft) !important;
+        color: #fff !important;
+    }
+
+    .topbar .dropdown-menu .dropdown-item.text-danger:hover i {
+        color: var(--nb-danger);
+    }
+
+    .topbar .dropdown-menu .dropdown-divider {
+        margin: 4px 8px;
+        border-color: var(--nb-border);
+    }
+
+    /* ========================================
    LEFT SIDEBAR
    ======================================== */
 
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(6, 9, 16, 0.65);
-  backdrop-filter: blur(2px);
-  z-index: 1049;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
-}
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(6, 9, 16, 0.65);
+        backdrop-filter: blur(2px);
+        z-index: 1049;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
 
-.sidebar-overlay.open { opacity: 1; visibility: visible; pointer-events: auto; }
-.sidebar-overlay:not(.open) { pointer-events: none; }
+    .sidebar-overlay.open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
 
-.app-sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: var(--sb-width);
-  background: var(--glass-bg) !important;
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-right: 1px solid var(--glass-border);
-  box-shadow: inset -1px 0 0 var(--glass-highlight), var(--nb-shadow-lg);
-  z-index: 1050;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.15s ease;
-  overflow: visible;
-}
+    .sidebar-overlay:not(.open) {
+        pointer-events: none;
+    }
 
-.app-sidebar::after {
-  content: '';
-  position: absolute;
-  top: 0; right: -1px; bottom: 0;
-  width: 1px;
-  background: linear-gradient(180deg, transparent, var(--nb-gold-glow) 8%, transparent 60%);
-  opacity: 0.5;
-}
+    .app-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: var(--sb-width);
+        background: var(--glass-bg) !important;
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border-right: 1px solid var(--glass-border);
+        box-shadow: inset -1px 0 0 var(--glass-highlight), var(--nb-shadow-lg);
+        z-index: 1050;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.15s ease;
+        overflow: visible;
+    }
 
-body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
+    .app-sidebar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: -1px;
+        bottom: 0;
+        width: 1px;
+        background: linear-gradient(180deg, transparent, var(--nb-gold-glow) 8%, transparent 60%);
+        opacity: 0.5;
+    }
 
-.sidebar-header {
-  position: relative;
-  height: var(--tb-height);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 20px;
-  border-bottom: 1px solid var(--nb-border);
-  flex-shrink: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  background: radial-gradient(160px 60px at 10% 0%, rgba(205,160,90,0.10), transparent 70%);
-}
+    body.sidebar-collapsed .app-sidebar {
+        transform: translateX(-100%);
+    }
 
-.sidebar-header i {
-  position: relative;
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 11px;
-  background: linear-gradient(135deg, var(--nb-gold-bright), var(--nb-gold));
-  color: #1a1408;
-  font-size: 15px;
-  box-shadow: 0 4px 14px rgba(205, 160, 90, 0.35), inset 0 1px 0 rgba(255,255,255,0.45);
-  overflow: hidden;
-}
+    .sidebar-header {
+        position: relative;
+        height: var(--tb-height);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 20px;
+        border-bottom: 1px solid var(--nb-border);
+        flex-shrink: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        background: radial-gradient(160px 60px at 10% 0%, rgba(205, 160, 90, 0.10), transparent 70%);
+    }
 
-.sidebar-header i::after {
-  content: '';
-  position: absolute;
-  top: -60%; left: -20%;
-  width: 60%; height: 220%;
-  background: linear-gradient(115deg, transparent, rgba(255,255,255,0.55), transparent);
-  transform: rotate(20deg);
-  animation: nbShine 4.5s ease-in-out infinite;
-}
+    .sidebar-header i {
+        position: relative;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: linear-gradient(135deg, var(--nb-gold-bright), var(--nb-gold));
+        color: #1a1408;
+        font-size: 15px;
+        box-shadow: 0 4px 14px rgba(205, 160, 90, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+        overflow: hidden;
+    }
 
-@keyframes nbShine {
-  0%, 15% { transform: translateX(-140%) rotate(20deg); }
-  55%, 100% { transform: translateX(140%) rotate(20deg); }
-}
+    .sidebar-header i::after {
+        content: '';
+        position: absolute;
+        top: -60%;
+        left: -20%;
+        width: 60%;
+        height: 220%;
+        background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+        transform: rotate(20deg);
+        animation: nbShine 4.5s ease-in-out infinite;
+    }
 
-.sidebar-header span {
-  font-family: var(--nb-font-display);
-  color: var(--nb-text);
-  font-weight: 800;
-  font-size: 15px;
-  letter-spacing: 0.6px;
-}
+    @keyframes nbShine {
 
-.sidebar-body { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 14px 12px 40px; scrollbar-width: thin; scrollbar-color: var(--nb-gold) transparent; }
+        0%,
+        15% {
+            transform: translateX(-140%) rotate(20deg);
+        }
 
-.sb-footer { margin-top: 10px; border-top: 1px solid var(--nb-border); padding-top: 10px; }
+        55%,
+        100% {
+            transform: translateX(140%) rotate(20deg);
+        }
+    }
 
-.sidebar-body::-webkit-scrollbar { width: 4px; }
-.sidebar-body::-webkit-scrollbar-track { background: transparent; }
-.sidebar-body::-webkit-scrollbar-thumb { background: var(--nb-gold); border-radius: 10px; }
-.sidebar-body::-webkit-scrollbar-thumb:hover { background: var(--nb-gold-bright); }
+    .sidebar-header span {
+        font-family: var(--nb-font-display);
+        color: var(--nb-text);
+        font-weight: 800;
+        font-size: 15px;
+        letter-spacing: 0.6px;
+    }
 
-.sb-nav { list-style: none; margin: 0; padding: 0; }
+    .sidebar-body {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 14px 12px 40px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--nb-gold) transparent;
+    }
 
-.sb-item { margin-bottom: 3px; position: relative; }
+    .sb-footer {
+        margin-top: 10px;
+        border-top: 1px solid var(--nb-border);
+        padding-top: 10px;
+    }
 
-.sb-link {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  padding: 11px 13px;
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.88) !important;
-  font-family: var(--nb-font-display);
-  font-size: 12.5px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-  white-space: nowrap;
-  letter-spacing: 0.1px;
-  overflow: hidden;
-}
+    .sidebar-body::-webkit-scrollbar {
+        width: 4px;
+    }
 
-.sb-link::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.06) 48%, transparent 66%);
-  transform: translateX(-120%);
-  transition: transform 0.55s ease;
-  pointer-events: none;
-}
+    .sidebar-body::-webkit-scrollbar-track {
+        background: transparent;
+    }
 
-.sb-link:hover::before { transform: translateX(120%); }
+    .sidebar-body::-webkit-scrollbar-thumb {
+        background: var(--nb-gold);
+        border-radius: 10px;
+    }
 
-.sb-link > i:first-child {
-  width: 18px;
-  min-width: 18px;
-  text-align: center;
-  font-size: 14.5px;
-  color: var(--nb-muted);
-  transition: color 0.18s ease, transform 0.18s ease;
-  position: relative;
-  z-index: 1;
-}
+    .sidebar-body::-webkit-scrollbar-thumb:hover {
+        background: var(--nb-gold-bright);
+    }
 
-.sb-link > span { position: relative; z-index: 1; }
+    .sb-nav {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
 
-.sb-link:hover { background: rgba(255, 255, 255, 0.055); color: var(--nb-text) !important; transform: translateX(2px); }
-.sb-link:hover > i:first-child { color: var(--nb-gold-bright); transform: scale(1.08); }
+    .sb-item {
+        margin-bottom: 3px;
+        position: relative;
+    }
 
-.sb-item.active > .sb-link {
-  background: linear-gradient(90deg, var(--nb-gold-soft), rgba(205,160,90,0.04) 80%);
-  backdrop-filter: blur(6px);
-  color: var(--nb-text) !important;
-  box-shadow: inset 0 0 0 1px var(--nb-border-strong), inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 14px -6px rgba(205,160,90,0.25);
-}
-.sb-item.active > .sb-link > i:first-child { color: var(--nb-gold-bright); }
+    .sb-link {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 11px 13px;
+        border-radius: 10px;
+        color: rgba(255, 255, 255, 0.88) !important;
+        font-family: var(--nb-font-display);
+        font-size: 12.5px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        white-space: nowrap;
+        letter-spacing: 0.1px;
+        overflow: hidden;
+    }
 
-.sb-item.active > .sb-link::before {
-  content: '';
-  position: absolute;
-  left: -12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 22px;
-  border-radius: 3px;
-  background: linear-gradient(180deg, var(--nb-gold-bright), var(--nb-gold));
-  box-shadow: 0 0 12px var(--nb-gold-glow);
-}
+    .sb-link::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.06) 48%, transparent 66%);
+        transform: translateX(-120%);
+        transition: transform 0.55s ease;
+        pointer-events: none;
+    }
 
-.sb-link span.sb-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+    .sb-link:hover::before {
+        transform: translateX(120%);
+    }
 
-.sb-arrow {
-  font-size: 9px !important;
-  width: auto !important;
-  min-width: auto !important;
-  color: var(--nb-muted) !important;
-  transition: transform 0.25s ease, color 0.2s ease;
-}
+    .sb-link>i:first-child {
+        width: 18px;
+        min-width: 18px;
+        text-align: center;
+        font-size: 14.5px;
+        color: var(--nb-muted);
+        transition: color 0.18s ease, transform 0.18s ease;
+        position: relative;
+        z-index: 1;
+    }
 
-.sb-item.open > .sb-link .sb-arrow { transform: rotate(180deg); color: var(--nb-gold-bright) !important; }
+    .sb-link>span {
+        position: relative;
+        z-index: 1;
+    }
 
-.sb-submenu {
-  list-style: none;
-  margin: 3px 0 8px 0;
-  padding: 0;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  position: relative;
-}
+    .sb-link:hover {
+        background: rgba(255, 255, 255, 0.055);
+        color: var(--nb-text) !important;
+        transform: translateX(2px);
+    }
 
-.sb-item.open > .sb-submenu { max-height: 3000px; }
+    .sb-link:hover>i:first-child {
+        color: var(--nb-gold-bright);
+        transform: scale(1.08);
+    }
 
-.sb-submenu::before {
-  content: '';
-  position: absolute;
-  left: 24px;
-  top: 2px;
-  bottom: 10px;
-  width: 1px;
-  background: linear-gradient(180deg, var(--nb-border-strong), var(--nb-border) 70%, transparent);
-}
+    .sb-item.active>.sb-link {
+        background: linear-gradient(90deg, var(--nb-gold-soft), rgba(205, 160, 90, 0.04) 80%);
+        backdrop-filter: blur(6px);
+        color: var(--nb-text) !important;
+        box-shadow: inset 0 0 0 1px var(--nb-border-strong), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 14px -6px rgba(205, 160, 90, 0.25);
+    }
 
-.sb-submenu li a {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 9px 12px 9px 42px;
-  color: rgba(255, 255, 255, 0.68);
-  font-size: 12px;
-  font-weight: 500;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: all 0.18s ease;
-  white-space: nowrap;
-}
+    .sb-item.active>.sb-link>i:first-child {
+        color: var(--nb-gold-bright);
+    }
 
-.sb-submenu li a i { font-size: 11.5px; width: 14px; color: rgba(226, 220, 205, 0.28); transition: color 0.15s ease; }
-.sb-submenu li a:hover { background: rgba(255, 255, 255, 0.045); color: var(--nb-text); transform: translateX(2px); }
-.sb-submenu li a:hover i { color: var(--nb-gold-bright); }
+    .sb-item.active>.sb-link::before {
+        content: '';
+        position: absolute;
+        left: -12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 22px;
+        border-radius: 3px;
+        background: linear-gradient(180deg, var(--nb-gold-bright), var(--nb-gold));
+        box-shadow: 0 0 12px var(--nb-gold-glow);
+    }
 
-/* ---- Active Submenu Item (Premium Gold Glow & Indicator) ---- */
-.sb-submenu li.active > a,
-.sb-submenu li a.active {
-  background: linear-gradient(90deg, rgba(205, 160, 90, 0.22), rgba(205, 160, 90, 0.06) 88%) !important;
-  color: var(--nb-gold-bright) !important;
-  font-weight: 600 !important;
-  border: 1px solid rgba(205, 160, 90, 0.35) !important;
-  box-shadow: inset 0 0 14px rgba(205, 160, 90, 0.15), 0 2px 8px -2px rgba(0, 0, 0, 0.5) !important;
-  transform: translateX(3px);
-}
+    .sb-link span.sb-label {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-.sb-submenu li.active > a i,
-.sb-submenu li a.active i {
-  color: var(--nb-gold-bright) !important;
-  text-shadow: 0 0 10px var(--nb-gold-glow);
-  transform: scale(1.15);
-}
+    .sb-arrow {
+        font-size: 9px !important;
+        width: auto !important;
+        min-width: auto !important;
+        color: var(--nb-muted) !important;
+        transition: transform 0.25s ease, color 0.2s ease;
+    }
 
-.sb-submenu li.active > a::after,
-.sb-submenu li a.active::after {
-  content: '';
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--nb-gold-bright);
-  box-shadow: 0 0 8px var(--nb-gold-glow), 0 0 16px var(--nb-gold-glow);
-}
+    .sb-item.open>.sb-link .sb-arrow {
+        transform: rotate(180deg);
+        color: var(--nb-gold-bright) !important;
+    }
 
-.sb-submenu .sb-submenu-header {
-  padding: 10px 12px 3px 42px;
-  color: var(--nb-gold);
-  font-family: var(--nb-font-display);
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  font-weight: 700;
-  opacity: 0.75;
-}
+    .sb-submenu {
+        list-style: none;
+        margin: 3px 0 8px 0;
+        padding: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        position: relative;
+    }
 
-.sb-submenu-divider { margin: 5px 14px 5px 42px; border-top: 1px solid var(--nb-border); }
+    .sb-item.open>.sb-submenu {
+        max-height: 3000px;
+    }
 
-.sb-footer { margin-top: 10px; border-top: 1px solid var(--nb-border); padding-top: 10px; }
+    .sb-submenu::before {
+        content: '';
+        position: absolute;
+        left: 24px;
+        top: 2px;
+        bottom: 10px;
+        width: 1px;
+        background: linear-gradient(180deg, var(--nb-border-strong), var(--nb-border) 70%, transparent);
+    }
 
-.sb-flyout-title { display: none; }
+    .sb-submenu li a {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 9px 12px 9px 42px;
+        color: rgba(255, 255, 255, 0.68);
+        font-size: 12px;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.18s ease;
+        white-space: nowrap;
+    }
 
-/* ========================================
+    .sb-submenu li a i {
+        font-size: 11.5px;
+        width: 14px;
+        color: rgba(226, 220, 205, 0.28);
+        transition: color 0.15s ease;
+    }
+
+    .sb-submenu li a:hover {
+        background: rgba(255, 255, 255, 0.045);
+        color: var(--nb-text);
+        transform: translateX(2px);
+    }
+
+    .sb-submenu li a:hover i {
+        color: var(--nb-gold-bright);
+    }
+
+    /* ---- Active Submenu Item (Premium Gold Glow & Indicator) ---- */
+    .sb-submenu li.active>a,
+    .sb-submenu li a.active {
+        background: linear-gradient(90deg, rgba(205, 160, 90, 0.22), rgba(205, 160, 90, 0.06) 88%) !important;
+        color: var(--nb-gold-bright) !important;
+        font-weight: 600 !important;
+        border: 1px solid rgba(205, 160, 90, 0.35) !important;
+        box-shadow: inset 0 0 14px rgba(205, 160, 90, 0.15), 0 2px 8px -2px rgba(0, 0, 0, 0.5) !important;
+        transform: translateX(3px);
+    }
+
+    .sb-submenu li.active>a i,
+    .sb-submenu li a.active i {
+        color: var(--nb-gold-bright) !important;
+        text-shadow: 0 0 10px var(--nb-gold-glow);
+        transform: scale(1.15);
+    }
+
+    .sb-submenu li.active>a::after,
+    .sb-submenu li a.active::after {
+        content: '';
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--nb-gold-bright);
+        box-shadow: 0 0 8px var(--nb-gold-glow), 0 0 16px var(--nb-gold-glow);
+    }
+
+    .sb-submenu .sb-submenu-header {
+        padding: 10px 12px 3px 42px;
+        color: var(--nb-gold);
+        font-family: var(--nb-font-display);
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-weight: 700;
+        opacity: 0.75;
+    }
+
+    .sb-submenu-divider {
+        margin: 5px 14px 5px 42px;
+        border-top: 1px solid var(--nb-border);
+    }
+
+    .sb-footer {
+        margin-top: 10px;
+        border-top: 1px solid var(--nb-border);
+        padding-top: 10px;
+    }
+
+    .sb-flyout-title {
+        display: none;
+    }
+
+    /* ========================================
    MOBILE / RESPONSIVE — tablets down to small phones
    ======================================== */
 
-@media (max-width: 991.98px) {
-  body { padding-left: 0 !important; }
-  .main-wrapper.container, .main-wrapper { max-width: 100% !important; width: 100% !important; padding-left: 0 !important; padding-right: 0 !important; }
+    @media (max-width: 991.98px) {
+        body {
+            padding-left: 0 !important;
+        }
 
-  .topbar {
-    left: 0 !important;
-    height: calc(var(--tb-height-mobile) + env(safe-area-inset-top));
-    padding: 0 12px;
-    padding-top: env(safe-area-inset-top);
-    padding-left: max(12px, env(safe-area-inset-left));
-    padding-right: max(12px, env(safe-area-inset-right));
-  }
+        .main-wrapper.container,
+        .main-wrapper {
+            max-width: 100% !important;
+            width: 100% !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
 
-  .main-content {
-    margin: 0 !important;
-    padding: 18px !important;
-    border-radius: 0 !important;
-    min-height: calc(100vh - var(--tb-height-mobile) - env(safe-area-inset-top) - 0px);
-  }
+        .topbar {
+            left: 0 !important;
+            height: calc(var(--tb-height-mobile) + env(safe-area-inset-top));
+            padding: 0 12px;
+            padding-top: env(safe-area-inset-top);
+            padding-left: max(12px, env(safe-area-inset-left));
+            padding-right: max(12px, env(safe-area-inset-right));
+        }
 
-  .app-sidebar {
-    width: min(300px, 86vw) !important;
-    max-width: 86vw;
-    transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(.4,0,.2,1);
-    box-shadow: 16px 0 50px rgba(0, 0, 0, 0.55);
-    padding-left: env(safe-area-inset-left);
-  }
+        .main-content {
+            margin: 0 !important;
+            padding: 18px !important;
+            border-radius: 0 !important;
+            min-height: calc(100vh - var(--tb-height-mobile) - env(safe-area-inset-top) - 0px);
+        }
 
-  .app-sidebar.mobile-open { transform: translateX(0); }
+        .app-sidebar {
+            width: min(300px, 86vw) !important;
+            max-width: 86vw;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(.4, 0, .2, 1);
+            box-shadow: 16px 0 50px rgba(0, 0, 0, 0.55);
+            padding-left: env(safe-area-inset-left);
+        }
 
-  .app-sidebar .sb-link { justify-content: flex-start !important; padding: 11px 13px !important; }
-  .app-sidebar .sidebar-header span { display: inline !important; }
-  .app-sidebar .sb-item .sb-submenu {
-    position: static !important;
-    width: auto !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: none !important;
-    box-shadow: none !important;
-    border: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-    max-height: 0 !important;
-  }
-  .app-sidebar .sb-item.open .sb-submenu { max-height: 3000px !important; }
-  .app-sidebar .sb-item .sb-flyout-title { display: none !important; }
+        .app-sidebar.mobile-open {
+            transform: translateX(0);
+        }
 
-  /* ---- Right-side icon cluster: tightened + precisely centered ---- */
-  .navbar-right {
-    gap: 6px;
-    padding-right: 0;
-  }
+        .app-sidebar .sb-link {
+            justify-content: flex-start !important;
+            padding: 11px 13px !important;
+        }
 
-  .divider-vertical { display: none !important; }
+        .app-sidebar .sidebar-header span {
+            display: inline !important;
+        }
 
-  .navbar-right > li {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+        .app-sidebar .sb-item .sb-submenu {
+            position: static !important;
+            width: auto !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            max-height: 0 !important;
+        }
 
-  .navbar-right .notification-toggle {
-    width: 38px;
-    height: 38px;
-    border-radius: 11px;
-  }
-  .navbar-right .notification-toggle i {
-    font-size: 15px;
-    line-height: 0;
-  }
-  .navbar-right .notification-toggle .badge {
-    top: -3px;
-    right: -3px;
-  }
+        .app-sidebar .sb-item.open .sb-submenu {
+            max-height: 3000px !important;
+        }
 
-  .navbar-right .nav-link-user { padding: 2px; }
-  .navbar-right .nav-link-user img { width: 30px !important; height: 30px !important; }
+        .app-sidebar .sb-item .sb-flyout-title {
+            display: none !important;
+        }
 
-  .topbar .dropdown-menu.dropdown-list {
-    position: fixed !important;
-    top: calc(var(--tb-height-mobile) + env(safe-area-inset-top) + 6px) !important;
-    left: 10px !important;
-    right: 10px !important;
-    width: auto !important;
-    max-width: none;
-    background: rgba(10, 14, 26, 0.85) !important;
-    backdrop-filter: blur(24px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  }
-}
+        /* ---- Right-side icon cluster: tightened + precisely centered ---- */
+        .navbar-right {
+            gap: 6px;
+            padding-right: 0;
+        }
 
-/* ---- Standard phones (e.g. iPhone 12/13/14, Pixel) ---- */
-@media (max-width: 480px) {
-  :root { --tb-height-mobile: 56px; }
+        .divider-vertical {
+            display: none !important;
+        }
 
-  .topbar { padding-left: max(10px, env(safe-area-inset-left)); padding-right: max(10px, env(safe-area-inset-right)); }
+        .navbar-right>li {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-  .hamburger-toggle { padding: 8px 10px; font-size: 16px; }
+        .navbar-right .notification-toggle {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+        }
 
-  .navbar-right { gap: 4px; }
+        .navbar-right .notification-toggle i {
+            font-size: 15px;
+            line-height: 0;
+        }
 
-  .navbar-right .notification-toggle { width: 36px; height: 36px; border-radius: 10px; }
-  .navbar-right .notification-toggle i { font-size: 14px; margin-top: 0px; }
-  .navbar-right .notification-toggle .badge {
-    min-width: 16px;
-    height: 16px;
-    font-size: 7px;
-    top: -5px;
-    right: -5px;
-    border-width: 1.5px;
-  }
+        .navbar-right .notification-toggle .badge {
+            top: -3px;
+            right: -3px;
+        }
 
-  .navbar-right .nav-link-user img { width: 28px !important; height: 28px !important; }
+        .navbar-right .nav-link-user {
+            padding: 2px;
+        }
 
-  .notif-dropdown .notif-header { padding: 15px 16px 13px; }
-  .notif-dropdown .notif-item { padding: 11px 12px; }
+        .navbar-right .nav-link-user img {
+            width: 30px !important;
+            height: 30px !important;
+        }
 
-  /* Bigger text on mobile */
-  .sb-link { font-size: 14.5px !important; padding: 13px 15px !important; }
-  .sb-submenu li a { font-size: 14px !important; padding: 11px 13px 11px 44px !important; }
-  .sidebar-header span { font-size: 17px; }
-  .topbar-title { font-size: 14px; }
-  .notif-dropdown .notif-item .notif-content .notif-title { font-size: 14px; }
-  .notif-dropdown .notif-item .notif-content .notif-desc { font-size: 12.5px; }
-  .notif-dropdown .notif-item .notif-content .notif-time { font-size: 11px; }
-}
+        .topbar .dropdown-menu.dropdown-list {
+            position: fixed !important;
+            top: calc(var(--tb-height-mobile) + env(safe-area-inset-top) + 6px) !important;
+            left: 10px !important;
+            right: 10px !important;
+            width: auto !important;
+            max-width: none;
+            background: rgba(10, 14, 26, 0.85) !important;
+            backdrop-filter: blur(24px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+        }
+    }
 
-/* ---- Small / compact phones (e.g. iPhone SE, older Android) ---- */
-@media (max-width: 374.98px) {
-  :root { --tb-height-mobile: 52px; }
+    /* ---- Standard phones (e.g. iPhone 12/13/14, Pixel) ---- */
+    @media (max-width: 480px) {
+        :root {
+            --tb-height-mobile: 56px;
+        }
 
-  .topbar { padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
+        .topbar {
+            padding-left: max(10px, env(safe-area-inset-left));
+            padding-right: max(10px, env(safe-area-inset-right));
+        }
 
-  .hamburger-toggle { padding: 7px 9px; font-size: 15px; border-radius: 9px; }
+        .hamburger-toggle {
+            padding: 8px 10px;
+            font-size: 16px;
+        }
 
-  .sidebar-header { padding: 0 14px; gap: 10px; }
-  .sidebar-header i { width: 32px; height: 32px; min-width: 32px; font-size: 13px; }
-  .sidebar-header span { font-size: 13px; }
+        .navbar-right {
+            gap: 4px;
+        }
 
-  .navbar-right { gap: 3px; }
+        .navbar-right .notification-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+        }
 
-  .navbar-right .notification-toggle { width: 34px; height: 34px; border-radius: 9px; }
-  .navbar-right .notification-toggle i { font-size: 13px; margin-top: 0px; }
+        .navbar-right .notification-toggle i {
+            font-size: 14px;
+            margin-top: 0px;
+        }
 
-  .navbar-right .nav-link-user img { width: 26px !important; height: 26px !important; }
+        .navbar-right .notification-toggle .badge {
+            min-width: 16px;
+            height: 16px;
+            font-size: 7px;
+            top: -5px;
+            right: -5px;
+            border-width: 1.5px;
+        }
 
-  .app-sidebar { width: min(272px, 88vw) !important; max-width: 88vw; }
+        .navbar-right .nav-link-user img {
+            width: 28px !important;
+            height: 28px !important;
+        }
 
-  .sb-link { padding: 12px 14px !important; font-size: 13.5px; }
-  .sb-submenu li a { padding: 10px 12px 10px 40px; font-size: 13px; }
+        .notif-dropdown .notif-header {
+            padding: 15px 16px 13px;
+        }
 
-  .notif-dropdown { border-radius: 14px !important; }
-  .notif-dropdown .notif-title { font-size: 13.5px; }
-}
+        .notif-dropdown .notif-item {
+            padding: 11px 12px;
+        }
 
-/* ---- Landscape phones: shorter viewport height ---- */
-@media (max-width: 991.98px) and (max-height: 420px) and (orientation: landscape) {
-  :root { --tb-height-mobile: 50px; }
-  .app-sidebar { padding-top: env(safe-area-inset-top); }
-  .sidebar-header { height: 50px; }
-  .sidebar-body { padding: 8px 10px; }
-  .sb-link { padding: 8px 12px; }
-}
+        /* Bigger text on mobile */
+        .sb-link {
+            font-size: 14.5px !important;
+            padding: 13px 15px !important;
+        }
 
-@media (max-width: 575.98px) {
-  .topbar .dropdown-menu.dropdown-menu-right:not(.dropdown-list) {
-    position: fixed !important;
-    top: calc(var(--tb-height-mobile) + 8px) !important;
-    left: 8px !important;
-    right: 8px !important;
-    width: auto !important;
-    max-width: none;
-    transform: none !important;
-  }
-}
+        .sb-submenu li a {
+            font-size: 14px !important;
+            padding: 11px 13px 11px 44px !important;
+        }
 
-/* Ensure Bootstrap Modals & Backdrops sit above the glass sidebar (1050) & topbar (1030) */
-.modal-backdrop {
-  z-index: 10500 !important;
-}
-.modal {
-  z-index: 10550 !important;
-}
-.select2-container--open {
-  z-index: 10600 !important;
-}
+        .sidebar-header span {
+            font-size: 17px;
+        }
+
+        .topbar-title {
+            font-size: 14px;
+        }
+
+        .notif-dropdown .notif-item .notif-content .notif-title {
+            font-size: 14px;
+        }
+
+        .notif-dropdown .notif-item .notif-content .notif-desc {
+            font-size: 12.5px;
+        }
+
+        .notif-dropdown .notif-item .notif-content .notif-time {
+            font-size: 11px;
+        }
+    }
+
+    /* ---- Small / compact phones (e.g. iPhone SE, older Android) ---- */
+    @media (max-width: 374.98px) {
+        :root {
+            --tb-height-mobile: 52px;
+        }
+
+        .topbar {
+            padding-left: max(8px, env(safe-area-inset-left));
+            padding-right: max(8px, env(safe-area-inset-right));
+        }
+
+        .hamburger-toggle {
+            padding: 7px 9px;
+            font-size: 15px;
+            border-radius: 9px;
+        }
+
+        .sidebar-header {
+            padding: 0 14px;
+            gap: 10px;
+        }
+
+        .sidebar-header i {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            font-size: 13px;
+        }
+
+        .sidebar-header span {
+            font-size: 13px;
+        }
+
+        .navbar-right {
+            gap: 3px;
+        }
+
+        .navbar-right .notification-toggle {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+        }
+
+        .navbar-right .notification-toggle i {
+            font-size: 13px;
+            margin-top: 0px;
+        }
+
+        .navbar-right .nav-link-user img {
+            width: 26px !important;
+            height: 26px !important;
+        }
+
+        .app-sidebar {
+            width: min(272px, 88vw) !important;
+            max-width: 88vw;
+        }
+
+        .sb-link {
+            padding: 12px 14px !important;
+            font-size: 13.5px;
+        }
+
+        .sb-submenu li a {
+            padding: 10px 12px 10px 40px;
+            font-size: 13px;
+        }
+
+        .notif-dropdown {
+            border-radius: 14px !important;
+        }
+
+        .notif-dropdown .notif-title {
+            font-size: 13.5px;
+        }
+    }
+
+    /* ---- Landscape phones: shorter viewport height ---- */
+    @media (max-width: 991.98px) and (max-height: 420px) and (orientation: landscape) {
+        :root {
+            --tb-height-mobile: 50px;
+        }
+
+        .app-sidebar {
+            padding-top: env(safe-area-inset-top);
+        }
+
+        .sidebar-header {
+            height: 50px;
+        }
+
+        .sidebar-body {
+            padding: 8px 10px;
+        }
+
+        .sb-link {
+            padding: 8px 12px;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .topbar .dropdown-menu.dropdown-menu-right:not(.dropdown-list) {
+            position: fixed !important;
+            top: calc(var(--tb-height-mobile) + 8px) !important;
+            left: 8px !important;
+            right: 8px !important;
+            width: auto !important;
+            max-width: none;
+            transform: none !important;
+        }
+    }
+
+    /* Ensure Bootstrap Modals & Backdrops sit above the glass sidebar (1050) & topbar (1030) */
+    .modal-backdrop {
+        z-index: 10500 !important;
+    }
+
+    .modal {
+        z-index: 10550 !important;
+    }
+
+    .select2-container--open {
+        z-index: 10600 !important;
+    }
 </style>
 
 {{-- ============================================
      TOPBAR
      ============================================ --}}
 <nav class="topbar">
-  <button class="hamburger-toggle" id="sidebarToggle" aria-label="Toggle menu">
-    <i class="fas fa-bars"></i>
-  </button>
+    <button class="hamburger-toggle" id="sidebarToggle" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+    </button>
 
-  <ul class="navbar-right" style="list-style:none;">
-    <li class="divider-vertical d-none d-md-block"></li>
+    <ul class="navbar-right" style="list-style:none;">
+        <li class="divider-vertical d-none d-md-block"></li>
 
-    {{-- Topbar Procurement Cart (RFQ / PO) --}}
-    <li>
-      <a id="topbar-booking-cart-toggle" href="javascript:void(0)" onclick="openCartDrawer('booking')" class="notification-toggle" title="Procurement Cart (RFQ / Purchase)">
-        <i class="fas fa-shopping-basket"></i>
-        <span id="topbar-booking-cart-badge" class="badge" style="display: none; background: #eab308; color: #1a1408; font-weight: 700; font-size: 10px; border-radius: 999px;">0</span>
-      </a>
-    </li>
-
-    {{-- Topbar Sales Quotation Cart --}}
-    <li>
-      <a id="topbar-request-cart-toggle" href="javascript:void(0)" onclick="openCartDrawer('request')" class="notification-toggle" title="Sales Quotation Cart (SQ Basket)">
-        <i class="fas fa-file-invoice-dollar" style="color: #60a5fa;"></i>
-        <span id="topbar-request-cart-badge" class="badge" style="display: none; background: #2563eb; color: #fff; font-weight: 700; font-size: 10px; border-radius: 999px;">0</span>
-      </a>
-    </li>
-
-    {{-- Topbar Pending Approvals Hub (Rich Dropdown) --}}
-    @php
-      $topbarPendingApprovals = \App\Models\Approval::with(['step.approverRole', 'user'])
-        ->where('status', 'pending')
-        ->latest()
-        ->take(5)
-        ->get();
-      $pendingApprovalsCount = \App\Models\Approval::where('status', 'pending')->count();
-    @endphp
-    <li class="dropdown dropdown-list-toggle">
-      <a href="javascript:void(0)" data-toggle="dropdown" data-display="static" class="notification-toggle" title="Pending Approvals ({{ $pendingApprovalsCount }})">
-        <i class="fas fa-check-double text-warning"></i>
-        @if($pendingApprovalsCount > 0)
-          <span class="badge" style="background: #10b981; color: #fff; font-weight: 700; font-size: 10px; border-radius: 999px;">{{ $pendingApprovalsCount }}</span>
-        @endif
-      </a>
-      <div class="dropdown-menu dropdown-menu-right dropdown-list notif-dropdown" style="width: 360px;">
-        <div class="notif-header d-flex justify-content-between align-items-center py-2 px-3 border-bottom" style="background: #1e293b; color: #fff;">
-          <span class="font-weight-bold" style="font-size: 13px;">
-            <i class="fas fa-tasks text-warning mr-1"></i> Pending Approvals ({{ $pendingApprovalsCount }})
-          </span>
-          <a href="{{ route('admin.approvals.index') }}" class="small font-weight-bold text-warning" style="text-decoration: underline;">
-            Open Inbox
-          </a>
-        </div>
-        <div class="notif-body py-1" style="max-height: 280px; overflow-y: auto;">
-          @forelse($topbarPendingApprovals as $tba)
-            @php
-              $tbaDoc = $tba->approvable;
-              $tbaType = class_basename($tba->approvable_type);
-              $tbaNo = '-';
-              if ($tbaDoc) {
-                if ($tbaType === 'Purchase') $tbaNo = $tbaDoc->po_no ?? 'PO #'.$tbaDoc->id;
-                elseif ($tbaType === 'ProductRequest') $tbaNo = $tbaDoc->request_no ?? 'PR #'.$tbaDoc->id;
-                elseif ($tbaType === 'ComparisonStatement') $tbaNo = 'CS #'.$tbaDoc->id;
-                elseif ($tbaType === 'StockTransfer') $tbaNo = $tbaDoc->transfer_no ?? 'TR #'.$tbaDoc->id;
-                elseif ($tbaType === 'LetterOfCredit') $tbaNo = $tbaDoc->lc_no ?? 'LC #'.$tbaDoc->id;
-                elseif ($tbaType === 'VendorReturn') $tbaNo = $tbaDoc->return_no ?? 'RET #'.$tbaDoc->id;
-                elseif ($tbaType === 'Order') $tbaNo = $tbaDoc->order_no ?? 'SO #'.$tbaDoc->id;
-                elseif ($tbaType === 'VendorBill') $tbaNo = $tbaDoc->bill_no ?? 'BILL #'.$tbaDoc->id;
-                elseif ($tbaType === 'FundTransfer') $tbaNo = 'Transfer #'.$tbaDoc->id;
-              }
-            @endphp
-            <a href="{{ route('admin.approvals.index') }}" class="dropdown-item py-2 border-bottom d-flex align-items-center justify-content-between" style="white-space: normal;">
-              <div>
-                <strong class="text-dark d-block font-weight-bold" style="font-size: 12px;">{{ $tbaType }}: {{ $tbaNo }}</strong>
-                <small class="text-muted">{{ $tba->step?->step_name ?: 'Step ' . ($tba->step?->step_order ?? 1) }} ({{ $tba->step?->approverRole?->name ?? 'Approver' }})</small>
-              </div>
-              <span class="badge badge-warning text-dark font-weight-bold ml-2">Pending</span>
+        {{-- Topbar Procurement Cart (RFQ / PO) --}}
+        <li>
+            <a id="topbar-booking-cart-toggle" href="javascript:void(0)" onclick="openCartDrawer('booking')"
+                class="notification-toggle" title="Procurement Cart (RFQ / Purchase)">
+                <i class="fas fa-shopping-basket"></i>
+                <span id="topbar-booking-cart-badge" class="badge"
+                    style="display: none; background: #eab308; color: #1a1408; font-weight: 700; font-size: 10px; border-radius: 999px;">0</span>
             </a>
-          @empty
-            <div class="text-center py-4 text-muted">
-              <i class="fas fa-check-circle fa-2x mb-2 text-success d-block"></i>
-              <small>No pending approvals awaiting sign-off.</small>
+        </li>
+
+        {{-- Topbar Sales Quotation Cart --}}
+        <li>
+            <a id="topbar-request-cart-toggle" href="javascript:void(0)" onclick="openCartDrawer('request')"
+                class="notification-toggle" title="Sales Quotation Cart (SQ Basket)">
+                <i class="fas fa-file-invoice-dollar" style="color: #60a5fa;"></i>
+                <span id="topbar-request-cart-badge" class="badge"
+                    style="display: none; background: #2563eb; color: #fff; font-weight: 700; font-size: 10px; border-radius: 999px;">0</span>
+            </a>
+        </li>
+
+        {{-- Topbar Pending Approvals Hub (Rich Dropdown) --}}
+        @php
+            $topbarPendingApprovals = \App\Models\Approval::with(['step.approverRole', 'user'])
+                ->where('status', 'pending')
+                ->latest()
+                ->take(5)
+                ->get();
+            $pendingApprovalsCount = \App\Models\Approval::where('status', 'pending')->count();
+        @endphp
+        <li class="dropdown dropdown-list-toggle">
+            <a href="javascript:void(0)" data-toggle="dropdown" data-display="static" class="notification-toggle"
+                title="Pending Approvals ({{ $pendingApprovalsCount }})">
+                <i class="fas fa-check-double text-warning"></i>
+                @if ($pendingApprovalsCount > 0)
+                    <span class="badge"
+                        style="background: #10b981; color: #fff; font-weight: 700; font-size: 10px; border-radius: 999px;">{{ $pendingApprovalsCount }}</span>
+                @endif
+            </a>
+            <div class="dropdown-menu dropdown-menu-right dropdown-list notif-dropdown" style="width: 360px;">
+                <div class="notif-header d-flex justify-content-between align-items-center py-2 px-3 border-bottom"
+                    style="background: #1e293b; color: #fff;">
+                    <span class="font-weight-bold" style="font-size: 13px;">
+                        <i class="fas fa-tasks text-warning mr-1"></i> Pending Approvals ({{ $pendingApprovalsCount }})
+                    </span>
+                    <a href="{{ route('admin.approvals.index') }}" class="small font-weight-bold text-warning"
+                        style="text-decoration: underline;">
+                        Open Inbox
+                    </a>
+                </div>
+                <div class="notif-body py-1" style="max-height: 280px; overflow-y: auto;">
+                    @forelse($topbarPendingApprovals as $tba)
+                        @php
+                            $tbaDoc = $tba->approvable;
+                            $tbaType = class_basename($tba->approvable_type);
+                            $tbaNo = '-';
+                            if ($tbaDoc) {
+                                if ($tbaType === 'Purchase') {
+                                    $tbaNo = $tbaDoc->po_no ?? 'PO #' . $tbaDoc->id;
+                                } elseif ($tbaType === 'ProductRequest') {
+                                    $tbaNo = $tbaDoc->request_no ?? 'PR #' . $tbaDoc->id;
+                                } elseif ($tbaType === 'ComparisonStatement') {
+                                    $tbaNo = 'CS #' . $tbaDoc->id;
+                                } elseif ($tbaType === 'StockTransfer') {
+                                    $tbaNo = $tbaDoc->transfer_no ?? 'TR #' . $tbaDoc->id;
+                                } elseif ($tbaType === 'LetterOfCredit') {
+                                    $tbaNo = $tbaDoc->lc_no ?? 'LC #' . $tbaDoc->id;
+                                } elseif ($tbaType === 'VendorReturn') {
+                                    $tbaNo = $tbaDoc->return_no ?? 'RET #' . $tbaDoc->id;
+                                } elseif ($tbaType === 'Order') {
+                                    $tbaNo = $tbaDoc->order_no ?? 'SO #' . $tbaDoc->id;
+                                } elseif ($tbaType === 'VendorBill') {
+                                    $tbaNo = $tbaDoc->bill_no ?? 'BILL #' . $tbaDoc->id;
+                                } elseif ($tbaType === 'FundTransfer') {
+                                    $tbaNo = 'Transfer #' . $tbaDoc->id;
+                                }
+                            }
+                        @endphp
+                        <a href="{{ route('admin.approvals.index') }}"
+                            class="dropdown-item py-2 border-bottom d-flex align-items-center justify-content-between"
+                            style="white-space: normal;">
+                            <div>
+                                <strong class="text-dark d-block font-weight-bold"
+                                    style="font-size: 12px;">{{ $tbaType }}: {{ $tbaNo }}</strong>
+                                <small
+                                    class="text-muted">{{ $tba->step?->step_name ?: 'Step ' . ($tba->step?->step_order ?? 1) }}
+                                    ({{ $tba->step?->approverRole?->name ?? 'Approver' }})</small>
+                            </div>
+                            <span class="badge badge-warning text-dark font-weight-bold ml-2">Pending</span>
+                        </a>
+                    @empty
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-check-circle fa-2x mb-2 text-success d-block"></i>
+                            <small>No pending approvals awaiting sign-off.</small>
+                        </div>
+                    @endforelse
+                </div>
+                <div class="notif-footer text-center py-2 border-top bg-light">
+                    <a href="{{ route('admin.approvals.index') }}" class="font-weight-bold text-primary small">
+                        View All Pending Approvals <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
             </div>
-          @endforelse
-        </div>
-        <div class="notif-footer text-center py-2 border-top bg-light">
-          <a href="{{ route('admin.approvals.index') }}" class="font-weight-bold text-primary small">
-            View All Pending Approvals <i class="fas fa-arrow-right ml-1"></i>
-          </a>
-        </div>
-      </div>
-    </li>
+        </li>
 
-    <li class="dropdown dropdown-list-toggle">
-      <a id="low-stock-count-toggle" href="#" data-toggle="dropdown" data-display="static" class="notification-toggle" aria-label="Notifications">
-        <i class="fas fa-bell"></i>
-        <span id="low-stock-count-badge" class="badge" style="display: none;">0</span>
-      </a>
-      <div class="dropdown-menu dropdown-menu-right dropdown-list notif-dropdown">
-        <div class="notif-header">
-          <span class="notif-title">Notifications</span>
-          <a href="#" onclick="markAllAsRead(); return false;" class="notif-mark-read">
-            <i class="fas fa-check-double"></i> Mark All Read
-          </a>
-        </div>
-        <div id="low-stock-list" class="notif-body">
-          <div class="notif-empty">
-            <i class="fas fa-inbox"></i>
-            No new notifications
-          </div>
-        </div>
-        <div class="notif-footer">
-          <a href="{{ route('admin.notifications.all') }}">
-            View All <i class="fas fa-arrow-right"></i>
-          </a>
-        </div>
-      </div>
-    </li>
+        <li class="dropdown dropdown-list-toggle">
+            <a id="low-stock-count-toggle" href="#" data-toggle="dropdown" data-display="static"
+                class="notification-toggle" aria-label="Notifications">
+                <i class="fas fa-bell"></i>
+                <span id="low-stock-count-badge" class="badge" style="display: none;">0</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right dropdown-list notif-dropdown">
+                <div class="notif-header">
+                    <span class="notif-title">Notifications</span>
+                    <a href="#" onclick="markAllAsRead(); return false;" class="notif-mark-read">
+                        <i class="fas fa-check-double"></i> Mark All Read
+                    </a>
+                </div>
+                <div id="low-stock-list" class="notif-body">
+                    <div class="notif-empty">
+                        <i class="fas fa-inbox"></i>
+                        No new notifications
+                    </div>
+                </div>
+                <div class="notif-footer">
+                    <a href="{{ route('admin.notifications.all') }}">
+                        View All <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </li>
 
-    <li class="dropdown">
-      <a href="#" data-toggle="dropdown" data-display="static" class="nav-link-user">
-        <img alt="image" height="32px" width="32px" src="https://ui-avatars.com/api/?background=cda05a&color=1a1408&bold=true&name={{ urlencode(Auth::user()?->name ?? 'Admin') }}" class="rounded-circle">
-      </a>
-      <div class="dropdown-menu dropdown-menu-right">
-        <a href="{{ route('admin.profile') }}" class="dropdown-item has-icon">
-          <i class="far fa-user"></i> Profile
-        </a>
-        <div class="dropdown-divider"></div>
-        <form method="POST" action="{{ route('logout') }}">
-          @csrf
-          <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();" class="dropdown-item has-icon text-danger">
-            <i class="fas fa-sign-out-alt"></i> Logout
-          </a>
-        </form>
-      </div>
-    </li>
-  </ul>
+        <li class="dropdown">
+            <a href="#" data-toggle="dropdown" data-display="static" class="nav-link-user">
+                <img alt="image" height="32px" width="32px"
+                    src="https://ui-avatars.com/api/?background=cda05a&color=1a1408&bold=true&name={{ urlencode(Auth::user()?->name ?? 'Admin') }}"
+                    class="rounded-circle">
+            </a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a href="{{ route('admin.profile') }}" class="dropdown-item has-icon">
+                    <i class="far fa-user"></i> Profile
+                </a>
+                <div class="dropdown-divider"></div>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();"
+                        class="dropdown-item has-icon text-danger">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </form>
+            </div>
+        </li>
+    </ul>
 </nav>
 
 {{-- ============================================
@@ -1207,614 +1755,875 @@ body.sidebar-collapsed .app-sidebar { transform: translateX(-100%); }
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <aside class="app-sidebar" id="appSidebar">
-  <div class="sidebar-header">
-    <i class="fas fa-store"></i>
-    <span>{{ strtoupper(collect(explode(' ', Auth::user()?->name ?? 'Admin'))->map(fn($w) => $w[0] ?? 'A')->take(2)->implode('')) }}</span>
-  </div>
+    <div class="sidebar-header">
+        <i class="fas fa-store"></i>
+        <span>{{ strtoupper(collect(explode(' ', Auth::user()?->name ?? 'Admin'))->map(fn($w) => $w[0] ?? 'A')->take(2)->implode('')) }}</span>
+    </div>
 
-  <div class="sidebar-body">
-    <ul class="sb-nav">
+    <div class="sidebar-body">
+        <ul class="sb-nav">
 
-      @if(auth()->user()?->can('Manage Dashboard') || auth()->user()?->hasRole('Admin'))
-      <li class="sb-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-        <a href="{{ route('admin.dashboard') }}" class="sb-link" title="Dashboard">
-          <i class="fas fa-th-large"></i>
-          <span class="sb-label">Dashboard</span>
-        </a>
-      </li>
-      @endif
+            @if (auth()->user()?->can('Manage Dashboard') || auth()->user()?->hasRole('Admin'))
+                <li class="sb-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('admin.dashboard') }}" class="sb-link" title="Dashboard">
+                        <i class="fas fa-th-large"></i>
+                        <span class="sb-label">Dashboard</span>
+                    </a>
+                </li>
+            @endif
 
-      @if(auth()->user()?->can('Manage Categories') || auth()->user()?->hasRole('Admin'))
-      <li class="sb-item has-children {{ $categoriesActive ? 'active open' : '' }}">
-        <a href="#" class="sb-link sb-toggle" title="Categories">
-          <i class="fas fa-layer-group"></i>
-          <span class="sb-label">Categories</span>
-          <i class="fas fa-chevron-down sb-arrow"></i>
-        </a>
-        <ul class="sb-submenu">
-          <li class="sb-flyout-title">Categories</li>
-          <li><a href="{{ route('admin.category.index') }}"><i class="fas fa-tags"></i> Category</a></li>
-          <li><a href="{{ route('admin.sub-category.index') }}"><i class="fas fa-tag"></i> Sub Category</a></li>
-          <li><a href="{{ route('admin.child-category.index') }}"><i class="fas fa-tag"></i> Child Category</a></li>
-          <li class="sb-submenu-divider"></li>
-          <li><a href="{{ route('admin.slider.index') }}"><i class="fas fa-images"></i> Slider</a></li>
-          <li><a href="{{ route('admin.product-types.index') }}"><i class="fas fa-calendar-alt"></i> Occasion Type</a></li>
+            @if (auth()->user()?->can('Manage Categories') || auth()->user()?->hasRole('Admin'))
+                <li class="sb-item has-children {{ $categoriesActive ? 'active open' : '' }}">
+                    <a href="#" class="sb-link sb-toggle" title="Categories">
+                        <i class="fas fa-layer-group"></i>
+                        <span class="sb-label">Categories</span>
+                        <i class="fas fa-chevron-down sb-arrow"></i>
+                    </a>
+                    <ul class="sb-submenu">
+                        <li class="sb-flyout-title">Categories</li>
+                        <li><a href="{{ route('admin.category.index') }}"><i class="fas fa-tags"></i> Category</a>
+                        </li>
+                        <li><a href="{{ route('admin.sub-category.index') }}"><i class="fas fa-tag"></i> Sub
+                                Category</a></li>
+                        <li><a href="{{ route('admin.child-category.index') }}"><i class="fas fa-tag"></i> Child
+                                Category</a></li>
+                        <li class="sb-submenu-divider"></li>
+                        <li><a href="{{ route('admin.slider.index') }}"><i class="fas fa-images"></i> Slider</a></li>
+                        <li><a href="{{ route('admin.product-types.index') }}"><i class="fas fa-calendar-alt"></i>
+                                Occasion Type</a></li>
+                    </ul>
+                </li>
+            @endif
+
+            @if (auth()->user()?->can('Manage Products') || auth()->user()?->hasRole('Admin'))
+                <li class="sb-item has-children {{ $productsActive ? 'active open' : '' }}">
+                    <a href="#" class="sb-link sb-toggle" title="Products">
+                        <i class="fas fa-box-open"></i>
+                        <span class="sb-label">Products</span>
+                        <i class="fas fa-chevron-down sb-arrow"></i>
+                    </a>
+                    <ul class="sb-submenu">
+                        <li class="sb-flyout-title">Products</li>
+                        <li><a href="{{ route('admin.products.index') }}"><i class="fas fa-cubes"></i> All
+                                Products</a></li>
+                        <li class="sb-submenu-header">Attributes</li>
+                        <li><a href="{{ route('admin.units.index') }}"><i class="fas fa-weight-hanging"></i>
+                                Units</a></li>
+                        <li><a href="{{ route('admin.colors.index') }}"><i class="fas fa-palette"></i> Colors</a>
+                        </li>
+                        <li><a href="{{ route('admin.sizes.index') }}"><i class="fas fa-ruler"></i> Sizes</a></li>
+                    </ul>
+                </li>
+            @endif
+
+            @if (auth()->user()?->can('Manage Inventory') ||
+                    auth()->user()?->can('View Product Stock') ||
+                    auth()->user()?->can('Manage Stock Adjustments') ||
+                    auth()->user()?->can('Manage Stock Transfers') ||
+                    auth()->user()?->can('Manage Stock Ledger') ||
+                    auth()->user()?->can('Manage Stock Batches') ||
+                    auth()->user()?->can('Manage Warehouse Zones') ||
+                    auth()->user()?->can('Manage Warehouse Bins') ||
+                    auth()->user()?->hasRole('Admin'))
+                <li class="sb-item has-children {{ $inventoryActive ? 'active open' : '' }}">
+                    <a href="#" class="sb-link sb-toggle" title="Inventory">
+                        <i class="fas fa-warehouse"></i>
+                        <span class="sb-label">Inventory</span>
+                        <i class="fas fa-chevron-down sb-arrow"></i>
+                    </a>
+                    <ul class="sb-submenu">
+                        <li class="sb-flyout-title">Inventory</li>
+                        @if (auth()->user()?->can('Manage Inventory') ||
+                                auth()->user()?->can('View Product Stock') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.inventory-reports.index') }}"><i
+                                        class="fas fa-clipboard-check"></i> Current Stock</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Stock Adjustments') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.stock-adjustments.index') }}"><i
+                                        class="fas fa-sliders-h"></i> Stock Adjustments</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Stock Transfers') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.stock-transfers.index') }}"><i
+                                        class="fas fa-truck-moving"></i> Stock Transfers</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Stock Ledger') ||
+                                auth()->user()?->can('Manage Stock Batches') ||
+                                auth()->user()?->can('Manage Warehouse Zones') ||
+                                auth()->user()?->can('Manage Warehouse Bins') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li class="sb-submenu-divider"></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Stock Ledger') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.stock-ledger.index') }}"><i class="fas fa-book"></i> Stock
+                                    Ledger</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Stock Batches') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.stock-batches.index') }}"><i class="fas fa-boxes"></i> Stock
+                                    Batches</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Stock Ledger') ||
+                                auth()->user()?->can('Manage Inventory') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.month-end-snapshots.index') }}"><i
+                                        class="fas fa-calendar-check"></i> Month-End Valuation</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Warehouse Zones') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.warehouse-zones.index') }}"><i class="fas fa-th-large"></i>
+                                    Warehouse Zones</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Warehouse Bins') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.warehouse-bins.index') }}"><i class="fas fa-th"></i>
+                                    Warehouse Bins</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Products') ||
+                                auth()->user()?->can('Manage Inventory') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.barcode-labels.index') }}"><i class="fas fa-barcode"></i>
+                                    Barcode Labels</a></li>
+                            <li><a href="{{ route('admin.packaging-units.index') }}"><i class="fas fa-boxes"></i>
+                                    Packaging & Cartons</a></li>
+                        @endif
+                    </ul>
+                </li>
+            @endif
+
+            @if (auth()->user()?->can('Manage Orders') ||
+                    auth()->user()?->can('Manage Order Place') ||
+                    auth()->user()?->can('Manage Order Receive') ||
+                    auth()->user()?->can('Manage Sales Quotations') ||
+                    auth()->user()?->can('Manage Delivery Orders') ||
+                    auth()->user()?->can('Manage Sales Invoices') ||
+                    auth()->user()?->can('Manage Pricelists') ||
+                    auth()->user()?->can('Manage Sales Returns') ||
+                    auth()->user()?->can('Manage Credit Notes') ||
+                    auth()->user()?->hasRole('Admin'))
+                <li class="sb-item has-children {{ $ordersActive ? 'active open' : '' }}">
+                    <a href="#" class="sb-link sb-toggle" title="Orders">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="sb-label">Orders</span>
+                        <i class="fas fa-chevron-down sb-arrow"></i>
+                    </a>
+                    <ul class="sb-submenu">
+                        <li class="sb-flyout-title">Orders & Sales</li>
+                        <li class="sb-submenu-header">Commercial Sales</li>
+                        @if (auth()->user()?->can('Manage Sales Quotations') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.sales-quotations.index') }}"><i
+                                        class="fas fa-file-signature"></i> Sales Quotations (SQ)</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Orders') ||
+                                auth()->user()?->can('Manage Order Place') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.sales-orders.index') }}"><i class="fas fa-file-invoice"></i>
+                                    Sales Orders (SO)</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Orders') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-globe"></i> Web / Portal
+                                    Orders</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Pricelists') ||
+                                auth()->user()?->can('Manage Discounts') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li class="sb-submenu-header">Pricing & Promotions</li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Pricelists') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.pricelists.index') }}"><i class="fas fa-tags"></i> Customer
+                                    Pricelists</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Discounts') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.coupons.index') }}"><i class="fas fa-ticket-alt"></i> Promo
+                                    Coupons</a></li>
+                            <li><a href="{{ route('admin.gift-cards.index') }}"><i class="fas fa-gift"></i> Gift
+                                    Cards Engine</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Delivery Orders') ||
+                                auth()->user()?->can('Manage Sales Returns') ||
+                                auth()->user()?->can('Manage Credit Notes') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li class="sb-submenu-header">Fulfillment & Operations</li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Delivery Orders') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.delivery-orders.index') }}"><i class="fas fa-truck"></i>
+                                    Delivery Orders (DO)</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Sales Returns') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.sales-returns.index') }}"><i class="fas fa-undo-alt"></i>
+                                    Customer Returns (RMA)</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Credit Notes') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.credit-notes.index') }}"><i class="fas fa-receipt"></i>
+                                    Credit Notes</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Create Product Requests') ||
+                                auth()->user()?->can('Manage Product Requests') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li class="sb-submenu-divider"></li>
+                            <li><a href="{{ route('admin.custom-product-requests.index') }}"><i
+                                        class="fas fa-sync-alt"></i> Custom Requests</a></li>
+                            <li><a href="{{ route('admin.product-requests.index') }}"><i class="fas fa-history"></i>
+                                    Old Requests</a></li>
+                        @endif
+                    </ul>
+                </li>
+            @endif
+
+            @if (auth()->user()?->can('Manage Procurement') ||
+                    auth()->user()?->can('Manage RFQs') ||
+                    auth()->user()?->can('Manage Purchase Orders') ||
+                    auth()->user()?->can('Manage Vendor Bills') ||
+                    auth()->user()?->can('Manage Goods Receipts') ||
+                    auth()->user()?->can('Manage Shipments') ||
+                    auth()->user()?->can('Manage Vendor Returns') ||
+                    auth()->user()?->hasRole('Admin'))
+                <li class="sb-item has-children {{ $procurementActive ? 'active open' : '' }}">
+                    <a href="#" class="sb-link sb-toggle" title="Procurement">
+                        <i class="fas fa-file-contract"></i>
+                        <span class="sb-label">Procurement</span>
+                        <i class="fas fa-chevron-down sb-arrow"></i>
+                    </a>
+                    <ul class="sb-submenu">
+                        <li class="sb-flyout-title">Procurement</li>
+                        @if (auth()->user()?->can('Manage RFQs') ||
+                                auth()->user()?->can('Manage Procurement') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.rfqs.index') }}"><i class="fas fa-list"></i> All RFQs</a>
+                            </li>
+                            <li><a href="{{ route('admin.rfqs.create') }}"><i class="fas fa-plus-circle"></i> Create
+                                    RFQ</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Purchase Orders') ||
+                                auth()->user()?->can('Manage Procurement') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.purchase-orders.index') }}"><i
+                                        class="fas fa-file-invoice"></i> Purchase Orders (PO)</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Vendor Bills') ||
+                                auth()->user()?->can('Manage Procurement') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.vendor-bills.index') }}"><i
+                                        class="fas fa-file-invoice-dollar"></i> Vendor Bills (Invoices)</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Letter of Credits') ||
+                                auth()->user()?->can('Manage Procurement') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.letters-of-credit.index') }}"><i
+                                        class="fas fa-university"></i> LC Register</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Shipments') ||
+                                auth()->user()?->can('Manage Goods Receipts') ||
+                                auth()->user()?->can('Manage Vendor Returns') ||
+                                auth()->user()?->can('Manage Procurement') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li class="sb-submenu-header">Logistics & Receiving</li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Shipments') ||
+                                auth()->user()?->can('Manage Procurement') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.shipments.index') }}"><i class="fas fa-ship"></i> Shipments
+                                    & SIT</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Goods Receipts') ||
+                                auth()->user()?->can('Manage Procurement') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.goods-receipts.index') }}"><i class="fas fa-dolly"></i>
+                                    Goods Receipts (GRN)</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Vendor Returns') ||
+                                auth()->user()?->can('Manage Procurement') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.vendor-returns.index') }}"><i class="fas fa-undo"></i>
+                                    Vendor Returns</a></li>
+                        @endif
+                    </ul>
+                </li>
+            @endif
+
+            @if (auth()->user()?->can('Manage Reports') || auth()->user()?->hasRole('Admin'))
+                <li class="sb-item has-children {{ $reportsActive ? 'active open' : '' }}">
+                    <a href="#" class="sb-link sb-toggle" title="Reports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span class="sb-label">Reports</span>
+                        <i class="fas fa-chevron-down sb-arrow"></i>
+                    </a>
+                    <ul class="sb-submenu">
+                        <li class="sb-flyout-title">Reports</li>
+                        <li class="sb-submenu-header">Core Financial Statements</li>
+                        <li><a href="{{ route('admin.reports.general-ledger') }}"><i class="fas fa-book"></i> General
+                                Ledger</a></li>
+                        <li><a href="{{ route('admin.reports.trial-balance') }}"><i class="fas fa-balance-scale"></i>
+                                Trial Balance</a></li>
+                        <li><a href="{{ route('admin.reports.profit-loss') }}"><i class="fas fa-chart-line"></i>
+                                Profit & Loss (P&L)</a></li>
+                        <li><a href="{{ route('admin.reports.balance-sheet') }}"><i class="fas fa-building"></i>
+                                Balance Sheet</a></li>
+
+                        <li class="sb-submenu-header">Payables & Receivables Statements</li>
+                        <li><a href="{{ route('admin.accounts.index') }}"><i class="fas fa-receipt"></i> Customer
+                                Transaction Ledger</a></li>
+                        <li><a href="{{ route('admin.reports.ar-aging') }}"><i class="fas fa-clock"></i> AR Customer
+                                Aging</a></li>
+                        <li><a href="{{ route('admin.accounts.vendor-payments.index') }}"><i
+                                    class="fas fa-money-check-alt"></i> Vendor Payment Ledger</a></li>
+                        <li><a href="{{ route('admin.vendor-ledger.aging') }}"><i class="fas fa-hourglass-half"></i>
+                                AP Vendor Aging</a></li>
+                        <li><a href="{{ route('admin.vendor-ledger.index') }}"><i
+                                    class="fas fa-file-invoice-dollar"></i> Supplier Ledger & Statement</a></li>
+
+                        <li class="sb-submenu-header">Analytics & Stock Reports</li>
+                        <li><a href="{{ route('admin.reports.orders') }}"><i class="fas fa-file-invoice"></i> Order &
+                                Sales Report</a></li>
+                        <li><a href="{{ route('admin.reports.stock') }}"><i class="fas fa-boxes"></i> Stock Valuation
+                                Reports</a></li>
+                        <li><a href="{{ route('admin.reports.low-stock') }}"><i
+                                    class="fas fa-exclamation-triangle"></i> Low Stock Alert</a></li>
+                        <li><a href="{{ route('admin.reports.current-stock') }}"><i class="fas fa-cubes"></i> Current
+                                Stock Report</a></li>
+                        <li><a href="{{ route('admin.reports.salesperson-performance') }}"><i
+                                    class="fas fa-user-tie"></i> Sales Rep Performance</a></li>
+
+                        <li class="sb-submenu-header">Procurement Reports</li>
+                        <li><a href="{{ route('admin.reports.purchase') }}"><i class="fas fa-shopping-bag"></i>
+                                Purchase History</a></li>
+                        <li><a href="{{ route('admin.reports.product-purchase-history') }}"><i
+                                    class="fas fa-search"></i> Product Tracking</a></li>
+                        <li><a href="{{ route('admin.purchase-reports.supplier-wise') }}"><i
+                                    class="fas fa-user-tag"></i> Supplier-wise Purchase</a></li>
+                        <li><a href="{{ route('admin.purchase-reports.item-wise') }}"><i class="fas fa-cubes"></i>
+                                Item-wise Purchase</a></li>
+                        <li><a href="{{ route('admin.purchase-reports.total-value') }}"><i
+                                    class="fas fa-calculator"></i> Total Purchase Value</a></li>
+                        <li><a href="{{ route('admin.purchase-reports.vs-last-year') }}"><i
+                                    class="fas fa-balance-scale"></i> Purchase vs Last Year</a></li>
+                        <li><a href="{{ route('admin.purchase-reports.pr-status') }}"><i
+                                    class="fas fa-clipboard-list"></i> PR Status & Pending</a></li>
+                        <li><a href="{{ route('admin.purchase-reports.po-status') }}"><i
+                                    class="fas fa-file-signature"></i> PO Issued & Items</a></li>
+                        <li class="sb-submenu-divider"></li>
+                        <li><a href="{{ route('admin.reports.audit') }}"><i class="fas fa-clipboard-check"></i> Audit
+                                Log Report</a></li>
+                    </ul>
+                </li>
+            @endif
+
+            @if (auth()->user()?->can('Manage Accounts') ||
+                    auth()->user()?->can('Accountants') ||
+                    auth()->user()?->can('Manage Chart of Accounts') ||
+                    auth()->user()?->can('Manage Journal Vouchers') ||
+                    auth()->user()?->can('Manage Fiscal Years') ||
+                    auth()->user()?->can('Manage Bank Accounts') ||
+                    auth()->user()?->can('Manage Bank Reconciliation') ||
+                    auth()->user()?->can('Manage Petty Cash') ||
+                    auth()->user()?->can('Manage Customer Payments') ||
+                    auth()->user()?->can('Manage Vendor Ledger') ||
+                    auth()->user()?->can('Manage Fixed Assets') ||
+                    auth()->user()?->hasRole('Admin'))
+                <li class="sb-item has-children {{ $accountsActive ? 'active open' : '' }}">
+                    <a href="#" class="sb-link sb-toggle" title="Accounts">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span class="sb-label">Accounts</span>
+                        <i class="fas fa-chevron-down sb-arrow"></i>
+                    </a>
+                    <ul class="sb-submenu">
+                        @if (auth()->user()?->can('Manage Chart of Accounts') ||
+                                auth()->user()?->can('Manage Journal Vouchers') ||
+                                auth()->user()?->can('Manage Fiscal Years') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li class="sb-submenu-header">General Ledger & Setup</li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Chart of Accounts') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.chart-of-accounts.index') }}"><i class="fas fa-sitemap"></i>
+                                    Chart of Accounts (COA)</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Journal Vouchers') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.journal-vouchers.index') }}"><i
+                                        class="fas fa-journal-whills"></i> Manual Journal Vouchers (JV)</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Fiscal Years') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.fiscal-years.index') }}"><i class="fas fa-calendar-alt"></i>
+                                    Fiscal Years & Period Lock</a></li>
+                        @endif
+
+                        @if (auth()->user()?->can('Manage Bank Accounts') ||
+                                auth()->user()?->can('Manage Bank Reconciliation') ||
+                                auth()->user()?->can('Manage Petty Cash') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li class="sb-submenu-header">Banking & Treasury</li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Bank Accounts') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.bank-accounts.index') }}"><i class="fas fa-university"></i>
+                                    Bank Accounts</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Bank Reconciliation') ||
+                                auth()->user()?->can('Manage Bank Accounts') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.bank-reconciliation.index') }}"><i class="fas fa-sync"></i>
+                                    Bank Reconciliation</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Petty Cash') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.petty-cash.index') }}"><i class="fas fa-coins"></i> Petty
+                                    Cash Register</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Bank Accounts') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.fund-transfers.index') }}"><i class="fas fa-random"></i>
+                                    Inter-Account Transfers</a></li>
+                        @endif
+
+                        @if (auth()->user()?->can('Manage Sales Invoices') ||
+                                auth()->user()?->can('Manage Customer Payments') ||
+                                auth()->user()?->can('Manage Accounts') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li class="sb-submenu-header">Accounts Receivable (Customer)</li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Sales Invoices') || auth()->user()?->hasRole('Admin'))
+                            <li class="{{ request()->routeIs('admin.sales-invoices.*') ? 'active' : '' }}"><a
+                                    href="{{ route('admin.sales-invoices.index') }}"
+                                    class="{{ request()->routeIs('admin.sales-invoices.*') ? 'active' : '' }}"><i
+                                        class="fas fa-file-invoice"></i> Sales Invoices</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Customer Payments') || auth()->user()?->hasRole('Admin'))
+                            <li class="{{ request()->routeIs('admin.customer-payments.create') ? 'active' : '' }}"><a
+                                    href="{{ route('admin.customer-payments.create') }}"
+                                    class="{{ request()->routeIs('admin.customer-payments.create') ? 'active' : '' }}"><i
+                                        class="fas fa-hand-holding-usd"></i> Receive Payment</a></li>
+                            <li class="{{ request()->routeIs('admin.customer-payments.index') ? 'active' : '' }}"><a
+                                    href="{{ route('admin.customer-payments.index') }}"
+                                    class="{{ request()->routeIs('admin.customer-payments.index') ? 'active' : '' }}"><i
+                                        class="fas fa-receipt"></i> Payment Receipts</a></li>
+                            <li class="{{ request()->routeIs('admin.accounts.due-orders') ? 'active' : '' }}"><a
+                                    href="{{ route('admin.accounts.due-orders') }}"
+                                    class="{{ request()->routeIs('admin.accounts.due-orders') ? 'active' : '' }}"><i
+                                        class="fas fa-clock"></i> Customer Due Orders</a></li>
+                        @endif
+
+                        @if (auth()->user()?->can('Manage Vendor Bills') ||
+                                auth()->user()?->can('Manage Accounts') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li class="sb-submenu-header">Accounts Payable (Vendor)</li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Vendor Bills') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.vendor-bills.index') }}"><i
+                                        class="fas fa-file-invoice-dollar"></i> Vendor Bills</a></li>
+                            <li><a href="{{ route('admin.purchase-payments.index') }}"><i
+                                        class="fas fa-receipt"></i> Payment Vouchers</a></li>
+                            <li><a href="{{ route('admin.accounts.vendor-payments.due-purchases') }}"><i
+                                        class="fas fa-exclamation-circle"></i> Vendor Due Purchases</a></li>
+                        @endif
+
+                        @if (auth()->user()?->can('Manage Fixed Assets') || auth()->user()?->hasRole('Admin'))
+                            <li class="sb-submenu-header">Fixed Assets & Depreciation</li>
+                            <li><a href="{{ route('admin.assets.index') }}"><i class="fas fa-building"></i> Fixed
+                                    Assets Register</a></li>
+                        @endif
+                    </ul>
+                </li>
+            @endif
+
+            @if (auth()->user()?->can('Manage Settings') ||
+                    auth()->user()?->can('Manage Accounts') ||
+                    auth()->user()?->hasRole('Admin'))
+                <li class="sb-item has-children {{ $paymentsActive ? 'active open' : '' }}">
+                    <a href="#" class="sb-link sb-toggle" title="Payment Operations">
+                        <i class="fas fa-money-check-alt"></i>
+                        <span class="sb-label">Payment Operations</span>
+                        <i class="fas fa-chevron-down sb-arrow"></i>
+                    </a>
+                    <ul class="sb-submenu">
+                        <li class="sb-flyout-title">Payment Operations</li>
+                        <li><a href="{{ route('admin.payments.cod.index') }}"
+                                class="{{ request()->routeIs('admin.payments.cod.*') ? 'active' : '' }}"><i
+                                    class="fas fa-truck-loading"></i> COD Collections</a></li>
+                        <li><a href="{{ route('admin.payments.transactions.index') }}"
+                                class="{{ request()->routeIs('admin.payments.transactions.*') ? 'active' : '' }}"><i
+                                    class="fas fa-receipt"></i> Payment Transactions</a></li>
+                    </ul>
+                </li>
+            @endif
+
+            @if (auth()->user()?->can('Manage Brands') || auth()->user()?->hasRole('Admin'))
+                <li class="sb-item has-children {{ $brandsActive ? 'active open' : '' }}">
+                    <a href="#" class="sb-link sb-toggle" title="Brands">
+                        <i class="fas fa-tag"></i>
+                        <span class="sb-label">Brands</span>
+                        <i class="fas fa-chevron-down sb-arrow"></i>
+                    </a>
+                    <ul class="sb-submenu">
+                        <li class="sb-flyout-title">Brands</li>
+                        <li><a href="{{ route('admin.brand.index') }}"><i class="fas fa-list"></i> All Brands</a>
+                        </li>
+                        <li><a href="{{ route('admin.brand.create') }}"><i class="fas fa-plus-circle"></i> Add
+                                Brand</a></li>
+                    </ul>
+                </li>
+            @endif
+
+            @if (auth()->user()?->can('Manage Vendors') || auth()->user()?->hasRole('Admin'))
+                <li class="sb-item has-children {{ $vendorsActive ? 'active open' : '' }}">
+                    <a href="#" class="sb-link sb-toggle" title="Vendors">
+                        <i class="fas fa-truck"></i>
+                        <span class="sb-label">Vendors</span>
+                        <i class="fas fa-chevron-down sb-arrow"></i>
+                    </a>
+                    <ul class="sb-submenu">
+                        <li class="sb-flyout-title">Vendors</li>
+                        <li><a href="{{ route('admin.vendor.index') }}"><i class="fas fa-list"></i> All Vendors</a>
+                        </li>
+                        <li><a href="{{ route('admin.vendor.create') }}"><i class="fas fa-plus-circle"></i> Add
+                                Vendor</a></li>
+                    </ul>
+                </li>
+            @endif
+
+            @if (auth()->user()?->can('Manage Enterprise Setup') ||
+                    auth()->user()?->can('Manage Companies') ||
+                    auth()->user()?->can('Manage Outlets') ||
+                    auth()->user()?->can('Manage Departments') ||
+                    auth()->user()?->can('Manage Currencies') ||
+                    auth()->user()?->can('Manage Approval Workflows') ||
+                    auth()->user()?->hasRole('Admin'))
+                <li class="sb-item has-children {{ $masterActive ? 'active open' : '' }}">
+                    <a href="#" class="sb-link sb-toggle" title="Enterprise Setup">
+                        <i class="fas fa-building"></i>
+                        <span class="sb-label">Enterprise Setup</span>
+                        <i class="fas fa-chevron-down sb-arrow"></i>
+                    </a>
+                    <ul class="sb-submenu">
+                        <li class="sb-flyout-title">Enterprise Setup</li>
+                        @if (auth()->user()?->can('Manage Companies') ||
+                                auth()->user()?->can('Manage Enterprise Setup') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.master.companies.index') }}"><i class="fas fa-city"></i>
+                                    Companies</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Outlets') ||
+                                auth()->user()?->can('Manage Enterprise Setup') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.master.outlets.index') }}"><i class="fas fa-warehouse"></i>
+                                    Outlets & Hubs</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Departments') ||
+                                auth()->user()?->can('Manage Enterprise Setup') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.master.departments.index') }}"><i
+                                        class="fas fa-sitemap"></i> Departments</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Currencies') ||
+                                auth()->user()?->can('Manage Enterprise Setup') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.master.currencies.index') }}"><i class="fas fa-coins"></i>
+                                    Currencies</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Approval Workflows') ||
+                                auth()->user()?->can('Manage Enterprise Setup') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.master.approval-workflows.index') }}"><i
+                                        class="fas fa-check-double"></i> Approval Workflows</a></li>
+                            <li><a href="{{ route('admin.approvals.index') }}"><i class="fas fa-inbox"></i>
+                                    Approvals Inbox</a></li>
+                        @endif
+                    </ul>
+                </li>
+            @endif
+
+            @if (auth()->user()?->can('Manage Settings') ||
+                    auth()->user()?->can('Manage Users') ||
+                    auth()->user()?->can('Manage Roles') ||
+                    auth()->user()?->can('Manage Permissions') ||
+                    auth()->user()?->can('Manage Pricing Rules') ||
+                    auth()->user()?->can('Manage Taxes') ||
+                    auth()->user()?->can('Manage Discounts') ||
+                    auth()->user()?->can('Manage Document Sequences') ||
+                    auth()->user()?->can('Administration') ||
+                    auth()->user()?->hasRole('Admin'))
+                <li class="sb-item has-children {{ $systemActive ? 'active open' : '' }}">
+                    <a href="#" class="sb-link sb-toggle" title="System">
+                        <i class="fas fa-cog"></i>
+                        <span class="sb-label">System</span>
+                        <i class="fas fa-chevron-down sb-arrow"></i>
+                    </a>
+                    <ul class="sb-submenu">
+                        <li class="sb-flyout-title">System</li>
+                        @if (auth()->user()?->can('Manage Users') ||
+                                auth()->user()?->can('Manage Roles') ||
+                                auth()->user()?->can('Manage Permissions') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li class="sb-submenu-header">User Management</li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Users') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.users.index') }}"><i class="fas fa-users-cog"></i>
+                                    Users</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Roles') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.role.index') }}"><i class="fas fa-user-tag"></i> Roles</a>
+                            </li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Permissions') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.permission.index') }}"><i class="fas fa-lock"></i>
+                                    Permissions</a></li>
+                        @endif
+
+                        @if (auth()->user()?->can('Manage Pricing Rules') ||
+                                auth()->user()?->can('Manage Taxes') ||
+                                auth()->user()?->can('Manage Discounts') ||
+                                auth()->user()?->can('Manage Document Sequences') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li class="sb-submenu-header">Business Rules</li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Pricing Rules') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.pricing-rules.index') }}"><i
+                                        class="fas fa-dollar-sign"></i> Pricing Rules</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Taxes') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.taxes.index') }}"><i class="fas fa-percent"></i> Tax /
+                                    VAT</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Discounts') || auth()->user()?->hasRole('Admin'))
+                            <li><a href="{{ route('admin.discounts.index') }}"><i class="fas fa-tags"></i>
+                                    Discount</a></li>
+                        @endif
+                        @if (auth()->user()?->can('Manage Document Sequences') || auth()->user()?->hasRole('Admin'))
+                            <li class="{{ request()->routeIs('admin.document-sequences.*') ? 'active' : '' }}"><a
+                                    href="{{ route('admin.document-sequences.index') }}"><i
+                                        class="fas fa-barcode"></i> Doc Sequences</a></li>
+                        @endif
+
+                        @if (auth()->user()?->can('Manage Settings') ||
+                                auth()->user()?->can('Administration') ||
+                                auth()->user()?->hasRole('Admin'))
+                            <li class="sb-submenu-header">System Settings & Utilities</li>
+                            <li><a href="{{ route('admin.products.announcement.index') }}"><i
+                                        class="fas fa-bullhorn"></i> Product Announcement</a></li>
+                            <li><a href="{{ route('admin.settings.index') }}"
+                                    class="{{ request()->routeIs('admin.settings.index', 'admin.settings.general', 'admin.settings.email') ? 'active' : '' }}"><i
+                                        class="fas fa-sliders-h"></i> General Settings</a></li>
+                            <li><a href="{{ route('admin.payment-settings.index') }}"
+                                    class="{{ request()->routeIs('admin.payment-settings.*') ? 'active' : '' }}"><i
+                                        class="fas fa-credit-card"></i> Payment Settings</a></li>
+                            <li><a href="{{ route('admin.settings.feature-toggles') }}"
+                                    class="{{ request()->routeIs('admin.settings.feature-toggles*') ? 'active' : '' }}"><i
+                                        class="fas fa-toggle-on"></i> Feature Toggles</a></li>
+                            <li><a href="{{ route('admin.backups.index') }}"
+                                    class="{{ request()->routeIs('admin.backups.*') ? 'active' : '' }}"><i
+                                        class="fas fa-database"></i> Database Backups</a></li>
+                            <li><a href="{{ route('admin.recycle-bin.index') }}"
+                                    class="{{ request()->routeIs('admin.recycle-bin.*') ? 'active' : '' }}"><i
+                                        class="fas fa-recycle"></i> Recycle Bin</a></li>
+                        @endif
+                    </ul>
+                </li>
+            @endif
+
         </ul>
-      </li>
-      @endif
-
-      @if(auth()->user()?->can('Manage Products') || auth()->user()?->hasRole('Admin'))
-      <li class="sb-item has-children {{ $productsActive ? 'active open' : '' }}">
-        <a href="#" class="sb-link sb-toggle" title="Products">
-          <i class="fas fa-box-open"></i>
-          <span class="sb-label">Products</span>
-          <i class="fas fa-chevron-down sb-arrow"></i>
-        </a>
-        <ul class="sb-submenu">
-          <li class="sb-flyout-title">Products</li>
-          <li><a href="{{ route('admin.products.index') }}"><i class="fas fa-cubes"></i> All Products</a></li>
-          <li class="sb-submenu-header">Attributes</li>
-          <li><a href="{{ route('admin.units.index') }}"><i class="fas fa-weight-hanging"></i> Units</a></li>
-          <li><a href="{{ route('admin.colors.index') }}"><i class="fas fa-palette"></i> Colors</a></li>
-          <li><a href="{{ route('admin.sizes.index') }}"><i class="fas fa-ruler"></i> Sizes</a></li>
-        </ul>
-      </li>
-      @endif
-
-      @if(auth()->user()?->can('Manage Inventory') || auth()->user()?->can('View Product Stock') || auth()->user()?->can('Manage Stock Adjustments') || auth()->user()?->can('Manage Stock Transfers') || auth()->user()?->can('Manage Stock Ledger') || auth()->user()?->can('Manage Stock Batches') || auth()->user()?->can('Manage Warehouse Zones') || auth()->user()?->can('Manage Warehouse Bins') || auth()->user()?->hasRole('Admin'))
-      <li class="sb-item has-children {{ $inventoryActive ? 'active open' : '' }}">
-        <a href="#" class="sb-link sb-toggle" title="Inventory">
-          <i class="fas fa-warehouse"></i>
-          <span class="sb-label">Inventory</span>
-          <i class="fas fa-chevron-down sb-arrow"></i>
-        </a>
-        <ul class="sb-submenu">
-          <li class="sb-flyout-title">Inventory</li>
-          @if(auth()->user()?->can('Manage Inventory') || auth()->user()?->can('View Product Stock') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.inventory-reports.index') }}"><i class="fas fa-clipboard-check"></i> Current Stock</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Stock Adjustments') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.stock-adjustments.index') }}"><i class="fas fa-sliders-h"></i> Stock Adjustments</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Stock Transfers') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.stock-transfers.index') }}"><i class="fas fa-truck-moving"></i> Stock Transfers</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Stock Ledger') || auth()->user()?->can('Manage Stock Batches') || auth()->user()?->can('Manage Warehouse Zones') || auth()->user()?->can('Manage Warehouse Bins') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-divider"></li>
-          @endif
-          @if(auth()->user()?->can('Manage Stock Ledger') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.stock-ledger.index') }}"><i class="fas fa-book"></i> Stock Ledger</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Stock Batches') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.stock-batches.index') }}"><i class="fas fa-boxes"></i> Stock Batches</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Stock Ledger') || auth()->user()?->can('Manage Inventory') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.month-end-snapshots.index') }}"><i class="fas fa-calendar-check"></i> Month-End Valuation</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Warehouse Zones') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.warehouse-zones.index') }}"><i class="fas fa-th-large"></i> Warehouse Zones</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Warehouse Bins') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.warehouse-bins.index') }}"><i class="fas fa-th"></i> Warehouse Bins</a></li>
-          @endif
-        </ul>
-      </li>
-      @endif
-
-      @if(auth()->user()?->can('Manage Orders') || auth()->user()?->can('Manage Order Place') || auth()->user()?->can('Manage Order Receive') || auth()->user()?->can('Manage Sales Quotations') || auth()->user()?->can('Manage Delivery Orders') || auth()->user()?->can('Manage Sales Invoices') || auth()->user()?->can('Manage Pricelists') || auth()->user()?->can('Manage Sales Returns') || auth()->user()?->can('Manage Credit Notes') || auth()->user()?->hasRole('Admin'))
-      <li class="sb-item has-children {{ $ordersActive ? 'active open' : '' }}">
-        <a href="#" class="sb-link sb-toggle" title="Orders">
-          <i class="fas fa-shopping-bag"></i>
-          <span class="sb-label">Orders</span>
-          <i class="fas fa-chevron-down sb-arrow"></i>
-        </a>
-        <ul class="sb-submenu">
-          <li class="sb-flyout-title">Orders & Sales</li>
-          <li class="sb-submenu-header">Commercial Sales</li>
-          @if(auth()->user()?->can('Manage Sales Quotations') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.sales-quotations.index') }}"><i class="fas fa-file-signature"></i> Sales Quotations (SQ)</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Orders') || auth()->user()?->can('Manage Order Place') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.sales-orders.index') }}"><i class="fas fa-file-invoice"></i> Sales Orders (SO)</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Orders') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.orders.index') }}"><i class="fas fa-globe"></i> Web / Portal Orders</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Pricelists') || auth()->user()?->can('Manage Discounts') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-header">Pricing & Promotions</li>
-          @endif
-          @if(auth()->user()?->can('Manage Pricelists') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.pricelists.index') }}"><i class="fas fa-tags"></i> Customer Pricelists</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Discounts') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.coupons.index') }}"><i class="fas fa-ticket-alt"></i> Promo Coupons</a></li>
-          <li><a href="{{ route('admin.gift-cards.index') }}"><i class="fas fa-gift"></i> Gift Cards Engine</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Delivery Orders') || auth()->user()?->can('Manage Sales Returns') || auth()->user()?->can('Manage Credit Notes') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-header">Fulfillment & Operations</li>
-          @endif
-          @if(auth()->user()?->can('Manage Delivery Orders') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.delivery-orders.index') }}"><i class="fas fa-truck"></i> Delivery Orders (DO)</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Sales Returns') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.sales-returns.index') }}"><i class="fas fa-undo-alt"></i> Customer Returns (RMA)</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Credit Notes') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.credit-notes.index') }}"><i class="fas fa-receipt"></i> Credit Notes</a></li>
-          @endif
-          @if(auth()->user()?->can('Create Product Requests') || auth()->user()?->can('Manage Product Requests') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-divider"></li>
-          <li><a href="{{ route('admin.custom-product-requests.index') }}"><i class="fas fa-sync-alt"></i> Custom Requests</a></li>
-          <li><a href="{{ route('admin.product-requests.index') }}"><i class="fas fa-history"></i> Old Requests</a></li>
-          @endif
-        </ul>
-      </li>
-      @endif
-
-      @if(auth()->user()?->can('Manage Procurement') || auth()->user()?->can('Manage RFQs') || auth()->user()?->can('Manage Purchase Orders') || auth()->user()?->can('Manage Vendor Bills') || auth()->user()?->can('Manage Goods Receipts') || auth()->user()?->can('Manage Shipments') || auth()->user()?->can('Manage Vendor Returns') || auth()->user()?->hasRole('Admin'))
-      <li class="sb-item has-children {{ $procurementActive ? 'active open' : '' }}">
-        <a href="#" class="sb-link sb-toggle" title="Procurement">
-          <i class="fas fa-file-contract"></i>
-          <span class="sb-label">Procurement</span>
-          <i class="fas fa-chevron-down sb-arrow"></i>
-        </a>
-        <ul class="sb-submenu">
-          <li class="sb-flyout-title">Procurement</li>
-          @if(auth()->user()?->can('Manage RFQs') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.rfqs.index') }}"><i class="fas fa-list"></i> All RFQs</a></li>
-          <li><a href="{{ route('admin.rfqs.create') }}"><i class="fas fa-plus-circle"></i> Create RFQ</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Purchase Orders') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.purchase-orders.index') }}"><i class="fas fa-file-invoice"></i> Purchase Orders (PO)</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Vendor Bills') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.vendor-bills.index') }}"><i class="fas fa-file-invoice-dollar"></i> Vendor Bills (Invoices)</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Letter of Credits') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.letters-of-credit.index') }}"><i class="fas fa-university"></i> LC Register</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Shipments') || auth()->user()?->can('Manage Goods Receipts') || auth()->user()?->can('Manage Vendor Returns') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-header">Logistics & Receiving</li>
-          @endif
-          @if(auth()->user()?->can('Manage Shipments') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.shipments.index') }}"><i class="fas fa-ship"></i> Shipments & SIT</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Goods Receipts') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.goods-receipts.index') }}"><i class="fas fa-dolly"></i> Goods Receipts (GRN)</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Vendor Returns') || auth()->user()?->can('Manage Procurement') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.vendor-returns.index') }}"><i class="fas fa-undo"></i> Vendor Returns</a></li>
-          @endif
-        </ul>
-      </li>
-      @endif
-
-      @if(auth()->user()?->can('Manage Reports') || auth()->user()?->hasRole('Admin'))
-      <li class="sb-item has-children {{ $reportsActive ? 'active open' : '' }}">
-        <a href="#" class="sb-link sb-toggle" title="Reports">
-          <i class="fas fa-chart-bar"></i>
-          <span class="sb-label">Reports</span>
-          <i class="fas fa-chevron-down sb-arrow"></i>
-        </a>
-        <ul class="sb-submenu">
-          <li class="sb-flyout-title">Reports</li>
-          <li class="sb-submenu-header">Core Financial Statements</li>
-          <li><a href="{{ route('admin.reports.general-ledger') }}"><i class="fas fa-book"></i> General Ledger</a></li>
-          <li><a href="{{ route('admin.reports.trial-balance') }}"><i class="fas fa-balance-scale"></i> Trial Balance</a></li>
-          <li><a href="{{ route('admin.reports.profit-loss') }}"><i class="fas fa-chart-line"></i> Profit & Loss (P&L)</a></li>
-          <li><a href="{{ route('admin.reports.balance-sheet') }}"><i class="fas fa-building"></i> Balance Sheet</a></li>
-
-          <li class="sb-submenu-header">Payables & Receivables Statements</li>
-          <li><a href="{{ route('admin.accounts.index') }}"><i class="fas fa-receipt"></i> Customer Transaction Ledger</a></li>
-          <li><a href="{{ route('admin.reports.ar-aging') }}"><i class="fas fa-clock"></i> AR Customer Aging</a></li>
-          <li><a href="{{ route('admin.accounts.vendor-payments.index') }}"><i class="fas fa-money-check-alt"></i> Vendor Payment Ledger</a></li>
-          <li><a href="{{ route('admin.vendor-ledger.aging') }}"><i class="fas fa-hourglass-half"></i> AP Vendor Aging</a></li>
-          <li><a href="{{ route('admin.vendor-ledger.index') }}"><i class="fas fa-file-invoice-dollar"></i> Supplier Ledger & Statement</a></li>
-
-          <li class="sb-submenu-header">Analytics & Stock Reports</li>
-          <li><a href="{{ route('admin.reports.orders') }}"><i class="fas fa-file-invoice"></i> Order & Sales Report</a></li>
-          <li><a href="{{ route('admin.reports.stock') }}"><i class="fas fa-boxes"></i> Stock Valuation Reports</a></li>
-          <li><a href="{{ route('admin.reports.low-stock') }}"><i class="fas fa-exclamation-triangle"></i> Low Stock Alert</a></li>
-          <li><a href="{{ route('admin.reports.current-stock') }}"><i class="fas fa-cubes"></i> Current Stock Report</a></li>
-          <li><a href="{{ route('admin.reports.salesperson-performance') }}"><i class="fas fa-user-tie"></i> Sales Rep Performance</a></li>
-
-          <li class="sb-submenu-header">Procurement Reports</li>
-          <li><a href="{{ route('admin.reports.purchase') }}"><i class="fas fa-shopping-bag"></i> Purchase History</a></li>
-          <li><a href="{{ route('admin.reports.product-purchase-history') }}"><i class="fas fa-search"></i> Product Tracking</a></li>
-          <li><a href="{{ route('admin.purchase-reports.supplier-wise') }}"><i class="fas fa-user-tag"></i> Supplier-wise Purchase</a></li>
-          <li><a href="{{ route('admin.purchase-reports.item-wise') }}"><i class="fas fa-cubes"></i> Item-wise Purchase</a></li>
-          <li><a href="{{ route('admin.purchase-reports.total-value') }}"><i class="fas fa-calculator"></i> Total Purchase Value</a></li>
-          <li><a href="{{ route('admin.purchase-reports.vs-last-year') }}"><i class="fas fa-balance-scale"></i> Purchase vs Last Year</a></li>
-          <li><a href="{{ route('admin.purchase-reports.pr-status') }}"><i class="fas fa-clipboard-list"></i> PR Status & Pending</a></li>
-          <li><a href="{{ route('admin.purchase-reports.po-status') }}"><i class="fas fa-file-signature"></i> PO Issued & Items</a></li>
-          <li class="sb-submenu-divider"></li>
-          <li><a href="{{ route('admin.reports.audit') }}"><i class="fas fa-clipboard-check"></i> Audit Log Report</a></li>
-        </ul>
-      </li>
-      @endif
-
-      @if(auth()->user()?->can('Manage Accounts') || auth()->user()?->can('Accountants') || auth()->user()?->can('Manage Chart of Accounts') || auth()->user()?->can('Manage Journal Vouchers') || auth()->user()?->can('Manage Fiscal Years') || auth()->user()?->can('Manage Bank Accounts') || auth()->user()?->can('Manage Bank Reconciliation') || auth()->user()?->can('Manage Petty Cash') || auth()->user()?->can('Manage Customer Payments') || auth()->user()?->can('Manage Vendor Ledger') || auth()->user()?->can('Manage Fixed Assets') || auth()->user()?->hasRole('Admin'))
-      <li class="sb-item has-children {{ $accountsActive ? 'active open' : '' }}">
-        <a href="#" class="sb-link sb-toggle" title="Accounts">
-          <i class="fas fa-file-invoice-dollar"></i>
-          <span class="sb-label">Accounts</span>
-          <i class="fas fa-chevron-down sb-arrow"></i>
-        </a>
-        <ul class="sb-submenu">
-          @if(auth()->user()?->can('Manage Chart of Accounts') || auth()->user()?->can('Manage Journal Vouchers') || auth()->user()?->can('Manage Fiscal Years') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-header">General Ledger & Setup</li>
-          @endif
-          @if(auth()->user()?->can('Manage Chart of Accounts') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.chart-of-accounts.index') }}"><i class="fas fa-sitemap"></i> Chart of Accounts (COA)</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Journal Vouchers') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.journal-vouchers.index') }}"><i class="fas fa-journal-whills"></i> Manual Journal Vouchers (JV)</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Fiscal Years') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.fiscal-years.index') }}"><i class="fas fa-calendar-alt"></i> Fiscal Years & Period Lock</a></li>
-          @endif
-
-          @if(auth()->user()?->can('Manage Bank Accounts') || auth()->user()?->can('Manage Bank Reconciliation') || auth()->user()?->can('Manage Petty Cash') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-header">Banking & Treasury</li>
-          @endif
-          @if(auth()->user()?->can('Manage Bank Accounts') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.bank-accounts.index') }}"><i class="fas fa-university"></i> Bank Accounts</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Bank Reconciliation') || auth()->user()?->can('Manage Bank Accounts') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.bank-reconciliation.index') }}"><i class="fas fa-sync"></i> Bank Reconciliation</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Petty Cash') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.petty-cash.index') }}"><i class="fas fa-coins"></i> Petty Cash Register</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Bank Accounts') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.fund-transfers.index') }}"><i class="fas fa-random"></i> Inter-Account Transfers</a></li>
-          @endif
-
-          @if(auth()->user()?->can('Manage Sales Invoices') || auth()->user()?->can('Manage Customer Payments') || auth()->user()?->can('Manage Accounts') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-header">Accounts Receivable (Customer)</li>
-          @endif
-          @if(auth()->user()?->can('Manage Sales Invoices') || auth()->user()?->hasRole('Admin'))
-          <li class="{{ request()->routeIs('admin.sales-invoices.*') ? 'active' : '' }}"><a href="{{ route('admin.sales-invoices.index') }}" class="{{ request()->routeIs('admin.sales-invoices.*') ? 'active' : '' }}"><i class="fas fa-file-invoice"></i> Sales Invoices</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Customer Payments') || auth()->user()?->hasRole('Admin'))
-          <li class="{{ request()->routeIs('admin.customer-payments.create') ? 'active' : '' }}"><a href="{{ route('admin.customer-payments.create') }}" class="{{ request()->routeIs('admin.customer-payments.create') ? 'active' : '' }}"><i class="fas fa-hand-holding-usd"></i> Receive Payment</a></li>
-          <li class="{{ request()->routeIs('admin.customer-payments.index') ? 'active' : '' }}"><a href="{{ route('admin.customer-payments.index') }}" class="{{ request()->routeIs('admin.customer-payments.index') ? 'active' : '' }}"><i class="fas fa-receipt"></i> Payment Receipts</a></li>
-          <li class="{{ request()->routeIs('admin.accounts.due-orders') ? 'active' : '' }}"><a href="{{ route('admin.accounts.due-orders') }}" class="{{ request()->routeIs('admin.accounts.due-orders') ? 'active' : '' }}"><i class="fas fa-clock"></i> Customer Due Orders</a></li>
-          @endif
-
-          @if(auth()->user()?->can('Manage Vendor Bills') || auth()->user()?->can('Manage Accounts') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-header">Accounts Payable (Vendor)</li>
-          @endif
-          @if(auth()->user()?->can('Manage Vendor Bills') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.vendor-bills.index') }}"><i class="fas fa-file-invoice-dollar"></i> Vendor Bills</a></li>
-          <li><a href="{{ route('admin.purchase-payments.index') }}"><i class="fas fa-receipt"></i> Payment Vouchers</a></li>
-          <li><a href="{{ route('admin.accounts.vendor-payments.due-purchases') }}"><i class="fas fa-exclamation-circle"></i> Vendor Due Purchases</a></li>
-          @endif
-
-          @if(auth()->user()?->can('Manage Fixed Assets') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-header">Fixed Assets & Depreciation</li>
-          <li><a href="{{ route('admin.assets.index') }}"><i class="fas fa-building"></i> Fixed Assets Register</a></li>
-          @endif
-        </ul>
-      </li>
-      @endif
-
-      @if(auth()->user()?->can('Manage Settings') || auth()->user()?->can('Manage Accounts') || auth()->user()?->hasRole('Admin'))
-      <li class="sb-item has-children {{ $paymentsActive ? 'active open' : '' }}">
-        <a href="#" class="sb-link sb-toggle" title="Payment Operations">
-          <i class="fas fa-money-check-alt"></i>
-          <span class="sb-label">Payment Operations</span>
-          <i class="fas fa-chevron-down sb-arrow"></i>
-        </a>
-        <ul class="sb-submenu">
-          <li class="sb-flyout-title">Payment Operations</li>
-          <li><a href="{{ route('admin.payments.cod.index') }}" class="{{ request()->routeIs('admin.payments.cod.*') ? 'active' : '' }}"><i class="fas fa-truck-loading"></i> COD Collections</a></li>
-          <li><a href="{{ route('admin.payments.transactions.index') }}" class="{{ request()->routeIs('admin.payments.transactions.*') ? 'active' : '' }}"><i class="fas fa-receipt"></i> Payment Transactions</a></li>
-        </ul>
-      </li>
-      @endif
-
-      @if(auth()->user()?->can('Manage Brands') || auth()->user()?->hasRole('Admin'))
-      <li class="sb-item has-children {{ $brandsActive ? 'active open' : '' }}">
-        <a href="#" class="sb-link sb-toggle" title="Brands">
-          <i class="fas fa-tag"></i>
-          <span class="sb-label">Brands</span>
-          <i class="fas fa-chevron-down sb-arrow"></i>
-        </a>
-        <ul class="sb-submenu">
-          <li class="sb-flyout-title">Brands</li>
-          <li><a href="{{ route('admin.brand.index') }}"><i class="fas fa-list"></i> All Brands</a></li>
-          <li><a href="{{ route('admin.brand.create') }}"><i class="fas fa-plus-circle"></i> Add Brand</a></li>
-        </ul>
-      </li>
-      @endif
-
-      @if(auth()->user()?->can('Manage Vendors') || auth()->user()?->hasRole('Admin'))
-      <li class="sb-item has-children {{ $vendorsActive ? 'active open' : '' }}">
-        <a href="#" class="sb-link sb-toggle" title="Vendors">
-          <i class="fas fa-truck"></i>
-          <span class="sb-label">Vendors</span>
-          <i class="fas fa-chevron-down sb-arrow"></i>
-        </a>
-        <ul class="sb-submenu">
-          <li class="sb-flyout-title">Vendors</li>
-          <li><a href="{{ route('admin.vendor.index') }}"><i class="fas fa-list"></i> All Vendors</a></li>
-          <li><a href="{{ route('admin.vendor.create') }}"><i class="fas fa-plus-circle"></i> Add Vendor</a></li>
-        </ul>
-      </li>
-      @endif
-
-      @if(auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->can('Manage Companies') || auth()->user()?->can('Manage Outlets') || auth()->user()?->can('Manage Departments') || auth()->user()?->can('Manage Currencies') || auth()->user()?->can('Manage Approval Workflows') || auth()->user()?->hasRole('Admin'))
-      <li class="sb-item has-children {{ $masterActive ? 'active open' : '' }}">
-        <a href="#" class="sb-link sb-toggle" title="Enterprise Setup">
-          <i class="fas fa-building"></i>
-          <span class="sb-label">Enterprise Setup</span>
-          <i class="fas fa-chevron-down sb-arrow"></i>
-        </a>
-        <ul class="sb-submenu">
-          <li class="sb-flyout-title">Enterprise Setup</li>
-          @if(auth()->user()?->can('Manage Companies') || auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.master.companies.index') }}"><i class="fas fa-city"></i> Companies</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Outlets') || auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.master.outlets.index') }}"><i class="fas fa-warehouse"></i> Outlets & Hubs</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Departments') || auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.master.departments.index') }}"><i class="fas fa-sitemap"></i> Departments</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Currencies') || auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.master.currencies.index') }}"><i class="fas fa-coins"></i> Currencies</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Approval Workflows') || auth()->user()?->can('Manage Enterprise Setup') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.master.approval-workflows.index') }}"><i class="fas fa-check-double"></i> Approval Workflows</a></li>
-          <li><a href="{{ route('admin.approvals.index') }}"><i class="fas fa-inbox"></i> Approvals Inbox</a></li>
-          @endif
-        </ul>
-      </li>
-      @endif
-
-      @if(auth()->user()?->can('Manage Settings') || auth()->user()?->can('Manage Users') || auth()->user()?->can('Manage Roles') || auth()->user()?->can('Manage Permissions') || auth()->user()?->can('Manage Pricing Rules') || auth()->user()?->can('Manage Taxes') || auth()->user()?->can('Manage Discounts') || auth()->user()?->can('Manage Document Sequences') || auth()->user()?->can('Administration') || auth()->user()?->hasRole('Admin'))
-      <li class="sb-item has-children {{ $systemActive ? 'active open' : '' }}">
-        <a href="#" class="sb-link sb-toggle" title="System">
-          <i class="fas fa-cog"></i>
-          <span class="sb-label">System</span>
-          <i class="fas fa-chevron-down sb-arrow"></i>
-        </a>
-        <ul class="sb-submenu">
-          <li class="sb-flyout-title">System</li>
-          @if(auth()->user()?->can('Manage Users') || auth()->user()?->can('Manage Roles') || auth()->user()?->can('Manage Permissions') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-header">User Management</li>
-          @endif
-          @if(auth()->user()?->can('Manage Users') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.users.index') }}"><i class="fas fa-users-cog"></i> Users</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Roles') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.role.index') }}"><i class="fas fa-user-tag"></i> Roles</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Permissions') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.permission.index') }}"><i class="fas fa-lock"></i> Permissions</a></li>
-          @endif
-
-          @if(auth()->user()?->can('Manage Pricing Rules') || auth()->user()?->can('Manage Taxes') || auth()->user()?->can('Manage Discounts') || auth()->user()?->can('Manage Document Sequences') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-header">Business Rules</li>
-          @endif
-          @if(auth()->user()?->can('Manage Pricing Rules') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.pricing-rules.index') }}"><i class="fas fa-dollar-sign"></i> Pricing Rules</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Taxes') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.taxes.index') }}"><i class="fas fa-percent"></i> Tax / VAT</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Discounts') || auth()->user()?->hasRole('Admin'))
-          <li><a href="{{ route('admin.discounts.index') }}"><i class="fas fa-tags"></i> Discount</a></li>
-          @endif
-          @if(auth()->user()?->can('Manage Document Sequences') || auth()->user()?->hasRole('Admin'))
-          <li class="{{ request()->routeIs('admin.document-sequences.*') ? 'active' : '' }}"><a href="{{ route('admin.document-sequences.index') }}"><i class="fas fa-barcode"></i> Doc Sequences</a></li>
-          @endif
-
-          @if(auth()->user()?->can('Manage Settings') || auth()->user()?->can('Administration') || auth()->user()?->hasRole('Admin'))
-          <li class="sb-submenu-header">System Settings & Utilities</li>
-          <li><a href="{{ route('admin.products.announcement.index') }}"><i class="fas fa-bullhorn"></i> Product Announcement</a></li>
-          <li><a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.index', 'admin.settings.general', 'admin.settings.email') ? 'active' : '' }}"><i class="fas fa-sliders-h"></i> General Settings</a></li>
-          <li><a href="{{ route('admin.payment-settings.index') }}" class="{{ request()->routeIs('admin.payment-settings.*') ? 'active' : '' }}"><i class="fas fa-credit-card"></i> Payment Settings</a></li>
-          <li><a href="{{ route('admin.settings.feature-toggles') }}" class="{{ request()->routeIs('admin.settings.feature-toggles*') ? 'active' : '' }}"><i class="fas fa-toggle-on"></i> Feature Toggles</a></li>
-          <li><a href="{{ route('admin.backups.index') }}" class="{{ request()->routeIs('admin.backups.*') ? 'active' : '' }}"><i class="fas fa-database"></i> Database Backups</a></li>
-          <li><a href="{{ route('admin.recycle-bin.index') }}" class="{{ request()->routeIs('admin.recycle-bin.*') ? 'active' : '' }}"><i class="fas fa-recycle"></i> Recycle Bin</a></li>
-          @endif
-        </ul>
-      </li>
-      @endif
-
-    </ul>
-  </div>
+    </div>
 </aside>
 
 <script>
-(function () {
-  var sidebar = document.getElementById('appSidebar');
-  var overlay = document.getElementById('sidebarOverlay');
-  var toggleBtn = document.getElementById('sidebarToggle');
+    (function() {
+        var sidebar = document.getElementById('appSidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        var toggleBtn = document.getElementById('sidebarToggle');
 
-  function isDesktop() { return window.innerWidth >= 992; }
-
-  function openMobile() {
-    var scrollW = window.innerWidth - document.documentElement.clientWidth;
-    sidebar.classList.add('mobile-open');
-    document.body.style.overflow = 'hidden';
-    document.body.style.paddingRight = scrollW + 'px';
-    setTimeout(function () { overlay.classList.add('open'); }, 100);
-  }
-
-  function closeMobile() {
-    sidebar.classList.remove('mobile-open');
-    overlay.classList.remove('open');
-    document.body.style.overflow = '';
-    document.body.style.paddingRight = '';
-  }
-
-  function toggleSidebar() {
-    if (isDesktop()) {
-      document.body.classList.toggle('sidebar-collapsed');
-      try { localStorage.setItem('sidebar-collapsed', document.body.classList.contains('sidebar-collapsed') ? '1' : '0'); } catch (e) {}
-    } else {
-      if (sidebar.classList.contains('mobile-open')) { closeMobile(); }
-      else { openMobile(); }
-    }
-  }
-
-  // Fresh clone — no inherited listeners
-  var fresh = document.createElement('button');
-  fresh.className = toggleBtn.className;
-  fresh.id = toggleBtn.id;
-  fresh.setAttribute('aria-label', toggleBtn.getAttribute('aria-label'));
-  fresh.innerHTML = toggleBtn.innerHTML;
-  toggleBtn.parentNode.replaceChild(fresh, toggleBtn);
-
-  var locked = false;
-  function handleToggle(e) {
-    if (locked) return;
-    locked = true;
-    fresh.style.pointerEvents = 'none';
-    toggleSidebar();
-    setTimeout(function () { locked = false; fresh.style.pointerEvents = ''; }, 500);
-  }
-  fresh.addEventListener('click', handleToggle);
-  fresh.addEventListener('touchstart', function (e) {
-    if (locked) return;
-    e.preventDefault();
-    handleToggle(e);
-  }, { passive: false });
-
-  overlay.addEventListener('click', closeMobile);
-
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeMobile();
-  });
-
-  try {
-    if (isDesktop() && localStorage.getItem('sidebar-collapsed') === '1') {
-      // document.body.classList.add('sidebar-collapsed');
-    }
-  } catch (e) {}
-
-  // Accordion submenu toggle
-  document.querySelectorAll('.sb-toggle').forEach(function (toggle) {
-    toggle.addEventListener('click', function (e) {
-      if (document.body.classList.contains('sidebar-collapsed') && isDesktop()) return;
-      e.preventDefault();
-      var item = this.closest('.sb-item');
-      var isOpen = item.classList.contains('open');
-      document.querySelectorAll('.sb-item.open').forEach(function (openItem) {
-        if (openItem !== item) openItem.classList.remove('open');
-      });
-      item.classList.toggle('open', !isOpen);
-    });
-  });
-
-  // 1. Dynamic Active Submenu Matcher (Guarantees Active State Across All Routes)
-  try {
-    var currentUrl = window.location.href.split('#')[0].split('?')[0].replace(/\/+$/, '');
-    var bestMatch = null;
-    var bestMatchLen = 0;
-
-    document.querySelectorAll('.sb-submenu li a').forEach(function (link) {
-      var href = link.getAttribute('href');
-      if (!href || href === '#' || href.indexOf('javascript:') === 0) return;
-      var cleanHref = href.split('#')[0].split('?')[0].replace(/\/+$/, '');
-
-      if (currentUrl === cleanHref || window.location.href === href) {
-        bestMatch = link;
-        bestMatchLen = 999999;
-      } else if (cleanHref.length > 12 && currentUrl.indexOf(cleanHref) === 0 && cleanHref.length > bestMatchLen) {
-        bestMatch = link;
-        bestMatchLen = cleanHref.length;
-      }
-    });
-
-    if (bestMatch) {
-      bestMatch.classList.add('active');
-      if (bestMatch.parentElement) {
-        bestMatch.parentElement.classList.add('active');
-      }
-      var parentItem = bestMatch.closest('.sb-item');
-      if (parentItem) {
-        parentItem.classList.add('active', 'open');
-      }
-    }
-  } catch (e) {}
-
-  // 2. Sidebar Scroll-to-Active & Persistence on Refresh
-  var sidebarBody = sidebar ? sidebar.querySelector('.sidebar-body') : null;
-  if (sidebarBody) {
-    // Record scroll position continuously in sessionStorage
-    sidebarBody.addEventListener('scroll', function () {
-      try {
-        sessionStorage.setItem('sb_scroll_pos', sidebarBody.scrollTop);
-        sessionStorage.setItem('sb_scroll_path', window.location.pathname);
-      } catch (e) {}
-    }, { passive: true });
-
-    function scrollActiveIntoView() {
-      var savedPos = null;
-      var savedPath = null;
-      try {
-        savedPos = sessionStorage.getItem('sb_scroll_pos');
-        savedPath = sessionStorage.getItem('sb_scroll_path');
-      } catch (e) {}
-
-      var activeEl = sidebarBody.querySelector('.sb-submenu li.active a, .sb-submenu a.active')
-                  || sidebarBody.querySelector('.sb-submenu li.active')
-                  || sidebarBody.querySelector('.sb-item.active.open')
-                  || sidebarBody.querySelector('.sb-item.active');
-
-      // Check if user refreshed on the exact same page with a valid saved scroll position
-      if (savedPos !== null && savedPath === window.location.pathname) {
-        var pos = parseInt(savedPos, 10);
-        if (pos > 0) {
-          sidebarBody.scrollTop = pos;
-          // If the active element is visible inside viewport, keep the saved position
-          if (activeEl) {
-            var r = activeEl.getBoundingClientRect();
-            var s = sidebarBody.getBoundingClientRect();
-            if (r.top >= (s.top - 20) && r.bottom <= (s.bottom + 20)) {
-              return;
-            }
-          } else {
-            return;
-          }
+        function isDesktop() {
+            return window.innerWidth >= 992;
         }
-      }
 
-      // If no saved position, or if active item was out of view, center the active item!
-      if (activeEl) {
-        var sbRect = sidebarBody.getBoundingClientRect();
-        var elRect = activeEl.getBoundingClientRect();
-        var relativeTop = elRect.top - sbRect.top + sidebarBody.scrollTop;
-        var centerPos = Math.max(0, relativeTop - (sidebarBody.clientHeight / 2) + (elRect.height / 2));
-        
-        sidebarBody.scrollTop = centerPos;
+        function openMobile() {
+            var scrollW = window.innerWidth - document.documentElement.clientWidth;
+            sidebar.classList.add('mobile-open');
+            document.body.style.overflow = 'hidden';
+            document.body.style.paddingRight = scrollW + 'px';
+            setTimeout(function() {
+                overlay.classList.add('open');
+            }, 100);
+        }
+
+        function closeMobile() {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }
+
+        function toggleSidebar() {
+            if (isDesktop()) {
+                document.body.classList.toggle('sidebar-collapsed');
+                try {
+                    localStorage.setItem('sidebar-collapsed', document.body.classList.contains(
+                        'sidebar-collapsed') ? '1' : '0');
+                } catch (e) {}
+            } else {
+                if (sidebar.classList.contains('mobile-open')) {
+                    closeMobile();
+                } else {
+                    openMobile();
+                }
+            }
+        }
+
+        // Fresh clone — no inherited listeners
+        var fresh = document.createElement('button');
+        fresh.className = toggleBtn.className;
+        fresh.id = toggleBtn.id;
+        fresh.setAttribute('aria-label', toggleBtn.getAttribute('aria-label'));
+        fresh.innerHTML = toggleBtn.innerHTML;
+        toggleBtn.parentNode.replaceChild(fresh, toggleBtn);
+
+        var locked = false;
+
+        function handleToggle(e) {
+            if (locked) return;
+            locked = true;
+            fresh.style.pointerEvents = 'none';
+            toggleSidebar();
+            setTimeout(function() {
+                locked = false;
+                fresh.style.pointerEvents = '';
+            }, 500);
+        }
+        fresh.addEventListener('click', handleToggle);
+        fresh.addEventListener('touchstart', function(e) {
+            if (locked) return;
+            e.preventDefault();
+            handleToggle(e);
+        }, {
+            passive: false
+        });
+
+        overlay.addEventListener('click', closeMobile);
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeMobile();
+        });
+
         try {
-          sessionStorage.setItem('sb_scroll_pos', centerPos);
-          sessionStorage.setItem('sb_scroll_path', window.location.pathname);
+            if (isDesktop() && localStorage.getItem('sidebar-collapsed') === '1') {
+                // document.body.classList.add('sidebar-collapsed');
+            }
         } catch (e) {}
-      }
+
+        // Accordion submenu toggle
+        document.querySelectorAll('.sb-toggle').forEach(function(toggle) {
+            toggle.addEventListener('click', function(e) {
+                if (document.body.classList.contains('sidebar-collapsed') && isDesktop()) return;
+                e.preventDefault();
+                var item = this.closest('.sb-item');
+                var isOpen = item.classList.contains('open');
+                document.querySelectorAll('.sb-item.open').forEach(function(openItem) {
+                    if (openItem !== item) openItem.classList.remove('open');
+                });
+                item.classList.toggle('open', !isOpen);
+            });
+        });
+
+        // 1. Dynamic Active Submenu Matcher (Guarantees Active State Across All Routes)
+        try {
+            var currentUrl = window.location.href.split('#')[0].split('?')[0].replace(/\/+$/, '');
+            var bestMatch = null;
+            var bestMatchLen = 0;
+
+            document.querySelectorAll('.sb-submenu li a').forEach(function(link) {
+                var href = link.getAttribute('href');
+                if (!href || href === '#' || href.indexOf('javascript:') === 0) return;
+                var cleanHref = href.split('#')[0].split('?')[0].replace(/\/+$/, '');
+
+                if (currentUrl === cleanHref || window.location.href === href) {
+                    bestMatch = link;
+                    bestMatchLen = 999999;
+                } else if (cleanHref.length > 12 && currentUrl.indexOf(cleanHref) === 0 && cleanHref
+                    .length > bestMatchLen) {
+                    bestMatch = link;
+                    bestMatchLen = cleanHref.length;
+                }
+            });
+
+            if (bestMatch) {
+                bestMatch.classList.add('active');
+                if (bestMatch.parentElement) {
+                    bestMatch.parentElement.classList.add('active');
+                }
+                var parentItem = bestMatch.closest('.sb-item');
+                if (parentItem) {
+                    parentItem.classList.add('active', 'open');
+                }
+            }
+        } catch (e) {}
+
+        // 2. Sidebar Scroll-to-Active & Persistence on Refresh
+        var sidebarBody = sidebar ? sidebar.querySelector('.sidebar-body') : null;
+        if (sidebarBody) {
+            // Record scroll position continuously in sessionStorage
+            sidebarBody.addEventListener('scroll', function() {
+                try {
+                    sessionStorage.setItem('sb_scroll_pos', sidebarBody.scrollTop);
+                    sessionStorage.setItem('sb_scroll_path', window.location.pathname);
+                } catch (e) {}
+            }, {
+                passive: true
+            });
+
+            function scrollActiveIntoView() {
+                var savedPos = null;
+                var savedPath = null;
+                try {
+                    savedPos = sessionStorage.getItem('sb_scroll_pos');
+                    savedPath = sessionStorage.getItem('sb_scroll_path');
+                } catch (e) {}
+
+                var activeEl = sidebarBody.querySelector('.sb-submenu li.active a, .sb-submenu a.active') ||
+                    sidebarBody.querySelector('.sb-submenu li.active') ||
+                    sidebarBody.querySelector('.sb-item.active.open') ||
+                    sidebarBody.querySelector('.sb-item.active');
+
+                // Check if user refreshed on the exact same page with a valid saved scroll position
+                if (savedPos !== null && savedPath === window.location.pathname) {
+                    var pos = parseInt(savedPos, 10);
+                    if (pos > 0) {
+                        sidebarBody.scrollTop = pos;
+                        // If the active element is visible inside viewport, keep the saved position
+                        if (activeEl) {
+                            var r = activeEl.getBoundingClientRect();
+                            var s = sidebarBody.getBoundingClientRect();
+                            if (r.top >= (s.top - 20) && r.bottom <= (s.bottom + 20)) {
+                                return;
+                            }
+                        } else {
+                            return;
+                        }
+                    }
+                }
+
+                // If no saved position, or if active item was out of view, center the active item!
+                if (activeEl) {
+                    var sbRect = sidebarBody.getBoundingClientRect();
+                    var elRect = activeEl.getBoundingClientRect();
+                    var relativeTop = elRect.top - sbRect.top + sidebarBody.scrollTop;
+                    var centerPos = Math.max(0, relativeTop - (sidebarBody.clientHeight / 2) + (elRect.height / 2));
+
+                    sidebarBody.scrollTop = centerPos;
+                    try {
+                        sessionStorage.setItem('sb_scroll_pos', centerPos);
+                        sessionStorage.setItem('sb_scroll_path', window.location.pathname);
+                    } catch (e) {}
+                }
+            }
+
+            // Run immediately and after CSS submenu max-height transition completes
+            scrollActiveIntoView();
+            setTimeout(scrollActiveIntoView, 70);
+            setTimeout(scrollActiveIntoView, 280);
+        }
+
+        // Close mobile sidebar on resize to desktop
+        window.addEventListener('resize', function() {
+            if (isDesktop()) closeMobile();
+        });
+    })();
+
+    // Ensure topbar dropdowns use static display to avoid Popper coordinate conflicts
+    if (window.jQuery) {
+        jQuery(function($) {
+            $('.topbar [data-toggle="dropdown"]').dropdown({
+                display: 'static'
+            });
+        });
     }
-
-    // Run immediately and after CSS submenu max-height transition completes
-    scrollActiveIntoView();
-    setTimeout(scrollActiveIntoView, 70);
-    setTimeout(scrollActiveIntoView, 280);
-  }
-
-  // Close mobile sidebar on resize to desktop
-  window.addEventListener('resize', function () {
-    if (isDesktop()) closeMobile();
-  });
-})();
-
-// Ensure topbar dropdowns use static display to avoid Popper coordinate conflicts
-if (window.jQuery) {
-  jQuery(function ($) {
-    $('.topbar [data-toggle="dropdown"]').dropdown({ display: 'static' });
-  });
-}
 </script>

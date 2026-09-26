@@ -19,7 +19,8 @@ class ProductVariant extends Model
         'qty',
         'status',
         'price',
-        'outlet_price'
+        'outlet_price',
+        'barcode',
     ];
 
     public function product()
@@ -45,6 +46,11 @@ class ProductVariant extends Model
     public function stockLedgers()
     {
         return $this->hasMany(StockLedger::class, 'variant_id');
+    }
+
+    public function stockBatches()
+    {
+        return $this->hasMany(StockBatch::class, 'variant_id');
     }
 
     public function getInventoryStockAttribute()

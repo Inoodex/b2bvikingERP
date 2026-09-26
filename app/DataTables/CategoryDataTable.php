@@ -41,7 +41,14 @@ class CategoryDataTable extends DataTable
                             <span class="custom-switch-indicator"></span>
                         </label>';
             })
-            ->rawColumns(['action', 'status', 'frontend_show', 'image'])
+            ->addColumn('gpc_code', function ($query) {
+                if (!$query->gpc_code) {
+                    $resolved = app(\App\Services\Barcode\Gs1TaxonomyResolver::class)->resolve($query->name);
+                    return '<span class="badge badge-info px-2 py-1" style="font-family: monospace; font-size: 13px;" title="Dynamic GS1: ' . e($resolved['title']) . '"><i class="fas fa-magic mr-1"></i>' . e($resolved['code']) . '</span>';
+                }
+                return '<span class="badge badge-primary px-2 py-1" style="font-family: monospace; font-size: 13px;" title="' . e($query->gpc_title ?? 'GS1 GPC') . '"><i class="fas fa-barcode mr-1"></i>' . e($query->gpc_code) . '</span>';
+            })
+            ->rawColumns(['action', 'status', 'frontend_show', 'image', 'gpc_code'])
             ->setRowId('id');
     }
 
@@ -82,6 +89,7 @@ class CategoryDataTable extends DataTable
             // Column::make('id')->width(50),
             // Column::make('image')->width(150),
             Column::make('name')->title('Category Name')->addClass('text-center'),
+            Column::make('gpc_code')->title('GS1 GPC Code')->addClass('text-center'),
             Column::make('status')->addClass('text-center'),
             Column::make('frontend_show')->title('Show Home')->addClass('text-center'),
             Column::computed('action')->addClass('text-center')
