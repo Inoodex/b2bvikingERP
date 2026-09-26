@@ -658,4 +658,43 @@ class ProcurementReportsAuditTest extends ControllerTestCase
         $response->assertSee('AUTH-OUT-' . $this->adminUser->id, false);
         $response->assertSee('SEC-FAIL', false);
     }
+
+    /**
+     * Test 19: Supplier Negotiation & Landed Cost Intelligence Suite loads and responds to AJAX.
+     */
+    public function test_supplier_negotiation_report_loads_and_responds_to_ajax(): void
+    {
+        $response = $this->actingAs($this->adminUser)->get(route('admin.reports.supplier-negotiation'));
+        $response->assertStatus(200);
+        $response->assertSee('Supplier Negotiation', false);
+        $response->assertSee('Historical Multi-Shipment Records', false);
+        $response->assertDontSee('admin.purchases.show', false);
+
+        // Test AJAX filter request
+        $ajaxResponse = $this->actingAs($this->adminUser)->getJson(route('admin.reports.supplier-negotiation'), [
+            'X-Requested-With' => 'XMLHttpRequest',
+        ]);
+        $ajaxResponse->assertStatus(200);
+        $ajaxResponse->assertJsonStructure([
+            'table_html',
+            'metrics' => [
+                'lowest_cost',
+                'highest_cost',
+                'weighted_avg_cost',
+                'latest_cost',
+                'shipment_count',
+            ],
+            'products',
+        ]);
+
+        // Test category filter isolation (non-matching category ID returns 0 shipments)
+        $catResponse = $this->actingAs($this->adminUser)->getJson(route('admin.reports.supplier-negotiation', ['category_id' => 999999]), [
+            'X-Requested-With' => 'XMLHttpRequest',
+        ]);
+        $catResponse->assertStatus(200);
+        $catData = $catResponse->json();
+        $this->assertEquals(0, $catData['metrics']['shipment_count']);
+    }
 }
+
+

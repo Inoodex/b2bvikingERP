@@ -5,6 +5,7 @@ use App\Http\Controllers\Backend\ApprovalInboxController;
 use App\Http\Controllers\Backend\ApprovalWorkflowController;
 // use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Backend\AssetController;
+use App\Http\Controllers\Backend\B2bProductVisibilityController;
 use App\Http\Controllers\Backend\BackupController;
 use App\Http\Controllers\Backend\BankAccountController;
 use App\Http\Controllers\Backend\BankReconciliationController;
@@ -255,6 +256,10 @@ Route::middleware('auth')->group(function () {
         Route::post('sales-quotations/{salesQuotation}/clone', [SalesQuotationController::class, 'clone'])->name('sales-quotations.clone');
         Route::post('sales-quotations/{salesQuotation}/convert-to-order', [SalesQuotationController::class, 'convertToOrder'])->name('sales-quotations.convert-to-order');
         Route::get('sales-quotations/{salesQuotation}/pdf', [SalesQuotationController::class, 'pdf'])->name('sales-quotations.pdf');
+        Route::get('sales-quotations/{salesQuotation}/excel', [SalesQuotationController::class, 'excel'])->name('sales-quotations.excel');
+        Route::post('sales-quotations/{salesQuotation}/catalog-pdf-async', [SalesQuotationController::class, 'catalogPdfAsync'])->name('sales-quotations.catalog-pdf.async');
+        Route::get('sales-quotations/catalog-pdf/status', [SalesQuotationController::class, 'checkCatalogStatus'])->name('sales-quotations.catalog-pdf.status');
+        Route::get('sales-quotations/catalog-pdf/download/{file}', [SalesQuotationController::class, 'downloadCatalogPdf'])->name('sales-quotations.catalog-pdf.download');
         Route::resource('sales-quotations', SalesQuotationController::class);
 
         /** Sales Order Routes */
@@ -267,6 +272,18 @@ Route::middleware('auth')->group(function () {
         Route::put('pricelists/change-status', [PricelistController::class, 'changeStatus'])->name('pricelists.change-status');
         Route::get('pricelists/resolve-price', [PricelistController::class, 'resolvePrice'])->name('pricelists.resolve-price');
         Route::resource('pricelists', PricelistController::class);
+
+        /** B2B Customer & Outlet Stock Availability Matrix (Tier 1 Central Hub) */
+        Route::controller(B2bProductVisibilityController::class)->prefix('b2b-stock-rules')->name('b2b-stock-rules.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+            Route::get('/search-products', 'searchProducts')->name('search-products');
+            Route::get('/matrix-data', 'matrixData')->name('matrix-data');
+            Route::post('/matrix-toggle', 'matrixToggle')->name('matrix-toggle');
+            Route::post('/bulk-store', 'bulkStore')->name('bulk-store');
+        });
 
         /** Coupon Routes */
         Route::put('coupons/change-status', [CouponController::class, 'changeStatus'])->name('coupons.change-status');
@@ -292,6 +309,10 @@ Route::middleware('auth')->group(function () {
             Route::get('products/announcement', 'announcementIndex')->name('products.announcement.index');
             Route::post('products/announcement/send', 'sendAnnouncement')->name('products.announcement.send');
             Route::get('products/{id}/variants', 'getVariants')->name('products.variants');
+            Route::get('products/{id}/stock-movement', 'stockMovement')->name('products.stock-movement');
+            Route::get('products/{id}/velocity-metrics', 'velocityMetrics')->name('products.velocity-metrics');
+            Route::post('products/{id}/b2b-visibility', 'saveB2bVisibility')->name('products.b2b-visibility.store');
+            Route::delete('products/b2b-visibility/{id}', 'deleteB2bVisibility')->name('products.b2b-visibility.destroy');
         });
         Route::resource('products', ProductController::class);
 
@@ -463,6 +484,9 @@ Route::middleware('auth')->group(function () {
             Route::get('reports/audit/pdf/download/{file}', 'downloadReportPdf')->name('reports.audit.pdf.download');
             Route::get('reports/audit/check-status', 'checkReportStatus')->name('reports.audit.check-status');
             Route::get('reports/best-sellers', 'bestSellers')->name('reports.best-sellers');
+            Route::get('reports/procurement-split', 'procurementSplit')->name('reports.procurement-split');
+            Route::get('reports/supplier-negotiation', 'supplierNegotiation')->name('reports.supplier-negotiation');
+            Route::get('reports/reorder-risk', 'reorderRiskReport')->name('reports.reorder-risk');
             Route::get('reports/top-customers', 'topCustomers')->name('reports.top-customers');
             Route::get('reports/orders', 'orderReport')->name('reports.orders');
             Route::get('reports/orders/pdf', 'orderReportPdf')->name('reports.orders.pdf');
@@ -630,6 +654,9 @@ Route::middleware('auth')->group(function () {
             Route::get('reviews/user-product/{productId}', 'getUserProductReview')->name('reviews.user-product');
             Route::post('reviews/store', 'store')->name('reviews.store');
             Route::get('reviews/product/{productId}', 'getProductReviews')->name('reviews.product');
+            Route::get('reviews/best-rated', 'bestRatedProducts')->name('reviews.best-rated');
+            Route::get('reviews/show/{review}', 'show')->name('reviews.show');
+            Route::post('reviews/change-status', 'changeStatus')->name('reviews.change-status');
             Route::delete('reviews/{reviewId}', 'destroy')->name('reviews.destroy');
             Route::get('reviews', 'index')->name('reviews.index');
         });

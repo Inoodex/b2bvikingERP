@@ -448,37 +448,76 @@ class CartController extends Controller
     public function bulkAddProducts(Request $request)
     {
         $validated = $request->validate([
-            'product_ids' => 'required|array',
-            'product_ids.*' => 'required|integer|exists:products,id',
+            'product_ids' => 'nullable|array',
+            'product_ids.*' => 'nullable|integer|exists:products,id',
+            'items' => 'nullable|array',
+            'items.*.product_id' => 'required_with:items|integer|exists:products,id',
+            'items.*.quantity' => 'nullable|numeric|min:0.01',
             'cart_type' => 'required|in:booking,request'
         ]);
 
         $cartType = $validated['cart_type'];
-        $productIds = array_unique(array_map('intval', $validated['product_ids']));
         $userId = Auth::id();
+        $itemsPayload = $request->input('items', []);
+
+        if (!empty($itemsPayload) && is_array($itemsPayload)) {
+            $productIds = array_unique(array_map('intval', array_column($itemsPayload, 'product_id')));
+        } else {
+            $productIds = array_unique(array_map('intval', $validated['product_ids'] ?? []));
+        }
 
         $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
-
         $addedCount = 0;
-        foreach ($productIds as $pId) {
-            $p = $products->get($pId);
-            if (!$p) continue;
 
-            $exists = Cart::where('user_id', $userId)
-                ->where('product_id', $pId)
-                ->where('cart_type', $cartType)
-                ->exists();
+        if (!empty($itemsPayload) && is_array($itemsPayload)) {
+            foreach ($itemsPayload as $it) {
+                $pId = (int) ($it['product_id'] ?? 0);
+                $qty = !empty($it['quantity']) ? (float)$it['quantity'] : 1;
+                $p = $products->get($pId);
+                if (!$p) continue;
 
-            if (!$exists) {
-                Cart::create([
-                    'user_id' => $userId,
-                    'product_id' => $pId,
-                    'variant_id' => null,
-                    'cart_type' => $cartType,
-                    'vendor_id' => $p->vendor_id,
-                    'quantity' => 1
-                ]);
+                $cartItem = Cart::where('user_id', $userId)
+                    ->where('product_id', $pId)
+                    ->where('cart_type', $cartType)
+                    ->first();
+
+                if ($cartItem) {
+                    $cartItem->quantity = $qty;
+                    $cartItem->vendor_id = $p->vendor_id;
+                    $cartItem->save();
+                } else {
+                    Cart::create([
+                        'user_id' => $userId,
+                        'product_id' => $pId,
+                        'variant_id' => null,
+                        'cart_type' => $cartType,
+                        'vendor_id' => $p->vendor_id,
+                        'quantity' => $qty
+                    ]);
+                }
                 $addedCount++;
+            }
+        } else {
+            foreach ($productIds as $pId) {
+                $p = $products->get($pId);
+                if (!$p) continue;
+
+                $exists = Cart::where('user_id', $userId)
+                    ->where('product_id', $pId)
+                    ->where('cart_type', $cartType)
+                    ->exists();
+
+                if (!$exists) {
+                    Cart::create([
+                        'user_id' => $userId,
+                        'product_id' => $pId,
+                        'variant_id' => null,
+                        'cart_type' => $cartType,
+                        'vendor_id' => $p->vendor_id,
+                        'quantity' => 1
+                    ]);
+                    $addedCount++;
+                }
             }
         }
 

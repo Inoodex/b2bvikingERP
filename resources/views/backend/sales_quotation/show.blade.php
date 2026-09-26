@@ -40,9 +40,17 @@
                         </a>
                     @endif
 
-                    <a href="{{ route('admin.sales-quotations.pdf', $salesQuotation->id) }}" class="btn btn-info btn-sm font-weight-bold mr-2" target="_blank">
-                        <i class="fas fa-download mr-1"></i> Download PDF
+                    <a href="{{ route('admin.sales-quotations.pdf', $salesQuotation->id) }}" class="btn btn-info btn-sm font-weight-bold mr-2" target="_blank" title="Standard Quotation PDF">
+                        <i class="fas fa-file-pdf mr-1"></i> SQ PDF
                     </a>
+
+                    <a href="{{ route('admin.sales-quotations.excel', $salesQuotation->id) }}" class="btn btn-success btn-sm font-weight-bold mr-2" title="Download Excel Order Sheet with blank Order Qty column for buyers">
+                        <i class="fas fa-file-excel mr-1"></i> Excel Order Sheet
+                    </a>
+
+                    <button type="button" class="btn btn-primary btn-sm font-weight-bold mr-2" id="btn_async_lookbook" title="Generate High-Res Visual Lookbook / Catalog PDF with Images & Barcodes">
+                        <i class="fas fa-book-open mr-1"></i> Visual Lookbook
+                    </button>
 
                     <form action="{{ route('admin.sales-quotations.clone', $salesQuotation->id) }}" method="POST" class="d-inline mr-2">
                         @csrf
@@ -112,13 +120,13 @@
                         </div>
                     </div>
 
-                    @if($salesQuotation->notes)
+                    @if($salesQuotation->clean_notes)
                         <div class="card card-secondary">
                             <div class="card-header">
                                 <h4><i class="fas fa-comment-alt mr-2"></i>Notes & Commercial Terms</h4>
                             </div>
                             <div class="card-body py-3">
-                                <p class="mb-0 text-dark" style="white-space: pre-line;">{{ $salesQuotation->notes }}</p>
+                                <p class="mb-0 text-dark" style="white-space: pre-line;">{{ $salesQuotation->clean_notes }}</p>
                             </div>
                         </div>
                     @endif
@@ -156,22 +164,36 @@
 
                     {{-- Customer Details Card --}}
                     <div class="card card-primary">
-                        <div class="card-header">
-                            <h4><i class="fas fa-user mr-2"></i>Customer Info</h4>
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4><i class="fas fa-user mr-2"></i>{{ $salesQuotation->is_prospect ? 'Prospect Buyer Info' : 'Customer Info' }}</h4>
+                            @if($salesQuotation->is_prospect)
+                                <span class="badge badge-primary px-2 py-1" style="font-size: 10px;">Direct Prospect</span>
+                            @endif
                         </div>
                         <div class="card-body">
                             <div class="mb-2">
-                                <small class="text-muted text-uppercase font-weight-bold d-block">Name</small>
-                                <span class="font-weight-bold text-dark">{{ $salesQuotation->customer?->name ?? 'N/A' }}</span>
+                                <small class="text-muted text-uppercase font-weight-bold d-block">{{ $salesQuotation->is_prospect ? 'Prospect / Business Name' : 'Name' }}</small>
+                                <span class="font-weight-bold text-dark">{{ $salesQuotation->buyer_display_name }}</span>
                             </div>
-                            <div class="mb-2">
-                                <small class="text-muted text-uppercase font-weight-bold d-block">Email</small>
-                                <span>{{ $salesQuotation->customer?->email ?? 'N/A' }}</span>
-                            </div>
-                            <div>
-                                <small class="text-muted text-uppercase font-weight-bold d-block">Phone</small>
-                                <span>{{ $salesQuotation->customer?->phone ?? 'N/A' }}</span>
-                            </div>
+                            @if($salesQuotation->is_prospect)
+                                <div class="mb-2">
+                                    <small class="text-muted text-uppercase font-weight-bold d-block">Phone Number</small>
+                                    <span>{{ $salesQuotation->buyer_phone ?: 'N/A' }}</span>
+                                </div>
+                                <div>
+                                    <small class="text-muted text-uppercase font-weight-bold d-block">Account Status</small>
+                                    <span class="badge badge-light border text-muted">Direct Commercial Lead</span>
+                                </div>
+                            @else
+                                <div class="mb-2">
+                                    <small class="text-muted text-uppercase font-weight-bold d-block">Email</small>
+                                    <span>{{ $salesQuotation->customer?->email ?? 'N/A' }}</span>
+                                </div>
+                                <div>
+                                    <small class="text-muted text-uppercase font-weight-bold d-block">Phone</small>
+                                    <span>{{ $salesQuotation->customer?->phone ?? 'N/A' }}</span>
+                                </div>
+                            @endif
                         </div>
                     </div>
 
@@ -220,10 +242,52 @@
                     confirmButtonColor: '#10b981',
                     cancelButtonColor: '#6c757d',
                     confirmButtonText: 'Yes, Convert to SO!',
-                    cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $('#convertForm').submit();
+                    }
+                });
+            });
+
+            // Async Lookbook PDF Generation with Zero-Crash Polling
+            let lookbookPollingInterval = null;
+            $('#btn_async_lookbook').on('click', function() {
+                const $btn = $(this);
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Preparing Lookbook...');
+
+                $.ajax({
+                    url: "{{ route('admin.sales-quotations.catalog-pdf.async', $salesQuotation->id) }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(res) {
+                        toastr.info('Visual Lookbook generation started in background. Please wait...', 'Generating PDF');
+                        const dispatchedAt = res.dispatched_at || Math.floor(Date.now() / 1000);
+
+                        // Poll every 2.5 seconds
+                        lookbookPollingInterval = setInterval(function() {
+                            $.ajax({
+                                url: "{{ route('admin.sales-quotations.catalog-pdf.status') }}",
+                                type: "GET",
+                                data: {
+                                    quotation_id: "{{ $salesQuotation->id }}",
+                                    after: dispatchedAt
+                                },
+                                success: function(statusRes) {
+                                    if (statusRes.ready && statusRes.download_url) {
+                                        clearInterval(lookbookPollingInterval);
+                                        $btn.prop('disabled', false).html('<i class="fas fa-book-open mr-1"></i> Visual Lookbook');
+                                        toastr.success('Visual Lookbook PDF is ready! Starting download...', 'Success');
+                                        window.location.href = statusRes.download_url;
+                                    }
+                                }
+                            });
+                        }, 2500);
+                    },
+                    error: function(err) {
+                        $btn.prop('disabled', false).html('<i class="fas fa-book-open mr-1"></i> Visual Lookbook');
+                        toastr.error('Failed to initiate Lookbook generation: ' + (err.responseJSON?.message || 'Server error'));
                     }
                 });
             });

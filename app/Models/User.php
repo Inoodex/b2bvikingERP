@@ -82,6 +82,11 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
     /**
      * Determine if this user is an internal staff member.
      * External 'User' role is always customer; staff is linked to org unit or backend roles.

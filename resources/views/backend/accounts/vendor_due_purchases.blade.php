@@ -163,7 +163,7 @@
                                     <td class="text-center">{!! $agingBadge !!}</td>
                                     <td class="text-center"><span class="badge {{ $paymentClass }}">{{ ucfirst($purchase->payment_status ?? 'pending') }}</span></td>
                                     <td class="text-center text-nowrap">
-                                        <a href="{{ route('admin.purchases.show', $purchase->id) }}" class="btn btn-sm btn-primary" title="View Invoice">
+                                        <a href="{{ route('admin.purchase-orders.show', $purchase->id) }}" class="btn btn-sm btn-primary" title="View Purchase Order">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         <a href="{{ route('admin.accounts.vendor-payments.record-payment', ['invoice_no' => $purchase->invoice_no]) }}"

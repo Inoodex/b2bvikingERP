@@ -15,11 +15,16 @@ class WarehouseZoneControllerTest extends TestCase
 
     protected function getOrCreateUser(): User
     {
-        return User::first() ?? User::create([
+        $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);
+        $user = User::first() ?? User::create([
             'name' => 'Admin User',
             'email' => 'admin_' . uniqid() . '@example.com',
             'password' => bcrypt('password123'),
         ]);
+        if (!$user->hasRole('Admin')) {
+            $user->assignRole($role);
+        }
+        return $user;
     }
 
     protected function getOrCreateOutlet(): Outlet
@@ -88,6 +93,56 @@ class WarehouseZoneControllerTest extends TestCase
             'name' => 'New Zone Name',
             'type' => 'scrap',
             'status' => 0,
+        ]);
+    }
+
+    public function test_it_can_delete_a_warehouse_zone_via_ajax(): void
+    {
+        $user = $this->getOrCreateUser();
+        $outlet = $this->getOrCreateOutlet();
+
+        $zone = WarehouseZone::create([
+            'outlet_id' => $outlet->id,
+            'name' => 'Zone to Delete',
+            'type' => 'active',
+            'status' => 1,
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->deleteJson(route('admin.warehouse-zones.destroy', $zone->id));
+
+        $response->assertOk();
+        $response->assertJson([
+            'status' => 'success',
+            'message' => 'Warehouse Zone deleted successfully.',
+        ]);
+
+        $this->assertDatabaseMissing('warehouse_zones', [
+            'id' => $zone->id,
+        ]);
+    }
+
+    public function test_it_can_delete_a_warehouse_zone_via_standard_request(): void
+    {
+        $user = $this->getOrCreateUser();
+        $outlet = $this->getOrCreateOutlet();
+
+        $zone = WarehouseZone::create([
+            'outlet_id' => $outlet->id,
+            'name' => 'Zone to Delete Standard',
+            'type' => 'active',
+            'status' => 1,
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->delete(route('admin.warehouse-zones.destroy', $zone->id));
+
+        $response->assertRedirect(route('admin.warehouse-zones.index'));
+
+        $this->assertDatabaseMissing('warehouse_zones', [
+            'id' => $zone->id,
         ]);
     }
 }

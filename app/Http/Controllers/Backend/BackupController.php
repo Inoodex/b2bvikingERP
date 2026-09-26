@@ -69,8 +69,16 @@ class BackupController extends Controller
     {
         $backup = SystemBackupLog::findOrFail($id);
         $this->backupService->deleteBackup($backup);
+        $message = __('Backup file deleted successfully.');
 
-        Toastr::success("Backup file deleted successfully.");
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $message,
+            ]);
+        }
+
+        Toastr::success($message);
         return redirect()->route('admin.backups.index');
     }
 }

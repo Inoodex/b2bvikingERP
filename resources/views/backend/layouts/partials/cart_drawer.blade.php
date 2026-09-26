@@ -352,7 +352,7 @@ window.openCartDrawer = function(type) {
 
   if (isBooking) {
     $title.text('Procurement Cart');
-    $subtitle.text('Review items before generating RFQ / Purchase');
+    $subtitle.text('Review items before generating RFQ / Purchase Order');
     $iconBox.removeClass('request').addClass('booking');
     $headerIcon.attr('class', 'fas fa-shopping-basket');
     $proceedBtn.removeClass('btn-danger btn-primary').addClass('btn-warning').css('color', '#1a1408');

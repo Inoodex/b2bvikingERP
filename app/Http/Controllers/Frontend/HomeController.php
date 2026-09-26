@@ -10,6 +10,7 @@ use App\Models\GeneralSetting;
 use App\Models\ProductType;
 use App\Models\Slider;
 use App\Services\CheckoutDiscountResolver;
+use App\Services\B2bProductVisibilityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
@@ -29,6 +30,8 @@ class HomeController extends Controller
         $isOutletCustomer = $roleContext['isOutletCustomer'];
         $outletId = $roleContext['outletId'] ?? $this->resolveRequestOutletId($request);
 
+        $hiddenProductIds = B2bProductVisibilityService::getHiddenProductIds($request->user());
+
         $sliders = Schema::hasTable('sliders')
             ? Slider::query()
             ->where('status', 1)
@@ -38,17 +41,20 @@ class HomeController extends Controller
         $latestCategories = Category::query()
             ->where('status', 1)
             ->where('frontend_show', 1)
-            ->whereHas('products', function ($query) {
-                $query->where('status', 1);
+            ->whereHas('products', function ($query) use ($hiddenProductIds) {
+                $query->where('status', 1)
+                    ->when(!empty($hiddenProductIds), fn($q) => $q->whereNotIn('id', $hiddenProductIds));
             })
             ->withMax([
-                'products as latest_product_created_at' => function ($query) {
-                    $query->where('status', 1);
+                'products as latest_product_created_at' => function ($query) use ($hiddenProductIds) {
+                    $query->where('status', 1)
+                        ->when(!empty($hiddenProductIds), fn($q) => $q->whereNotIn('id', $hiddenProductIds));
                 }
             ], 'created_at')
             ->with([
-                'products' => function ($query) use ($roleContext, $isOutletCustomer, $outletId) {
+                'products' => function ($query) use ($roleContext, $isOutletCustomer, $outletId, $hiddenProductIds) {
                     $query->where('status', 1)
+                        ->when(!empty($hiddenProductIds), fn($q) => $q->whereNotIn('id', $hiddenProductIds))
                         ->latest()
                         ->take(4)
                         ->with([
@@ -72,10 +78,13 @@ class HomeController extends Controller
 
         $latestCategories = $latestCategories->paginate(5)->withQueryString();
 
+        $allIndexProducts = collect($latestCategories->items())->flatMap(fn(Category $cat) => $cat->products);
+        $availabilityMap = B2bProductVisibilityService::resolveAvailabilityMap($allIndexProducts, $request->user());
+
         $latestCategoryBlocks = collect($latestCategories->items())
-            ->map(function (Category $category) use ($roleContext): array {
+            ->map(function (Category $category) use ($roleContext, $availabilityMap): array {
                 $cards = $category->products
-                    ->map(fn(Product $product) => $this->transformProductForCard($product, $roleContext))
+                    ->map(fn(Product $product) => $this->transformProductForCard($product, $roleContext, $availabilityMap->get($product->id)))
                     ->values();
 
                 return [
@@ -104,21 +113,25 @@ class HomeController extends Controller
         $isOutletCustomer = $roleContext['isOutletCustomer'];
         $outletId = $roleContext['outletId'] ?? $this->resolveRequestOutletId($request);
         $page = max(1, (int) $request->get('page', 1));
+        $hiddenProductIds = B2bProductVisibilityService::getHiddenProductIds($request->user());
 
         $latestCategories = Category::query()
             ->where('status', 1)
             ->where('frontend_show', 1)
-            ->whereHas('products', function ($query) {
-                $query->where('status', 1);
+            ->whereHas('products', function ($query) use ($hiddenProductIds) {
+                $query->where('status', 1)
+                    ->when(!empty($hiddenProductIds), fn($q) => $q->whereNotIn('id', $hiddenProductIds));
             })
             ->withMax([
-                'products as latest_product_created_at' => function ($query) {
-                    $query->where('status', 1);
+                'products as latest_product_created_at' => function ($query) use ($hiddenProductIds) {
+                    $query->where('status', 1)
+                        ->when(!empty($hiddenProductIds), fn($q) => $q->whereNotIn('id', $hiddenProductIds));
                 }
             ], 'created_at')
             ->with([
-                'products' => function ($query) use ($roleContext, $isOutletCustomer, $outletId) {
+                'products' => function ($query) use ($roleContext, $isOutletCustomer, $outletId, $hiddenProductIds) {
                     $query->where('status', 1)
+                        ->when(!empty($hiddenProductIds), fn($q) => $q->whereNotIn('id', $hiddenProductIds))
                         ->latest()
                         ->take(4)
                         ->with([
@@ -142,10 +155,13 @@ class HomeController extends Controller
             ->paginate(5)
             ->withQueryString();
 
+        $allAjaxProducts = collect($latestCategories->items())->flatMap(fn(Category $cat) => $cat->products);
+        $availabilityMap = B2bProductVisibilityService::resolveAvailabilityMap($allAjaxProducts, $request->user());
+
         $categoryBlocks = collect($latestCategories->items())
-            ->map(function (Category $category) use ($roleContext): array {
+            ->map(function (Category $category) use ($roleContext, $availabilityMap): array {
                 $cards = $category->products
-                    ->map(fn(Product $product) => $this->transformProductForCard($product, $roleContext))
+                    ->map(fn(Product $product) => $this->transformProductForCard($product, $roleContext, $availabilityMap->get($product->id)))
                     ->values();
 
                 return [
@@ -177,6 +193,8 @@ class HomeController extends Controller
         $isOutletCustomer = $roleContext['isOutletCustomer'];
         $outletId = $roleContext['outletId'] ?? $this->resolveRequestOutletId($request);
 
+        $hiddenProductIds = B2bProductVisibilityService::getHiddenProductIds($request->user());
+
         $query = Product::query()
             ->with([
                 'category:id,name',
@@ -186,6 +204,7 @@ class HomeController extends Controller
                 },
             ])
             ->where('status', 1)
+            ->when(!empty($hiddenProductIds), fn($q) => $q->whereNotIn('id', $hiddenProductIds))
             ->whereHas('category', function ($q) {
                 $q->where('status', 1);
             });
@@ -264,8 +283,9 @@ class HomeController extends Controller
         }
 
         $products = $query->paginate(24)->withQueryString();
+        $availabilityMap = B2bProductVisibilityService::resolveAvailabilityMap($products->items(), $request->user());
         $shopCards = collect($products->items())
-            ->map(fn(Product $product) => $this->transformProductForCard($product, $roleContext))
+            ->map(fn(Product $product) => $this->transformProductForCard($product, $roleContext, $availabilityMap->get($product->id)))
             ->values();
 
         $categories = Category::with(['subCategories' => function ($q) {
@@ -413,11 +433,13 @@ class HomeController extends Controller
         $roleContext = $this->resolveFrontendRoleContext($request);
         $canSeeWholesalePrice = (bool) data_get($roleContext, 'isOutletUser', false)
             || (bool) data_get($roleContext, 'isStandardUser', false);
+        $hiddenProductIds = B2bProductVisibilityService::getHiddenProductIds($request->user());
 
         $products = Product::query()
             ->select(['id', 'name', 'slug', 'thumb_image', 'price', 'outlet_price', 'product_number', 'sku', 'category_id'])
             ->with('category:id,name')
             ->where('status', 1)
+            ->when(!empty($hiddenProductIds), fn($q) => $q->whereNotIn('id', $hiddenProductIds))
             ->whereHas('category', function ($query) {
                 $query->where('status', 1);
             })
@@ -482,6 +504,13 @@ class HomeController extends Controller
 
         $product = $productQuery->firstOrFail();
 
+        $availability = B2bProductVisibilityService::resolveAvailability($product, $request->user());
+        if (!$availability['is_visible']) {
+            abort(404);
+        }
+
+        $hiddenProductIds = B2bProductVisibilityService::getHiddenProductIds($request->user());
+
         $relatedQuery = Product::query()
             ->with([
                 'category:id,name',
@@ -492,7 +521,8 @@ class HomeController extends Controller
             ])
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
-            ->where('status', 1);
+            ->where('status', 1)
+            ->when(!empty($hiddenProductIds), fn($q) => $q->whereNotIn('id', $hiddenProductIds));
 
         if ($canViewInventory) {
             $relatedQuery->withSum([
@@ -519,6 +549,15 @@ class HomeController extends Controller
             ? $request->user()->wishlist()->where('product_id', $product->id)->exists()
             : false;
 
+        $effectiveStock = $canViewInventory ? (int) ($product->scoped_stock_qty ?? 0) : 0;
+        if ($availability['is_overridden']) {
+            if ($availability['override_rule'] === 'force_out_of_stock') {
+                $effectiveStock = 0;
+            } elseif ($availability['override_rule'] === 'force_in_stock') {
+                $effectiveStock = max(1, (int) ($availability['effective_stock'] ?? 999));
+            }
+        }
+
         $detailProductData = [
             'id' => (int) $product->id,
             'slug' => (string) $product->slug,
@@ -532,16 +571,29 @@ class HomeController extends Controller
             'global_discount' => (float) ($this->resolveDefaultDiscountContext()['value'] ?? 0),
             'category' => $productCategoryName !== '' ? $productCategoryName : 'Category not set',
             'minimum_order_qty' => max(1, (int) ($product->minimum_order_qty ?? 1)),
-            'stock' => $canViewInventory ? (int) ($product->scoped_stock_qty ?? 0) : 0,
+            'stock' => $effectiveStock,
             'inventory_visible' => $canViewInventory,
         ];
 
         $detailVariantData = $product->variants
-            ->map(fn($variant) => $this->mapVariantForCard($variant, $product, $canViewInventory))
+            ->map(function ($variant) use ($product, $canViewInventory, $availability) {
+                $mapped = $this->mapVariantForCard($variant, $product, $canViewInventory);
+                if ($availability['is_overridden']) {
+                    if ($availability['override_rule'] === 'force_out_of_stock') {
+                        $mapped['stock'] = 0;
+                    } elseif ($availability['override_rule'] === 'force_in_stock') {
+                        $vStock = (int) ($mapped['stock'] ?? 0);
+                        $mapped['stock'] = $vStock > 0 ? $vStock : (int) ($availability['effective_stock'] ?? 999);
+                    }
+                }
+                return $mapped;
+            })
             ->values();
 
+        $relatedAvailabilityMap = B2bProductVisibilityService::resolveAvailabilityMap($relatedProducts, $request->user());
+
         $relatedCards = $relatedProducts
-            ->map(fn(Product $relatedProduct) => $this->transformProductForCard($relatedProduct, $roleContext))
+            ->map(fn(Product $relatedProduct) => $this->transformProductForCard($relatedProduct, $roleContext, $relatedAvailabilityMap->get($relatedProduct->id)))
             ->values();
 
         return view('frontend.pages.products.show', [
@@ -626,12 +678,23 @@ class HomeController extends Controller
         }
     }
 
-    private function transformProductForCard(Product $product, array $roleContext): array
+    private function transformProductForCard(Product $product, array $roleContext, ?array $availability = null): array
     {
         $canViewInventory = (bool) ($roleContext['canViewInventory'] ?? false);
         $displayPath = $this->resolveImageUrl((string) ($product->thumb_image ?? ''));
         $categoryName = trim((string) optional($product->category)->name);
         $globalDiscount = $this->resolveDefaultDiscountContext();
+
+        $availability = $availability ?? B2bProductVisibilityService::resolveAvailability($product, request()->user());
+
+        $effectiveStock = $canViewInventory ? (int) ($product->scoped_stock_qty ?? 0) : 0;
+        if ($availability['is_overridden']) {
+            if ($availability['override_rule'] === 'force_out_of_stock') {
+                $effectiveStock = 0;
+            } elseif ($availability['override_rule'] === 'force_in_stock') {
+                $effectiveStock = max(1, (int) ($availability['effective_stock'] ?? 999));
+            }
+        }
 
         $productPayload = [
             'id' => (int) $product->id,
@@ -646,12 +709,23 @@ class HomeController extends Controller
             'global_discount' => (float) ($globalDiscount['value'] ?? 0),
             'category' => $categoryName !== '' ? $categoryName : 'Category not set',
             'minimum_order_qty' => max(1, (int) ($product->minimum_order_qty ?? 1)),
-            'stock' => $canViewInventory ? (int) ($product->scoped_stock_qty ?? 0) : 0,
+            'stock' => $effectiveStock,
             'inventory_visible' => $canViewInventory,
         ];
 
         $variantPayload = $product->variants
-            ->map(fn($variant) => $this->mapVariantForCard($variant, $product, $canViewInventory))
+            ->map(function ($variant) use ($product, $canViewInventory, $availability) {
+                $mapped = $this->mapVariantForCard($variant, $product, $canViewInventory);
+                if ($availability['is_overridden']) {
+                    if ($availability['override_rule'] === 'force_out_of_stock') {
+                        $mapped['stock'] = 0;
+                    } elseif ($availability['override_rule'] === 'force_in_stock') {
+                        $vStock = (int) ($mapped['stock'] ?? 0);
+                        $mapped['stock'] = $vStock > 0 ? $vStock : (int) ($availability['effective_stock'] ?? 999);
+                    }
+                }
+                return $mapped;
+            })
             ->values();
 
         $productTypeName = trim((string) optional($product->productType)->name);

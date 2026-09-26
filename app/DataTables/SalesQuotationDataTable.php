@@ -23,6 +23,9 @@ class SalesQuotationDataTable extends DataTable
                 return '<a href="' . route('admin.sales-quotations.show', $query->id) . '" class="font-weight-bold text-primary" style="font-family: monospace; font-size: 0.95rem;">' . e($query->quotation_no) . '</a>';
             })
             ->addColumn('customer_name', function ($query) {
+                if ($query->is_prospect) {
+                    return '<span class="font-weight-bold text-dark"><i class="fas fa-store text-primary mr-1"></i> ' . e($query->buyer_display_name) . '</span> <span class="badge badge-light border text-muted" style="font-size: 10px;">Prospect</span>';
+                }
                 return e($query->customer?->name ?? 'N/A');
             })
             ->addColumn('valid_until_badge', function ($query) {

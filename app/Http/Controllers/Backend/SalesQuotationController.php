@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Backend;
 
 use App\DataTables\SalesQuotationDataTable;
+use App\Exports\SalesQuotationExcelExport;
 use App\Http\Controllers\Controller;
+use App\Jobs\GenerateBuyerCatalogPdfJob;
+use App\Models\Category;
 use App\Models\Currency;
 use App\Models\DocumentSequence;
 use App\Models\GeneralSetting;
@@ -14,14 +17,19 @@ use App\Models\SalesQuotation;
 use App\Models\SalesQuotationItem;
 use App\Models\Tax;
 use App\Models\User;
+use App\Traits\HasEphemeralPdfReports;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
 use PDF;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class SalesQuotationController extends Controller
 {
+    use HasEphemeralPdfReports;
     public function index(SalesQuotationDataTable $dataTable)
     {
         $sequences = DocumentSequence::orderBy('model_type')->get();
@@ -36,8 +44,13 @@ class SalesQuotationController extends Controller
         $customers = $outlets->concat($regularCustomers);
         $currencies = Currency::where('status', 1)->get();
         $taxes = Tax::where('status', 1)->get();
-        $products = Product::where('status', 1)->with('variants')->latest('id')->get();
+        $categories = Category::where('status', 1)->orderBy('name')->get();
+        $products = Product::where('status', 1)
+            ->with(['variants.color', 'variants.size', 'category'])
+            ->latest('id')
+            ->get();
         $nextQuotationNo = DocumentSequence::previewNext('SalesQuotation');
+        $prospectUser = $this->getOrCreateProspectUser();
 
         $cartItems = collect();
         if (in_array($request->query('source'), ['cart', 'basket'])) {
@@ -48,12 +61,33 @@ class SalesQuotationController extends Controller
         }
 
         return view('backend.sales_quotation.create', compact(
-            'customers', 'outlets', 'regularCustomers', 'currencies', 'taxes', 'products', 'nextQuotationNo', 'cartItems'
+            'customers', 'outlets', 'regularCustomers', 'currencies', 'taxes', 'categories', 'products', 'nextQuotationNo', 'cartItems', 'prospectUser'
         ));
+    }
+
+    /**
+     * Get or create a default system user for walk-in / inquiry prospects
+     */
+    public function getOrCreateProspectUser(): User
+    {
+        return User::firstOrCreate(
+            ['email' => 'prospect@b2bviking.local'],
+            [
+                'name' => 'General Prospect / Catalog Inquiry',
+                'password' => bcrypt('Prospect#2026!Sec'),
+                'status' => 1,
+            ]
+        );
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $isProspect = $request->customer_type === 'prospect' || empty($request->customer_id);
+        if ($isProspect) {
+            $prospectUser = $this->getOrCreateProspectUser();
+            $request->merge(['customer_id' => $prospectUser->id]);
+        }
+
         $validated = $request->validate([
             'customer_id' => 'required|exists:users,id',
             'currency_id' => 'nullable|exists:currencies,id',
@@ -94,6 +128,14 @@ class SalesQuotationController extends Controller
             $discountAmount = (float)($request->discount_amount ?? 0);
             $totalAmount = max(0, round($subtotal + $taxAmount - $discountAmount, 2));
 
+            $notes = $request->notes ?? '';
+            if ($isProspect) {
+                $pName = trim($request->prospect_name ?? 'Valued Prospective Buyer');
+                $pPhone = trim($request->prospect_phone ?? '');
+                $leadTag = "[PROSPECT_LEAD: Name: {$pName} | Phone: {$pPhone}]";
+                $notes = $notes ? "{$leadTag}\n{$notes}" : $leadTag;
+            }
+
             $salesQuotation = SalesQuotation::create([
                 'quotation_no' => $quotationNo,
                 'customer_id' => $request->customer_id,
@@ -107,7 +149,7 @@ class SalesQuotationController extends Controller
                 'tax_amount' => round($taxAmount, 2),
                 'discount_amount' => round($discountAmount, 2),
                 'total_amount' => $totalAmount,
-                'notes' => $request->notes,
+                'notes' => $notes,
                 'created_by' => auth()->id(),
             ]);
 
@@ -154,16 +196,22 @@ class SalesQuotationController extends Controller
             return redirect()->route('admin.sales-quotations.show', $salesQuotation->id);
         }
 
-        $salesQuotation->load(['items.product', 'items.variant']);
+        $salesQuotation->load(['items.product.category', 'items.variant.color', 'items.variant.size']);
         $outlets = User::role('Outlet User')->where('status', 1)->latest('id')->get();
         $regularCustomers = User::customers()->where('status', 1)->latest('id')->get();
         $customers = $outlets->concat($regularCustomers);
         $currencies = Currency::where('status', 1)->get();
         $taxes = Tax::where('status', 1)->get();
-        $products = Product::where('status', 1)->with('variants')->latest('id')->get();
+        $categories = Category::where('status', 1)->orderBy('name')->get();
+        $products = Product::where('status', 1)->with(['variants.color', 'variants.size', 'category'])->latest('id')->get();
+        $prospectUser = $this->getOrCreateProspectUser();
+        $isProspect = $salesQuotation->is_prospect;
+        $prospectName = $salesQuotation->buyer_display_name;
+        $prospectPhone = $salesQuotation->buyer_phone;
+        $cleanNotes = $salesQuotation->clean_notes;
 
         return view('backend.sales_quotation.edit', compact(
-            'salesQuotation', 'customers', 'outlets', 'regularCustomers', 'currencies', 'taxes', 'products'
+            'salesQuotation', 'customers', 'outlets', 'regularCustomers', 'currencies', 'taxes', 'categories', 'products', 'prospectUser', 'isProspect', 'prospectName', 'prospectPhone', 'cleanNotes'
         ));
     }
 
@@ -173,6 +221,13 @@ class SalesQuotationController extends Controller
             toastr()->error('Locked Quotation: Converted or processed Sales Quotations cannot be edited according to Enterprise ERP audit rules. Please use Clone instead.');
             return redirect()->route('admin.sales-quotations.show', $salesQuotation->id);
         }
+
+        $isProspect = $request->customer_type === 'prospect' || empty($request->customer_id);
+        if ($isProspect) {
+            $prospectUser = $this->getOrCreateProspectUser();
+            $request->merge(['customer_id' => $prospectUser->id]);
+        }
+
         $request->validate([
             'customer_id' => 'required|exists:users,id',
             'currency_id' => 'nullable|exists:currencies,id',
@@ -219,6 +274,17 @@ class SalesQuotationController extends Controller
                 $exchangeRate = (float) $request->exchange_rate;
             }
 
+            $notes = $request->notes ?? '';
+            if ($isProspect) {
+                $pName = trim($request->prospect_name ?? 'Valued Prospective Buyer');
+                $pPhone = trim($request->prospect_phone ?? '');
+                $leadTag = "[PROSPECT_LEAD: Name: {$pName} | Phone: {$pPhone}]";
+                $cleanExisting = trim(preg_replace('/\[PROSPECT_LEAD:[^\]]+\]\s*/', '', $notes));
+                $notes = $cleanExisting ? "{$leadTag}\n{$cleanExisting}" : $leadTag;
+            } else {
+                $notes = trim(preg_replace('/\[PROSPECT_LEAD:[^\]]+\]\s*/', '', $notes));
+            }
+
             $salesQuotation->update([
                 'customer_id' => $request->customer_id,
                 'currency_id' => $request->currency_id,
@@ -230,7 +296,7 @@ class SalesQuotationController extends Controller
                 'tax_amount' => round($taxAmount, 2),
                 'discount_amount' => round($discountAmount, 2),
                 'total_amount' => $totalAmount,
-                'notes' => $request->notes,
+                'notes' => $notes,
             ]);
 
             $salesQuotation->items()->delete();
@@ -355,12 +421,82 @@ class SalesQuotationController extends Controller
         $salesQuotation->load(['customer', 'currency', 'tax', 'creator', 'items.product', 'items.variant']);
         $settings = GeneralSetting::first();
 
-        $pdf = PDF::loadView('backend.sales_quotation.pdf', compact('salesQuotation', 'settings'))
+        $pdf = PDF::loadView('backend.sales_quotation.sq_pdf', compact('salesQuotation', 'settings'))
             ->setPaper('a4', 'portrait')
             ->setOption('isRemoteEnabled', true)
             ->setOption('isPhpEnabled', true);
 
-        return $pdf->stream('Sales_Quotation_' . $salesQuotation->quotation_no . '.pdf');
+        return $pdf->stream('SQ_' . $salesQuotation->quotation_no . '.pdf');
+    }
+
+    /**
+     * Download Excel Order Sheet for B2B Buyer
+     */
+    public function excel(SalesQuotation $salesQuotation): BinaryFileResponse
+    {
+        $fileName = 'Order_Sheet_' . $salesQuotation->quotation_no . '.xlsx';
+        return Excel::download(new SalesQuotationExcelExport($salesQuotation), $fileName);
+    }
+
+    /**
+     * Dispatch Background Asynchronous PDF Lookbook/Catalog Generation (Report Section Pattern)
+     */
+    public function catalogPdfAsync(Request $request, SalesQuotation $salesQuotation): JsonResponse
+    {
+        $userId = auth()->id() ?? 0;
+        GenerateBuyerCatalogPdfJob::dispatch($salesQuotation->id, $userId);
+
+        return response()->json([
+            'status'        => 'success',
+            'message'       => "Visual Lookbook generation for #{$salesQuotation->quotation_no} started in background.",
+            'dispatched_at' => time(),
+        ]);
+    }
+
+    /**
+     * Check if Asynchronous Buyer Catalog PDF is ready in ephemeral storage
+     */
+    public function checkCatalogStatus(Request $request): JsonResponse
+    {
+        $quotationId = (int) $request->get('quotation_id', 0);
+        $reportType = "catalog_sq{$quotationId}";
+        $after = (int) $request->get('after', 0);
+
+        $latest = $this->getLatestReportFile($reportType, 'admin.sales-quotations.catalog-pdf.download');
+        if (!$latest) {
+            return response()->json(['ready' => false]);
+        }
+
+        if ($after > 0 && ($latest['timestamp'] ?? 0) < $after) {
+            return response()->json(['ready' => false]);
+        }
+
+        return response()->json([
+            'ready'        => true,
+            'download_url' => $latest['url'],
+            'filename'     => $latest['filename'],
+            'time'         => $latest['time'],
+            'date'         => $latest['date'],
+            'timestamp'    => $latest['timestamp'],
+        ]);
+    }
+
+    /**
+     * Download ephemeral generated Catalog PDF
+     */
+    public function downloadCatalogPdf(string $file): BinaryFileResponse|RedirectResponse
+    {
+        $cleanFile = basename($file);
+        $path = storage_path('app/temp_reports/' . $cleanFile);
+
+        if (!file_exists($path)) {
+            toastr()->error('The requested catalog PDF has expired or was purged. Please generate a fresh catalog.');
+            return redirect()->back();
+        }
+
+        return response()->download($path, $cleanFile, [
+            'Content-Type' => 'application/pdf',
+        ]);
     }
 
     public function destroy(string $id)

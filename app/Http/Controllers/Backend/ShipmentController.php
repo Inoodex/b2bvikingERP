@@ -177,13 +177,28 @@ class ShipmentController extends Controller
         $shipment = Shipment::findOrFail($id);
 
         if ($shipment->goodsReceiptsCount() > 0) {
-            Toastr::error('Shipment deletion prevented: Goods Receipts (GRNs) have already been generated for this shipment.', 'Deletion Blocked');
+            $msg = __('Shipment deletion prevented: Goods Receipts (GRNs) have already been generated for this shipment.');
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $msg,
+                ], 422);
+            }
+            Toastr::error($msg, 'Deletion Blocked');
             return redirect()->back();
         }
 
         $shipment->delete();
+        $message = __('Shipment record deleted successfully.');
 
-        Toastr::success('Shipment record deleted successfully.', 'Success');
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $message,
+            ]);
+        }
+
+        Toastr::success($message, 'Success');
         return redirect()->route('admin.shipments.index');
     }
 }

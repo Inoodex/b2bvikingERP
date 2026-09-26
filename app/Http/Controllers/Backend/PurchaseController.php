@@ -31,8 +31,7 @@ class PurchaseController extends Controller
      */
     public function index()
     {
-        $purchases = Purchase::with(['vendor', 'user', 'details', 'attachments'])->orderBy('id', 'desc')->get(); // Using get() for simple list first, or DataTable later if requested in plan
-        return view('backend.purchase.index', compact('purchases'));
+        return redirect()->route('admin.purchase-orders.index');
     }
 
     public function exportExcel()
@@ -440,8 +439,7 @@ class PurchaseController extends Controller
      */
     public function show(string $id)
     {
-        $purchase = Purchase::with(['vendor', 'user', 'details.product', 'attachments', 'payments.receipts'])->findOrFail($id);
-        return view('backend.purchase.show', compact('purchase'));
+        return redirect()->route('admin.purchase-orders.show', $id);
     }
 
     /**

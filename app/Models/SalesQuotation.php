@@ -64,4 +64,56 @@ class SalesQuotation extends Model
     {
         return $this->hasMany(SalesQuotationItem::class, 'sales_quotation_id');
     }
+
+    /**
+     * Check if quotation was created for a generic walk-in / inquiry prospect
+     */
+    public function getIsProspectAttribute(): bool
+    {
+        if ($this->customer && $this->customer->email === 'prospect@b2bviking.local') {
+            return true;
+        }
+        return (bool) ($this->notes && str_contains($this->notes, '[PROSPECT_LEAD:'));
+    }
+
+    /**
+     * Get display name for the buyer (prospect shop/name or registered customer)
+     */
+    public function getBuyerDisplayNameAttribute(): string
+    {
+        if ($this->notes && preg_match('/\[PROSPECT_LEAD:\s*Name:\s*([^|\]]+)(?:\|[^\]]+)?\]/', $this->notes, $matches)) {
+            $parsed = trim($matches[1]);
+            if (!empty($parsed)) {
+                return $parsed;
+            }
+        }
+        return $this->customer?->name ?? $this->customer?->outlet_name ?? 'Valued Prospective Buyer';
+    }
+
+    /**
+     * Get buyer contact phone number
+     */
+    public function getBuyerPhoneAttribute(): ?string
+    {
+        if ($this->notes && preg_match('/\[PROSPECT_LEAD:[^|]*\|\s*Phone:\s*([^\]]+)\]/', $this->notes, $matches)) {
+            $parsed = trim($matches[1]);
+            if (!empty($parsed)) {
+                return $parsed;
+            }
+        }
+        return $this->customer?->phone;
+    }
+
+    /**
+     * Get clean notes without the internal prospect lead tag
+     */
+    public function getCleanNotesAttribute(): ?string
+    {
+        if (!$this->notes) {
+            return null;
+        }
+        $cleaned = trim(preg_replace('/\[PROSPECT_LEAD:[^\]]+\]\s*/', '', $this->notes));
+        return $cleaned !== '' ? $cleaned : null;
+    }
 }
+

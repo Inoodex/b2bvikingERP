@@ -16,6 +16,7 @@ use App\Models\Wishlist;
 use App\Services\CheckoutDiscountResolver;
 use App\Services\CheckoutTaxResolver;
 use App\Services\ApprovalService;
+use App\Services\B2bProductVisibilityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -113,6 +114,22 @@ class CartController extends Controller
                 $query->where('status', 1);
             })
             ->findOrFail($productId);
+
+        $availability = B2bProductVisibilityService::resolveAvailability($product, Auth::user());
+        if (!$availability['is_visible']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This product is not available for purchase.',
+            ], 422);
+        }
+
+        if ($availability['is_overridden'] && $availability['override_rule'] === 'force_out_of_stock') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This item is out of stock.',
+                'available_stock' => 0,
+            ], 422);
+        }
 
         // Check if product is upcoming - prevent adding to cart
         $productTypeName = trim((string) optional($product->productType)->name);
@@ -432,6 +449,27 @@ class CartController extends Controller
             $stockRows = $this->lockInventoryForRequestedLines($requestedLines, $outletId);
 
             foreach ($requestedLines as $key => $line) {
+                $lineProduct = Product::find($line['product_id']);
+                $override = $lineProduct ? B2bProductVisibilityService::resolveAvailability($lineProduct, Auth::user()) : null;
+                if ($override && $override['is_overridden']) {
+                    if ($override['override_rule'] === 'force_out_of_stock' || !$override['is_visible']) {
+                        return redirect()
+                            ->route('checkout.index')
+                            ->with('error', 'This item is not available or out of stock: ' . $line['name'])
+                            ->withInput();
+                    }
+                    if ($override['override_rule'] === 'force_in_stock') {
+                        $maxAllowed = (int) ($override['effective_stock'] ?: 9999);
+                        if ((int) $line['requested_qty'] > $maxAllowed) {
+                            return redirect()
+                                ->route('checkout.index')
+                                ->with('error', 'Requested quantity exceeds available stock for ' . $line['name'])
+                                ->withInput();
+                        }
+                        continue;
+                    }
+                }
+
                 $available = (int) optional($stockRows->get($key))->quantity;
                 $requestedQty = (int) $line['requested_qty'];
                 if ($available < $requestedQty) {
@@ -495,6 +533,29 @@ class CartController extends Controller
             $stockRows = $this->lockInventoryForRequestedLines($requestedLines, $outletId);
 
             foreach ($requestedLines as $key => $line) {
+                $lineProduct = Product::find($line['product_id']);
+                $override = $lineProduct ? B2bProductVisibilityService::resolveAvailability($lineProduct, Auth::user()) : null;
+                if ($override && $override['is_overridden']) {
+                    if ($override['override_rule'] === 'force_out_of_stock' || !$override['is_visible']) {
+                        DB::rollBack();
+                        return redirect()
+                            ->route('checkout.index')
+                            ->with('error', 'This item is not available or out of stock: ' . $line['name'])
+                            ->withInput();
+                    }
+                    if ($override['override_rule'] === 'force_in_stock') {
+                        $maxAllowed = (int) ($override['effective_stock'] ?: 9999);
+                        if ((int) $line['requested_qty'] > $maxAllowed) {
+                            DB::rollBack();
+                            return redirect()
+                                ->route('checkout.index')
+                                ->with('error', 'Requested quantity exceeds available stock for ' . $line['name'])
+                                ->withInput();
+                        }
+                        continue;
+                    }
+                }
+
                 $available = (int) optional($stockRows->get($key))->quantity;
                 $requestedQty = (int) $line['requested_qty'];
                 if ($available < $requestedQty) {
@@ -1298,6 +1359,19 @@ class CartController extends Controller
 
     private function resolveAvailableStock(Product $product, ?ProductVariant $variant): int
     {
+        $user = Auth::user();
+        if ($user) {
+            $override = B2bProductVisibilityService::resolveAvailability($product, $user);
+            if ($override['is_overridden']) {
+                if ($override['override_rule'] === 'force_out_of_stock' || !$override['is_visible']) {
+                    return 0;
+                }
+                if ($override['override_rule'] === 'force_in_stock') {
+                    return (int) ($override['effective_stock'] ?: 9999);
+                }
+            }
+        }
+
         $outletId = $this->resolveOrderOutletId();
         $stocks = $variant ? $variant->inventoryStocks : $product->inventoryStocks;
 

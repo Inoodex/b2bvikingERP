@@ -11,6 +11,7 @@ use App\Models\CustomProductRequest;
 use App\Models\ProductRequest;
 use App\Models\SavedPurchaseForm;
 use App\Models\SavedPurchaseFormItem;
+use App\Services\B2bProductVisibilityService;
 use App\Support\StoredFileSupport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -137,8 +138,11 @@ class AccountController extends Controller
                 ];
             };
 
+        $hiddenProductIds = B2bProductVisibilityService::getHiddenProductIds($user);
+
         $productsForOrderForm = Product::query()
             ->where('status', 1)
+            ->when(!empty($hiddenProductIds), fn($q) => $q->whereNotIn('id', $hiddenProductIds))
             ->with([
                 'variants:id,product_id,name,color,size,color_id,size_id,price,outlet_price',
                 'variants.color:id,name',
@@ -417,6 +421,14 @@ class AccountController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid product selected in order form.',
+                ], 422);
+            }
+
+            $override = B2bProductVisibilityService::resolveAvailability($product, Auth::user());
+            if (!$override['is_visible'] || $override['override_rule'] === 'force_out_of_stock') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product "' . ($product->name ?? 'Selected item') . '" is out of stock or not available for your account.',
                 ], 422);
             }
 

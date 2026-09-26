@@ -1,652 +1,1377 @@
 @extends('backend.layouts.master')
 
 @push('css')
-<style>
-    :root {
-        --pp-obsidian: #0b1120;
-        --pp-obsidian-2: #060a14;
-        --pp-amber: #d4a24e;
-        --pp-amber-bright: #ecc78b;
-        --pp-amber-deep: #b8852a;
-        --pp-amber-soft: rgba(212, 162, 78, 0.08);
-        --pp-amber-glow: rgba(212, 162, 78, 0.30);
-        --pp-border: rgba(11, 17, 32, 0.07);
-        --pp-border-hover: rgba(212, 162, 78, 0.15);
-        --pp-ink: #161e2e;
-        --pp-ink-soft: #2d3748;
-        --pp-muted: #6b788e;
-        --pp-danger: #dc5a52;
-        --pp-surface: #f8f9fc;
-        --pp-surface-hover: #f1f3f8;
-        --pp-font: 'Inter', 'Segoe UI', system-ui, sans-serif;
-        --pp-radius-sm: 12px;
-        --pp-radius-md: 14px;
-        --pp-radius-lg: 20px;
-        --pp-shadow-card: 0 1px 3px rgba(11,17,32,0.04), 0 8px 20px -12px rgba(11,17,32,0.12);
-        --pp-shadow-card-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(212,162,78,0.06);
-        --pp-shadow-lift: 0 20px 50px -16px rgba(11,17,32,0.2), 0 0 0 1px rgba(212,162,78,0.1);
-    }
-
-    @keyframes ppFadeSlide {
-        from { opacity: 0; transform: translateY(12px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .navbar .nav-link {
-        height: 26px !important;
-    }
-    .modal-backdrop {
-        opacity: 0.5;
-        z-index: 1040;
-    }
-    .modal-backdrop.fade { opacity: 0; }
-    .modal-backdrop.fade.show { opacity: 0.55; }
-
-    #product-grid-container {
-        min-height: 400px;
-    }
-
-    @media (min-width: 992px) and (max-width: 1399.98px) {
-        .col-lg-5th {
-            flex: 0 0 25% !important;
-            max-width: 25% !important;
+    <style>
+        :root {
+            --pp-obsidian: #0b1120;
+            --pp-obsidian-2: #060a14;
+            --pp-amber: #d4a24e;
+            --pp-amber-bright: #ecc78b;
+            --pp-amber-deep: #b8852a;
+            --pp-amber-soft: rgba(212, 162, 78, 0.08);
+            --pp-amber-glow: rgba(212, 162, 78, 0.30);
+            --pp-border: rgba(11, 17, 32, 0.07);
+            --pp-border-hover: rgba(212, 162, 78, 0.15);
+            --pp-ink: #161e2e;
+            --pp-ink-soft: #2d3748;
+            --pp-muted: #6b788e;
+            --pp-danger: #dc5a52;
+            --pp-surface: #f8f9fc;
+            --pp-surface-hover: #f1f3f8;
+            --pp-font: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            --pp-radius-sm: 12px;
+            --pp-radius-md: 14px;
+            --pp-radius-lg: 20px;
+            --pp-shadow-card: 0 1px 3px rgba(11, 17, 32, 0.04), 0 8px 20px -12px rgba(11, 17, 32, 0.12);
+            --pp-shadow-card-hover: 0 12px 32px -12px rgba(11, 17, 32, 0.16), 0 0 0 1px rgba(212, 162, 78, 0.06);
+            --pp-shadow-lift: 0 20px 50px -16px rgba(11, 17, 32, 0.2), 0 0 0 1px rgba(212, 162, 78, 0.1);
         }
-    }
-    @media (min-width: 1400px) {
-        .col-xl-5th {
-            flex: 0 0 20% !important;
-            max-width: 20% !important;
+
+        @keyframes ppFadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-    }
 
-    /* ===== Section Header ===== */
-    .pp-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 20px;
-        margin-top: 18px;
-        padding: 18px 22px;
-        background: #fff;
-        border-radius: var(--pp-radius-md);
-        box-shadow: 0 1px 3px rgba(11,17,32,0.04), 0 8px 20px -12px rgba(11,17,32,0.12);
-        position: relative;
-        overflow: hidden;
-    }
-    .pp-header::before { display: none; }
-    .pp-header::after { display: none; }
-    .pp-header h1 {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-weight: 800;
-        font-size: 20px;
-        color: var(--pp-ink);
-        letter-spacing: -0.3px;
-        margin: 0;
-    }
-    .pp-header h1 .pp-icon {
-        width: 34px;
-        height: 34px;
-        min-width: 34px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        font-size: 14px;
-        color: #1a1306;
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber));
-        box-shadow: 0 4px 14px rgba(212, 162, 78, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
-    }
-    .pp-breadcrumb {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12.5px;
-        font-weight: 600;
-    }
-    .pp-breadcrumb-item {
-        color: var(--pp-muted);
-        padding-right: 14px;
-        position: relative;
-    }
-    .pp-breadcrumb-item + .pp-breadcrumb-item { padding-left: 14px; }
-    .pp-breadcrumb-item + .pp-breadcrumb-item::before {
-        content: '/';
-        position: absolute;
-        left: 0;
-        color: var(--pp-muted);
-    }
-    .pp-breadcrumb-item a {
-        color: var(--pp-amber-deep);
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
-    .pp-breadcrumb-item a:hover { color: var(--pp-amber); }
-    .pp-breadcrumb-item.active { color: var(--pp-ink-soft); }
+        .navbar .nav-link {
+            height: 26px !important;
+        }
 
-    /* ===== Filter Card ===== */
-    .pp-filter-card {
-        position: relative;
-        border-radius: var(--pp-radius-md) !important;
-        border: 1px solid var(--pp-border) !important;
-        background: rgba(255,255,255,0.75) !important;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        box-shadow: var(--pp-shadow-card) !important;
-        overflow: hidden;
-        transition: box-shadow 0.3s ease;
-    }
-    .pp-filter-card:hover {
-        box-shadow: var(--pp-shadow-card-hover) !important;
-    }
-    .pp-filter-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 2.5px;
-        background: linear-gradient(90deg, var(--pp-amber-bright), var(--pp-amber) 50%, transparent 96%);
-    }
-    .pp-filter-card .card-body { padding: 18px 20px 16px !important; }
+        .modal-backdrop {
+            opacity: 0.5;
+            z-index: 1040;
+        }
 
-    .pp-search-wrap {
-        border-radius: var(--pp-radius-lg) !important;
-        background: #fff !important;
-        border: 1.5px solid var(--pp-border) !important;
-        transition: all 0.25s ease;
-        overflow: hidden;
-    }
-    .pp-search-wrap:focus-within {
-        border-color: var(--pp-amber) !important;
-        box-shadow: 0 0 0 3px var(--pp-amber-soft), 0 4px 12px -8px rgba(212,162,78,0.15) !important;
-        background: #fff !important;
-    }
-    .pp-search-wrap .form-control {
-        font-size: 12.5px;
-        height: 36px !important;
-        background: transparent !important;
-        font-weight: 500;
-        color: var(--pp-ink);
-    }
-    .pp-search-wrap .form-control::placeholder { color: #aab2c0; }
-    .pp-search-wrap .input-group-text { font-size: 12px; color: #aab2c0; }
+        .modal-backdrop.fade {
+            opacity: 0;
+        }
 
-    .pp-select2 .select2-selection--single {
-        height: 36px !important;
-        border-radius: var(--pp-radius-lg) !important;
-        border: 1.5px solid var(--pp-border) !important;
-        background: #fff !important;
-        display: flex !important;
-        align-items: center;
-        transition: all 0.25s ease;
-    }
-    .pp-select2 .select2-selection--single .select2-selection__rendered {
-        color: var(--pp-ink);
-        font-size: 12px;
-        font-weight: 500;
-        padding-left: 14px;
-        line-height: 34px;
-    }
-    .pp-select2 .select2-selection--single .select2-selection__arrow {
-        height: 34px;
-        right: 10px;
-    }
-    .pp-select2 .select2-selection--single .select2-selection__arrow b {
-        border-color: var(--pp-amber) transparent transparent transparent !important;
-        border-width: 4px 4px 0 !important;
-    }
-    .pp-select2.select2-container--open .select2-selection--single,
-    .pp-select2.select2-container--focus .select2-selection--single {
-        border-color: var(--pp-amber) !important;
-        box-shadow: 0 0 0 3px var(--pp-amber-soft) !important;
-        background: #fff !important;
-    }
-    .pp-select2 .select2-dropdown {
-        border-radius: var(--pp-radius-sm) !important;
-        border: 1px solid var(--pp-border) !important;
-        box-shadow: var(--pp-shadow-lift) !important;
-        overflow: hidden;
-        margin-top: 4px;
-    }
-    .pp-select2 .select2-results__option {
-        font-size: 12px !important;
-        padding: 8px 12px !important;
-        transition: background 0.15s;
-    }
-    .pp-select2 .select2-results__option--highlighted[aria-selected] {
-        background: linear-gradient(135deg, var(--pp-amber-bright), var(--pp-amber)) !important;
-        color: #1a1306 !important;
-    }
-    .pp-select2 .select2-results__option[aria-selected=true] {
-        background: var(--pp-amber-soft) !important;
-        color: var(--pp-ink) !important;
-    }
-    .pp-select2 .select2-search--dropdown .select2-search__field {
-        border-radius: 8px !important;
-        border: 1px solid var(--pp-border) !important;
-        padding: 6px 10px !important;
-        font-size: 12px !important;
-    }
+        .modal-backdrop.fade.show {
+            opacity: 0.55;
+        }
 
-    .pp-btn {
-        border: none !important;
-        font-weight: 700 !important;
-        font-size: 11.5px !important;
-        letter-spacing: 0.2px;
-        border-radius: var(--pp-radius-lg) !important;
-        padding: 7px 16px !important;
-        transition: all 0.25s cubic-bezier(.2,.8,.2,1);
-        position: relative;
-        overflow: hidden;
-    }
-    .pp-btn:hover { transform: translateY(-2px); }
-    .pp-btn:active { transform: translateY(0) scale(0.97); }
-    .pp-btn-amber {
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep)) !important;
-        color: #1a1306 !important;
-        box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.45), inset 0 1px 0 rgba(255,255,255,0.25);
-    }
-    .pp-btn-amber:hover { filter: brightness(1.06); box-shadow: 0 8px 24px -6px rgba(212, 162, 78, 0.5); }
-    .pp-btn-emerald {
-        background: linear-gradient(145deg, #34d399, #16a34a) !important;
-        color: #fff !important;
-        box-shadow: 0 4px 14px -4px rgba(22, 163, 74, 0.34);
-    }
-    .pp-btn-emerald:hover { filter: brightness(1.06); box-shadow: 0 8px 24px -6px rgba(22, 163, 74, 0.4); }
-    .pp-btn-reset {
-        background: #fff !important;
-        color: var(--pp-amber-deep) !important;
-        border: 1.5px solid rgba(212, 162, 78, 0.25) !important;
-        border-radius: 10px !important;
-        font-weight: 700 !important;
-        font-size: 11.5px !important;
-        padding: 7px 14px !important;
-        letter-spacing: 0.2px;
-        transition: all 0.2s ease !important;
-        box-shadow: 0 2px 8px rgba(212, 162, 78, 0.06);
-    }
-    .pp-btn-reset:hover {
-        background: rgba(212, 162, 78, 0.07) !important;
-        border-color: var(--pp-amber) !important;
-        box-shadow: 0 4px 16px -6px rgba(212, 162, 78, 0.2);
-        transform: translateY(-1px);
-    }
-    .pp-btn-reset i { font-size: 11px; }
+        #product-grid-container {
+            min-height: 400px;
+        }
 
-    /* ===== Modals ===== */
-    .pp-modal .modal-content {
-        border: none;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 30px 60px -20px rgba(11,17,32,0.45);
-    }
-    .pp-modal .modal-header {
-        background: linear-gradient(135deg, #0a0e1a, #131a2b);
-        border-bottom: none;
-        padding: 14px 20px;
-        position: relative;
-    }
-    .pp-modal .modal-header::after {
-        content: '';
-        position: absolute;
-        left: 0; right: 0; bottom: -1px;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--pp-amber-bright), transparent);
-        opacity: 0.6;
-    }
-    .pp-modal .modal-title {
-        color: #f5f2ea;
-        font-weight: 700;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .pp-modal .modal-title i { color: var(--pp-amber-bright) !important; font-size: 15px; }
-    .pp-modal .close {
-        color: rgba(255,255,255,0.5);
-        text-shadow: none;
-        font-size: 20px;
-        transition: all 0.2s;
-    }
-    .pp-modal .close:hover { opacity: 1; color: var(--pp-amber-bright); }
-    .pp-modal .modal-body { padding: 18px 20px !important; }
-    .pp-modal .modal-footer {
-        background: #f8f9fc;
-        border-top: 1px solid var(--pp-border);
-        padding: 12px 20px;
-        gap: 8px;
-    }
-    .pp-modal .modal-footer .btn {
-        border-radius: var(--pp-radius-lg);
-        font-weight: 600;
-        font-size: 11.5px;
-        padding: 7px 18px;
-        transition: all 0.2s ease;
-    }
-    .pp-modal .btn-amber {
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep));
-        border: none;
-        color: #1a1306;
-        box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.4);
-    }
-    .pp-modal .btn-amber:hover { filter: brightness(1.06); transform: translateY(-1px); }
-    .pp-modal .btn-secondary {
-        background: #e8ebf0;
-        border: 1px solid var(--pp-border);
-        color: var(--pp-ink-soft);
-    }
-    .pp-modal .btn-secondary:hover { background: #dee2e9; border-color: var(--pp-amber); }
+        @media (min-width: 992px) and (max-width: 1399.98px) {
+            .col-lg-5th {
+                flex: 0 0 25% !important;
+                max-width: 25% !important;
+            }
+        }
 
-    .pp-star-rating .rating-star { transition: all 0.2s ease; }
-    .pp-star-rating .rating-star:hover { transform: scale(1.2) rotate(-5deg); color: #f59e0b !important; }
+        @media (min-width: 1400px) {
+            .col-xl-5th {
+                flex: 0 0 20% !important;
+                max-width: 20% !important;
+            }
+        }
 
-    /* ===== Product Card ===== */
-    .pp-card {
-        border-radius: var(--pp-radius-md) !important;
-        border: 1px solid var(--pp-border) !important;
-        background: #fff !important;
-        box-shadow: var(--pp-shadow-card) !important;
-        transition: all 0.3s cubic-bezier(.2,.8,.2,1) !important;
-        overflow: hidden;
-        animation: ppFadeSlide 0.4s ease both;
-    }
-    .pp-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--pp-shadow-card-hover) !important;
-        border-color: var(--pp-border-hover) !important;
-    }
-    .pp-card-img-wrap {
-        height: 180px;
-        background: linear-gradient(180deg, #fafbfc 0%, #f4f5f8 100%);
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-bottom: 1px solid var(--pp-border);
-    }
-    .pp-card-img-wrap::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(180deg, rgba(255,255,255,0) 60%, rgba(248,249,252,0.8) 100%);
-        pointer-events: none;
-    }
-    .pp-card-img-wrap img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s cubic-bezier(.2,.8,.2,1);
-        position: relative;
-        z-index: 0;
-    }
-    .pp-card:hover .pp-card-img-wrap img {
-        transform: scale(1.1);
-    }
-    .pp-card-body {
-        padding: 10px 12px 12px;
-    }
-    .pp-card-title {
-        font-weight: 700;
-        font-size: 13.5px;
-        color: var(--pp-ink);
-        line-height: 1.35;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        margin-bottom: 6px !important;
-        letter-spacing: -0.1px;
-        transition: color 0.3s;
-    }
-    .pp-card:hover .pp-card-title {
-        color: var(--pp-amber-deep);
-    }
-    .pp-badge-category {
-        background: var(--pp-surface);
-        color: var(--pp-muted);
-        font-size: 9px;
-        font-weight: 600;
-        padding: 3px 9px;
-        border-radius: 12px;
-        border: 1px solid var(--pp-border);
-        transition: all 0.25s;
-    }
-    .pp-card:hover .pp-badge-category {
-        background: var(--pp-amber-soft);
-        border-color: var(--pp-border-hover);
-        color: var(--pp-amber-deep);
-    }
-    .pp-badge-stock {
-        font-size: 9px;
-        font-weight: 600;
-        padding: 3px 9px;
-        border-radius: 12px;
-        transition: all 0.25s;
-    }
-    .pp-badge-stock.in-stock {
-        background: rgba(22, 163, 74, 0.08);
-        color: #16a34a;
-        border: 1px solid rgba(22, 163, 74, 0.15);
-    }
-    .pp-badge-stock.out-of-stock {
-        background: rgba(220, 90, 82, 0.08);
-        color: #dc5a52;
-        border: 1px solid rgba(220, 90, 82, 0.15);
-    }
-    .pp-badge-type {
-        font-size: 8px;
-        font-weight: 700;
-        padding: 3px 8px;
-        border-radius: 6px;
-        letter-spacing: 0.3px;
-        text-transform: uppercase;
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(255,255,255,0.2);
-    }
-    .pp-variant-scroll {
-        max-height: 110px;
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: var(--pp-amber) transparent;
-    }
-    .pp-variant-scroll::-webkit-scrollbar { width: 3px; }
-    .pp-variant-scroll::-webkit-scrollbar-thumb {
-        background: var(--pp-amber);
-        border-radius: 10px;
-    }
-    .pp-variant-scroll::-webkit-scrollbar-track { background: transparent; }
+        /* ===== Section Header ===== */
+        .pp-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            margin-top: 18px;
+            padding: 18px 22px;
+            background: #fff;
+            border-radius: var(--pp-radius-md);
+            box-shadow: 0 1px 3px rgba(11, 17, 32, 0.04), 0 8px 20px -12px rgba(11, 17, 32, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
 
-    .pp-price-box {
-        background: var(--pp-surface);
-        border-radius: 10px;
-        padding: 8px 11px;
-        border: 1px solid var(--pp-border);
-        transition: all 0.3s;
-    }
-    .pp-card:hover .pp-price-box {
-        background: linear-gradient(135deg, #fefcf8, #faf7f0);
-        border-color: var(--pp-border-hover);
-    }
-    .pp-price-label {
-        font-size: 9.5px;
-        color: var(--pp-muted);
-        font-weight: 600;
-        letter-spacing: 0.2px;
-    }
-    .pp-price-value {
-        font-weight: 700;
-        font-size: 12.5px;
-        color: var(--pp-ink-soft);
-    }
-    .pp-btn-card {
-        border-radius: var(--pp-radius-lg) !important;
-        font-weight: 700 !important;
-        font-size: 10.5px !important;
-        padding: 5px 13px !important;
-        transition: all 0.25s cubic-bezier(.2,.8,.2,1) !important;
-    }
-    .pp-btn-card:hover { transform: translateY(-1.5px); box-shadow: 0 4px 12px -4px rgba(212,162,78,0.2); }
-    .pp-btn-outline {
-        border: 1.5px solid var(--pp-border) !important;
-        color: var(--pp-ink-soft) !important;
-        background: transparent !important;
-    }
-    .pp-btn-outline:hover {
-        border-color: var(--pp-amber) !important;
-        background: var(--pp-amber-soft) !important;
-        color: var(--pp-amber-deep) !important;
-    }
-    .pp-edit-btn {
-        border-radius: var(--pp-radius-lg) !important;
-        font-weight: 600 !important;
-        font-size: 10px !important;
-        padding: 5px 11px !important;
-        transition: all 0.25s ease !important;
-    }
-    .pp-edit-btn:hover {
-        transform: translateY(-1.5px);
-        box-shadow: 0 4px 12px -4px rgba(11,17,32,0.1);
-    }
-    .pp-status-switch .custom-switch-indicator {
-        border-radius: 16px !important;
-        width: 31px !important;
-        height: 17px !important;
-        transition: all 0.25s ease !important;
-        border: 1px solid var(--pp-border);
-    }
-    .pp-status-switch .custom-switch-indicator::after {
-        width: 13px !important;
-        height: 13px !important;
-        top: 2px !important;
-        left: 2px !important;
-        transition: all 0.25s ease !important;
-    }
-    .pp-status-switch .custom-switch-input:checked ~ .custom-switch-indicator {
-        background: linear-gradient(135deg, var(--pp-amber-bright), var(--pp-amber)) !important;
-        border-color: var(--pp-amber) !important;
-        box-shadow: 0 2px 8px -2px rgba(212, 162, 78, 0.3);
-    }
-    .pp-count-badge {
-        background: #fff;
-        border: 1px solid var(--pp-border);
-        color: var(--pp-muted);
-        font-size: 11px;
-        font-weight: 600;
-        padding: 6px 16px;
-        border-radius: var(--pp-radius-lg);
-        box-shadow: 0 1px 3px rgba(11,17,32,0.03);
-    }
-    .pp-count-badge strong { color: var(--pp-amber-deep); }
-    .pp-pagination .pagination .page-link {
-        border-radius: 10px !important;
-        border: 1px solid var(--pp-border) !important;
-        margin: 0 2px;
-        font-weight: 600;
-        font-size: 11px;
-        color: var(--pp-muted);
-        padding: 6px 11px;
-        transition: all 0.2s cubic-bezier(.2,.8,.2,1);
-        background: #fff;
-    }
-    .pp-pagination .pagination .page-link:hover {
-        border-color: var(--pp-amber) !important;
-        background: var(--pp-amber-soft) !important;
-        color: var(--pp-amber-deep) !important;
-        transform: translateY(-1px);
-    }
-    .pp-pagination .pagination .page-item.active .page-link {
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber)) !important;
-        border-color: var(--pp-amber) !important;
-        color: #1a1306 !important;
-        box-shadow: 0 4px 14px -3px rgba(212, 162, 78, 0.35);
-        transform: translateY(-1px);
-    }
-    .pp-pagination .pagination .page-item.disabled .page-link {
-        opacity: 0.4;
-        cursor: not-allowed;
-    }
-    .pp-pagination .pagination .page-item:first-child .page-link,
-    .pp-pagination .pagination .page-item:last-child .page-link {
-        border-radius: 10px !important;
-    }
-    .pp-rating-star-small {
-        font-size: 11px;
-    }
-    .pp-card-badges {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 11;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-    .pp-card-actions {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        z-index: 10;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 6px;
-    }
+        .pp-header::before {
+            display: none;
+        }
 
-/* ===== Mobile Responsive ===== */
-@media (max-width: 991.98px) {
-    .pp-header { flex-direction: column; align-items: flex-start; padding: 14px 16px; gap: 8px; }
-    .pp-header h1 { font-size: 16px; gap: 8px; }
-    .pp-header h1 .pp-icon { width: 28px; height: 28px; min-width: 28px; font-size: 12px; }
-    .pp-breadcrumb { font-size: 11px; }
-    .pp-breadcrumb-item { padding-right: 10px; }
-    .pp-breadcrumb-item + .pp-breadcrumb-item { padding-left: 10px; }
-}
+        .pp-header::after {
+            display: none;
+        }
 
-@media (max-width: 767.98px) {
-    .pp-header { margin-bottom: 14px; }
-    .pp-header h1 { font-size: 14px; }
-    .pp-filter-card .card-body { padding: 12px 12px 10px !important; }
-    .pp-search-wrap .form-control { font-size: 11px !important; height: 32px !important; }
-    #filter-form .col-12 { margin-bottom: 10px; }
-    #filter-form .pp-btn { width: 100%; text-align: center; padding: 6px 12px !important; font-size: 10.5px !important; display: block; }
-    .pp-card-img-wrap { height: 110px; }
-    .pp-card-body { padding: 8px 10px 10px; }
-    .pp-card-title { font-size: 11.5px; }
-    .pp-badge-category, .pp-badge-stock { font-size: 8px; padding: 2px 7px; }
-    .pp-price-label { font-size: 8px; }
-    .pp-price-value { font-size: 10.5px; }
-    .pp-btn-card { font-size: 9px !important; padding: 4px 10px !important; }
-    .pp-edit-btn { font-size: 9px !important; padding: 4px 9px !important; }
-    .pp-variant-scroll { max-height: 80px; }
-    .pp-count-badge { font-size: 9px; padding: 4px 10px; }
-    .pp-pagination .pagination .page-link { font-size: 9px !important; padding: 4px 8px !important; margin: 0 1px; }
-    #floating-baskets-container { bottom: 16px !important; right: 16px !important; gap: 10px !important; }
-    .basket-fab { width: 38px !important; height: 38px !important; }
-    .basket-fab i { font-size: 14px; }
-    #request-basket-count, #basket-count { min-width: 18px; height: 18px; font-size: 9px; top: -5px; right: -5px; }
-}
+        .pp-header h1 {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--pp-ink);
+            letter-spacing: -0.3px;
+            margin: 0;
+        }
 
-@media (max-width: 575.98px) {
-    .pp-card-img-wrap { height: 90px; }
-    .pp-card-title { font-size: 10.5px; -webkit-line-clamp: 1; }
-    .pp-card-body { padding: 6px 8px 8px; }
-    .pp-price-box { padding: 5px 8px; }
-    .pp-price-value { font-size: 9.5px; }
-    .pp-price-label { font-size: 7.5px; }
-    .pp-badge-category, .pp-badge-stock { font-size: 7px; padding: 1px 6px; }
-    .pp-btn-card { font-size: 8px !important; padding: 3px 8px !important; }
-    .pp-edit-btn { font-size: 8px !important; padding: 3px 7px !important; }
-}
+        .pp-header h1 .pp-icon {
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #1a1306;
+            background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber));
+            box-shadow: 0 4px 14px rgba(212, 162, 78, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
 
-</style>
+        .pp-breadcrumb {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+        }
+
+        .pp-breadcrumb-item {
+            color: var(--pp-muted);
+            padding-right: 14px;
+            position: relative;
+        }
+
+        .pp-breadcrumb-item+.pp-breadcrumb-item {
+            padding-left: 14px;
+        }
+
+        .pp-breadcrumb-item+.pp-breadcrumb-item::before {
+            content: '/';
+            position: absolute;
+            left: 0;
+            color: var(--pp-muted);
+        }
+
+        .pp-breadcrumb-item a {
+            color: var(--pp-amber-deep);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .pp-breadcrumb-item a:hover {
+            color: var(--pp-amber);
+        }
+
+        .pp-breadcrumb-item.active {
+            color: var(--pp-ink-soft);
+        }
+
+        /* ===== Filter Card ===== */
+        .pp-filter-card {
+            position: relative;
+            border-radius: var(--pp-radius-md) !important;
+            border: 1px solid var(--pp-border) !important;
+            background: rgba(255, 255, 255, 0.75) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--pp-shadow-card) !important;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .pp-filter-card:hover {
+            box-shadow: var(--pp-shadow-card-hover) !important;
+        }
+
+        .pp-filter-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2.5px;
+            background: linear-gradient(90deg, var(--pp-amber-bright), var(--pp-amber) 50%, transparent 96%);
+        }
+
+        .pp-filter-card .card-body {
+            padding: 18px 20px 16px !important;
+        }
+
+        .pp-search-wrap {
+            border-radius: var(--pp-radius-lg) !important;
+            background: #fff !important;
+            border: 1.5px solid var(--pp-border) !important;
+            transition: all 0.25s ease;
+            overflow: hidden;
+        }
+
+        .pp-search-wrap:focus-within {
+            border-color: var(--pp-amber) !important;
+            box-shadow: 0 0 0 3px var(--pp-amber-soft), 0 4px 12px -8px rgba(212, 162, 78, 0.15) !important;
+            background: #fff !important;
+        }
+
+        .pp-search-wrap .form-control {
+            font-size: 12.5px;
+            height: 36px !important;
+            background: transparent !important;
+            font-weight: 500;
+            color: var(--pp-ink);
+        }
+
+        .pp-search-wrap .form-control::placeholder {
+            color: #aab2c0;
+        }
+
+        .pp-search-wrap .input-group-text {
+            font-size: 12px;
+            color: #aab2c0;
+        }
+
+        .pp-select2 .select2-selection--single {
+            height: 36px !important;
+            border-radius: var(--pp-radius-lg) !important;
+            border: 1.5px solid var(--pp-border) !important;
+            background: #fff !important;
+            display: flex !important;
+            align-items: center;
+            transition: all 0.25s ease;
+        }
+
+        .pp-select2 .select2-selection--single .select2-selection__rendered {
+            color: var(--pp-ink);
+            font-size: 12px;
+            font-weight: 500;
+            padding-left: 14px;
+            line-height: 34px;
+        }
+
+        .pp-select2 .select2-selection--single .select2-selection__arrow {
+            height: 34px;
+            right: 10px;
+        }
+
+        .pp-select2 .select2-selection--single .select2-selection__arrow b {
+            border-color: var(--pp-amber) transparent transparent transparent !important;
+            border-width: 4px 4px 0 !important;
+        }
+
+        .pp-select2.select2-container--open .select2-selection--single,
+        .pp-select2.select2-container--focus .select2-selection--single {
+            border-color: var(--pp-amber) !important;
+            box-shadow: 0 0 0 3px var(--pp-amber-soft) !important;
+            background: #fff !important;
+        }
+
+        .pp-select2 .select2-dropdown {
+            border-radius: var(--pp-radius-sm) !important;
+            border: 1px solid var(--pp-border) !important;
+            box-shadow: var(--pp-shadow-lift) !important;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .pp-select2 .select2-results__option {
+            font-size: 12px !important;
+            padding: 8px 12px !important;
+            transition: background 0.15s;
+        }
+
+        .pp-select2 .select2-results__option--highlighted[aria-selected] {
+            background: linear-gradient(135deg, var(--pp-amber-bright), var(--pp-amber)) !important;
+            color: #1a1306 !important;
+        }
+
+        .pp-select2 .select2-results__option[aria-selected=true] {
+            background: var(--pp-amber-soft) !important;
+            color: var(--pp-ink) !important;
+        }
+
+        .pp-select2 .select2-search--dropdown .select2-search__field {
+            border-radius: 8px !important;
+            border: 1px solid var(--pp-border) !important;
+            padding: 6px 10px !important;
+            font-size: 12px !important;
+        }
+
+        .pp-btn {
+            border: none !important;
+            font-weight: 700 !important;
+            font-size: 11.5px !important;
+            letter-spacing: 0.2px;
+            border-radius: var(--pp-radius-lg) !important;
+            padding: 7px 16px !important;
+            transition: all 0.25s cubic-bezier(.2, .8, .2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pp-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .pp-btn:active {
+            transform: translateY(0) scale(0.97);
+        }
+
+        .pp-btn-amber {
+            background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep)) !important;
+            color: #1a1306 !important;
+            box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        .pp-btn-amber:hover {
+            filter: brightness(1.06);
+            box-shadow: 0 8px 24px -6px rgba(212, 162, 78, 0.5);
+        }
+
+        .pp-btn-emerald {
+            background: linear-gradient(145deg, #34d399, #16a34a) !important;
+            color: #fff !important;
+            box-shadow: 0 4px 14px -4px rgba(22, 163, 74, 0.34);
+        }
+
+        .pp-btn-emerald:hover {
+            filter: brightness(1.06);
+            box-shadow: 0 8px 24px -6px rgba(22, 163, 74, 0.4);
+        }
+
+        .pp-btn-reset {
+            background: #fff !important;
+            color: var(--pp-amber-deep) !important;
+            border: 1.5px solid rgba(212, 162, 78, 0.25) !important;
+            border-radius: 10px !important;
+            font-weight: 700 !important;
+            font-size: 11.5px !important;
+            padding: 7px 14px !important;
+            letter-spacing: 0.2px;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 2px 8px rgba(212, 162, 78, 0.06);
+        }
+
+        .pp-btn-reset:hover {
+            background: rgba(212, 162, 78, 0.07) !important;
+            border-color: var(--pp-amber) !important;
+            box-shadow: 0 4px 16px -6px rgba(212, 162, 78, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .pp-btn-reset i {
+            font-size: 11px;
+        }
+
+        /* ===== Modals ===== */
+        .pp-modal .modal-content {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px -20px rgba(11, 17, 32, 0.45);
+        }
+
+        .pp-modal .modal-header {
+            background: linear-gradient(135deg, #0a0e1a, #131a2b);
+            border-bottom: none;
+            padding: 14px 20px;
+            position: relative;
+        }
+
+        .pp-modal .modal-header::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -1px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--pp-amber-bright), transparent);
+            opacity: 0.6;
+        }
+
+        .pp-modal .modal-title {
+            color: #f5f2ea;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pp-modal .modal-title i {
+            color: var(--pp-amber-bright) !important;
+            font-size: 15px;
+        }
+
+        .pp-modal .close {
+            color: rgba(255, 255, 255, 0.5);
+            text-shadow: none;
+            font-size: 20px;
+            transition: all 0.2s;
+        }
+
+        .pp-modal .close:hover {
+            opacity: 1;
+            color: var(--pp-amber-bright);
+        }
+
+        .pp-modal .modal-body {
+            padding: 18px 20px !important;
+        }
+
+        .pp-modal .modal-footer {
+            background: #f8f9fc;
+            border-top: 1px solid var(--pp-border);
+            padding: 12px 20px;
+            gap: 8px;
+        }
+
+        .pp-modal .modal-footer .btn {
+            border-radius: var(--pp-radius-lg);
+            font-weight: 600;
+            font-size: 11.5px;
+            padding: 7px 18px;
+            transition: all 0.2s ease;
+        }
+
+        .pp-modal .btn-amber {
+            background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep));
+            border: none;
+            color: #1a1306;
+            box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.4);
+        }
+
+        .pp-modal .btn-amber:hover {
+            filter: brightness(1.06);
+            transform: translateY(-1px);
+        }
+
+        .pp-modal .btn-secondary {
+            background: #e8ebf0;
+            border: 1px solid var(--pp-border);
+            color: var(--pp-ink-soft);
+        }
+
+        .pp-modal .btn-secondary:hover {
+            background: #dee2e9;
+            border-color: var(--pp-amber);
+        }
+
+        .pp-star-rating .rating-star {
+            transition: all 0.2s ease;
+        }
+
+        .pp-star-rating .rating-star:hover {
+            transform: scale(1.2) rotate(-5deg);
+            color: #f59e0b !important;
+        }
+
+        /* ===== Product Card ===== */
+        .pp-card {
+            border-radius: var(--pp-radius-md) !important;
+            border: 1px solid var(--pp-border) !important;
+            background: #fff !important;
+            box-shadow: var(--pp-shadow-card) !important;
+            transition: all 0.3s cubic-bezier(.2, .8, .2, 1) !important;
+            overflow: hidden;
+            animation: ppFadeSlide 0.4s ease both;
+        }
+
+        .pp-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--pp-shadow-card-hover) !important;
+            border-color: var(--pp-border-hover) !important;
+        }
+
+        .pp-card-img-wrap {
+            height: 180px;
+            background: linear-gradient(180deg, #fafbfc 0%, #f4f5f8 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--pp-border);
+        }
+
+        .pp-card-img-wrap::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0) 60%, rgba(248, 249, 252, 0.8) 100%);
+            pointer-events: none;
+        }
+
+        .pp-card-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(.2, .8, .2, 1);
+            position: relative;
+            z-index: 0;
+        }
+
+        .pp-card:hover .pp-card-img-wrap img {
+            transform: scale(1.1);
+        }
+
+        .pp-card-body {
+            padding: 10px 12px 12px;
+        }
+
+        .pp-card-title {
+            font-weight: 700;
+            font-size: 13.5px;
+            color: var(--pp-ink);
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 6px !important;
+            letter-spacing: -0.1px;
+            transition: color 0.3s;
+        }
+
+        .pp-card:hover .pp-card-title {
+            color: var(--pp-amber-deep);
+        }
+
+        .pp-badge-category {
+            background: var(--pp-surface);
+            color: var(--pp-muted);
+            font-size: 9px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 12px;
+            border: 1px solid var(--pp-border);
+            transition: all 0.25s;
+        }
+
+        .pp-card:hover .pp-badge-category {
+            background: var(--pp-amber-soft);
+            border-color: var(--pp-border-hover);
+            color: var(--pp-amber-deep);
+        }
+
+        .pp-badge-stock {
+            font-size: 9px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 12px;
+            transition: all 0.25s;
+        }
+
+        .pp-badge-stock.in-stock {
+            background: rgba(22, 163, 74, 0.08);
+            color: #16a34a;
+            border: 1px solid rgba(22, 163, 74, 0.15);
+        }
+
+        .pp-badge-stock.out-of-stock {
+            background: rgba(220, 90, 82, 0.08);
+            color: #dc5a52;
+            border: 1px solid rgba(220, 90, 82, 0.15);
+        }
+
+        .pp-badge-type {
+            font-size: 8px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .pp-variant-scroll {
+            max-height: 110px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--pp-amber) transparent;
+        }
+
+        .pp-variant-scroll::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .pp-variant-scroll::-webkit-scrollbar-thumb {
+            background: var(--pp-amber);
+            border-radius: 10px;
+        }
+
+        .pp-variant-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .pp-price-box {
+            background: var(--pp-surface);
+            border-radius: 10px;
+            padding: 8px 11px;
+            border: 1px solid var(--pp-border);
+            transition: all 0.3s;
+        }
+
+        .pp-card:hover .pp-price-box {
+            background: linear-gradient(135deg, #fefcf8, #faf7f0);
+            border-color: var(--pp-border-hover);
+        }
+
+        .pp-price-label {
+            font-size: 9.5px;
+            color: var(--pp-muted);
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .pp-price-value {
+            font-weight: 700;
+            font-size: 12.5px;
+            color: var(--pp-ink-soft);
+        }
+
+        .pp-btn-card {
+            border-radius: var(--pp-radius-lg) !important;
+            font-weight: 700 !important;
+            font-size: 10.5px !important;
+            padding: 5px 13px !important;
+            transition: all 0.25s cubic-bezier(.2, .8, .2, 1) !important;
+        }
+
+        .pp-btn-card:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 4px 12px -4px rgba(212, 162, 78, 0.2);
+        }
+
+        .pp-btn-outline {
+            border: 1.5px solid var(--pp-border) !important;
+            color: var(--pp-ink-soft) !important;
+            background: transparent !important;
+        }
+
+        .pp-btn-outline:hover {
+            border-color: var(--pp-amber) !important;
+            background: var(--pp-amber-soft) !important;
+            color: var(--pp-amber-deep) !important;
+        }
+
+        .pp-edit-btn {
+            border-radius: var(--pp-radius-lg) !important;
+            font-weight: 600 !important;
+            font-size: 10px !important;
+            padding: 5px 11px !important;
+            transition: all 0.25s ease !important;
+        }
+
+        .pp-edit-btn:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 4px 12px -4px rgba(11, 17, 32, 0.1);
+        }
+
+        .pp-status-switch .custom-switch-indicator {
+            border-radius: 16px !important;
+            width: 31px !important;
+            height: 17px !important;
+            transition: all 0.25s ease !important;
+            border: 1px solid var(--pp-border);
+        }
+
+        .pp-status-switch .custom-switch-indicator::after {
+            width: 13px !important;
+            height: 13px !important;
+            top: 2px !important;
+            left: 2px !important;
+            transition: all 0.25s ease !important;
+        }
+
+        .pp-status-switch .custom-switch-input:checked~.custom-switch-indicator {
+            background: linear-gradient(135deg, var(--pp-amber-bright), var(--pp-amber)) !important;
+            border-color: var(--pp-amber) !important;
+            box-shadow: 0 2px 8px -2px rgba(212, 162, 78, 0.3);
+        }
+
+        .pp-count-badge {
+            background: #fff;
+            border: 1px solid var(--pp-border);
+            color: var(--pp-muted);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: var(--pp-radius-lg);
+            box-shadow: 0 1px 3px rgba(11, 17, 32, 0.03);
+        }
+
+        .pp-count-badge strong {
+            color: var(--pp-amber-deep);
+        }
+
+        .pp-pagination .pagination .page-link {
+            border-radius: 10px !important;
+            border: 1px solid var(--pp-border) !important;
+            margin: 0 2px;
+            font-weight: 600;
+            font-size: 11px;
+            color: var(--pp-muted);
+            padding: 6px 11px;
+            transition: all 0.2s cubic-bezier(.2, .8, .2, 1);
+            background: #fff;
+        }
+
+        .pp-pagination .pagination .page-link:hover {
+            border-color: var(--pp-amber) !important;
+            background: var(--pp-amber-soft) !important;
+            color: var(--pp-amber-deep) !important;
+            transform: translateY(-1px);
+        }
+
+        .pp-pagination .pagination .page-item.active .page-link {
+            background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber)) !important;
+            border-color: var(--pp-amber) !important;
+            color: #1a1306 !important;
+            box-shadow: 0 4px 14px -3px rgba(212, 162, 78, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .pp-pagination .pagination .page-item.disabled .page-link {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pp-pagination .pagination .page-item:first-child .page-link,
+        .pp-pagination .pagination .page-item:last-child .page-link {
+            border-radius: 10px !important;
+        }
+
+        .pp-rating-star-small {
+            font-size: 11px;
+        }
+
+        .pp-card-badges {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 11;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .pp-card-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        /* ===== Mobile Responsive ===== */
+        @media (max-width: 991.98px) {
+            .pp-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 14px 16px;
+                gap: 8px;
+            }
+
+            .pp-header h1 {
+                font-size: 16px;
+                gap: 8px;
+            }
+
+            .pp-header h1 .pp-icon {
+                width: 28px;
+                height: 28px;
+                min-width: 28px;
+                font-size: 12px;
+            }
+
+            .pp-breadcrumb {
+                font-size: 11px;
+            }
+
+            .pp-breadcrumb-item {
+                padding-right: 10px;
+            }
+
+            .pp-breadcrumb-item+.pp-breadcrumb-item {
+                padding-left: 10px;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .pp-header {
+                margin-bottom: 14px;
+            }
+
+            .pp-header h1 {
+                font-size: 14px;
+            }
+
+            .pp-filter-card .card-body {
+                padding: 12px 12px 10px !important;
+            }
+
+            .pp-search-wrap .form-control {
+                font-size: 11px !important;
+                height: 32px !important;
+            }
+
+            #filter-form .col-12 {
+                margin-bottom: 10px;
+            }
+
+            #filter-form .pp-btn {
+                width: 100%;
+                text-align: center;
+                padding: 6px 12px !important;
+                font-size: 10.5px !important;
+                display: block;
+            }
+
+            .pp-card-img-wrap {
+                height: 110px;
+            }
+
+            .pp-card-body {
+                padding: 8px 10px 10px;
+            }
+
+            .pp-card-title {
+                font-size: 11.5px;
+            }
+
+            .pp-badge-category,
+            .pp-badge-stock {
+                font-size: 8px;
+                padding: 2px 7px;
+            }
+
+            .pp-price-label {
+                font-size: 8px;
+            }
+
+            .pp-price-value {
+                font-size: 10.5px;
+            }
+
+            .pp-btn-card {
+                font-size: 9px !important;
+                padding: 4px 10px !important;
+            }
+
+            .pp-edit-btn {
+                font-size: 9px !important;
+                padding: 4px 9px !important;
+            }
+
+            .pp-variant-scroll {
+                max-height: 80px;
+            }
+
+            .pp-count-badge {
+                font-size: 9px;
+                padding: 4px 10px;
+            }
+
+            .pp-pagination .pagination .page-link {
+                font-size: 9px !important;
+                padding: 4px 8px !important;
+                margin: 0 1px;
+            }
+
+            #floating-baskets-container {
+                bottom: 16px !important;
+                right: 16px !important;
+                gap: 10px !important;
+            }
+
+            .basket-fab {
+                width: 38px !important;
+                height: 38px !important;
+            }
+
+            .basket-fab i {
+                font-size: 14px;
+            }
+
+            #request-basket-count,
+            #basket-count {
+                min-width: 18px;
+                height: 18px;
+                font-size: 9px;
+                top: -5px;
+                right: -5px;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .pp-card-img-wrap {
+                height: 90px;
+            }
+
+            .pp-card-title {
+                font-size: 10.5px;
+                -webkit-line-clamp: 1;
+            }
+
+            .pp-card-body {
+                padding: 6px 8px 8px;
+            }
+
+            .pp-price-box {
+                padding: 5px 8px;
+            }
+
+            .pp-price-value {
+                font-size: 9.5px;
+            }
+
+            .pp-price-label {
+                font-size: 7.5px;
+            }
+
+            .pp-badge-category,
+            .pp-badge-stock {
+                font-size: 7px;
+                padding: 1px 6px;
+            }
+
+            .pp-btn-card {
+                font-size: 8px !important;
+                padding: 3px 8px !important;
+            }
+
+            .pp-edit-btn {
+                font-size: 8px !important;
+                padding: 3px 7px !important;
+            }
+        }
+
+        /* =========================================================================
+               SLIDE-OVER STOCK & VELOCITY INSPECTOR DRAWER (Exact Match to Audit Drawer)
+               ========================================================================= */
+        .audit-drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.12);
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            z-index: 100000 !important;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        .audit-drawer-backdrop.is-active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .audit-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: min(860px, 94vw);
+            height: 100vh;
+            background: #ffffff;
+            border-left: 1px solid #e2e8f0;
+            box-shadow: -15px 0 45px rgba(0, 0, 0, 0.18), -2px 0 8px rgba(0, 0, 0, 0.06);
+            z-index: 100001 !important;
+            transform: translateX(100%);
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .audit-drawer.is-active {
+            transform: translateX(0);
+        }
+
+        .audit-drawer .drawer-header {
+            padding: 18px 24px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+
+        .audit-drawer .drawer-header-kicker {
+            font-size: 10.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .audit-drawer .drawer-header-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 3px;
+            line-height: 1.25;
+        }
+
+        .audit-drawer .drawer-header-sub {
+            font-size: 12px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .audit-drawer .drawer-close-btn {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #64748b;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .audit-drawer .drawer-close-btn i,
+        .audit-drawer .drawer-close-btn svg {
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-block;
+        }
+
+        .audit-drawer .drawer-close-btn:hover {
+            background: #fee2e2 !important;
+            color: #ef4444 !important;
+            border-color: #fca5a5 !important;
+            transform: scale(1.08);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .audit-drawer .drawer-close-btn:hover i,
+        .audit-drawer .drawer-close-btn:hover svg {
+            transform: rotate(90deg);
+        }
+
+        .audit-drawer .drawer-close-btn:active {
+            transform: scale(0.92);
+            background: #fecaca !important;
+        }
+
+        .audit-drawer .drawer-close-btn:active i,
+        .audit-drawer .drawer-close-btn:active svg {
+            transform: rotate(180deg) scale(0.9);
+        }
+
+        .audit-drawer .drawer-body {
+            padding: 22px 24px;
+            overflow-y: auto;
+            flex: 1;
+            background: #ffffff;
+        }
+
+        .audit-drawer .drawer-footer {
+            padding: 14px 24px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            .audit-drawer {
+                width: 100vw;
+                max-width: 100vw;
+            }
+
+            .audit-drawer .drawer-header {
+                padding: 14px 16px;
+            }
+
+            .audit-drawer .drawer-body {
+                padding: 14px 16px;
+            }
+
+            .audit-drawer .drawer-footer {
+                padding: 10px 16px;
+            }
+        }
+
+        /* =========================================================================
+               SELECT2 STYLING INSIDE OFF-CANVAS DRAWER (Zero Text Clipping)
+               ========================================================================= */
+        #stockMovementDrawer .select2-container {
+            width: 100% !important;
+            display: block;
+        }
+
+        #stockMovementDrawer .select2-container .select2-selection--single {
+            height: 38px !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            background: #ffffff !important;
+            padding: 0 10px !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+            transition: all 0.2s ease !important;
+        }
+
+        #stockMovementDrawer .select2-container--open .select2-selection--single,
+        #stockMovementDrawer .select2-container--focus .select2-selection--single {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+        }
+
+        #stockMovementDrawer .select2-container .select2-selection--single .select2-selection__rendered {
+            line-height: 36px !important;
+            font-size: 12.5px !important;
+            color: #1e293b !important;
+            font-weight: 500 !important;
+            padding-left: 2px !important;
+            padding-right: 20px !important;
+        }
+
+        #stockMovementDrawer .select2-container .select2-selection--single .select2-selection__arrow {
+            height: 36px !important;
+            right: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        #stockMovementDrawer .select2-dropdown {
+            z-index: 100010 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+            overflow: hidden !important;
+        }
+
+        #stockMovementDrawer .select2-results__option {
+            font-size: 12px !important;
+            padding: 8px 12px !important;
+        }
+
+        #stockMovementDrawer .select2-results__option--highlighted[aria-selected] {
+            background: #3b82f6 !important;
+            color: #ffffff !important;
+        }
+
+        /* B2B Table Header Uniform Styling */
+        #table-b2b-visibilities thead th {
+            background: #f8fafc !important;
+            background-color: #f8fafc !important;
+            color: #475569 !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            font-size: 11.5px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.02em !important;
+        }
+
+        /* =========================================================================
+           VELOCITY WINDOW SEGMENTED CONTROL & BUTTON FOCUS (Zero Outline / Zero Glow)
+           ========================================================================= */
+        /* Remove harsh browser outline and Bootstrap focus glow across all drawer controls */
+        #stockMovementDrawer .btn:focus,
+        #stockMovementDrawer .btn.focus,
+        #stockMovementDrawer .btn:active:focus,
+        #stockMovementDrawer .btn.active:focus,
+        #stockMovementDrawer button:focus,
+        #stockMovementDrawer .nav-pills .nav-link:focus,
+        #stockMovementDrawer input:focus,
+        #stockMovementDrawer select:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Modern segmented pill container for Velocity Presets */
+        #velocity-preset-group {
+            background: #f1f5f9 !important;
+            padding: 3px !important;
+            border-radius: 8px !important;
+            border: 1px solid #cbd5e1 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 2px !important;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+        }
+
+        #velocity-preset-group .btn {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            color: #64748b !important;
+            font-size: 11.5px !important;
+            font-weight: 600 !important;
+            padding: 5px 12px !important;
+            border-radius: 6px !important;
+            transition: all 0.16s ease-in-out !important;
+            cursor: pointer !important;
+            line-height: 1.3 !important;
+            margin: 0 !important;
+            white-space: nowrap !important;
+        }
+
+        #velocity-preset-group .btn:hover {
+            color: #0f172a !important;
+            background: rgba(255, 255, 255, 0.75) !important;
+            outline: none !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        #velocity-preset-group .btn.active,
+        #velocity-preset-group .btn:active,
+        #velocity-preset-group .btn.active:hover {
+            background: #2563eb !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3) !important;
+            outline: none !important;
+            border: none !important;
+        }
+
+        #velocity-preset-group .btn:focus,
+        #velocity-preset-group .btn.focus,
+        #velocity-preset-group .btn:active:focus,
+        #velocity-preset-group .btn.active:focus,
+        #velocity-preset-group .btn input:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Scope Pills in B2B tab (Company / Outlet / Buyer Phone) */
+        #b2b-scope-pill-group {
+            background: #f1f5f9 !important;
+            padding: 3px !important;
+            border-radius: 8px !important;
+            border: 1px solid #cbd5e1 !important;
+            display: flex !important;
+            gap: 2px !important;
+            width: 100% !important;
+        }
+
+        #b2b-scope-pill-group .b2b-scope-pill {
+            flex: 1 !important;
+            text-align: center !important;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            color: #64748b !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            padding: 6px 8px !important;
+            border-radius: 6px !important;
+            transition: all 0.16s ease-in-out !important;
+            cursor: pointer !important;
+            margin: 0 !important;
+        }
+
+        #b2b-scope-pill-group .b2b-scope-pill:hover {
+            color: #0f172a !important;
+            background: rgba(255, 255, 255, 0.75) !important;
+            outline: none !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        #b2b-scope-pill-group .b2b-scope-pill.active {
+            background: #2563eb !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3) !important;
+            outline: none !important;
+            border: none !important;
+        }
+
+        #b2b-scope-pill-group .b2b-scope-pill:focus,
+        #b2b-scope-pill-group .b2b-scope-pill.focus,
+        #b2b-scope-pill-group .b2b-scope-pill input:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Stock Movement bottom tabs clean pill transition */
+        #stockMovementTab .nav-link {
+            outline: none !important;
+            box-shadow: none !important;
+            transition: all 0.16s ease-in-out !important;
+            border: 1px solid transparent !important;
+        }
+
+        #stockMovementTab .nav-link:focus,
+        #stockMovementTab .nav-link.focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        #stockMovementTab .nav-link:not(.active):hover {
+            background: #f1f5f9 !important;
+            color: #1e293b !important;
+        }
+
+        /* Unified Seamless Phone Input Wrap */
+        .b2b-phone-input-wrap {
+            display: flex;
+            align-items: center;
+            height: 38px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 0 12px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease-in-out;
+            width: 100%;
+        }
+        .b2b-phone-input-wrap:focus-within {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+        }
+        .b2b-phone-input-wrap i {
+            color: #64748b;
+            font-size: 13px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .b2b-phone-input-wrap input {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            width: 100%;
+            height: 100%;
+            font-size: 12.5px;
+            color: #1e293b;
+            font-weight: 500;
+            padding: 0;
+        }
+        .b2b-phone-input-wrap input::placeholder {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 400;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -675,33 +1400,41 @@
                                                     <i class="fas fa-search" style="color: #aab2c0;"></i>
                                                 </span>
                                             </div>
-                                            <input type="text" class="form-control search-input border-0 pl-1" name="search" placeholder="Search..." value="{{ request('search') }}" autocomplete="off">
+                                            <input type="text" class="form-control search-input border-0 pl-1"
+                                                name="search" placeholder="Search..." value="{{ request('search') }}"
+                                                autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-3">
                                         <select name="category" id="category" class="form-control select2 pp-select2">
                                             <option value="">All Categories</option>
                                             @foreach ($categories as $category)
-                                                <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                                <option value="{{ $category->id }}"
+                                                    {{ request('category') == $category->id ? 'selected' : '' }}>
+                                                    {{ $category->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-2">
-                                        <select name="sub_category" id="sub_category" class="form-control select2 pp-select2">
+                                        <select name="sub_category" id="sub_category"
+                                            class="form-control select2 pp-select2">
                                             <option value="">Sub Category</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-2">
-                                        <select name="child_category" id="child_category" class="form-control select2 pp-select2">
+                                        <select name="child_category" id="child_category"
+                                            class="form-control select2 pp-select2">
                                             <option value="">Child Category</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-2">
                                         @can('Manage Products')
-                                            <a href="{{ route('admin.products.import.view') }}" class="btn pp-btn pp-btn-emerald shadow-sm d-block mb-1">
+                                            <a href="{{ route('admin.products.import.view') }}"
+                                                class="btn pp-btn pp-btn-emerald shadow-sm d-block mb-1">
                                                 <i class="fas fa-file-import mr-1"></i> Import
                                             </a>
-                                            <a href="{{ route('admin.products.create') }}" class="btn pp-btn pp-btn-amber shadow-sm d-block">
+                                            <a href="{{ route('admin.products.create') }}"
+                                                class="btn pp-btn pp-btn-amber shadow-sm d-block">
                                                 <i class="fas fa-plus mr-1"></i> Create
                                             </a>
                                         @endcan
@@ -712,44 +1445,83 @@
                                     <div class="col-12 col-md-3">
                                         <select name="sort" id="sort" class="form-control select2 pp-select2">
                                             <option value="">Sort by</option>
-                                            <option value="latest" {{ request('sort') == 'latest' || !request('sort') ? 'selected' : '' }}>Latest</option>
-                                            <option value="a-z" {{ request('sort') == 'a-z' ? 'selected' : '' }}>A-Z</option>
-                                            <option value="z-a" {{ request('sort') == 'z-a' ? 'selected' : '' }}>Z-A</option>
-                                            <option value="active" {{ request('sort') == 'active' ? 'selected' : '' }}>Active</option>
-                                            <option value="inactive" {{ request('sort') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-12 col-md-3">
-                                        <select name="alphabet" id="alphabet-dropdown" class="form-control select2 pp-select2">
-                                            <option value="">Alphabet (All)</option>
-                                            @foreach(range('A', 'Z') as $char)
-                                                <option value="{{ $char }}" {{ request('alphabet') == $char ? 'selected' : '' }}>{{ $char }}</option>
-                                            @endforeach
+                                            <option value="latest"
+                                                {{ request('sort') == 'latest' || !request('sort') ? 'selected' : '' }}>
+                                                Latest</option>
+                                            <option value="a-z" {{ request('sort') == 'a-z' ? 'selected' : '' }}>A-Z
+                                            </option>
+                                            <option value="z-a" {{ request('sort') == 'z-a' ? 'selected' : '' }}>Z-A
+                                            </option>
+                                            <option value="active" {{ request('sort') == 'active' ? 'selected' : '' }}>
+                                                Active</option>
+                                            <option value="inactive" {{ request('sort') == 'inactive' ? 'selected' : '' }}>
+                                                Inactive</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-2">
-                                        <select name="product_type" id="product_type_filter" class="form-control select2 pp-select2">
-                                            <option value="">Occasion / Type</option>
-                                            <option value="new_arrival" {{ request('product_type') == 'new_arrival' ? 'selected' : '' }}>New Arrival</option>
-                                            <option value="upcoming" {{ request('product_type') == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
-                                            @foreach ($productTypes as $type)
-                                                <option value="{{ $type->id }}" {{ request('product_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
+                                        <select name="alphabet" id="alphabet-dropdown"
+                                            class="form-control select2 pp-select2">
+                                            <option value="">Alphabet (All)</option>
+                                            @foreach (range('A', 'Z') as $char)
+                                                <option value="{{ $char }}"
+                                                    {{ request('alphabet') == $char ? 'selected' : '' }}>
+                                                    {{ $char }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    @if(isset($vendors) && $vendors->count() > 0)
-                                    <div class="col-12 col-md-3">
-                                        <select name="vendor" id="vendor_filter" class="form-control select2 pp-select2">
-                                            <option value="">Select Vendor</option>
-                                            @foreach ($vendors as $vendor)
-                                                <option value="{{ $vendor->id }}" {{ request('vendor') == $vendor->id ? 'selected' : '' }}>{{ $vendor->shop_name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                    @if (isset($vendors) && $vendors->count() > 0)
+                                        <div class="col-12 col-md-3">
+                                            <select name="product_type" id="product_type_filter"
+                                                class="form-control select2 pp-select2">
+                                                <option value="">Occasion / Type</option>
+                                                <option value="new_arrival"
+                                                    {{ request('product_type') == 'new_arrival' ? 'selected' : '' }}>New
+                                                    Arrival</option>
+                                                <option value="upcoming"
+                                                    {{ request('product_type') == 'upcoming' ? 'selected' : '' }}>Upcoming
+                                                    </option>
+                                                @foreach ($productTypes as $type)
+                                                    <option value="{{ $type->id }}"
+                                                        {{ request('product_type') == $type->id ? 'selected' : '' }}>
+                                                        {{ $type->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-2">
+                                            <select name="vendor" id="vendor_filter"
+                                                class="form-control select2 pp-select2">
+                                                <option value="">Select Vendor</option>
+                                                @foreach ($vendors as $vendor)
+                                                    <option value="{{ $vendor->id }}"
+                                                        {{ request('vendor') == $vendor->id ? 'selected' : '' }}>
+                                                        {{ $vendor->shop_name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    @else
+                                        <div class="col-12 col-md-5">
+                                            <select name="product_type" id="product_type_filter"
+                                                class="form-control select2 pp-select2">
+                                                <option value="">Occasion / Type</option>
+                                                <option value="new_arrival"
+                                                    {{ request('product_type') == 'new_arrival' ? 'selected' : '' }}>New
+                                                    Arrival</option>
+                                                <option value="upcoming"
+                                                    {{ request('product_type') == 'upcoming' ? 'selected' : '' }}>Upcoming
+                                                    </option>
+                                                @foreach ($productTypes as $type)
+                                                    <option value="{{ $type->id }}"
+                                                        {{ request('product_type') == $type->id ? 'selected' : '' }}>
+                                                        {{ $type->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     @endif
-                                    <div class="col-12 col-md-1">
-                                        <button type="button" id="reset-filters" class="btn pp-btn pp-btn-reset btn-sm shadow-sm w-100">
-                                            <i class="fas fa-redo mr-1"></i> Reset
+                                    <div class="col-12 col-md-2">
+                                        <button type="button" id="reset-filters"
+                                            class="btn pp-btn pp-btn-reset btn-sm shadow-sm w-100 d-flex align-items-center justify-content-center"
+                                            style="height: 36px;">
+                                            <i class="fas fa-undo mr-1"></i> Reset Filters
                                         </button>
                                     </div>
                                 </div>
@@ -765,67 +1537,128 @@
         </div>
     </section>
 
-<!-- Quick Variant Selection Modal -->
-<div class="modal fade pp-modal" id="quickVariantModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 520px; width: 95%;">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
-            <div class="modal-header bg-white border-bottom py-3 px-4">
-                <h5 class="modal-title font-weight-bold text-dark mb-0" id="quickVariantModalTitle" style="font-size: 15px;">
-                    <i class="fas fa-layer-group mr-2"></i>Select Product Variants
-                </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body p-3 p-md-4" style="max-height: 70vh; overflow-y: auto;">
-                <div class="d-flex align-items-center mb-3 p-2 bg-light rounded" style="gap: 12px; border: 1px solid #e2e8f0;">
-                    <img id="variant_modal_product_img" src="{{ asset('uploads/no-image.svg') }}" onerror="this.onerror=null; this.src='{{ asset('uploads/no-image.svg') }}';" style="width: 48px; height: 48px; object-fit: contain; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; padding: 2px;">
-                    <div class="flex-fill" style="min-width: 0;">
-                        <h6 id="variant_modal_product_name" class="mb-0 text-truncate font-weight-bold text-dark" style="font-size: 14px;">Product Name</h6>
-                        <small class="text-muted d-block text-truncate" id="variant_modal_product_vendor">Supplier</small>
+    <!-- Quick Variant Selection Modal -->
+    <div class="modal fade pp-modal" id="quickVariantModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 520px; width: 95%;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+                <div class="modal-header bg-white border-bottom py-3 px-4">
+                    <h5 class="modal-title font-weight-bold text-dark mb-0" id="quickVariantModalTitle"
+                        style="font-size: 15px;">
+                        <i class="fas fa-layer-group mr-2"></i>Select Product Variants
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-3 p-md-4" style="max-height: 70vh; overflow-y: auto;">
+                    <div class="d-flex align-items-center mb-3 p-2 bg-light rounded"
+                        style="gap: 12px; border: 1px solid #e2e8f0;">
+                        <img id="variant_modal_product_img" src="{{ asset('uploads/no-image.svg') }}"
+                            onerror="this.onerror=null; this.src='{{ asset('uploads/no-image.svg') }}';"
+                            style="width: 48px; height: 48px; object-fit: contain; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; padding: 2px;">
+                        <div class="flex-fill" style="min-width: 0;">
+                            <h6 id="variant_modal_product_name" class="mb-0 text-truncate font-weight-bold text-dark"
+                                style="font-size: 14px;">Product Name</h6>
+                            <small class="text-muted d-block text-truncate"
+                                id="variant_modal_product_vendor">Supplier</small>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive" style="overflow-x: hidden;">
+                        <table class="table table-sm table-bordered mb-0" style="table-layout: fixed; width: 100%;">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th style="width: 48%;">Variant Name</th>
+                                    <th class="text-center" style="width: 24%;">Stock</th>
+                                    <th class="text-center" style="width: 28%;">Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="quick_variant_modal_tbody">
+                                <tr>
+                                    <td colspan="3" class="text-center py-3 text-muted">
+                                        <div class="spinner-border spinner-border-sm text-warning mr-1"></div> Loading
+                                        variants...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
-                <div class="table-responsive" style="overflow-x: hidden;">
-                    <table class="table table-sm table-bordered mb-0" style="table-layout: fixed; width: 100%;">
-                        <thead class="thead-light">
-                            <tr>
-                                <th style="width: 48%;">Variant Name</th>
-                                <th class="text-center" style="width: 24%;">Stock</th>
-                                <th class="text-center" style="width: 28%;">Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody id="quick_variant_modal_tbody">
-                            <tr>
-                                <td colspan="3" class="text-center py-3 text-muted">
-                                    <div class="spinner-border spinner-border-sm text-warning mr-1"></div> Loading variants...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="modal-footer bg-light px-4 py-3 border-top d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-dismiss="modal"
+                        style="border-radius: 6px;">Cancel</button>
+                    <button type="button" class="btn btn-amber btn-sm px-4 font-weight-bold shadow-sm"
+                        id="btn_submit_quick_variants" style="border-radius: 6px;">
+                        <i class="fas fa-check mr-1"></i> Add Selected to Cart
+                    </button>
                 </div>
-            </div>
-            <div class="modal-footer bg-light px-4 py-3 border-top d-flex justify-content-between">
-                <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-dismiss="modal" style="border-radius: 6px;">Cancel</button>
-                <button type="button" class="btn btn-amber btn-sm px-4 font-weight-bold shadow-sm" id="btn_submit_quick_variants" style="border-radius: 6px;">
-                    <i class="fas fa-check mr-1"></i> Add Selected to Cart
-                </button>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Stock Movement & Velocity Slide-Over Inspector Drawer (Exact Same Structure as Audit Inspector) -->
+    <div class="audit-drawer-backdrop" id="stockMovementDrawerBackdrop"></div>
+    <div class="audit-drawer" id="stockMovementDrawer" style="width: min(860px, 94vw);">
+        {{-- Drawer Header --}}
+        <div class="drawer-header">
+            <div>
+                <div class="d-flex align-items-center mb-1" style="gap: 6px;">
+                    <span class="chip-severity"
+                        style="background: rgba(212, 162, 78, 0.15); color: #b8852a; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Inventory</span>
+                    <span class="chip-module"
+                        style="background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase;">Movement Ledger</span>
+                </div>
+                <h3 class="drawer-header-title">Stock Movement & Consumption Velocity</h3>
+                <p class="drawer-header-sub">Movement history, consumption analysis and customer visibility rules</p>
+            </div>
+            <button type="button" class="drawer-close-btn" id="btn-close-stock-drawer" title="Close (Esc)">
+                <i class="fas fa-times" style="font-size: 16px;"></i>
+            </button>
+        </div>
+
+        {{-- Drawer Body --}}
+        <div class="drawer-body" id="stockMovementDrawerBody">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;">
+                    <span class="sr-only">Loading stock movement data...</span>
+                </div>
+                <div class="mt-3 text-muted font-weight-500" style="font-size: 13px;">
+                    <i class="fas fa-sync fa-spin mr-1 text-primary"></i> Loading stock movement data...
+                </div>
+            </div>
+        </div>
+
+        {{-- Drawer Footer --}}
+        <div class="drawer-footer d-flex align-items-center justify-content-between">
+            <span class="small text-muted font-weight-500">
+                <i class="fas fa-database text-primary mr-1"></i> Inventory Movement Ledger & Customer Visibility Rules
+            </span>
+            <span class="badge badge-light border text-muted px-2 py-1 small" style="font-size: 11px;">
+                Press <kbd style="padding: 1px 4px; font-size: 10px; background: #e2e8f0; color: #334155; border-radius: 3px;">ESC</kbd> to close
+            </span>
+        </div>
+    </div>
 
 @endsection
 
 <!-- Rating Modal -->
 @push('scripts')
     <style>
-        .hover-white { transition: color 0.2s ease; }
-        .hover-white:hover { color: #fff !important; }
-        .cursor-pointer { cursor: pointer; }
+        .hover-white {
+            transition: color 0.2s ease;
+        }
+
+        .hover-white:hover {
+            color: #fff !important;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
 
         /* In-Cart State Indicator */
-        .add-to-basket.added, .add-to-request-basket.added {
+        .add-to-basket.added,
+        .add-to-request-basket.added {
             background: #28a745 !important;
             background-color: #28a745 !important;
             border-color: #28a745 !important;
@@ -834,7 +1667,13 @@
     </style>
     <script>
         let initialLoad = true;
-        let currentModalContext = { productId: 0, cartType: 'booking', productName: '', productImg: '', vendorName: '' };
+        let currentModalContext = {
+            productId: 0,
+            cartType: 'booking',
+            productName: '',
+            productImg: '',
+            vendorName: ''
+        };
 
         $(document).ready(function() {
 
@@ -856,7 +1695,8 @@
             let activeRequestIds = [];
 
             function syncCartState() {
-                if (window.cartStore && ((window.cartStore.booking && window.cartStore.booking.ids.length > 0) || (window.cartStore.request && window.cartStore.request.ids.length > 0))) {
+                if (window.cartStore && ((window.cartStore.booking && window.cartStore.booking.ids.length > 0) || (
+                        window.cartStore.request && window.cartStore.request.ids.length > 0))) {
                     activeBookingIds = (window.cartStore.booking.ids || []).map(Number);
                     activeRequestIds = (window.cartStore.request.ids || []).map(Number);
                     applyButtonStates();
@@ -870,12 +1710,14 @@
                         if (data && data.booking && data.request) {
                             if (window.cartStore) {
                                 // Only initialize if store doesn't already have local optimistic items
-                                if (!window.cartStore.booking.items.length) window.cartStore.booking = data.booking;
-                                if (!window.cartStore.request.items.length) window.cartStore.request = data.request;
+                                if (!window.cartStore.booking.items.length) window.cartStore.booking =
+                                    data.booking;
+                                if (!window.cartStore.request.items.length) window.cartStore.request =
+                                    data.request;
                             }
                             activeBookingIds = (data.booking.ids || []).map(Number);
                             activeRequestIds = (data.request.ids || []).map(Number);
-                            
+
                             if (window.updateGlobalCartBadges) {
                                 window.updateGlobalCartBadges(data.booking.count, data.request.count);
                             }
@@ -886,24 +1728,30 @@
             }
 
             function applyButtonStates() {
-                const bIds = (window.cartStore && window.cartStore.booking && window.cartStore.booking.ids) ? window.cartStore.booking.ids.map(Number) : activeBookingIds;
-                const rIds = (window.cartStore && window.cartStore.request && window.cartStore.request.ids) ? window.cartStore.request.ids.map(Number) : activeRequestIds;
+                const bIds = (window.cartStore && window.cartStore.booking && window.cartStore.booking.ids) ? window
+                    .cartStore.booking.ids.map(Number) : activeBookingIds;
+                const rIds = (window.cartStore && window.cartStore.request && window.cartStore.request.ids) ? window
+                    .cartStore.request.ids.map(Number) : activeRequestIds;
 
                 $('.add-to-basket').each(function() {
                     const id = Number($(this).data('id'));
                     if (bIds.includes(id)) {
-                        $(this).addClass('added').html('<i class="fas fa-check"></i>').attr('title', 'Added to Procurement Basket');
+                        $(this).addClass('added').html('<i class="fas fa-check"></i>').attr('title',
+                            'Added to Procurement Basket');
                     } else {
-                        $(this).removeClass('added').html('<i class="fas fa-shopping-basket"></i>').attr('title', 'Add to Procurement Basket');
+                        $(this).removeClass('added').html('<i class="fas fa-shopping-basket"></i>').attr(
+                            'title', 'Add to Procurement Basket');
                     }
                 });
 
                 $('.add-to-request-basket').each(function() {
                     const id = Number($(this).data('id'));
                     if (rIds.includes(id)) {
-                        $(this).addClass('added').html('<i class="fas fa-check"></i>').attr('title', 'Added to Sales Quotation Cart');
+                        $(this).addClass('added').html('<i class="fas fa-check"></i>').attr('title',
+                            'Added to Sales Quotation Cart');
                     } else {
-                        $(this).removeClass('added').html('<i class="fas fa-file-invoice"></i>').attr('title', 'Add to Sales Quotation (SQ)');
+                        $(this).removeClass('added').html('<i class="fas fa-file-invoice"></i>').attr(
+                            'title', 'Add to Sales Quotation (SQ)');
                     }
                 });
             }
@@ -923,7 +1771,8 @@
 
                 const $card = $btn.closest('.pp-card');
                 const productName = $card.find('.pp-card-title').text().trim() || 'Product';
-                const productImg = $card.find('.pp-card-img-wrap img').attr('src') || "{{ asset('uploads/no-image.svg') }}";
+                const productImg = $card.find('.pp-card-img-wrap img').attr('src') ||
+                    "{{ asset('uploads/no-image.svg') }}";
                 const vendorName = $card.find('.pp-badge-category').text().trim() || 'Primary Supplier';
 
                 if (hasVariants) {
@@ -947,7 +1796,8 @@
 
                 const $card = $btn.closest('.pp-card');
                 const productName = $card.find('.pp-card-title').text().trim() || 'Product';
-                const productImg = $card.find('.pp-card-img-wrap img').attr('src') || "{{ asset('uploads/no-image.svg') }}";
+                const productImg = $card.find('.pp-card-img-wrap img').attr('src') ||
+                    "{{ asset('uploads/no-image.svg') }}";
                 const vendorName = $card.find('.pp-badge-category').text().trim() || 'Primary Supplier';
 
                 if (hasVariants) {
@@ -960,42 +1810,63 @@
             });
 
             function openQuickVariantModal(productId, cartType, productName, productImg, vendorName) {
-                currentModalContext = { productId, cartType, productName, productImg, vendorName };
+                currentModalContext = {
+                    productId,
+                    cartType,
+                    productName,
+                    productImg,
+                    vendorName
+                };
                 $('#variant_modal_product_name').text(productName);
                 const defaultImg = "{{ asset('uploads/no-image.svg') }}";
                 $('#variant_modal_product_img').attr('src', productImg || defaultImg);
                 $('#variant_modal_product_vendor').text(vendorName);
-                $('#quickVariantModalTitle').html(`<i class="fas ${cartType === 'booking' ? 'fa-shopping-basket text-warning' : 'fa-file-invoice text-primary'} mr-2"></i>Select Variants for ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'}`);
-                
-                $('#quick_variant_modal_tbody').html('<tr><td colspan="3" class="text-center py-3 text-muted"><div class="spinner-border spinner-border-sm text-warning mr-1"></div> Loading variants...</td></tr>');
+                $('#quickVariantModalTitle').html(
+                    `<i class="fas ${cartType === 'booking' ? 'fa-shopping-basket text-warning' : 'fa-file-invoice text-primary'} mr-2"></i>Select Variants for ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'}`
+                );
+
+                $('#quick_variant_modal_tbody').html(
+                    '<tr><td colspan="3" class="text-center py-3 text-muted"><div class="spinner-border spinner-border-sm text-warning mr-1"></div> Loading variants...</td></tr>'
+                );
                 $('#quickVariantModal').modal('show');
 
                 $.ajax({
                     url: `/admin/products/${productId}/variants`,
                     type: 'GET',
                     success: function(res) {
-                        if (res && res.status === 'success' && res.variants && res.variants.length > 0) {
+                        if (res && res.status === 'success' && res.variants && res.variants.length >
+                            0) {
                             if (res.product) {
-                                if (res.product.name) $('#variant_modal_product_name').text(res.product.name);
-                                if (res.product.thumb_image) $('#variant_modal_product_img').attr('src', res.product.thumb_image);
-                                if (res.product.vendor || res.product.category) $('#variant_modal_product_vendor').text(res.product.vendor || res.product.category);
+                                if (res.product.name) $('#variant_modal_product_name').text(res.product
+                                    .name);
+                                if (res.product.thumb_image) $('#variant_modal_product_img').attr('src',
+                                    res.product.thumb_image);
+                                if (res.product.vendor || res.product.category) $(
+                                    '#variant_modal_product_vendor').text(res.product.vendor || res
+                                    .product.category);
                             }
 
                             let rows = '';
-                            const storeItems = (window.cartStore && window.cartStore[cartType] && window.cartStore[cartType].items) ? window.cartStore[cartType].items : [];
-                            
+                            const storeItems = (window.cartStore && window.cartStore[cartType] && window
+                                .cartStore[cartType].items) ? window.cartStore[cartType].items : [];
+
                             res.variants.forEach(function(v) {
                                 let vName = v.name;
                                 if (!vName) {
                                     const parts = [];
                                     if (v.color) parts.push(v.color);
                                     if (v.size) parts.push(v.size);
-                                    vName = parts.length > 0 ? parts.join(' - ') : 'Variant #' + v.id;
+                                    vName = parts.length > 0 ? parts.join(' - ') : 'Variant #' +
+                                        v.id;
                                 }
 
-                                const existingItem = storeItems.find(i => Number(i.product_id) === productId && Number(i.variant_id) === Number(v.id));
+                                const existingItem = storeItems.find(i => Number(i
+                                        .product_id) === productId && Number(i
+                                    .variant_id) ===
+                                    Number(v.id));
                                 // Default quantity is 0 on initial add, or keep existing cart quantity if already added
-                                const defaultQty = existingItem ? (parseFloat(existingItem.quantity) || 0) : 0;
+                                const defaultQty = existingItem ? (parseFloat(existingItem
+                                    .quantity) || 0) : 0;
 
                                 rows += `
                                     <tr>
@@ -1013,19 +1884,30 @@
                             });
                             $('#quick_variant_modal_tbody').html(rows);
                         } else {
-                            $('#quick_variant_modal_tbody').html('<tr><td colspan="3" class="text-center py-3 text-muted">No variants found for this product.</td></tr>');
+                            $('#quick_variant_modal_tbody').html(
+                                '<tr><td colspan="3" class="text-center py-3 text-muted">No variants found for this product.</td></tr>'
+                            );
                         }
                     },
                     error: function() {
-                        $('#quick_variant_modal_tbody').html('<tr><td colspan="3" class="text-center py-3 text-danger">Failed to load variants.</td></tr>');
+                        $('#quick_variant_modal_tbody').html(
+                            '<tr><td colspan="3" class="text-center py-3 text-danger">Failed to load variants.</td></tr>'
+                        );
                     }
                 });
             }
 
             // Submit Selected Variants from Modal (0ms Instant Reactivity)
             $('#btn_submit_quick_variants').on('click', function() {
-                const { productId, cartType, productName, productImg, vendorName } = currentModalContext;
-                const targetBtnClass = (cartType === 'booking') ? '.add-to-basket' : '.add-to-request-basket';
+                const {
+                    productId,
+                    cartType,
+                    productName,
+                    productImg,
+                    vendorName
+                } = currentModalContext;
+                const targetBtnClass = (cartType === 'booking') ? '.add-to-basket' :
+                    '.add-to-request-basket';
                 const variantsToAdd = [];
 
                 $('.variant-bulk-qty').each(function() {
@@ -1047,26 +1929,33 @@
                 if (variantsToAdd.length === 0) {
                     // Remove variants for this product
                     if (window.cartStore && window.cartStore[cartType]) {
-                        window.cartStore[cartType].items = window.cartStore[cartType].items.filter(i => Number(i.product_id) !== productId);
-                        window.cartStore[cartType].ids = window.cartStore[cartType].ids.filter(id => Number(id) !== productId);
+                        window.cartStore[cartType].items = window.cartStore[cartType].items.filter(i =>
+                            Number(i.product_id) !== productId);
+                        window.cartStore[cartType].ids = window.cartStore[cartType].ids.filter(id => Number(
+                            id) !== productId);
                         window.cartStore[cartType].count = window.cartStore[cartType].items.length;
                         if (window.updateGlobalCartBadges) {
-                            if (cartType === 'booking') window.updateGlobalCartBadges(window.cartStore.booking.count, undefined);
+                            if (cartType === 'booking') window.updateGlobalCartBadges(window.cartStore
+                                .booking.count, undefined);
                             else window.updateGlobalCartBadges(undefined, window.cartStore.request.count);
                         }
                     }
 
-                    const defaultLabel = (cartType === 'booking') 
-                        ? '<i class="fas fa-shopping-basket"></i>' 
-                        : '<i class="fas fa-file-invoice"></i>';
+                    const defaultLabel = (cartType === 'booking') ?
+                        '<i class="fas fa-shopping-basket"></i>' :
+                        '<i class="fas fa-file-invoice"></i>';
                     $(`${targetBtnClass}[data-id="${productId}"]`).removeClass('added').html(defaultLabel);
-                    if (window.toastr) toastr.info(`Removed from ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`);
+                    if (window.toastr) toastr.info(
+                        `Removed from ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`
+                    );
                     $('#quickVariantModal').modal('hide');
 
                     $.ajax({
                         url: "{{ route('admin.cart.add') }}",
                         method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
                         data: {
                             product_id: productId,
                             cart_type: cartType,
@@ -1081,8 +1970,9 @@
                 // 1. Optimistic Store Update (0ms)
                 if (window.cartStore && window.cartStore[cartType]) {
                     // Remove previous variants for this product
-                    window.cartStore[cartType].items = window.cartStore[cartType].items.filter(i => Number(i.product_id) !== productId);
-                    
+                    window.cartStore[cartType].items = window.cartStore[cartType].items.filter(i => Number(i
+                        .product_id) !== productId);
+
                     variantsToAdd.forEach(function(v) {
                         window.cartStore[cartType].items.push({
                             id: `temp_${productId}_${v.variant_id}`,
@@ -1112,21 +2002,29 @@
                 }
 
                 // 2. Instant Button Update & Snappy Toastr (0ms)
-                $(`${targetBtnClass}[data-id="${productId}"]`).addClass('added').html('<i class="fas fa-check"></i>').attr('title', 'Added');
-                if (window.toastr) toastr.success(`Added ${variantsToAdd.length} variant(s) to ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`);
+                $(`${targetBtnClass}[data-id="${productId}"]`).addClass('added').html(
+                    '<i class="fas fa-check"></i>').attr('title', 'Added');
+                if (window.toastr) toastr.success(
+                    `Added ${variantsToAdd.length} variant(s) to ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`
+                );
                 $('#quickVariantModal').modal('hide');
 
                 // 3. Background MySQL sync
                 $.ajax({
                     url: "{{ route('admin.cart.add') }}",
                     method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     data: {
                         product_id: productId,
                         cart_type: cartType,
                         action: 'bulk_variants',
                         is_bulk_variants: 1,
-                        variants: variantsToAdd.map(v => ({ variant_id: v.variant_id, quantity: v.quantity }))
+                        variants: variantsToAdd.map(v => ({
+                            variant_id: v.variant_id,
+                            quantity: v.quantity
+                        }))
                     }
                 });
             });
@@ -1138,34 +2036,40 @@
 
                 const isAlreadyAdded = $btn.hasClass('added');
                 const desiredAction = isAlreadyAdded ? 'remove' : 'add';
-                const defaultLabel = (cartType === 'booking') 
-                    ? '<i class="fas fa-shopping-basket"></i>' 
-                    : '<i class="fas fa-file-invoice"></i>';
+                const defaultLabel = (cartType === 'booking') ?
+                    '<i class="fas fa-shopping-basket"></i>' :
+                    '<i class="fas fa-file-invoice"></i>';
 
                 // Optimistic visual & store update (0ms)
                 if (isAlreadyAdded) {
                     $btn.removeClass('added').html(defaultLabel);
-                    if (window.toastr) toastr.info(`Removed from ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`);
+                    if (window.toastr) toastr.info(
+                        `Removed from ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`);
 
                     if (window.cartStore && window.cartStore[cartType]) {
-                        window.cartStore[cartType].ids = window.cartStore[cartType].ids.filter(id => Number(id) !== productId);
-                        window.cartStore[cartType].items = window.cartStore[cartType].items.filter(i => Number(i.product_id) !== productId);
+                        window.cartStore[cartType].ids = window.cartStore[cartType].ids.filter(id => Number(id) !==
+                            productId);
+                        window.cartStore[cartType].items = window.cartStore[cartType].items.filter(i => Number(i
+                            .product_id) !== productId);
                         window.cartStore[cartType].count = window.cartStore[cartType].items.length;
                         if (window.updateGlobalCartBadges) {
-                            if (cartType === 'booking') window.updateGlobalCartBadges(window.cartStore.booking.count, undefined);
+                            if (cartType === 'booking') window.updateGlobalCartBadges(window.cartStore.booking
+                                .count, undefined);
                             else window.updateGlobalCartBadges(undefined, window.cartStore.request.count);
                         }
                     }
                 } else {
                     $btn.addClass('added').html('<i class="fas fa-check"></i>');
-                    if (window.toastr) toastr.success(`Added to ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`);
+                    if (window.toastr) toastr.success(
+                        `Added to ${cartType === 'booking' ? 'Procurement' : 'Sales Quotation'} basket`);
 
                     if (window.cartStore && window.cartStore[cartType]) {
                         if (!window.cartStore[cartType].ids.map(Number).includes(productId)) {
                             window.cartStore[cartType].ids.push(productId);
                         }
                         // Check if item already in store to avoid duplicate temp entries
-                        const existsInStore = window.cartStore[cartType].items.some(i => Number(i.product_id) === productId && !i.variant_id);
+                        const existsInStore = window.cartStore[cartType].items.some(i => Number(i.product_id) ===
+                            productId && !i.variant_id);
                         if (!existsInStore) {
                             window.cartStore[cartType].items.push({
                                 id: `temp_${productId}`,
@@ -1183,7 +2087,8 @@
                         }
                         window.cartStore[cartType].count = window.cartStore[cartType].items.length;
                         if (window.updateGlobalCartBadges) {
-                            if (cartType === 'booking') window.updateGlobalCartBadges(window.cartStore.booking.count, undefined);
+                            if (cartType === 'booking') window.updateGlobalCartBadges(window.cartStore.booking
+                                .count, undefined);
                             else window.updateGlobalCartBadges(undefined, window.cartStore.request.count);
                         }
                     }
@@ -1192,15 +2097,19 @@
                 $.ajax({
                     url: "{{ route('admin.cart.add') }}",
                     method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     data: {
                         product_id: productId,
                         cart_type: cartType,
                         action: desiredAction
                     },
                     success: function(response) {
-                        if (response.success && response.item && window.cartStore && window.cartStore[cartType]) {
-                            const idx = window.cartStore[cartType].items.findIndex(i => Number(i.product_id) === productId && !i.variant_id);
+                        if (response.success && response.item && window.cartStore && window.cartStore[
+                                cartType]) {
+                            const idx = window.cartStore[cartType].items.findIndex(i => Number(i
+                                .product_id) === productId && !i.variant_id);
                             if (idx !== -1) {
                                 window.cartStore[cartType].items[idx] = response.item;
                             }
@@ -1244,7 +2153,7 @@
                 $.ajax({
                     url: url,
                     method: 'GET',
-                    data: { 
+                    data: {
                         search: search,
                         category: category,
                         sub_category: sub_category,
@@ -1270,6 +2179,9 @@
                         // Update content
                         $('#product-grid-container').html(response);
                         $('#product-grid-container').attr('data-loaded', 'true');
+
+                        $('[data-toggle="popover"]').popover();
+                        $('[data-toggle="tooltip"]').tooltip();
 
                         if (window.reapplyCartButtonStates) {
                             window.reapplyCartButtonStates();
@@ -1299,11 +2211,15 @@
                         }
 
                         let newUrl = "{{ route('admin.products.index') }}" + '?' + params.toString();
-                        window.history.replaceState({path: newUrl}, '', newUrl);
+                        window.history.replaceState({
+                            path: newUrl
+                        }, '', newUrl);
 
                         // Scroll to top only if requested (e.g., from pagination)
                         if (scrollToTop && $(window).scrollTop() > 200) {
-                            $('html, body').stop().animate({ scrollTop: 0 }, 400);
+                            $('html, body').stop().animate({
+                                scrollTop: 0
+                            }, 400);
                         }
                     },
                     error: function(xhr) {
@@ -1328,14 +2244,14 @@
                         id: id
                     },
                     success: function(data) {
-                         toastr.success(data.message); 
+                        toastr.success(data.message);
                     },
                     error: function(xhr, status, error) {
                         console.error("Status update error:", error);
                         console.log("Response:", xhr.responseText);
-                        if(xhr.status !== 200) {
-                             $this.prop('checked', !isChecked);
-                             toastr.error('Failed to update status');
+                        if (xhr.status !== 200) {
+                            $this.prop('checked', !isChecked);
+                            toastr.error('Failed to update status');
                         }
                     }
                 })
@@ -1347,7 +2263,7 @@
                 clearTimeout(timeout);
                 timeout = setTimeout(function() {
                     fetchProducts();
-                }, 300); 
+                }, 300);
             });
 
             // Cache for category data
@@ -1361,7 +2277,7 @@
                 let id = $(this).val();
 
                 // Clear and reset sub/child categories silently without triggering 'change' event
-                 // We don't want to trigger child change events that fetch products again
+                // We don't want to trigger child change events that fetch products again
                 $('#sub_category').html('<option value="">--Sub Category--</option>');
                 $('#child_category').html('<option value="">--Child Category--</option>');
 
@@ -1369,18 +2285,23 @@
                     if (categoryCache.sub[id]) {
                         // Use cached data
                         $.each(categoryCache.sub[id], function(i, item) {
-                            $('#sub_category').append(`<option value="${item.id}">${item.name}</option>`);
+                            $('#sub_category').append(
+                                `<option value="${item.id}">${item.name}</option>`);
                         });
                     } else {
                         // Fetch from server and cache
                         $.ajax({
                             url: "{{ route('admin.get-subCategories') }}",
                             method: 'GET',
-                            data: { id: id },
+                            data: {
+                                id: id
+                            },
                             success: function(data) {
                                 categoryCache.sub[id] = data; // Cache results
                                 $.each(data, function(i, item) {
-                                    $('#sub_category').append(`<option value="${item.id}">${item.name}</option>`);
+                                    $('#sub_category').append(
+                                        `<option value="${item.id}">${item.name}</option>`
+                                    );
                                 });
                             }
                         });
@@ -1404,18 +2325,23 @@
                     if (categoryCache.child[id]) {
                         // Use cached data
                         $.each(categoryCache.child[id], function(i, item) {
-                            $('#child_category').append(`<option value="${item.id}">${item.name}</option>`);
+                            $('#child_category').append(
+                                `<option value="${item.id}">${item.name}</option>`);
                         });
                     } else {
                         // Fetch from server and cache
                         $.ajax({
                             url: "{{ route('admin.get-child-categories') }}",
                             method: 'GET',
-                            data: { id: id },
+                            data: {
+                                id: id
+                            },
                             success: function(data) {
                                 categoryCache.child[id] = data; // Cache results
                                 $.each(data, function(i, item) {
-                                    $('#child_category').append(`<option value="${item.id}">${item.name}</option>`);
+                                    $('#child_category').append(
+                                        `<option value="${item.id}">${item.name}</option>`
+                                    );
                                 });
                             }
                         });
@@ -1466,19 +2392,397 @@
                 $('#sort').val('latest');
 
                 // Re-trigger select2 UI update without triggering 'change' listener
-                $('.select2').trigger('change.select2'); 
+                $('.select2').trigger('change.select2');
 
                 fetchProducts();
             });
 
             // Handle Pagination clicks via AJAX
-             $('body').on('click', '.pagination a', function(e) {
+            $('body').on('click', '.pagination a', function(e) {
                 e.preventDefault();
                 initialLoad = false; // Allow pagination to trigger
                 let url = $(this).attr('href');
                 fetchProducts(url, true); // Pass true to scroll to top
             });
 
-        })
+            // =========================================================================
+            // SLIDE-OVER STOCK & VELOCITY DRAWER (Exact Same Engine as Audit Inspector)
+            // =========================================================================
+            // Teleport drawer elements directly to <body> so they escape any component stacking context
+            if ($('#stockMovementDrawerBackdrop').parent().not('body').length) {
+                $('body').append($('#stockMovementDrawerBackdrop'), $('#stockMovementDrawer'));
+            }
+
+            function openStockDrawer() {
+                $('#stockMovementDrawer .drawer-body').scrollTop(0);
+                $('#stockMovementDrawerBackdrop').addClass('is-active');
+                $('#stockMovementDrawer').addClass('is-active');
+                $('body').css('overflow', 'hidden');
+            }
+
+            function closeStockDrawer() {
+                $('#stockMovementDrawer').removeClass('is-active');
+                $('#stockMovementDrawerBackdrop').removeClass('is-active');
+                $('body').css('overflow', '');
+            }
+
+            // Close on close button or backdrop click
+            $(document).on('click',
+                '#btn-close-stock-drawer, #stockMovementDrawerBackdrop',
+                function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeStockDrawer();
+                });
+
+            // Click anywhere outside the drawer to close it (with strict guards for SweetAlert2, Select2, and Toasts)
+            $(document).on('click', function(e) {
+                if ($('#stockMovementDrawer').hasClass('is-active')) {
+                    // NEVER close drawer if SweetAlert2 is open or if click target is inside SweetAlert2
+                    if ($(e.target).closest('.swal2-container, .swal2-popup, .swal2-modal, .swal2-backdrop').length || (typeof Swal !== 'undefined' && Swal.isVisible())) {
+                        return;
+                    }
+                    // NEVER close drawer if clicking inside Select2 dropdown or toast notifications
+                    if ($(e.target).closest('.select2-container, .select2-dropdown, #toast-container, .toast').length) {
+                        return;
+                    }
+                    // NEVER close if clicking inside the drawer or the trigger button
+                    if ($(e.target).closest('#stockMovementDrawer').length || $(e.target).closest('.view-stock-movement').length) {
+                        return;
+                    }
+                    closeStockDrawer();
+                }
+            });
+
+            // Prevent clicks inside the drawer from bubbling to the document
+            $(document).on('click', '#stockMovementDrawer', function(e) {
+                e.stopPropagation();
+            });
+
+            // Keyboard ESC key closes drawer, unless SweetAlert2 is currently open
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape' && $('#stockMovementDrawer').hasClass('is-active')) {
+                    if ($('.swal2-container:visible').length > 0 || (typeof Swal !== 'undefined' && Swal.isVisible())) {
+                        return; // Let SweetAlert dismiss itself without closing the drawer
+                    }
+                    closeStockDrawer();
+                }
+            });
+
+            // Open Stock Movement & Velocity Off-Canvas Drawer (Client Voice Module 5 & 6)
+            $('body').on('click', '.view-stock-movement', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                let productId = $(this).data('id');
+                if (!productId) return;
+
+                window.currentStockMovementProductId = productId;
+
+                $('#stockMovementDrawerBody').html(`
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;">
+                            <span class="sr-only">Loading stock flow...</span>
+                        </div>
+                        <div class="mt-3 text-muted font-weight-500" style="font-size: 13px;">
+                            <i class="fas fa-sync fa-spin mr-1 text-primary"></i> Loading product stock inflow & velocity metrics...
+                        </div>
+                    </div>
+                `);
+
+                openStockDrawer();
+
+                let url = "{{ route('admin.products.stock-movement', ':id') }}".replace(':id', productId);
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(html) {
+                        $('#stockMovementDrawerBody').html(html);
+                        initB2bSelect2();
+                    },
+                    error: function() {
+                        $('#stockMovementDrawerBody').html(`
+                            <div class="alert alert-danger text-center my-4">
+                                <i class="fas fa-exclamation-triangle mr-2"></i> Failed to load stock movement data. Please try again.
+                            </div>
+                        `);
+                    }
+                });
+            });
+
+            // Toggle Custom Month / Date range box in Stock Movement Modal
+            $('body').on('click', '#btn-toggle-custom-filter', function() {
+                $('#velocity-custom-filter-box').slideToggle(200);
+            });
+
+            // Handle Velocity Preset Radio Click
+            $('body').on('change', 'input[name="velocity_preset"]', function() {
+                let preset = $(this).val();
+                if (preset === 'custom') {
+                    $('#velocity-custom-filter-box').slideDown(200);
+                    return;
+                }
+                $('#velocity-custom-filter-box').slideUp(200);
+                recalculateVelocityMetrics({
+                    preset: preset
+                });
+            });
+
+            // Handle Custom Month/Year or Date Range Apply
+            $('body').on('click', '#btn-apply-custom-velocity', function() {
+                let month = $('#vel_filter_month').val();
+                let year = $('#vel_filter_year').val();
+                let start_date = $('#vel_filter_start').val();
+                let end_date = $('#vel_filter_end').val();
+
+                recalculateVelocityMetrics({
+                    preset: 'custom',
+                    month: month,
+                    year: year,
+                    start_date: start_date,
+                    end_date: end_date
+                });
+            });
+
+            function recalculateVelocityMetrics(params) {
+                let productId = window.currentStockMovementProductId;
+                if (!productId) return;
+
+                let url = "{{ route('admin.products.velocity-metrics', ':id') }}".replace(':id', productId);
+
+                // Show loading state in velocity badge
+                $('#velocity-label-text').text('Calculating...');
+                $('#velocity-progress-bar').css('opacity', '0.5');
+
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    data: params,
+                    success: function(res) {
+                        if (res.status === 'success' && res.metrics) {
+                            let m = res.metrics;
+                            // Update KPIs
+                            $('#kpi-period-inflow').text(Number(m.inflow_qty).toLocaleString());
+                            $('#kpi-period-sold').text(Number(m.sold_qty).toLocaleString());
+                            $('#kpi-period-inflow-sub').text('In ' + m.period_label);
+
+                            // Update Badge
+                            let badgeHtml = `
+                                <span class="badge ${m.classification.badge} px-3 py-1 font-weight-bold" style="font-size: 12px; border-radius: 20px;">
+                                    <i class="${m.classification.icon} mr-1"></i>
+                                    <span id="velocity-label-text">${m.classification.label}</span>: 
+                                    <span id="velocity-rate-text">${m.sell_through_rate}%</span> Sold
+                                </span>
+                            `;
+                            $('#velocity-badge-container').html(badgeHtml);
+
+                            // Update Progress Bar & Advice
+                            $('#progress-rate-label').text(m.sell_through_rate + '%');
+                            $('#velocity-advice-text').text(m.classification.advice);
+                            $('#velocity-progress-bar')
+                                .css('width', m.sell_through_rate + '%')
+                                .css('background-color', m.classification.bg_color)
+                                .css('opacity', '1')
+                                .attr('aria-valuenow', m.sell_through_rate);
+                        }
+                    },
+                    error: function() {
+                        $('#velocity-label-text').text('Error');
+                        $('#velocity-progress-bar').css('opacity', '1');
+                    }
+                });
+            }
+
+            // Global Select2 initialisation helper for B2B drawer controls
+            function initB2bSelect2() {
+                if (!$.fn.select2) return;
+                $('#stockMovementDrawerBody .b2b-select2').each(function() {
+                    if ($(this).hasClass("select2-hidden-accessible")) {
+                        $(this).select2('destroy');
+                    }
+                    $(this).select2({
+                        dropdownParent: $('#stockMovementDrawer'),
+                        width: '100%'
+                    });
+                });
+            }
+            window.initB2bSelect2 = initB2bSelect2;
+
+            // Recalculate Select2 dimensions whenever Visibility tab is clicked
+            $('body').on('shown.bs.tab', 'a[data-toggle="tab"], a[role="tab"]', function(e) {
+                if ($(e.target).attr('href') === '#tab-visibility' || $(e.target).attr('id') ===
+                    'visibility-tab') {
+                    initB2bSelect2();
+                }
+            });
+
+            // Save B2B Visibility Rule via AJAX (Module 7)
+            $('body').on('click', '#btn-save-b2b-visibility', function(e) {
+                e.preventDefault();
+                let productId = window.currentStockMovementProductId;
+                if (!productId) return;
+
+                let form = $('#form-add-b2b-visibility');
+                let data = form.serialize();
+
+                let url = "{{ route('admin.products.b2b-visibility.store', ':id') }}".replace(':id',
+                    productId);
+                let btn = $(this);
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: data,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(res) {
+                        btn.prop('disabled', false).html(
+                            '<i class="fas fa-save mr-1"></i> Save B2B Rule');
+                        if (res.status === 'success') {
+                            if (window.toastr) toastr.success(res.message);
+                            // Refresh drawer content
+                            let reloadUrl =
+                                "{{ route('admin.products.stock-movement', ':id') }}".replace(
+                                    ':id', productId);
+                            $.get(reloadUrl, function(html) {
+                                $('#stockMovementDrawerBody').html(html);
+                                $('#visibility-tab').tab('show');
+                                initB2bSelect2();
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        btn.prop('disabled', false).html(
+                            '<i class="fas fa-save mr-1"></i> Save B2B Rule');
+                        let msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr
+                            .responseJSON.message : 'Error saving visibility rule';
+                        if (window.toastr) toastr.error(msg);
+                    }
+                });
+            });
+
+            // Delete B2B Visibility Rule via AJAX (Module 7)
+            $('body').on('click', '.btn-delete-b2b-rule', function(e) {
+                e.preventDefault();
+                let btn = $(this);
+                let ruleId = btn.data('id');
+                if (!ruleId) return;
+
+                let executeDelete = function() {
+                    let url = "{{ route('admin.products.b2b-visibility.destroy', ':id') }}".replace(':id', ruleId);
+                    btn.prop('disabled', true);
+
+                    $.ajax({
+                        url: url,
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        success: function(res) {
+                            if (res.status === 'success') {
+                                if (window.toastr) toastr.success(res.message);
+                                $(`#b2b-rule-row-${ruleId}`).fadeOut(300, function() {
+                                    $(this).remove();
+                                    let remainingRows = $('#table-b2b-visibilities tbody tr[id^="b2b-rule-row-"]').length;
+                                    $('#b2b-rules-count-badge').text(remainingRows + ' Rules');
+                                    if (remainingRows === 0) {
+                                        $('#table-b2b-visibilities tbody').html(`
+                                            <tr id="no-b2b-rules-row">
+                                                <td colspan="4" class="text-center py-4 bg-white">
+                                                    <div class="py-2">
+                                                        <div class="mb-2" style="width: 44px; height: 44px; border-radius: 50%; background: #f1f5f9; display: inline-flex; align-items: center; justify-content: center;">
+                                                            <i class="fas fa-shield-alt text-muted" style="font-size: 18px;"></i>
+                                                        </div>
+                                                        <div class="font-weight-bold text-dark" style="font-size: 13px;">Standard Inventory Rules Active</div>
+                                                        <div class="text-muted small mt-1" style="max-width: 400px; margin: 0 auto; font-size: 11px;">
+                                                            No customer overrides set for this item. All buyers and outlets see actual warehouse stock.
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        `);
+                                    }
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            btn.prop('disabled', false);
+                            let msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error deleting rule';
+                            if (window.toastr) toastr.error(msg);
+                        }
+                    });
+                };
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: "Remove B2B Stock Rule?",
+                        text: "This customer/outlet override will be removed. The entity will revert to seeing actual warehouse stock.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#ef4444",
+                        cancelButtonColor: "#64748b",
+                        confirmButtonText: "<i class='fas fa-trash-alt mr-1'></i> Yes, remove it!",
+                        cancelButtonText: "Cancel",
+                        reverseButtons: true,
+                        focusConfirm: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            executeDelete();
+                        }
+                    });
+                } else if (confirm('Are you sure you want to remove this B2B stock rule?')) {
+                    executeDelete();
+                }
+            });
+
+            // Handle Target Scope switching (Company / Outlet / Phone) in B2B Rule tab
+            $('body').on('click', '.b2b-scope-pill', function() {
+                let target = $(this).data('target');
+                $('.b2b-scope-pill').removeClass('active');
+                $(this).addClass('active');
+
+                $('.b2b-scope-container').hide();
+                $('#scope-box-' + target).fadeIn(150, function() {
+                    $('#scope-box-' + target + ' .b2b-select2').select2({
+                        dropdownParent: $('#stockMovementDrawer'),
+                        width: '100%'
+                    });
+                });
+
+                // Clear unselected inputs so only the active scope is submitted
+                if (target === 'company') {
+                    $('#b2b_outlet_id').val('').trigger('change');
+                    $('#b2b_user_id').val('').trigger('change');
+                    $('#b2b_phone').val('');
+                } else if (target === 'outlet') {
+                    $('#b2b_company_id').val('').trigger('change');
+                    $('#b2b_user_id').val('').trigger('change');
+                    $('#b2b_phone').val('');
+                } else if (target === 'phone') {
+                    $('#b2b_company_id').val('').trigger('change');
+                    $('#b2b_outlet_id').val('').trigger('change');
+                }
+            });
+
+            // Auto-fill buyer phone when selecting a registered user
+            $('body').on('change', '#b2b_user_id', function() {
+                let phone = $(this).find(':selected').data('phone');
+                if (phone) {
+                    $('#b2b_phone').val(phone);
+                }
+            });
+
+            // Remove lingering browser focus outline on preset/scope clicks
+            $('body').on('click', '#velocity-preset-group .btn, #b2b-scope-pill-group .btn, #stockMovementDrawer button', function() {
+                $(this).blur();
+                $(this).find('input').blur();
+            });
+
+        });
     </script>
 @endpush

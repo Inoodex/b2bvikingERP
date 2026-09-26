@@ -72,14 +72,28 @@ class ReportController extends Controller implements HasMiddleware
 
         $query = OrderItem::whereIn('order_id', $completedOrderIds)
             ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
+            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
             ->selectRaw('
                 order_items.product_id,
                 order_items.product_name,
+                products.thumb_image,
+                products.product_number,
+                products.sku,
+                products.category_id,
+                categories.name as category_name,
                 COUNT(*) as times_ordered,
                 SUM(order_items.quantity) as total_qty,
                 COALESCE(SUM(order_items.line_total), 0) as total_value
             ')
-            ->groupBy('order_items.product_id', 'order_items.product_name');
+            ->groupBy(
+                'order_items.product_id',
+                'order_items.product_name',
+                'products.thumb_image',
+                'products.product_number',
+                'products.sku',
+                'products.category_id',
+                'categories.name'
+            );
 
         if ($request->filled('search')) {
             $query->where('order_items.product_name', 'like', '%' . $request->search . '%');
@@ -94,7 +108,7 @@ class ReportController extends Controller implements HasMiddleware
             $query->where('products.child_category_id', $request->child_category_id);
         }
 
-        $products = $query->orderByDesc('times_ordered')->paginate(30)->withQueryString();
+        $products = $query->orderByDesc('times_ordered')->orderByDesc('total_qty')->paginate(30)->withQueryString();
 
         $grandTotals = OrderItem::whereIn('order_id', $completedOrderIds)
             ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
@@ -107,6 +121,28 @@ class ReportController extends Controller implements HasMiddleware
             ->when($request->filled('sub_category_id'), fn($q) => $q->where('products.sub_category_id', $request->sub_category_id))
             ->when($request->filled('child_category_id'), fn($q) => $q->where('products.child_category_id', $request->child_category_id))
             ->first();
+
+        // Calculate Category Share (%) and Relative Velocity Index (% vs Next Rank)
+        $items = $products->items();
+        $totalQty = (float) ($grandTotals->grand_total_qty ?? 0);
+        $count = count($items);
+
+        for ($i = 0; $i < $count; $i++) {
+            $currQty = (float) $items[$i]->total_qty;
+            $items[$i]->category_share = ($totalQty > 0) ? round(($currQty / $totalQty) * 100, 1) : 0;
+
+            if ($i + 1 < $count) {
+                $nextQty = (float) $items[$i + 1]->total_qty;
+                if ($nextQty > 0) {
+                    $velocity = round((($currQty - $nextQty) / $nextQty) * 100, 1);
+                } else {
+                    $velocity = 100.0;
+                }
+                $items[$i]->velocity_vs_next = $velocity;
+            } else {
+                $items[$i]->velocity_vs_next = null;
+            }
+        }
 
         $availableYears = Order::where('status', 'completed')
             ->selectRaw('YEAR(placed_at) as year')
@@ -129,10 +165,15 @@ class ReportController extends Controller implements HasMiddleware
                 'last_item' => $products->lastItem(),
                 'total' => $products->total(),
                 'has_more' => $products->hasMorePages(),
+                'items' => $items,
             ]);
         }
 
-        return view('backend.reports.best_sellers', compact('products', 'grandTotals', 'categories', 'settings', 'availableYears'));
+        $topCalculatorItems = collect($items)->take(20)->values();
+        $targetVolume = (float) $request->get('target_volume', 2000);
+        $scope = (int) $request->get('scope', 5);
+
+        return view('backend.reports.best_sellers', compact('products', 'grandTotals', 'categories', 'settings', 'availableYears', 'topCalculatorItems', 'targetVolume', 'scope'));
     }
 
     /**
@@ -1065,4 +1106,212 @@ class ReportController extends Controller implements HasMiddleware
 
         return view('backend.reports.audit', compact('logs', 'summary', 'modules', 'enterpriseModules', 'actions', 'users', 'vendors', 'latestPdf'));
     }
+
+    /**
+     * Procurement Replenishment & Velocity Split Calculator (Integrated into Best Sellers)
+     */
+    public function procurementSplit(Request $request)
+    {
+        return redirect()->route('admin.reports.best-sellers', array_merge($request->query(), ['tab' => 'calculator']));
+    }
+
+    /**
+     * Supplier Negotiation & Landed Cost Intelligence Suite (Client Voice Module 4)
+     */
+    public function supplierNegotiation(Request $request)
+    {
+        $categories = Category::where('status', 1)->orderBy('name')->get();
+        $vendors = Vendor::where('status', 1)->orderBy('shop_name')->get();
+
+        $selectedCategoryId = $request->get('category_id');
+        $selectedProductId = $request->get('product_id');
+        $selectedVendorId = $request->get('vendor_id');
+
+        // Products query scoped strictly by category if selected
+        $productsQuery = Product::where('status', 1)->orderBy('name');
+        if ($selectedCategoryId) {
+            $productsQuery->where('category_id', $selectedCategoryId);
+        }
+        $products = $productsQuery->get();
+        if ($selectedProductId && !$products->contains('id', $selectedProductId)) {
+            $selectedProductId = null;
+        }
+
+        // Query historical shipments
+        $shipmentsQuery = PurchaseDetail::with(['purchase.vendor', 'purchase.shipments', 'product.category', 'product.unit', 'variant'])
+            ->whereHas('purchase', function ($q) use ($selectedVendorId) {
+                $q->whereNotIn('milestone_status', ['cancelled']);
+                if ($selectedVendorId) {
+                    $q->where('vendor_id', $selectedVendorId);
+                }
+            });
+
+        if ($selectedCategoryId) {
+            $shipmentsQuery->whereHas('product', function ($q) use ($selectedCategoryId) {
+                $q->where('category_id', $selectedCategoryId);
+            });
+        }
+
+        if ($selectedProductId) {
+            $shipmentsQuery->where('product_id', $selectedProductId);
+        }
+
+        // Calculate KPI Metrics across entire filtered scope
+        $allShipmentsForKpi = (clone $shipmentsQuery)->get();
+
+        $lowestCost = null;
+        $highestCost = null;
+        $weightedAvgCost = 0;
+        $latestCost = 0;
+        $previousCost = null;
+        $costTrendPercent = null;
+        $totalUnitsPurchased = 0;
+        $totalSpendUnits = 0;
+        $totalSpend = 0;
+
+        if ($allShipmentsForKpi->isNotEmpty()) {
+            $sortedKpi = $allShipmentsForKpi->sortByDesc(function ($item) {
+                return $item->purchase?->date ? $item->purchase->date->timestamp : $item->created_at->timestamp;
+            })->values();
+
+            $pricedCosts = [];
+
+            foreach ($sortedKpi as $detail) {
+                $effectiveCost = (float)($detail->landed_cost > 0 ? $detail->landed_cost : $detail->unit_cost);
+                $qty = (float)($detail->qty ?? 0);
+                $totalUnitsPurchased += $qty;
+
+                if ($effectiveCost > 0) {
+                    if ($lowestCost === null || $effectiveCost < $lowestCost) {
+                        $lowestCost = $effectiveCost;
+                    }
+                    if ($highestCost === null || $effectiveCost > $highestCost) {
+                        $highestCost = $effectiveCost;
+                    }
+                    $totalSpendUnits += $qty;
+                    $totalSpend += ($qty * $effectiveCost);
+                    $pricedCosts[] = $effectiveCost;
+                }
+            }
+
+            $weightedAvgCost = $totalSpendUnits > 0 ? ($totalSpend / $totalSpendUnits) : 0;
+
+            if (!empty($pricedCosts)) {
+                $latestCost = $pricedCosts[0];
+                if (isset($pricedCosts[1]) && $pricedCosts[1] > 0) {
+                    $previousCost = $pricedCosts[1];
+                    $costTrendPercent = round((($latestCost - $previousCost) / $previousCost) * 100, 1);
+                }
+            }
+        }
+
+        $negotiationMetrics = [
+            'lowest_cost' => $lowestCost ?? 0,
+            'highest_cost' => $highestCost ?? 0,
+            'weighted_avg_cost' => $weightedAvgCost,
+            'latest_cost' => $latestCost,
+            'trend_percent' => $costTrendPercent,
+            'shipment_count' => $allShipmentsForKpi->count(),
+            'total_units' => $totalUnitsPurchased,
+            'total_spend' => $totalSpend,
+        ];
+
+        // Paginate shipments cleanly for enterprise DataTables view (20 per page)
+        $shipments = $shipmentsQuery->orderBy('id', 'desc')->paginate(20)->withQueryString();
+
+        if ($request->ajax()) {
+            $tableHtml = view('backend.reports.partials.supplier_negotiation_table', compact('shipments', 'negotiationMetrics'))->render();
+
+            return response()->json([
+                'table_html' => $tableHtml,
+                'metrics' => [
+                    'lowest_cost' => number_format($negotiationMetrics['lowest_cost'], 2),
+                    'highest_cost' => number_format($negotiationMetrics['highest_cost'], 2),
+                    'weighted_avg_cost' => number_format($negotiationMetrics['weighted_avg_cost'], 2),
+                    'latest_cost' => number_format($negotiationMetrics['latest_cost'], 2),
+                    'trend_percent' => $negotiationMetrics['trend_percent'],
+                    'shipment_count' => number_format($negotiationMetrics['shipment_count']),
+                    'total_units' => number_format($negotiationMetrics['total_units']),
+                    'total_spend' => number_format($negotiationMetrics['total_spend'], 2),
+                ],
+                'products' => $products->map(function ($p) {
+                    return [
+                        'id' => $p->id,
+                        'name' => $p->name,
+                        'code' => $p->product_number ?? $p->sku ?? ('PROD-' . $p->id),
+                    ];
+                })->values(),
+                'selected_product_id' => $selectedProductId,
+            ]);
+        }
+
+        return view('backend.reports.supplier_negotiation', compact(
+            'products', 'vendors', 'categories', 'shipments', 'negotiationMetrics', 
+            'selectedProductId', 'selectedVendorId', 'selectedCategoryId'
+        ));
+    }
+
+    /**
+     * Inventory Reorder Risk & PO Pipeline Report (Client Voice Module 3)
+     */
+    public function reorderRiskReport(Request $request)
+    {
+        $categories = Category::where('status', 1)->orderBy('name')->get();
+        $vendors = Vendor::where('status', 1)->orderBy('shop_name')->get();
+
+        $query = Product::with([
+            'category',
+            'vendor',
+            'activePurchaseDetails.purchase.vendor',
+            'activePurchaseDetails.purchase.shipments'
+        ])
+        ->withSum('inventoryStocks', 'quantity')
+        ->where('status', 1);
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+        if ($request->filled('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('product_number', 'like', '%' . $request->search . '%')
+                  ->orWhere('sku', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $statusFilter = $request->get('status_filter', 'all');
+
+        if ($statusFilter === 'out_of_stock_not_ordered') {
+            $query->whereDoesntHave('activePurchaseDetails')
+                  ->havingRaw('inventory_stocks_sum_quantity <= 0 OR inventory_stocks_sum_quantity IS NULL');
+        } elseif ($statusFilter === 'on_order') {
+            $query->whereHas('activePurchaseDetails');
+        }
+
+        $products = $query->orderBy('name')->paginate(30)->withQueryString();
+
+        // Calculate KPI summary
+        $totalStockoutsUnordered = Product::where('status', 1)
+            ->whereDoesntHave('activePurchaseDetails')
+            ->withSum('inventoryStocks', 'quantity')
+            ->havingRaw('inventory_stocks_sum_quantity <= 0 OR inventory_stocks_sum_quantity IS NULL')
+            ->count();
+
+        $totalActivePOsCount = PurchaseDetail::whereHas('purchase', function ($q) {
+            $q->whereNotIn('milestone_status', ['cancelled', 'received']);
+        })->distinct('purchase_id')->count('purchase_id');
+
+        $totalUnitsInPipeline = (float) PurchaseDetail::whereHas('purchase', function ($q) {
+            $q->whereNotIn('milestone_status', ['cancelled', 'received']);
+        })->sum('qty');
+
+        return view('backend.reports.reorder_risk', compact(
+            'products', 'categories', 'vendors', 'statusFilter', 
+            'totalStockoutsUnordered', 'totalActivePOsCount', 'totalUnitsInPipeline'
+        ));
+    }
 }
+

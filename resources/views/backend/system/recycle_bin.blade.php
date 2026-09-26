@@ -127,34 +127,44 @@
     $(document).on('click', '.btn-force-delete-item', function (e) {
       e.preventDefault();
       var url = $(this).data('url');
-      if (!confirm('CAUTION: This will permanently purge this record from the database. This action CANNOT be undone! Continue?')) return;
 
-      $.ajax({
-        url: url,
-        type: 'POST',
-        data: {
-          _token: '{{ csrf_token() }}',
-          _method: 'DELETE'
-        },
-        success: function (res) {
-          if (typeof toastr !== 'undefined') {
-            toastr.success(res.message || 'Record permanently deleted.');
-          } else {
-            alert(res.message || 'Record permanently deleted.');
-          }
-          if (window.LaravelDataTables && window.LaravelDataTables['recyclebin-table']) {
-            window.LaravelDataTables['recyclebin-table'].ajax.reload();
-          } else {
-            window.location.reload();
-          }
-        },
-        error: function (xhr) {
-          var msg = xhr.responseJSON ? xhr.responseJSON.message : 'Deletion failed.';
-          if (typeof toastr !== 'undefined') {
-            toastr.error(msg);
-          } else {
-            alert(msg);
-          }
+      Swal.fire({
+        title: "Permanently Delete?",
+        text: "CAUTION: This will permanently purge this record from the database. This action CANNOT be undone!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#64748b",
+        confirmButtonText: "Yes, purge permanently!",
+        reverseButtons: true,
+        focusConfirm: false
+      }).then((result) => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+              _token: '{{ csrf_token() }}',
+              _method: 'DELETE'
+            },
+            success: function (res) {
+              Swal.fire(
+                'Deleted',
+                res.message || 'Record permanently deleted.',
+                'success'
+              ).then(() => {
+                if (window.LaravelDataTables && window.LaravelDataTables['recyclebin-table']) {
+                  window.LaravelDataTables['recyclebin-table'].ajax.reload();
+                } else {
+                  window.location.reload();
+                }
+              });
+            },
+            error: function (xhr) {
+              var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Deletion failed.';
+              Swal.fire("Can't Delete!", msg, 'error');
+            }
+          });
         }
       });
     });

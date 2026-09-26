@@ -179,8 +179,32 @@ class WarehouseBinController extends Controller
 
     public function destroy(WarehouseBin $warehouseBin)
     {
+        $hasActiveStock = \App\Models\InventoryStock::where('bin_id', $warehouseBin->id)->where('quantity', '>', 0)->exists()
+            || \App\Models\StockBatch::where('bin_id', $warehouseBin->id)->where('qty_remaining', '>', 0)->exists();
+
+        if ($hasActiveStock) {
+            $msg = __('Cannot delete bin: Active inventory stock exists in this bin location. Please transfer stock first.');
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $msg,
+                ], 422);
+            }
+            Toastr::error($msg, 'Error');
+            return redirect()->route('admin.warehouse-bins.index');
+        }
+
         $warehouseBin->delete();
-        Toastr::success('Warehouse Bin deleted successfully.', 'Success');
+        $message = __('Warehouse Bin deleted successfully.');
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $message,
+            ]);
+        }
+
+        Toastr::success($message, 'Success');
         return redirect()->route('admin.warehouse-bins.index');
     }
 }

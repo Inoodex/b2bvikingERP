@@ -34,6 +34,12 @@ use App\Jobs\DispatchProductAnnouncementChunksJob;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ProductsImport;
 use App\Events\ProductsPublished;
+use App\Models\PurchaseDetail;
+use App\Models\CustomerProductVisibility;
+use App\Models\Company;
+use App\Models\Outlet;
+use App\Models\User;
+use App\Services\InventoryVelocityService;
 
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -45,7 +51,7 @@ class ProductController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('can:Manage Products', except: ['index']),
+            new Middleware('can:Manage Products', except: ['index', 'stockMovement', 'velocityMetrics']),
         ];
     }
 
@@ -54,7 +60,15 @@ class ProductController extends Controller implements HasMiddleware
      */
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'variants.color', 'variants.size', 'inventoryStocks', 'vendor']);
+        $query = Product::with([
+            'category',
+            'variants.color',
+            'variants.size',
+            'inventoryStocks',
+            'vendor',
+            'activePurchaseDetails.purchase.vendor',
+            'activePurchaseDetails.purchase.shipments'
+        ]);
         
         // Visibility Constraints for non-admins and non-product-managers
         if (!Auth::user()->hasRole('Admin') && !Auth::user()->can('Manage Products')) {
@@ -124,6 +138,25 @@ class ProductController extends Controller implements HasMiddleware
 
         if ($request->has('vendor') && $request->vendor != '') {
             $query->where('vendor_id', $request->vendor);
+        }
+
+        if ($request->filled('order_status')) {
+            $os = $request->order_status;
+            if ($os === 'in_stock') {
+                $query->whereHas('inventoryStocks', function($q) {
+                    $q->havingRaw('SUM(quantity) > 0');
+                });
+            } elseif ($os === 'on_order') {
+                $query->whereHas('activePurchaseDetails');
+            } elseif ($os === 'out_of_stock_not_ordered') {
+                $query->whereDoesntHave('activePurchaseDetails')
+                    ->where(function($q) {
+                        $q->whereDoesntHave('inventoryStocks')
+                          ->orWhereHas('inventoryStocks', function($sq) {
+                              $sq->havingRaw('SUM(quantity) <= 0');
+                          });
+                    });
+            }
         }
 
         $products = $query->paginate(20)->withQueryString();
@@ -296,7 +329,45 @@ class ProductController extends Controller implements HasMiddleware
         $sizes = Size::where('status', 1)->get();
         $productTypes = ProductType::where('status', 1)->get();
         
-        return view('backend.product.edit', compact('product', 'categories', 'subCategories', 'childCategories', 'brands', 'units', 'vendors', 'colors', 'sizes', 'productTypes'));
+        // Stock Movement, Inflows, Velocity & B2B Rules (Phase 2)
+        $velocityService = app(InventoryVelocityService::class);
+        $movements = StockLedger::where('product_id', $product->id)
+            ->with(['outlet', 'batch'])
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
+            ->limit(35)
+            ->get();
+        $purchaseInflows = PurchaseDetail::where('product_id', $product->id)
+            ->whereHas('purchase', function ($q) {
+                $q->whereIn('status', ['goods_received', 'approved', 'shipped']);
+            })
+            ->with(['purchase.vendor'])
+            ->latest()
+            ->limit(15)
+            ->get();
+        $currentStock = (float) ($product->inventory_stock ?? $product->inventoryStocks()->sum('quantity'));
+        $lifetimeInflow = (float) StockLedger::where('product_id', $product->id)->sum('in_qty');
+        $lifetimeOutflow = (float) StockLedger::where('product_id', $product->id)->sum('out_qty');
+        $velocity = $velocityService->calculateVelocity($product->id, '90_days');
+        
+        $imagePath = $product->thumb_image;
+        $thumbImage = $imagePath 
+            ? ((strpos($imagePath, 'http') === 0) 
+                ? $imagePath 
+                : (file_exists(public_path($imagePath)) 
+                    ? asset($imagePath) 
+                    : asset('storage/' . $imagePath))) 
+            : asset('uploads/no-image.svg');
+
+        $visibilities = $product->customerVisibilities()->with(['user', 'company', 'outlet'])->latest()->get();
+        $companies = \App\Models\Company::orderBy('name')->get(['id', 'name']);
+        $outlets = \App\Models\Outlet::orderBy('name')->get(['id', 'name']);
+        $customers = \App\Models\User::orderBy('name')->limit(60)->get(['id', 'name', 'phone']);
+
+        return view('backend.product.edit', compact(
+            'product', 'categories', 'subCategories', 'childCategories', 'brands', 'units', 'vendors', 'colors', 'sizes', 'productTypes',
+            'movements', 'purchaseInflows', 'currentStock', 'lifetimeInflow', 'lifetimeOutflow', 'velocity', 'thumbImage', 'visibilities', 'companies', 'outlets', 'customers'
+        ));
     }
 
     /**
@@ -874,6 +945,197 @@ class ProductController extends Controller implements HasMiddleware
                 'status' => 'error',
                 'message' => 'Product not found'
             ], 404);
+        }
+    }
+
+    /**
+     * Get stock movement, PO inflow timeline, and velocity for a product via AJAX / View.
+     */
+    public function stockMovement(Request $request, $id, InventoryVelocityService $velocityService)
+    {
+        try {
+            $product = Product::with(['category', 'subCategory', 'vendor', 'unit', 'inventoryStocks'])->findOrFail($id);
+
+            // 1. Fetch recent stock ledger movements (in and out)
+            $movements = StockLedger::where('product_id', $product->id)
+                ->with(['outlet', 'batch'])
+                ->orderBy('date', 'desc')
+                ->orderBy('id', 'desc')
+                ->limit(35)
+                ->get();
+
+            // 2. Fetch specific Purchase Inflows (Receipts) with vendor, PO number, and cost
+            $purchaseInflows = PurchaseDetail::where('product_id', $product->id)
+                ->whereHas('purchase', function ($q) {
+                    $q->whereIn('status', ['goods_received', 'approved', 'shipped']);
+                })
+                ->with(['purchase.vendor'])
+                ->latest()
+                ->limit(15)
+                ->get();
+
+            // 3. Compute Current Stock and Lifetime KPI metrics
+            $currentStock = (float) ($product->inventory_stock ?? $product->inventoryStocks()->sum('quantity'));
+            $lifetimeInflow = (float) StockLedger::where('product_id', $product->id)->sum('in_qty');
+            $lifetimeOutflow = (float) StockLedger::where('product_id', $product->id)->sum('out_qty');
+
+            // 4. Compute default velocity (90 days / 3 months) or requested filters
+            $velocity = $velocityService->calculateVelocity(
+                $product->id,
+                $request->input('preset', '90_days'),
+                $request->input('start_date'),
+                $request->input('end_date'),
+                $request->input('month'),
+                $request->input('year')
+            );
+
+            $imagePath = $product->thumb_image;
+            $thumbImage = $imagePath 
+                ? ((strpos($imagePath, 'http') === 0) 
+                    ? $imagePath 
+                    : (file_exists(public_path($imagePath)) 
+                        ? asset($imagePath) 
+                        : asset('storage/' . $imagePath))) 
+                : asset('uploads/no-image.svg');
+
+            // 5. Fetch B2B customer visibility overrides and selector options
+            $visibilities = $product->customerVisibilities()->with(['user', 'company', 'outlet'])->latest()->get();
+            $companies = \App\Models\Company::orderBy('name')->get(['id', 'name']);
+            $outlets = \App\Models\Outlet::where('type', '!=', 'warehouse')
+                ->where('status', 1)
+                ->orderBy('code')
+                ->get(['id', 'name', 'code']);
+            $customers = \App\Models\User::customers()
+                ->where('status', 1)
+                ->orderBy('name')
+                ->get(['id', 'name', 'phone', 'email']);
+
+            if ($request->ajax()) {
+                return view('backend.product.partials.stock_movement_modal', compact(
+                    'product', 'movements', 'purchaseInflows', 'currentStock', 'lifetimeInflow', 'lifetimeOutflow', 'velocity', 'thumbImage',
+                    'visibilities', 'companies', 'outlets', 'customers'
+                ))->render();
+            }
+
+            return view('backend.product.partials.stock_movement_modal', compact(
+                'product', 'movements', 'purchaseInflows', 'currentStock', 'lifetimeInflow', 'lifetimeOutflow', 'velocity', 'thumbImage',
+                'visibilities', 'companies', 'outlets', 'customers'
+            ));
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json(['status' => 'error', 'message' => $e->getMessage()], 404);
+            }
+            abort(404, 'Product not found');
+        }
+    }
+
+    /**
+     * Real-time velocity metrics recalculation via AJAX (for dynamic presets, custom date, or month/year)
+     */
+    public function velocityMetrics(Request $request, $id, InventoryVelocityService $velocityService)
+    {
+        try {
+            $product = Product::findOrFail($id);
+            $metrics = $velocityService->calculateVelocity(
+                $product->id,
+                $request->input('preset'),
+                $request->input('start_date'),
+                $request->input('end_date'),
+                $request->input('month'),
+                $request->input('year')
+            );
+
+            return response()->json([
+                'status' => 'success',
+                'metrics' => $metrics
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 404);
+        }
+    }
+
+    /**
+     * Store a customer-specific visibility override for a product.
+     */
+    public function saveB2bVisibility(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'visibility_mode' => 'required|in:force_in_stock,force_out_of_stock,hide_product',
+                'user_id' => 'nullable|exists:users,id',
+                'company_id' => 'nullable|exists:companies,id',
+                'outlet_id' => 'nullable|exists:outlets,id',
+                'phone_number' => 'nullable|string|max:50',
+                'reserved_qty' => 'nullable|integer|min:0',
+                'notes' => 'nullable|string|max:500'
+            ]);
+
+            $product = Product::findOrFail($id);
+
+            $visibility = CustomerProductVisibility::create([
+                'product_id' => $product->id,
+                'user_id' => $request->user_id,
+                'company_id' => $request->company_id,
+                'outlet_id' => $request->outlet_id,
+                'phone_number' => $request->phone_number,
+                'visibility_mode' => $request->visibility_mode,
+                'reserved_qty' => $request->reserved_qty,
+                'notes' => $request->notes,
+                'created_by' => Auth::id()
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'B2B stock visibility rule saved successfully!',
+                    'visibility' => $visibility
+                ]);
+            }
+
+            Toastr::success('B2B stock visibility rule saved successfully!');
+            return redirect()->back();
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ], 422);
+            }
+            Toastr::error($e->getMessage());
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Delete a customer-specific visibility override.
+     */
+    public function deleteB2bVisibility(Request $request, $id)
+    {
+        try {
+            $visibility = CustomerProductVisibility::findOrFail($id);
+            $visibility->delete();
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Visibility rule removed successfully!'
+                ]);
+            }
+
+            Toastr::success('Visibility rule removed successfully!');
+            return redirect()->back();
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ], 404);
+            }
+            Toastr::error($e->getMessage());
+            return redirect()->back();
         }
     }
 }
