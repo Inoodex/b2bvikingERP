@@ -861,28 +861,74 @@ class CartController extends Controller
             return redirect()->route('orders.index')->with('error', 'Order not found.');
         }
 
+        // Security check: verify user ownership of the order
+        if (!Auth::check() || (int)$order->user_id !== (int)Auth::id()) {
+            return redirect()->route('orders.index')->with('error', 'Unauthorized access to this order.');
+        }
+
+        if ($order->payment_status === 'paid' && (float)$order->due_amount <= 0) {
+            return redirect()->route('orders.show', $order->id)->with('info', 'This order has already been paid.');
+        }
+
         try {
             $paypalService = app(\App\Services\Payment\PayPalService::class);
             $capture = $paypalService->captureOrder($paypalToken);
 
             if (($capture['status'] ?? '') === 'COMPLETED') {
-                DB::transaction(function () use ($order, $capture, $paypalToken) {
+                $unit = $capture['purchase_units'][0] ?? [];
+                $captureData = $unit['payments']['captures'][0] ?? null;
+                $capturedAmount = (float)($captureData['amount']['value'] ?? ($unit['amount']['value'] ?? 0));
+                $capturedCurrency = strtoupper($captureData['amount']['currency_code'] ?? ($unit['amount']['currency_code'] ?? ''));
+                $customId = $unit['custom_id'] ?? null;
+                $creds = $paypalService->getCredentials();
+                $expectedCurrency = strtoupper($creds['currency'] ?? 'DKK');
+                $expectedDue = (float)($order->due_amount > 0 ? $order->due_amount : $order->total_amount);
+
+                // Security Validation 1: Custom ID binding check (if set)
+                if ($customId !== null && $customId !== 'ORD:' . $order->id && $customId !== 'ORDER:' . $order->id) {
+                    Log::warning("PayPal capture custom_id mismatch: expected ORD:{$order->id}, got {$customId}");
+                    return redirect()->route('orders.show', $order->id)->with('error', 'Payment verification failed: Order reference mismatch.');
+                }
+
+                // Security Validation 2: Currency check
+                if ($capturedCurrency !== '' && $capturedCurrency !== $expectedCurrency) {
+                    Log::warning("PayPal capture currency mismatch: expected {$expectedCurrency}, got {$capturedCurrency}");
+                    return redirect()->route('orders.show', $order->id)->with('error', 'Payment verification failed: Currency mismatch.');
+                }
+
+                // Security Validation 3: Amount tolerance check
+                if ($capturedAmount + 0.05 < $expectedDue) {
+                    Log::warning("PayPal capture underpayment: expected {$expectedDue}, got {$capturedAmount}");
+                    return redirect()->route('orders.show', $order->id)->with('error', 'Payment verification failed: Captured amount is less than order due amount.');
+                }
+
+                // Security Validation 4: Duplicate transaction / replay prevention
+                $txnRef = $captureData['id'] ?? ($capture['id'] ?? $paypalToken);
+                if (\App\Models\PaymentTransaction::where('external_reference', $txnRef)->where('status', 'completed')->exists() ||
+                    \App\Models\OrderPayment::where('transaction_id', $txnRef)->exists()) {
+                    return redirect()->route('orders.show', $order->id)->with('error', 'This payment transaction has already been processed.');
+                }
+
+                $paymentAmount = $capturedAmount > 0 ? $capturedAmount : (float)$order->total_amount;
+
+                DB::transaction(function () use ($order, $capture, $txnRef, $paymentAmount, $capturedCurrency, $expectedCurrency) {
+                    $newPaid = round((float)$order->paid_amount + $paymentAmount, 2);
+                    $newDue = max(0, round((float)$order->total_amount - $newPaid, 2));
+
                     $order->update([
-                        'payment_status' => 'paid',
-                        'paid_amount'    => $order->total_amount,
-                        'due_amount'     => 0,
+                        'payment_status' => $newDue <= 0 ? 'paid' : 'partially_paid',
+                        'paid_amount'    => $newPaid,
+                        'due_amount'     => $newDue,
                         'payment_method' => 'paypal',
                     ]);
-
-                    $txnRef = $capture['id'] ?? ($capture['purchase_units'][0]['payments']['captures'][0]['id'] ?? $paypalToken);
 
                     \App\Models\PaymentTransaction::create([
                         'transaction_no'     => 'TXN-' . date('Ym') . '-' . str_pad((string)(\App\Models\PaymentTransaction::count() + 1), 5, '0', STR_PAD_LEFT),
                         'gateway'            => 'paypal',
                         'order_id'           => $order->id,
                         'customer_id'        => $order->user_id,
-                        'amount'             => $order->total_amount,
-                        'currency'           => 'DKK',
+                        'amount'             => $paymentAmount,
+                        'currency'           => $capturedCurrency ?: $expectedCurrency,
                         'external_reference' => $txnRef,
                         'status'             => 'completed',
                         'gateway_response'   => $capture,
@@ -892,23 +938,24 @@ class CartController extends Controller
                         'order_id'       => $order->id,
                         'transaction_id' => $txnRef,
                         'payment_method' => 'paypal',
-                        'amount'         => (float)$order->total_amount,
+                        'amount'         => $paymentAmount,
                         'note'           => 'Paid online via PayPal Express Checkout',
                     ]);
 
                     if ($order->salesInvoice) {
+                        $invDue = max(0, round((float)$order->salesInvoice->total_amount - ((float)$order->salesInvoice->paid_amount + $paymentAmount), 2));
                         $order->salesInvoice->update([
-                            'payment_status' => 'paid',
-                            'paid_amount'    => $order->total_amount,
-                            'due_amount'     => 0,
+                            'payment_status' => $invDue <= 0 ? 'paid' : 'partially_paid',
+                            'paid_amount'    => round((float)$order->salesInvoice->paid_amount + $paymentAmount, 2),
+                            'due_amount'     => $invDue,
                         ]);
                     }
 
                     try {
                         $journalService = app(\App\Services\Accounting\JournalEntryService::class);
                         $lines = [
-                            ['account_code' => '1020', 'debit' => (float)$order->total_amount, 'credit' => 0],
-                            ['account_code' => '1030', 'debit' => 0, 'credit' => (float)$order->total_amount],
+                            ['account_code' => '1020', 'debit' => (float)$paymentAmount, 'credit' => 0],
+                            ['account_code' => '1030', 'debit' => 0, 'credit' => (float)$paymentAmount],
                         ];
                         $journalService->postJournal("PayPal Payment Capture - Order #{$order->order_no}", $order, $lines);
                     } catch (\Throwable $je) {
@@ -916,7 +963,7 @@ class CartController extends Controller
                     }
                 });
 
-                return redirect()->route('orders.show', $order->id)->with('success', "Payment of kr. {$order->total_amount} via PayPal was successfully verified and captured!");
+                return redirect()->route('orders.show', $order->id)->with('success', "Payment of kr. {$paymentAmount} via PayPal was successfully verified and captured!");
             }
 
             return redirect()->route('orders.show', $order->id)->with('error', 'PayPal payment was not completed.');

@@ -50,10 +50,22 @@ class FifoDepletionService
             }
 
             // 2. Fetch active batches in FIFO order
-            $batches = StockBatch::where('outlet_id', $outletId)
-                ->where('product_id', $productId)
-                ->where('variant_id', $variantId)
-                ->where('qty_remaining', '>', 0)
+            $batchQuery = StockBatch::where('outlet_id', $outletId)
+                ->where('product_id', $productId);
+
+            if ($variantId) {
+                $batchQuery->where('variant_id', $variantId);
+            } else {
+                $batchQuery->where(function ($q) {
+                    $q->whereNull('variant_id')->orWhere('variant_id', 0);
+                });
+            }
+
+            if ($binId) {
+                $batchQuery->where('bin_id', $binId);
+            }
+
+            $batches = $batchQuery->where('qty_remaining', '>', 0)
                 ->orderBy('received_date', 'asc')
                 ->orderBy('id', 'asc')
                 ->lockForUpdate()

@@ -222,7 +222,7 @@ class SalesInvoiceController extends Controller
     {
         $invoice = SalesInvoice::with(['order.user', 'items'])->findOrFail($id);
 
-        if ($invoice->status === 'paid' || $invoice->status === 'sent') {
+        if ($invoice->status === 'paid' || $invoice->status === 'sent' || $invoice->status === 'posted') {
             Toastr::warning('This invoice is already posted / sent.', 'Notice');
             return redirect()->back();
         }

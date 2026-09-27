@@ -188,6 +188,18 @@ class SalesInvoiceService
     public function postInvoiceToLedger(SalesInvoice $invoice, int $userId): SalesInvoice
     {
         return DB::transaction(function () use ($invoice, $userId) {
+            // Idempotency check: if journal entry already exists for this invoice, return without duplicating
+            $alreadyPosted = \App\Models\JournalEntry::where('reference_type', $invoice->getMorphClass())
+                ->where('reference_id', $invoice->id)
+                ->exists();
+
+            if ($alreadyPosted) {
+                if ($invoice->status !== 'paid' && $invoice->status !== 'posted') {
+                    $invoice->update(['status' => 'posted']);
+                }
+                return $invoice;
+            }
+
             $order = $invoice->order;
             $customerName = $order && $order->user ? ($order->user->outlet_name ?: $order->user->name) : 'Customer';
 
@@ -212,6 +224,10 @@ class SalesInvoiceService
                 $date,
                 "Sales Invoice #{$invoice->invoice_no} ({$customerName})"
             );
+
+            if ($invoice->status !== 'paid') {
+                $invoice->update(['status' => 'posted']);
+            }
 
             return $invoice;
         });

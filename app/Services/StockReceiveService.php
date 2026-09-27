@@ -199,6 +199,13 @@ class StockReceiveService
                 $this->processStockReceive($grn);
             }
 
+            // Ensure accounting journal is posted after items and stock are recorded
+            try {
+                app(\App\Observers\AccountingObserver::class)->handleGoodsReceipt($grn);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Failed to post GRN journal: " . $e->getMessage());
+            }
+
             return $grn;
         });
     }

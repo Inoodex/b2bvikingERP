@@ -643,6 +643,29 @@ $(document).ready(function() {
                         ratingSentiment = '<span class="badge font-weight-bold ml-2" style="font-size: 10px; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 2px 7px; border-radius: 4px;">Poor</span>';
                     }
 
+                    function escapeHtml(str) {
+                        if (str === null || str === undefined) return '';
+                        return String(str)
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;')
+                            .replace(/"/g, '&quot;')
+                            .replace(/'/g, '&#039;');
+                    }
+
+                    let safeComment = escapeHtml(r.comment);
+                    let safeUserName = escapeHtml(r.user?.name ?? 'Unknown');
+                    let safeUserOutlet = escapeHtml(r.user?.outlet_name ?? 'N/A');
+                    let safeUserEmail = escapeHtml(r.user?.email ?? '');
+                    let safeUserPhone = escapeHtml(r.user?.phone || 'N/A');
+                    let safeProductName = escapeHtml(r.product?.name ?? 'Product');
+                    let safeProductSku = escapeHtml(r.product?.sku ?? 'N/A');
+                    let safeProductCategory = escapeHtml(r.product?.category ?? 'General');
+                    let safeProductUrl = encodeURI(r.product?.url || '#');
+                    let safeProductImage = encodeURI(r.product?.thumb_image || fallbackSvg);
+                    let safeCreatedAt = escapeHtml(r.created_at ?? '');
+                    let safeCreatedAgo = escapeHtml(r.created_ago ?? '');
+
                     let html = `
                         {{-- Top Row: Product & Reviewer Side-by-Side --}}
                         <div class="row">
@@ -651,17 +674,17 @@ $(document).ready(function() {
                                 <div class="modal-card-box">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <span class="modal-sub-heading"><i class="fas fa-box text-primary mr-1"></i> Reviewed Product</span>
-                                        <a href="${r.product.url}" target="_blank" class="btn btn-xs btn-outline-primary" style="font-size: 10.5px; padding: 1px 7px; border-radius: 4px;">
+                                        <a href="${safeProductUrl}" target="_blank" class="btn btn-xs btn-outline-primary" style="font-size: 10.5px; padding: 1px 7px; border-radius: 4px;">
                                             <i class="fas fa-external-link-alt mr-1"></i> View on Store
                                         </a>
                                     </div>
                                     <div class="d-flex align-items-center">
-                                        <img src="${r.product.thumb_image}" onerror="this.onerror=null;this.src='${fallbackSvg}';" class="rounded mr-2.5 border" style="width: 48px; height: 48px; object-fit: contain; background: #ffffff; padding: 2px; flex-shrink: 0;">
+                                        <img src="${safeProductImage}" onerror="this.onerror=null;this.src='${fallbackSvg}';" class="rounded mr-2.5 border" style="width: 48px; height: 48px; object-fit: contain; background: #ffffff; padding: 2px; flex-shrink: 0;">
                                         <div style="min-width: 0;">
-                                            <h6 class="font-weight-bold mb-1 text-dark text-truncate" title="${r.product.name}" style="font-size: 13px;">${r.product.name}</h6>
+                                            <h6 class="font-weight-bold mb-1 text-dark text-truncate" title="${safeProductName}" style="font-size: 13px;">${safeProductName}</h6>
                                             <div class="d-flex flex-wrap align-items-center" style="gap: 4px;">
-                                                <span class="badge badge-light border text-muted px-1.5 py-0.5" style="font-family: monospace; font-size: 10px;">SKU: ${r.product.sku}</span>
-                                                <span class="badge text-primary px-1.5 py-0.5" style="background: #eff6ff; font-size: 10px;">${r.product.category}</span>
+                                                <span class="badge badge-light border text-muted px-1.5 py-0.5" style="font-family: monospace; font-size: 10px;">SKU: ${safeProductSku}</span>
+                                                <span class="badge text-primary px-1.5 py-0.5" style="background: #eff6ff; font-size: 10px;">${safeProductCategory}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -673,16 +696,16 @@ $(document).ready(function() {
                                 <div class="modal-card-box">
                                     <div class="modal-sub-heading mb-2"><i class="fas fa-user-circle text-primary mr-1"></i> Reviewer Details</div>
                                     <div class="d-flex align-items-center justify-content-between mb-1">
-                                        <div class="font-weight-bold text-dark text-truncate" style="font-size: 13px;">${r.user.name}</div>
-                                        <div class="text-primary font-weight-bold text-truncate ml-1" style="font-size: 11px;"><i class="fas fa-store mr-1 text-muted"></i>${r.user.outlet_name}</div>
+                                        <div class="font-weight-bold text-dark text-truncate" style="font-size: 13px;">${safeUserName}</div>
+                                        <div class="text-primary font-weight-bold text-truncate ml-1" style="font-size: 11px;"><i class="fas fa-store mr-1 text-muted"></i>${safeUserOutlet}</div>
                                     </div>
                                     <div class="small text-muted text-truncate mb-0.5">
                                         <i class="fas fa-envelope text-muted mr-1" style="font-size: 11px;"></i>
-                                        <a href="mailto:${r.user.email}" class="text-dark">${r.user.email}</a>
+                                        <a href="mailto:${safeUserEmail}" class="text-dark">${safeUserEmail}</a>
                                     </div>
                                     <div class="small text-muted text-truncate">
                                         <i class="fas fa-phone text-muted mr-1" style="font-size: 11px;"></i>
-                                        <a href="tel:${r.user.phone}" class="text-dark">${r.user.phone || 'N/A'}</a>
+                                        <a href="tel:${safeUserPhone}" class="text-dark">${safeUserPhone}</a>
                                     </div>
                                 </div>
                             </div>
@@ -697,11 +720,11 @@ $(document).ready(function() {
                                     ${ratingSentiment}
                                 </div>
                                 <div class="small text-muted mt-1 mt-sm-0">
-                                    <i class="far fa-clock mr-1 text-secondary"></i>${r.created_at} <span class="font-italic">(${r.created_ago})</span>
+                                    <i class="far fa-clock mr-1 text-secondary"></i>${safeCreatedAt} <span class="font-italic">(${safeCreatedAgo})</span>
                                 </div>
                             </div>
                             <div class="modal-sub-heading mt-2.5 mb-1.5"><i class="fas fa-quote-left text-primary mr-1"></i> Customer Comment</div>
-                            <div class="modal-quote-box">${r.comment}</div>
+                            <div class="modal-quote-box">${safeComment}</div>
                         </div>
                     `;
                     $('#modalReviewBody').html(html);

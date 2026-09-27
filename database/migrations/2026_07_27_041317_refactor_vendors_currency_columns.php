@@ -20,38 +20,39 @@ return new class extends Migration
         // 2. Data Migration: Map existing currency_name to currency_id
         $currencyList = collect(config('settings.currency_list'));
         
-        // We use chunk to handle large datasets safely
-        Vendor::chunk(100, function ($vendors) use ($currencyList) {
-            foreach ($vendors as $vendor) {
-                if (!empty($vendor->currency_name)) {
-                    // Try to find the currency details from config
-                    $configCurrency = $currencyList->firstWhere('code', $vendor->currency_name);
-                    
-                    if ($configCurrency) {
-                        // Ensure it exists in the database
-                        $dbCurrency = Currency::firstOrCreate(
-                            ['code' => $configCurrency['code']],
-                            [
-                                'name' => $configCurrency['name'],
-                                'symbol' => $configCurrency['symbol'],
-                                'exchange_rate' => 1.0, // default placeholder
-                                'is_base' => false,
-                                'status' => true,
-                            ]
-                        );
-                        
-                        // Link the vendor to this currency
-                        $vendor->currency_id = $dbCurrency->id;
-                        $vendor->save();
+        // We use DB::table to avoid model scope issues with historical migrations
+        if (Schema::hasTable('vendors')) {
+            DB::table('vendors')->orderBy('id')->chunk(100, function ($vendors) use ($currencyList) {
+                foreach ($vendors as $vendor) {
+                    if (!empty($vendor->currency_name)) {
+                        $configCurrency = $currencyList->firstWhere('code', $vendor->currency_name);
+                        if ($configCurrency && Schema::hasTable('currencies')) {
+                            $dbCurrency = Currency::firstOrCreate(
+                                ['code' => $configCurrency['code']],
+                                [
+                                    'name' => $configCurrency['name'],
+                                    'symbol' => $configCurrency['symbol'],
+                                    'exchange_rate' => 1.0,
+                                    'is_base' => false,
+                                    'status' => true,
+                                ]
+                            );
+                            DB::table('vendors')->where('id', $vendor->id)->update(['currency_id' => $dbCurrency->id]);
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        // 3. Drop old text columns
-        Schema::table('vendors', function (Blueprint $table) {
-            $table->dropColumn(['currency_name', 'currency_icon']);
-        });
+            // 3. Drop old text columns
+            Schema::table('vendors', function (Blueprint $table) {
+                $cols = [];
+                if (Schema::hasColumn('vendors', 'currency_name')) $cols[] = 'currency_name';
+                if (Schema::hasColumn('vendors', 'currency_icon')) $cols[] = 'currency_icon';
+                if (!empty($cols)) {
+                    $table->dropColumn($cols);
+                }
+            });
+        }
     }
 
     /**

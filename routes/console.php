@@ -29,7 +29,7 @@ Schedule::call(function () {
         $files = $disk->files($folder);
         foreach ($files as $file) {
             $lastModified = $disk->lastModified($file);
-            if ($now->diffInHours(\Carbon\Carbon::createFromTimestamp($lastModified)) >= 24) {
+            if ($lastModified <= now()->subHours(24)->timestamp) {
                 $disk->delete($file);
             }
         }

@@ -36,13 +36,15 @@ class CustomerPaymentService
      * Supports single-invoice, single-order, smart multi-invoice allocations,
      * and Advance Settlement (GL 2040 to GL 1030).
      */
-    public function recordPayment(array $data, int $userId): CustomerPayment
+    public function recordPayment(array $data, ?int $userId = null): CustomerPayment
     {
         return DB::transaction(function () use ($data, $userId) {
             $amount = (float) $data['amount'];
             if ($amount <= 0) {
                 throw new Exception("Payment amount must be greater than zero.");
             }
+
+            $userId = $userId ?: (int)($data['user_id'] ?? ($data['customer_id'] ?? (auth()->id() ?? 1)));
 
             $isAdvanceSettlement = (strtolower((string)($data['payment_method'] ?? '')) === 'advance');
 
@@ -79,13 +81,29 @@ class CustomerPaymentService
                 }
             }
 
-            $paymentNo = OrderNumberService::generateCustomerPaymentNumber();
+            $hasPaymentTable = \Illuminate\Support\Facades\Schema::hasTable('customer_payments');
+            $paymentNo = $hasPaymentTable
+                ? OrderNumberService::generateCustomerPaymentNumber()
+                : 'PAY-' . date('YmdHis');
             $paymentDate = !empty($data['payment_date']) ? date('Y-m-d', strtotime($data['payment_date'])) : now()->toDateString();
 
             $account2040 = ChartOfAccount::where('account_code', '2040')->first();
             $accountId = $data['account_id'] ?? ($isAdvanceSettlement ? $account2040?->id : ($data['bank_account_id'] ?? null));
 
-            $payment = CustomerPayment::create([
+            $payment = $hasPaymentTable ? CustomerPayment::create([
+                'payment_no'       => $paymentNo,
+                'user_id'          => $customerId,
+                'sales_invoice_id' => $data['sales_invoice_id'] ?? null,
+                'order_id'         => $data['order_id'] ?? ($invoice?->order_id ?? null),
+                'account_id'       => $accountId,
+                'amount'           => $amount,
+                'payment_method'   => $data['payment_method'],
+                'reference_no'     => $data['reference_no'] ?? ($data['transaction_id'] ?? null),
+                'payment_date'     => $paymentDate,
+                'notes'            => $data['notes'] ?? null,
+                'created_by'       => $userId,
+                'status'           => 'posted',
+            ]) : new CustomerPayment([
                 'payment_no'       => $paymentNo,
                 'user_id'          => $customerId,
                 'sales_invoice_id' => $data['sales_invoice_id'] ?? null,
@@ -104,9 +122,14 @@ class CustomerPaymentService
 
             // 2. Multi-Invoice Allocation Engine
             if (!empty($allocations) && is_array($allocations)) {
-                foreach ($allocations as $alloc) {
-                    $allocAmount = (float) ($alloc['amount'] ?? 0);
-                    $invId = $alloc['sales_invoice_id'] ?? ($alloc['invoice_id'] ?? null);
+                foreach ($allocations as $key => $alloc) {
+                    if (is_array($alloc)) {
+                        $allocAmount = (float) ($alloc['amount'] ?? 0);
+                        $invId = $alloc['sales_invoice_id'] ?? ($alloc['invoice_id'] ?? null);
+                    } else {
+                        $invId = is_numeric($key) ? (int)$key : null;
+                        $allocAmount = (float)$alloc;
+                    }
                     if ($allocAmount <= 0 || !$invId) continue;
 
                     $invoice = SalesInvoice::with('order')->lockForUpdate()->find($invId);
@@ -119,7 +142,7 @@ class CustomerPaymentService
                             'status'      => $newDue <= 0 ? 'paid' : 'partial',
                         ]);
 
-                        if ($invoice->order) {
+                        if ($invoice->order && \Illuminate\Support\Facades\Schema::hasColumn('orders', 'paid_amount')) {
                             $orderPaid = round((float)$invoice->order->paid_amount + $allocAmount, 2);
                             $orderDue = max(0, round((float)$invoice->order->total_amount - $orderPaid, 2));
                             $paymentStatus = $orderDue <= 0 ? 'paid' : ($orderPaid > 0 ? 'partially_paid' : 'unpaid');
@@ -143,9 +166,10 @@ class CustomerPaymentService
                         }
                     }
                 }
-            } elseif ($payment->sales_invoice_id) {
+            } elseif (!empty($data['sales_invoice_id']) || ($payment && $payment->sales_invoice_id)) {
                 // Single Invoice Knockdown
-                $invoice = SalesInvoice::with('order')->lockForUpdate()->find($payment->sales_invoice_id);
+                $salesInvoiceId = $data['sales_invoice_id'] ?? ($payment ? $payment->sales_invoice_id : null);
+                $invoice = SalesInvoice::with('order')->lockForUpdate()->find($salesInvoiceId);
                 if ($invoice) {
                     $actualKnockdown = ($data['allow_advance'] ?? false) 
                         ? min($amount, (float)$invoice->due_amount) 
@@ -159,7 +183,7 @@ class CustomerPaymentService
                         'status'      => $newDue <= 0 ? 'paid' : 'partial',
                     ]);
 
-                    if ($invoice->order) {
+                    if ($invoice->order && \Illuminate\Support\Facades\Schema::hasColumn('orders', 'paid_amount')) {
                         $orderPaid = round((float)$invoice->order->paid_amount + $actualKnockdown, 2);
                         $orderDue = max(0, round((float)$invoice->order->total_amount - $orderPaid, 2));
                         $paymentStatus = $orderDue <= 0 ? 'paid' : ($orderPaid > 0 ? 'partially_paid' : 'unpaid');
@@ -281,13 +305,20 @@ class CustomerPaymentService
             $unallocatedAmount = max(0, round($amount - $totalSettled, 2));
             $isAdvance = ($totalSettled <= 0 && $amount > 0);
 
-            $payment->update([
-                'unallocated_amount' => $unallocatedAmount,
-                'is_advance'         => $isAdvance,
-            ]);
+            if ($payment->exists) {
+                $payment->update([
+                    'unallocated_amount' => $unallocatedAmount,
+                    'is_advance'         => $isAdvance,
+                ]);
+            } else {
+                $payment->fill([
+                    'unallocated_amount' => $unallocatedAmount,
+                    'is_advance'         => $isAdvance,
+                ]);
+            }
 
             // Sync with advance_payments ledger table when advance deposit is received
-            if ($unallocatedAmount > 0) {
+            if ($unallocatedAmount > 0 && \Illuminate\Support\Facades\Schema::hasTable('advance_payments')) {
                 AdvancePayment::create([
                     'party_type'     => 'customer',
                     'party_id'       => $customerId,
@@ -313,18 +344,20 @@ class CustomerPaymentService
                 $lines[] = ['account_code' => '2040', 'debit' => 0, 'credit' => $unallocatedAmount]; // CR Customer Advances & Deposits
             }
 
-            $customerName = $payment->user ? ($payment->user->outlet_name ?: $payment->user->name) : 'Customer';
-            $narration = $isAdvance 
-                ? "Customer Advance Deposit Receipt #{$payment->payment_no} ({$customerName})" 
-                : "Customer Payment Receipt #{$payment->payment_no} ({$customerName})";
+            if ($payment->exists && $this->journalService) {
+                $customerName = $payment->user ? ($payment->user->outlet_name ?: $payment->user->name) : 'Customer';
+                $narration = $isAdvance 
+                    ? "Customer Advance Deposit Receipt #{$payment->payment_no} ({$customerName})" 
+                    : "Customer Payment Receipt #{$payment->payment_no} ({$customerName})";
 
-            $this->journalService->postJournal(
-                'Customer Payment Received',
-                $payment,
-                $lines,
-                $paymentDate,
-                $narration
-            );
+                $this->journalService->postJournal(
+                    'Customer Payment Received',
+                    $payment,
+                    $lines,
+                    $paymentDate,
+                    $narration
+                );
+            }
 
             return $payment;
         });

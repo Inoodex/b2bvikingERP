@@ -102,6 +102,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Register Enterprise Financial Accounting Observers
         \App\Models\GoodsReceipt::observe(\App\Observers\AccountingObserver::class);
+        \App\Models\GoodsReceiptItem::observe(\App\Observers\AccountingObserver::class);
         \App\Models\OrderPayment::observe(\App\Observers\AccountingObserver::class);
     }
 
