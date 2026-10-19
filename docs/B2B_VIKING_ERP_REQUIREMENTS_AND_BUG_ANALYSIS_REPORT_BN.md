@@ -17,13 +17,12 @@
 |:---|:---|:---:|:---:|:---|
 | **১** | ** outlet wise top selling items - Quantity base** | Reporting & Analytics | **P1** | `admin/reports/best-sellers`-এ নির্দিষ্ট আউটলেট ফিল্টার নেই এবং র‍্যাংকিং অর্ডার সংখ্যা দিয়ে হচ্ছে, সর্বোচ্চ বিক্রিত কোয়ান্টিটি দিয়ে নয়। |
 | **২** | **  tag with reason** *(বা pay with reason)* | Workflow / Field | **P1** | পেমেন্ট ভাউচার অথবা কাস্টমার/অর্ডার স্পেশাল ফ্ল্যাগিং-এ বাধ্যতামূলক **Reason Code** ড্রপডাউন ও নোট ফিল্ড নিশ্চিত করা। |
-| **৩** | **\* Stock Ledger -> cate, sub, child wise filter** | Inventory Enhancement | **P1** | `admin/stock-ledger`-এ ক্যাটাগরি, সাব-ক্যাটাগরি ও চাইল্ড-ক্যাটাগরি ফিল্টার নেই; দ্রুত মালামাল খুঁজতে ক্যাসকেডিং ড্রপডাউন প্রয়োজন। |
+| **৩ & ৯** | **\* Stock Ledger & Movement (Category/Sub/Child & In/Out Destination)** | Inventory & Tracking | **P1** | `admin/stock-ledger`-এ ক্যাটাগরি ক্যাসকেডিং ফিল্টার এবং কার জন্য In (Supplier/PO) ও কার জন্য Out (Outlet/Customer/Issue) তার স্বচ্ছ ট্র্যাকিং। |
 | **৪** | **\* Menu Search option** | UI / Navigation UX | **P1** | সাইডবারে ৬০+ মেনু আইটেম রয়েছে। শীর্ষে লাইভ **Instant Menu Search** অপশন দিলে ইউজার ১ সেকেন্ডে মেনু খুঁজে পাবে। |
 | **৫** | ** pc wise and Average by quantity** | Procurement Analytics | **P2** | পারচেজ রিপোর্টে সাধারণ গড় (`AVG(unit_cost)`)-এর বদলে কোয়ান্টিটি ভিত্তিক **Weighted Average Cost** এবং পিস/আইটেমভিত্তিক সঠিক হিসাব। |
 | **৬** | ** File upload** | Document Management | **P2** | পারচেজ অর্ডার (PO), ভেন্ডর বিল এবং পেমেন্ট ভাউচারে সাপোর্টিং ডকুমেন্টস (Challan, Vendor Invoice, Bank Slip) আপলোড ও প্রিভিউ। |
 | **৭** | **\* Expected -> Retail price wise - user/outlet** | Inventory Valuation | **P2** | স্টক রিপোর্টে আউটলেট ও ইউজার ফিল্টার অনুযায়ী বিক্রয়মূল্যে (Retail MSRP) **Expected Potential Revenue & Profit** হিসাব। |
 | **৮** | **\* Category not show after update product** | **Critical Bug** | **P0** | প্রোডাক্ট এডিট ফর্মে ক্যাটাগরি পরিবর্তনের সময় Select2 ড্রপডাউন ডমে রি-রেন্ডার না হওয়ায় আপডেট করার পর ক্যাটাগরি হারিয়ে যায়। |
-| **৯** | **\* movement stock** | Inventory Tracking | **P1** | সাইডবারে ডেডিকেটেড **Stock Movement History** ভিউ যুক্ত করা, যাতে সব প্রোডাক্টের ইন/আউট গতিবিধি এক নজরে দেখা যায়। |
 
 ---
 

@@ -1858,8 +1858,7 @@
                             <li class="sb-submenu-divider"></li>
                         @endif
                         @if (auth()->user()?->can('Manage Stock Ledger') || auth()->user()?->hasRole('Admin'))
-                            <li><a href="{{ route('admin.stock-ledger.index') }}"><i class="fas fa-book"></i> Stock
-                                    Ledger</a></li>
+                            <li><a href="{{ route('admin.stock-ledger.index') }}"><i class="fas fa-exchange-alt"></i> Stock Ledger & Movements</a></li>
                         @endif
                         @if (auth()->user()?->can('Manage Stock Batches') || auth()->user()?->hasRole('Admin'))
                             <li><a href="{{ route('admin.stock-batches.index') }}"><i class="fas fa-boxes"></i> Stock
