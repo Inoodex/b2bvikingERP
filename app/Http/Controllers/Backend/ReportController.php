@@ -745,24 +745,51 @@ class ReportController extends Controller implements HasMiddleware
             $issueValue = 0;
             $pendingValue = 0;
 
-            $orders = $query->with('items')->orderByDesc('placed_at')->get();
+            $orders = $query->with('items')->orderByDesc('placed_at')->paginate(15, ['*'], 'orders_page')->withQueryString()->fragment('ordersTab');
             $issues = collect();
 
             $payments = OrderPayment::with('order')
                 ->whereIn('order_id', $orderIds)
                 ->orderByDesc('created_at')
-                ->get();
+                ->paginate(15, ['*'], 'payments_page')
+                ->withQueryString()
+                ->fragment('paymentsTab');
+
+            $demandedSummary = OrderItem::whereIn('order_id', $orderIds)
+                ->selectRaw('
+                    COUNT(DISTINCT CONCAT(COALESCE(product_id, 0), "-", product_name)) as total_items,
+                    COALESCE(SUM(quantity), 0) as total_qty,
+                    COALESCE(SUM(line_total), 0) as total_value
+                ')->first();
 
             $productComparison = OrderItem::whereIn('order_id', $orderIds)
-                ->selectRaw('product_id, product_name, SUM(quantity) as ordered_qty, COALESCE(SUM(line_total),0) as ordered_value')
+                ->with(['product.category'])
+                ->selectRaw('
+                    product_id,
+                    product_name,
+                    MAX(product_image) as item_image,
+                    MAX(category_name) as item_category,
+                    COUNT(DISTINCT order_id) as times_ordered,
+                    SUM(quantity) as ordered_qty,
+                    COALESCE(SUM(line_total),0) as ordered_value
+                ')
                 ->groupBy('product_id', 'product_name')
+                ->orderByDesc('ordered_qty')
                 ->orderByDesc('ordered_value')
-                ->get()
-                ->map(function ($item) {
-                    $item->issued_qty = (int) $item->ordered_qty;
-                    $item->pending_qty = 0;
-                    return $item;
-                });
+                ->paginate(20, ['*'], 'products_page')
+                ->withQueryString()
+                ->fragment('productsTab');
+
+            $productComparison->getCollection()->transform(function ($item) {
+                $item->issued_qty = (int) $item->ordered_qty;
+                $item->pending_qty = 0;
+                $item->avg_price = $item->ordered_qty > 0 ? ($item->ordered_value / $item->ordered_qty) : 0;
+                $item->display_image = $item->product?->thumb_image ?: $item->item_image;
+                $item->sku = $item->product?->sku ?: $item->product?->product_number;
+                $item->display_category = $item->product?->category?->name ?: ($item->item_category ?: 'General');
+                $item->current_stock = $item->product?->qty ?? 0;
+                return $item;
+            });
 
             $monthlyTrend = Order::where('status', 'completed')
                 ->where('user_id', $request->user_id)
@@ -772,14 +799,16 @@ class ReportController extends Controller implements HasMiddleware
                 ->when($request->filled('year'), fn($q) => $q->whereYear('placed_at', $request->year))
                 ->selectRaw("DATE_FORMAT(placed_at, '%Y-%m') as month, COUNT(*) as orders_count, COALESCE(SUM(total_amount),0) as total_amount")
                 ->groupBy('month')->orderBy('month', 'desc')
-                ->get();
+                ->paginate(12, ['*'], 'monthly_page')
+                ->withQueryString()
+                ->fragment('monthlyTab');
 
             $latestPdf = $this->getLatestReportFile('order_sales_report', 'admin.reports.orders.pdf.download');
 
             return view('backend.reports.orders', compact(
                 'user', 'users', 'summary', 'issueStats', 'orderIds',
                 'paymentStats', 'totalDue', 'issueValue', 'pendingValue',
-                'orders', 'issues', 'payments', 'productComparison', 'monthlyTrend', 'totalRevenue', 'latestPdf'
+                'orders', 'issues', 'payments', 'productComparison', 'demandedSummary', 'monthlyTrend', 'totalRevenue', 'latestPdf'
             ));
         }
 
@@ -801,7 +830,9 @@ class ReportController extends Controller implements HasMiddleware
             ->when($request->filled('year'), fn($q) => $q->whereYear('placed_at', $request->year))
             ->selectRaw("DATE_FORMAT(placed_at, '%Y-%m') as month, COUNT(*) as orders_count, COALESCE(SUM(total_amount),0) as total_amount")
             ->groupBy('month')->orderBy('month', 'desc')
-            ->get();
+            ->paginate(12, ['*'], 'monthly_page')
+            ->withQueryString()
+            ->fragment('monthly');
 
         $userSummary = DB::table('orders')
             ->leftJoin('order_items', 'orders.id', '=', 'order_items.order_id')

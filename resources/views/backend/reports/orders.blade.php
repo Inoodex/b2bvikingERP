@@ -189,32 +189,38 @@
                     </div>
                 </div>
 
+                @php
+                    $activeTab = 'orders';
+                    if (request()->has('products_page') || request('tab') === 'products') {
+                        $activeTab = 'products';
+                    } elseif (request()->has('payments_page') || request('tab') === 'payments') {
+                        $activeTab = 'payments';
+                    } elseif (request()->has('monthly_page') || request('tab') === 'monthly') {
+                        $activeTab = 'monthly';
+                    }
+                @endphp
+
                 <div class="card">
                     <div class="card-body p-0">
                         <ul class="nav nav-tabs" id="reportTabs" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link active" id="orders-tab" data-toggle="tab" href="#ordersTab">
-                                    <i class="fas fa-shopping-cart"></i> Orders <span class="badge badge-primary">{{ $orders->count() }}</span>
+                                <a class="nav-link {{ $activeTab === 'orders' ? 'active' : '' }}" id="orders-tab" data-toggle="tab" href="#ordersTab">
+                                    <i class="fas fa-shopping-cart"></i> Orders <span class="badge badge-primary">{{ $orders->total() }}</span>
                                 </a>
                             </li>
-                            {{-- <li class="nav-item">
-                                <a class="nav-link" id="issues-tab" data-toggle="tab" href="#issuesTab">
-                                    <i class="fas fa-truck-loading"></i> Issues <span class="badge badge-warning">{{ $issues->count() }}</span>
-                                </a>
-                            </li> --}}
                             <li class="nav-item">
-                                <a class="nav-link" id="payments-tab" data-toggle="tab" href="#paymentsTab">
-                                    <i class="fas fa-credit-card"></i> Payments <span class="badge badge-info">{{ $payments->count() }}</span>
+                                <a class="nav-link {{ $activeTab === 'products' ? 'active' : '' }}" id="products-tab" data-toggle="tab" href="#productsTab">
+                                    <i class="fas fa-boxes text-success"></i> Outlet Demanded Products <span class="badge badge-success">{{ number_format($demandedSummary->total_items ?? $productComparison->total()) }}</span>
                                 </a>
                             </li>
-                            {{-- <li class="nav-item">
-                                <a class="nav-link" id="products-tab" data-toggle="tab" href="#productsTab">
-                                    <i class="fas fa-box"></i> Product Comparison
-                                </a>
-                            </li> --}}
                             <li class="nav-item">
-                                <a class="nav-link" id="monthly-tab" data-toggle="tab" href="#monthlyTab">
-                                    <i class="fas fa-calendar-alt"></i> Monthly Trend
+                                <a class="nav-link {{ $activeTab === 'payments' ? 'active' : '' }}" id="payments-tab" data-toggle="tab" href="#paymentsTab">
+                                    <i class="fas fa-credit-card"></i> Payments <span class="badge badge-info">{{ $payments->total() }}</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ $activeTab === 'monthly' ? 'active' : '' }}" id="monthly-tab" data-toggle="tab" href="#monthlyTab">
+                                    <i class="fas fa-calendar-alt"></i> Monthly Trend <span class="badge badge-secondary">{{ $monthlyTrend->total() }}</span>
                                 </a>
                             </li>
                         </ul>
@@ -222,31 +228,36 @@
                 </div>
 
                 <div class="tab-content" id="reportTabsContent">
-                    <div class="tab-pane fade show active" id="ordersTab">
-                        <div class="card">
+                    {{-- ─── TAB 1: ORDERS (Full Width) ───────────────────────── --}}
+                    <div class="tab-pane fade {{ $activeTab === 'orders' ? 'show active' : '' }}" id="ordersTab">
+                        <div class="card shadow-sm">
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-striped table-md mb-0">
-                                        <thead><tr>
-                                            <th>#</th><th>Order No</th><th>Date</th>
-                                            <th class="text-center">Items</th>
-                                            <th class="text-center">Qty</th>
-                                            <th class="text-right">Total</th>
-                                            <th class="text-right">Paid</th>
-                                            <th class="text-right">Due</th>
-                                            <th>Payment</th>
-                                        </tr></thead>
+                                    <table class="table table-striped table-hover table-md mb-0">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Order No</th>
+                                                <th>Date</th>
+                                                <th class="text-center">Items</th>
+                                                <th class="text-center">Qty</th>
+                                                <th class="text-right">Total</th>
+                                                <th class="text-right">Paid</th>
+                                                <th class="text-right">Due</th>
+                                                <th>Payment</th>
+                                            </tr>
+                                        </thead>
                                         <tbody>
                                             @forelse($orders as $i => $order)
                                                 <tr>
-                                                    <td>{{ $i + 1 }}</td>
-                                                    <td><a href="{{ route('admin.orders.show', $order->id) }}" target="_blank">{{ $order->order_no }}</a></td>
-                                                    <td>{{ $order->placed_at->format('d M Y') }}</td>
+                                                    <td>{{ $orders->firstItem() + $i }}</td>
+                                                    <td><a href="{{ route('admin.orders.show', $order->id) }}" target="_blank" class="font-weight-600 text-primary">{{ $order->order_no }}</a></td>
+                                                    <td>{{ $order->placed_at ? $order->placed_at->format('d M Y') : '—' }}</td>
                                                     <td class="text-center"><a href="{{ route('admin.orders.show', $order->id) }}" target="_blank" class="badge badge-info">{{ $order->items->count() }}</a></td>
                                                     <td class="text-center">{{ number_format($order->items->sum('quantity')) }}</td>
-                                                    <td class="text-right">{!! formatConverted($order->total_amount) !!}</td>
-                                                    <td class="text-right">{!! formatConverted($order->paid_amount) !!}</td>
-                                                    <td class="text-right">{!! formatConverted($order->due_amount) !!}</td>
+                                                    <td class="text-right font-weight-bold">{!! formatConverted($order->total_amount) !!}</td>
+                                                    <td class="text-right text-success">{!! formatConverted($order->paid_amount) !!}</td>
+                                                    <td class="text-right {{ $order->due_amount > 0 ? 'text-danger font-weight-bold' : 'text-muted' }}">{!! formatConverted($order->due_amount) !!}</td>
                                                     <td>
                                                         <span class="badge badge-{{ $order->payment_status === 'paid' ? 'success' : ($order->payment_status === 'partial' ? 'warning' : 'danger') }}">
                                                             {{ ucfirst($order->payment_status) }}
@@ -254,128 +265,238 @@
                                                     </td>
                                                 </tr>
                                             @empty
-                                                <tr><td colspan="9" class="text-center text-muted py-4">No orders.</td></tr>
+                                                <tr><td colspan="9" class="text-center text-muted py-4">No orders found.</td></tr>
                                             @endforelse
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3 px-4 border-top flex-wrap" style="gap: 12px;">
+                                <div class="text-muted small">
+                                    Showing {{ $orders->firstItem() ?? ($orders->total() > 0 ? 1 : 0) }} to {{ $orders->lastItem() ?? $orders->total() }} of {{ number_format($orders->total()) }} entries
+                                </div>
+                                <div>
+                                    {{ $orders->appends(['tab' => 'orders'])->links('vendor.pagination.custom-report') }}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- <div class="tab-pane fade" id="issuesTab">
-                        <div class="card">
+                    {{-- ─── TAB 2: OUTLET DEMANDED PRODUCTS (Paginated, Demanded First) ─── --}}
+                    <div class="tab-pane fade {{ $activeTab === 'products' ? 'show active' : '' }}" id="productsTab">
+                        {{-- Outlet Product Demand Summary Cards --}}
+                        <div class="row mb-3">
+                            <div class="col-md-4 col-sm-6 col-12">
+                                <div class="card card-statistic-1 mb-0 shadow-sm border">
+                                    <div class="card-icon bg-primary"><i class="fas fa-boxes"></i></div>
+                                    <div class="card-wrap">
+                                        <div class="card-header"><h4>Total Unique Demanded Items</h4></div>
+                                        <div class="card-body">{{ number_format($demandedSummary->total_items ?? $productComparison->total()) }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 col-12">
+                                <div class="card card-statistic-1 mb-0 shadow-sm border">
+                                    <div class="card-icon bg-info"><i class="fas fa-cubes"></i></div>
+                                    <div class="card-wrap">
+                                        <div class="card-header"><h4>Total Units Demanded</h4></div>
+                                        <div class="card-body">{{ number_format($demandedSummary->total_qty ?? 0) }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 col-12">
+                                <div class="card card-statistic-1 mb-0 shadow-sm border">
+                                    <div class="card-icon bg-success"><i class="fas fa-money-bill-wave"></i></div>
+                                    <div class="card-wrap">
+                                        <div class="card-header"><h4>Total Value of Demands</h4></div>
+                                        <div class="card-body">{!! formatConverted($demandedSummary->total_value ?? 0) !!}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-0 text-dark font-weight-bold">
+                                        <i class="fas fa-box-open text-primary mr-1"></i> Outlet Demanded Products (Ranked by Quantity)
+                                    </h5>
+                                    <small class="text-muted">Showing {{ $productComparison->firstItem() ?? 0 }} to {{ $productComparison->lastItem() ?? 0 }} of {{ number_format($productComparison->total()) }} items ordered by {{ $user->name }} {{ $user->outlet_name ? '(' . $user->outlet_name . ')' : '' }}</small>
+                                </div>
+                            </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-striped table-md mb-0">
-                                        <thead><tr>
-                                            <th>#</th><th>Issue No</th><th>Date</th>
-                                            <th>Linked Order</th>
-                                            <th class="text-center">Items</th>
-                                            <th class="text-center">Qty</th>
-                                            <th class="text-right">Value</th>
-                                        </tr></thead>
+                                    <table class="table table-striped table-hover table-md mb-0">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th style="width: 70px;" class="text-center">Rank</th>
+                                                <th>Product Details</th>
+                                                <th>Category</th>
+                                                <th class="text-center">Orders Count</th>
+                                                <th class="text-center">Demanded Qty</th>
+                                                <th class="text-right">Total Value</th>
+                                                <th class="text-right">Avg Unit Price</th>
+                                                <th class="text-center">Warehouse Stock</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                        </thead>
                                         <tbody>
-                                            @forelse($issues as $i => $issue)
+                                            @forelse($productComparison as $i => $pc)
+                                                @php
+                                                    $globalRank = ($productComparison->firstItem() ?? 1) + $i;
+                                                @endphp
                                                 <tr>
-                                                    <td>{{ $i + 1 }}</td>
-                                                    <td>{{ $issue->issue_no }}</td>
-                                                    <td>{{ $issue->created_at->format('d M Y') }}</td>
-                                                    <td>@if($issue->order_id)<a href="{{ route('admin.orders.show', $issue->order_id) }}" target="_blank">{{ optional($issue->order)->order_no ?? '—' }}</a>@else{{ optional($issue->order)->order_no ?? '—' }}@endif</td>
-                                                    <td class="text-center">@if($issue->order_id)<a href="{{ route('admin.orders.show', $issue->order_id) }}" target="_blank">{{ $issue->items->count() }}</a>@else{{ $issue->items->count() }}@endif</td>
-                                                    <td class="text-center">{{ number_format($issue->total_qty) }}</td>
-                                                    <td class="text-right">{!! formatConverted($issue->computed_value) !!}</td>
+                                                    <td class="align-middle text-center">
+                                                        @if($globalRank === 1)
+                                                            <span class="badge badge-warning font-weight-bold" title="Rank 1 Demand" style="font-size: 13px;">
+                                                                <i class="fas fa-crown"></i> #1
+                                                            </span>
+                                                        @elseif($globalRank === 2)
+                                                            <span class="badge badge-secondary font-weight-bold" style="font-size: 13px;">
+                                                                #2
+                                                            </span>
+                                                        @elseif($globalRank === 3)
+                                                            <span class="badge badge-dark font-weight-bold" style="background:#cd7f32; color:#fff; font-size: 13px;">
+                                                                #3
+                                                            </span>
+                                                        @else
+                                                            <span class="badge badge-light border text-muted font-weight-bold">
+                                                                #{{ $globalRank }}
+                                                            </span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="mr-3" style="width: 44px; height: 44px; flex-shrink: 0; background: #f8f9fa; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #e9ecef;">
+                                                                @php
+                                                                    $imgUrl = !empty($pc->display_image) ? (str_starts_with($pc->display_image, 'http') ? $pc->display_image : asset($pc->display_image)) : null;
+                                                                @endphp
+                                                                @if($imgUrl)
+                                                                    <img src="{{ $imgUrl }}" alt="{{ $pc->product_name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.onerror=null;this.parentElement.innerHTML='<i class=\'fas fa-box text-secondary\'></i>';">
+                                                                @else
+                                                                    <i class="fas fa-box text-secondary"></i>
+                                                                @endif
+                                                            </div>
+                                                            <div>
+                                                                <div class="font-weight-bold text-dark">
+                                                                    @if($pc->product_id)
+                                                                        <a href="{{ route('admin.products.edit', $pc->product_id) }}" target="_blank" class="text-dark font-weight-600">
+                                                                            {{ $pc->product_name }}
+                                                                        </a>
+                                                                    @else
+                                                                        {{ $pc->product_name }}
+                                                                    @endif
+                                                                </div>
+                                                                @if($pc->sku)
+                                                                    <small class="text-muted"><i class="fas fa-barcode mr-1"></i>SKU: {{ $pc->sku }}</small>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <span class="badge badge-light border">{{ $pc->display_category }}</span>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <span class="badge badge-info badge-pill">
+                                                            <i class="fas fa-receipt mr-1"></i>{{ $pc->times_ordered }} {{ Str::plural('order', $pc->times_ordered) }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <span class="badge badge-primary px-3 py-1 font-weight-bold" style="font-size: 13px;">
+                                                            {{ number_format($pc->ordered_qty) }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="align-middle text-right font-weight-bold text-dark">
+                                                        {!! formatConverted($pc->ordered_value) !!}
+                                                    </td>
+                                                    <td class="align-middle text-right text-muted">
+                                                        {!! formatConverted($pc->avg_price) !!}
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        @if(isset($pc->current_stock))
+                                                            @if($pc->current_stock > 10)
+                                                                <span class="badge badge-success">{{ number_format($pc->current_stock) }} in stock</span>
+                                                            @elseif($pc->current_stock > 0)
+                                                                <span class="badge badge-warning">{{ number_format($pc->current_stock) }} low stock</span>
+                                                            @else
+                                                                <span class="badge badge-danger">Out of stock</span>
+                                                            @endif
+                                                        @else
+                                                            <span class="text-muted">—</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        @if($pc->product_id)
+                                                            <a href="{{ route('admin.products.edit', $pc->product_id) }}" target="_blank" class="btn btn-outline-primary btn-sm" title="Edit / View Product">
+                                                                <i class="fas fa-external-link-alt"></i>
+                                                            </a>
+                                                        @else
+                                                            <span class="text-muted">—</span>
+                                                        @endif
+                                                    </td>
                                                 </tr>
                                             @empty
-                                                <tr><td colspan="7" class="text-center text-muted py-4">No issues.</td></tr>
+                                                <tr><td colspan="9" class="text-center text-muted py-4">No product purchases recorded for this customer.</td></tr>
                                             @endforelse
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
+                            <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3 px-4 border-top flex-wrap" style="gap: 12px;">
+                                <div class="text-muted small">
+                                    Showing {{ $productComparison->firstItem() ?? ($productComparison->total() > 0 ? 1 : 0) }} to {{ $productComparison->lastItem() ?? $productComparison->total() }} of {{ number_format($productComparison->total()) }} entries
+                                </div>
+                                <div>
+                                    {{ $productComparison->appends(['tab' => 'products'])->links('vendor.pagination.custom-report') }}
+                                </div>
+                            </div>
                         </div>
-                    </div> --}}
+                    </div>
 
-                    <div class="tab-pane fade" id="paymentsTab">
-                        <div class="card">
+                    {{-- ─── TAB 3: PAYMENTS ───────────────────────── --}}
+                    <div class="tab-pane fade {{ $activeTab === 'payments' ? 'show active' : '' }}" id="paymentsTab">
+                        <div class="card shadow-sm">
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-striped table-md mb-0">
-                                        <thead><tr>
-                                            <th>#</th><th>Date</th><th>Order</th>
-                                            <th>Method</th><th>Transaction ID</th>
-                                            <th class="text-right">Amount</th><th>Note</th>
-                                        </tr></thead>
+                                    <table class="table table-striped table-hover table-md mb-0">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>#</th><th>Date</th><th>Order</th>
+                                                <th>Method</th><th>Transaction ID</th>
+                                                <th class="text-right">Amount</th><th>Note</th>
+                                            </tr>
+                                        </thead>
                                         <tbody>
                                             @forelse($payments as $i => $payment)
                                                 <tr>
-                                                    <td>{{ $i + 1 }}</td>
+                                                    <td>{{ $payments->firstItem() + $i }}</td>
                                                     <td>{{ $payment->created_at->format('d M Y') }}</td>
                                                     <td>@if($payment->order_id)<a href="{{ route('admin.orders.show', $payment->order_id) }}" target="_blank">{{ $payment->order->order_no ?? '—' }}</a>@else{{ $payment->order->order_no ?? '—' }}@endif</td>
                                                     <td>{{ $payment->payment_method ?? '—' }}</td>
                                                     <td>{{ $payment->transaction_id ?? '—' }}</td>
-                                                    <td class="text-right">{!! formatConverted($payment->amount) !!}</td>
+                                                    <td class="text-right font-weight-bold text-dark">{!! formatConverted($payment->amount) !!}</td>
                                                     <td>{{ $payment->note ?? '—' }}</td>
                                                 </tr>
                                             @empty
-                                                <tr><td colspan="7" class="text-center text-muted py-4">No payments.</td></tr>
+                                                <tr><td colspan="7" class="text-center text-muted py-4">No payments found.</td></tr>
                                             @endforelse
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3 px-4 border-top flex-wrap" style="gap: 12px;">
+                                <div class="text-muted small">
+                                    Showing {{ $payments->firstItem() ?? ($payments->total() > 0 ? 1 : 0) }} to {{ $payments->lastItem() ?? $payments->total() }} of {{ number_format($payments->total()) }} entries
+                                </div>
+                                <div>
+                                    {{ $payments->appends(['tab' => 'payments'])->links('vendor.pagination.custom-report') }}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- <div class="tab-pane fade" id="productsTab">
-                        <div class="card">
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-md mb-0">
-                                        <thead><tr>
-                                            <th>#</th><th>Product</th>
-                                            <th class="text-center">Ordered Qty</th>
-                                            <th class="text-right">Ordered Value</th>
-                                            <th class="text-center">Issued Qty</th>
-                                            <th class="text-center">Pending</th>
-                                            <th>Fulfillment</th>
-                                        </tr></thead>
-                                        <tbody>
-                                            @forelse($productComparison as $i => $pc)
-                                                @php $pct = $pc->ordered_qty > 0 ? round(($pc->issued_qty / $pc->ordered_qty) * 100) : 0; @endphp
-                                                <tr>
-                                                    <td>{{ $i + 1 }}</td>
-                                                    <td>{{ $pc->product_name }}</td>
-                                                    <td class="text-center">{{ number_format($pc->ordered_qty) }}</td>
-                                                    <td class="text-right">{!! formatConverted($pc->ordered_value) !!}</td>
-                                                    <td class="text-center">{{ number_format($pc->issued_qty) }}</td>
-                                                    <td class="text-center">
-                                                        @if($pc->pending_qty > 0)
-                                                            <span class="text-danger font-weight-bold">{{ number_format($pc->pending_qty) }}</span>
-                                                        @else
-                                                            <span class="text-success">0</span>
-                                                        @endif
-                                                    </td>
-                                                    <td style="min-width:120px">
-                                                        <div class="progress" style="height:18px;background:#e9ecef">
-                                                            <div class="progress-bar bg-{{ $pct >= 100 ? 'success' : 'warning' }}" style="width:{{ $pct }}%">
-                                                                {{ $pct }}%
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr><td colspan="7" class="text-center text-muted py-4">No products.</td></tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
-
-                    <div class="tab-pane fade" id="monthlyTab">
-                        <div class="card">
+                    <div class="tab-pane fade {{ $activeTab === 'monthly' ? 'show active' : '' }}" id="monthlyTab">
+                        <div class="card shadow-sm">
                             <div class="card-body p-0">
                                 <div class="table-responsive">
                                     <table class="table table-striped table-md mb-0">
@@ -413,6 +534,14 @@
                                             @endforelse
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3 px-4 border-top flex-wrap" style="gap: 12px;">
+                                <div class="text-muted small">
+                                    Showing {{ $monthlyTrend->firstItem() ?? ($monthlyTrend->total() > 0 ? 1 : 0) }} to {{ $monthlyTrend->lastItem() ?? $monthlyTrend->total() }} of {{ number_format($monthlyTrend->total()) }} entries
+                                </div>
+                                <div>
+                                    {{ $monthlyTrend->appends(['tab' => 'monthly'])->links('vendor.pagination.custom-report') }}
                                 </div>
                             </div>
                         </div>
@@ -542,17 +671,21 @@
                     </div>
                 </div>
 
+                @php
+                    $globalActiveTab = request()->has('monthly_page') || request('tab') === 'monthly' ? 'monthly' : 'products';
+                @endphp
+
                 <div class="card">
                     <div class="card-body p-0">
                         <ul class="nav nav-tabs" id="reportTabs" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link active" id="products-tab" data-toggle="tab" href="#products">
-                                    <i class="fas fa-box"></i> Product Frequency
+                                <a class="nav-link {{ $globalActiveTab === 'products' ? 'active' : '' }}" id="products-tab" data-toggle="tab" href="#products">
+                                    <i class="fas fa-box"></i> Product Frequency <span class="badge badge-primary">{{ $productFrequency->total() }}</span>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="monthly-tab" data-toggle="tab" href="#monthly">
-                                    <i class="fas fa-calendar-alt"></i> Monthly Trend
+                                <a class="nav-link {{ $globalActiveTab === 'monthly' ? 'active' : '' }}" id="monthly-tab" data-toggle="tab" href="#monthly">
+                                    <i class="fas fa-calendar-alt"></i> Monthly Trend <span class="badge badge-secondary">{{ $monthlyTrend->total() }}</span>
                                 </a>
                             </li>
                             {{-- <li class="nav-item">
@@ -565,7 +698,7 @@
                 </div>
 
                 <div class="tab-content" id="reportTabsContent">
-                    <div class="tab-pane fade show active" id="products">
+                    <div class="tab-pane fade {{ $globalActiveTab === 'products' ? 'show active' : '' }}" id="products">
                         <div class="card">
                             <div class="card-body p-0">
                                 <div class="table-responsive">
@@ -592,12 +725,19 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="p-3">{{ $productFrequency->links() }}</div>
+                            </div>
+                            <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3 px-4 border-top flex-wrap" style="gap: 12px;">
+                                <div class="text-muted small">
+                                    Showing {{ $productFrequency->firstItem() ?? ($productFrequency->total() > 0 ? 1 : 0) }} to {{ $productFrequency->lastItem() ?? $productFrequency->total() }} of {{ number_format($productFrequency->total()) }} entries
+                                </div>
+                                <div>
+                                    {{ $productFrequency->links('vendor.pagination.custom-report') }}
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="tab-pane fade" id="monthly">
+                    <div class="tab-pane fade {{ $globalActiveTab === 'monthly' ? 'show active' : '' }}" id="monthly">
                         <div class="card">
                             <div class="card-body p-0">
                                 <div class="table-responsive">
@@ -636,6 +776,14 @@
                                             @endforelse
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3 px-4 border-top flex-wrap" style="gap: 12px;">
+                                <div class="text-muted small">
+                                    Showing {{ $monthlyTrend->firstItem() ?? ($monthlyTrend->total() > 0 ? 1 : 0) }} to {{ $monthlyTrend->lastItem() ?? $monthlyTrend->total() }} of {{ number_format($monthlyTrend->total()) }} entries
+                                </div>
+                                <div>
+                                    {{ $monthlyTrend->links('vendor.pagination.custom-report') }}
                                 </div>
                             </div>
                         </div>
@@ -686,6 +834,17 @@
 
         $('.auto-submit').on('change', function() {
             $(this).closest('form').submit();
+        });
+
+        // Tab persistence on load and change
+        var hash = window.location.hash;
+        if (hash && $('#reportTabs a[href="' + hash + '"]').length) {
+            $('#reportTabs a[href="' + hash + '"]').tab('show');
+        }
+        $('#reportTabs a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+            if (history.replaceState) {
+                history.replaceState(null, null, e.target.hash);
+            }
         });
     </script>
     @include('backend.reports.partials.async_analytics_report_pdf_js')

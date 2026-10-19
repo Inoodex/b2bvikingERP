@@ -2077,6 +2077,8 @@
                         <li class="sb-submenu-header">Analytics & Stock Reports</li>
                         <li><a href="{{ route('admin.reports.orders') }}"><i class="fas fa-file-invoice"></i> Order &
                                 Sales Report</a></li>
+                        <li><a href="{{ route('admin.reports.top-customers') }}"><i class="fas fa-crown text-warning"></i> Top
+                                Customers</a></li>
                         <li><a href="{{ route('admin.reports.best-sellers') }}"><i class="fas fa-fire text-danger"></i> Best
                                 Seller Products</a></li>
                         <li><a href="{{ route('admin.reports.reorder-risk') }}"><i
