@@ -15,18 +15,17 @@
     backdrop-filter: blur(10px) saturate(180%);
     -webkit-backdrop-filter: blur(10px) saturate(180%);
     z-index: 100000;
-    display: flex;
+    display: none;
     align-items: flex-start;
     justify-content: center;
     padding: 70px 16px 24px;
     opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ms-backdrop.ms-active {
+    display: flex !important;
     opacity: 1;
-    visibility: visible;
 }
 
 .ms-palette-modal {
@@ -57,6 +56,7 @@
     background: #0d111a;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     position: relative;
+    cursor: text;
 }
 
 .ms-search-icon {
@@ -79,7 +79,9 @@
     font-size: 15.5px;
     font-weight: 500;
     letter-spacing: 0.2px;
-    padding: 0;
+    padding: 4px 0;
+    width: 100%;
+    cursor: text;
 }
 
 .ms-input::placeholder {
@@ -405,8 +407,8 @@
 <div id="menuSearchBackdrop" class="ms-backdrop" onclick="handleMenuSearchBackdropClick(event)">
     <div class="ms-palette-modal" onclick="event.stopPropagation()">
         {{-- Header Search Bar --}}
-        <div class="ms-header" id="msHeader">
-            <i class="fas fa-search ms-search-icon"></i>
+        <div class="ms-header" id="msHeader" onclick="focusSearchInput()">
+            <i class="fas fa-search ms-search-icon" onclick="focusSearchInput()"></i>
             <input type="text" id="menuSearchInput" class="ms-input" 
                    placeholder="Tap to start search" autocomplete="off" spellcheck="false" />
             <button type="button" id="menuSearchClearBtn" class="ms-clear-btn" 
@@ -460,7 +462,7 @@
     var REGISTRY_URL = '{{ route("admin.menu-search.registry") }}';
 
     var activeTab = 'mixed';
-    var selectedIndex = 0;
+    var selectedIndex = -1;
     var currentVisibleItems = []; // Strictly matches the visual top-to-bottom DOM order
     var isKeyboardNavigating = false;
     var keyboardNavTimer = null;
@@ -486,11 +488,13 @@
     });
 
     // 2. Fetch Menu Registry from Controller (Cached per session user)
+    var pendingCallbacks = [];
     function fetchMenuRegistry(callback) {
         if (isLoaded) {
             if (callback) callback();
             return;
         }
+        if (callback) pendingCallbacks.push(callback);
         if (isLoading) return;
         isLoading = true;
 
@@ -511,13 +515,18 @@
             if (countBadge) {
                 countBadge.textContent = MENU_INDEX.length + ' menus available';
             }
-            if (callback) callback();
-            else if (backdrop && backdrop.classList.contains('ms-active')) {
+            while (pendingCallbacks.length > 0) {
+                var cb = pendingCallbacks.shift();
+                try { cb(); } catch(e) {}
+            }
+            if (backdrop && backdrop.classList.contains('ms-active')) {
                 renderResults();
+                focusSearchInput();
             }
         })
         .catch(function(err) {
             isLoading = false;
+            pendingCallbacks = [];
             console.error('Menu Search load error:', err);
             if (resultsBody && (!MENU_INDEX || MENU_INDEX.length === 0)) {
                 resultsBody.innerHTML = 
@@ -540,15 +549,19 @@
     // 3. Open / Close functions
     window.openMenuSearchModal = function() {
         if (!backdrop) return;
+        backdrop.style.display = 'flex';
+        // Force reflow so transition smoothly plays if applicable
+        void backdrop.offsetWidth;
         backdrop.classList.add('ms-active');
         document.body.style.overflow = 'hidden';
-        selectedIndex = 0;
-        setTimeout(function() {
-            if (input) {
-                input.focus();
-                input.select();
-            }
-        }, 50);
+        selectedIndex = -1; // Clean initial state (no item selected until user navigates or searches)
+
+        // Immediate + multi-frame focus guarantees focus regardless of browser timing
+        focusSearchInput();
+        requestAnimationFrame(focusSearchInput);
+        setTimeout(focusSearchInput, 15);
+        setTimeout(focusSearchInput, 60);
+        setTimeout(focusSearchInput, 150);
 
         if (!isLoaded) {
             resultsBody.innerHTML = 
@@ -558,15 +571,18 @@
                 '</div>';
             fetchMenuRegistry(function() {
                 renderResults();
+                focusSearchInput();
             });
         } else {
             renderResults();
+            focusSearchInput();
         }
     };
 
     window.closeMenuSearchModal = function() {
         if (!backdrop) return;
         backdrop.classList.remove('ms-active');
+        backdrop.style.display = 'none';
         document.body.style.overflow = '';
     };
 
@@ -579,6 +595,7 @@
     window.clearMenuSearchInput = function() {
         if (input) {
             input.value = '';
+            selectedIndex = -1;
             input.focus();
             handleSearchInput();
         }
@@ -593,7 +610,7 @@
         var allTabs = document.querySelectorAll('.ms-tab-btn');
         allTabs.forEach(function(b) { b.classList.remove('active'); });
         if (btnElem) btnElem.classList.add('active');
-        selectedIndex = 0;
+        selectedIndex = -1;
         renderResults();
     };
 
@@ -763,9 +780,9 @@
         var visualIndex = 0;
         var html = '';
 
-        // Clamp selectedIndex within valid range
+        // Clamp selectedIndex within valid range (only if actively selecting)
         if (selectedIndex >= filteredList.length) {
-            selectedIndex = Math.max(0, filteredList.length - 1);
+            selectedIndex = filteredList.length - 1;
         }
 
         groupOrder.forEach(function(groupName) {
@@ -778,7 +795,7 @@
                 var vIdx = visualIndex++;
                 currentVisibleItems.push(itm);
 
-                var isSelected = (vIdx === selectedIndex);
+                var isSelected = (selectedIndex >= 0 && vIdx === selectedIndex);
                 var activeClass = isSelected ? ' ms-selected' : '';
                 var highlightedTitle = highlightMatch(escapeHtml(itm.title), query);
                 var highlightedDesc = highlightMatch(escapeHtml(itm.description), query);
@@ -804,10 +821,12 @@
 
         resultsBody.innerHTML = html;
 
-        // Auto-scroll to selected element initially
-        var selectedElem = resultsBody.querySelector('.ms-item-link.ms-selected');
-        if (selectedElem) {
-            scrollItemIntoView(selectedElem);
+        // Auto-scroll to selected element initially only if an item is selected
+        if (selectedIndex >= 0) {
+            var selectedElem = resultsBody.querySelector('.ms-item-link.ms-selected');
+            if (selectedElem) {
+                scrollItemIntoView(selectedElem);
+            }
         }
     }
 
@@ -851,19 +870,20 @@
     function navigateDown() {
         if (!currentVisibleItems || currentVisibleItems.length === 0) return;
         setKeyboardNavigating();
-        var nextIdx = (selectedIndex + 1) % currentVisibleItems.length;
+        var nextIdx = (selectedIndex < 0) ? 0 : (selectedIndex + 1) % currentVisibleItems.length;
         setMenuSearchIndex(nextIdx, true);
     }
 
     function navigateUp() {
         if (!currentVisibleItems || currentVisibleItems.length === 0) return;
         setKeyboardNavigating();
-        var prevIdx = (selectedIndex - 1 + currentVisibleItems.length) % currentVisibleItems.length;
+        var prevIdx = (selectedIndex < 0) ? (currentVisibleItems.length - 1) : (selectedIndex - 1 + currentVisibleItems.length) % currentVisibleItems.length;
         setMenuSearchIndex(prevIdx, true);
     }
 
     function openSelectedMenuItem() {
         if (!currentVisibleItems || currentVisibleItems.length === 0) return;
+        if (selectedIndex < 0 || selectedIndex >= currentVisibleItems.length) return;
         var selectedItem = currentVisibleItems[selectedIndex];
         if (selectedItem && selectedItem.url) {
             window.location.href = selectedItem.url;
@@ -871,7 +891,10 @@
     }
 
     function handleSearchInput() {
-        selectedIndex = 0;
+        var query = (input.value || '').trim();
+        // If user typed something, auto-select top match so Enter works immediately.
+        // If input is empty, leave clean unselected (-1).
+        selectedIndex = query.length > 0 ? 0 : -1;
         renderResults();
     }
 
@@ -906,8 +929,9 @@
     // Global Keyboard Shortcuts (Ctrl+K and backup when input loses focus)
     document.addEventListener('keydown', function(e) {
         // Ctrl + K or Cmd + K to open
-        if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K' || e.code === 'KeyK')) {
             e.preventDefault();
+            e.stopPropagation();
             if (backdrop && backdrop.classList.contains('ms-active')) {
                 closeMenuSearchModal();
             } else {
