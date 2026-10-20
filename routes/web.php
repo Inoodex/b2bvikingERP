@@ -784,6 +784,7 @@ Route::middleware('auth')->group(function () {
         Route::controller(PurchaseReportController::class)->prefix('purchase-reports')->name('purchase-reports.')->group(function () {
             Route::get('/supplier-wise', 'supplierWise')->name('supplier-wise');
             Route::get('/item-wise', 'itemWise')->name('item-wise');
+            Route::get('/item-wise/{product}/breakdown', 'itemPcBreakdown')->name('item-wise.breakdown');
             Route::get('/total-value', 'totalValue')->name('total-value');
             Route::get('/total-value/pdf/async', 'totalValuePdfAsync')->name('total-value.pdf.async');
             Route::get('/total-value/pdf/download/{file}', 'downloadReportPdf')->name('total-value.pdf.download');

@@ -285,7 +285,7 @@ class ReportController extends Controller implements HasMiddleware
         // Calculate Summary Stats from database aggregates BEFORE pagination
         $summaryQuery = DB::table('products')
             ->join('inventory_stocks', 'products.id', '=', 'inventory_stocks.product_id')
-            ->join(DB::raw('(SELECT product_id, AVG(unit_cost) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'products.id', '=', 'costs.product_id')
+            ->join(DB::raw('(SELECT product_id, COALESCE(SUM(total) / NULLIF(SUM(qty), 0), 0) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'products.id', '=', 'costs.product_id')
             ->where('products.status', 1);
 
         if ($request->category_id) {
@@ -665,7 +665,7 @@ class ReportController extends Controller implements HasMiddleware
 
             $totalCost = DB::table('order_items')
                 ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                ->join(DB::raw('(SELECT product_id, AVG(unit_cost) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'order_items.product_id', '=', 'costs.product_id')
+                ->join(DB::raw('(SELECT product_id, COALESCE(SUM(total) / NULLIF(SUM(qty), 0), 0) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'order_items.product_id', '=', 'costs.product_id')
                 ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
                 ->where('orders.status', 'completed')
                 ->when($request->start_date, fn($q) => $q->whereDate('orders.placed_at', '>=', $request->start_date))
@@ -677,7 +677,7 @@ class ReportController extends Controller implements HasMiddleware
                 ->sum(DB::raw('issue_items.quantity * COALESCE(issue_items.unit_price, 0)'));
 
             $totalCost = DB::table('issue_items')
-                ->join(DB::raw('(SELECT product_id, AVG(unit_cost) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'issue_items.product_id', '=', 'costs.product_id')
+                ->join(DB::raw('(SELECT product_id, COALESCE(SUM(total) / NULLIF(SUM(qty), 0), 0) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'issue_items.product_id', '=', 'costs.product_id')
                 ->leftJoin('products', 'issue_items.product_id', '=', 'products.id')
                 ->sum(DB::raw('issue_items.quantity * COALESCE(NULLIF(costs.avg_cost, 0), products.purchase_price, 0)'));
         }

@@ -55,6 +55,17 @@ class PurchaseReportController extends Controller
     }
 
     /**
+     * Item-wise Purchase PC Breakdown (Step 5)
+     */
+    public function itemPcBreakdown(Request $request, $productId): JsonResponse
+    {
+        $filters = $request->only(['start_date', 'end_date', 'vendor_id']);
+        $data = $this->reportService->getItemPcBreakdown((int) $productId, $filters);
+
+        return response()->json($data);
+    }
+
+    /**
      * Total Purchase Value Periodic
      */
     public function totalValue(Request $request)

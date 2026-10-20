@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\Product;
 use App\Models\ProductRequest;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
+use App\Models\GeneralSetting;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class PurchaseReportService
@@ -260,5 +263,103 @@ class PurchaseReportService
         }
 
         return $query->orderBy('date', 'desc')->get();
+    }
+
+    /**
+     * Item-wise Purchase PC Breakdown (Step 5)
+     */
+    public function getItemPcBreakdown(int $productId, array $filters = []): array
+    {
+        $product = Product::with('unit')->findOrFail($productId);
+        $unitName = $product->unit ? $product->unit->name : 'Units';
+
+        $query = PurchaseDetail::with(['purchase.vendor'])
+            ->where('product_id', $productId)
+            ->whereHas('purchase', function ($q) use ($filters) {
+                $q->where('status', 1);
+                if (!empty($filters['start_date'])) {
+                    $q->whereDate('date', '>=', $filters['start_date']);
+                }
+                if (!empty($filters['end_date'])) {
+                    $q->whereDate('date', '<=', $filters['end_date']);
+                }
+                if (!empty($filters['vendor_id'])) {
+                    $q->where('vendor_id', $filters['vendor_id']);
+                }
+            });
+
+        $details = $query->get()->sortByDesc(function ($detail) {
+            return $detail->purchase?->date?->timestamp ?? 0;
+        })->values();
+
+        $currency = GeneralSetting::first()->currency_icon ?? 'Kr.';
+
+        $orders = $details->map(function ($detail, $index) use ($currency, $product, $unitName) {
+            $purchase = $detail->purchase;
+            $vendor = $purchase?->vendor;
+
+            // Fallback to product catalog purchase price if unit_cost is not recorded
+            $unitCost = (float) $detail->unit_cost;
+            if ($unitCost <= 0 && $product->purchase_price > 0) {
+                $unitCost = (float) $product->purchase_price;
+            }
+
+            $landedCost = ($detail->landed_cost !== null && (float)$detail->landed_cost > 0) 
+                ? (float) $detail->landed_cost 
+                : $unitCost;
+
+            $qty = (float) $detail->qty;
+            $total = (float) ($detail->total > 0 ? $detail->total : ($qty * $unitCost));
+
+            return [
+                'index' => $index + 1,
+                'purchase_id' => $purchase?->id,
+                'po_no' => $purchase?->po_no ?? ('PO-' . $purchase?->id),
+                'invoice_no' => $purchase?->invoice_no ?? '-',
+                'date' => $purchase && $purchase->date ? Carbon::parse($purchase->date)->format('Y-m-d') : '-',
+                'supplier_name' => $vendor ? ($vendor->shop_name ?? $vendor->name) : 'N/A',
+                'qty' => $qty,
+                'formatted_qty' => number_format($qty) . ' ' . $unitName,
+                'unit_cost' => $unitCost,
+                'formatted_unit_cost' => $currency . ' ' . number_format($unitCost, 2),
+                'landed_cost' => $landedCost,
+                'formatted_landed_cost' => $currency . ' ' . number_format($landedCost, 2),
+                'total' => $total,
+                'formatted_total' => $currency . ' ' . number_format($total, 2),
+                'variant_info' => $detail->variant_info,
+            ];
+        });
+
+        $totalQty = (float) $orders->sum('qty');
+        $totalAmount = (float) $orders->sum('total');
+        $totalLandedAmount = (float) $orders->sum(function ($o) {
+            return (float)$o['landed_cost'] * (float)$o['qty'];
+        });
+
+        $weightedAvgUnitCost = $totalQty > 0 ? round($totalAmount / $totalQty, 2) : 0;
+        $weightedAvgLandedCost = $totalQty > 0 ? round($totalLandedAmount / $totalQty, 2) : 0;
+
+        return [
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'sku' => $product->product_number ?? $product->sku ?? ('PROD-' . $product->id),
+                'unit_name' => $unitName,
+            ],
+            'summary' => [
+                'total_qty' => $totalQty,
+                'formatted_total_qty' => number_format($totalQty) . ' ' . $unitName,
+                'total_value' => $totalAmount,
+                'formatted_total_value' => $currency . ' ' . number_format($totalAmount, 2),
+                'weighted_avg_unit_cost' => $weightedAvgUnitCost,
+                'formatted_weighted_avg_unit_cost' => $currency . ' ' . number_format($weightedAvgUnitCost, 2),
+                'weighted_avg_landed_cost' => $weightedAvgLandedCost,
+                'formatted_weighted_avg_landed_cost' => $currency . ' ' . number_format($weightedAvgLandedCost, 2),
+                'po_count' => $details->pluck('purchase_id')->unique()->count(),
+                'currency' => $currency,
+                'unit_name' => $unitName,
+            ],
+            'orders' => $orders,
+        ];
     }
 }
