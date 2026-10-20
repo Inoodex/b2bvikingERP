@@ -14,12 +14,14 @@ use App\Models\OrderItem;
 use App\Models\OrderPayment;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
+use App\Models\Outlet;
 use App\Models\User;
 use App\Models\Vendor;
 use App\DataTables\ProductPurchaseHistoryDataTable;
 use App\DataTables\PurchaseHistoryDataTable;
 use App\Jobs\GenerateReportPdfJob;
 use App\Jobs\GenerateStockReportPdfJob;
+use App\Jobs\GenerateExpectedStockReportPdfJob;
 use App\Jobs\GenerateProcurementReportPdfJob;
 use App\Jobs\GenerateAuditReportPdfJob;
 use App\Traits\HasEphemeralPdfReports;
@@ -312,6 +314,90 @@ class ReportController extends Controller implements HasMiddleware
         $brands = Brand::where('status', 1)->get();
         $settings = GeneralSetting::first() ?? new GeneralSetting(['site_name' => 'B2B Viking ERP', 'currency_icon' => 'Kr.']);
 
+        // ─── TAB 2: Expected Retail Price (User / Outlet) Data ───
+        $activeTab = $request->get('tab', 'general');
+
+        $outlets = Outlet::where('status', 1)->orderBy('name')->get();
+        $customers = User::where(function($q) {
+            $q->whereIn('role_id', [2, 3])->orWhereNotNull('outlet_id');
+        })->orderBy('name')->get(['id', 'name', 'outlet_id', 'outlet_name']);
+
+        $selectedExpectedOutletId = $request->filled('expected_outlet_id') ? (int) $request->expected_outlet_id : null;
+        $selectedExpectedUserId = $request->filled('expected_user_id') ? (int) $request->expected_user_id : null;
+        $selectedExpectedEntityName = null;
+
+        if ($selectedExpectedOutletId) {
+            $selectedExpectedEntityName = Outlet::where('id', $selectedExpectedOutletId)->value('name');
+        } elseif ($selectedExpectedUserId) {
+            $selectedExpectedUser = User::find($selectedExpectedUserId);
+            if ($selectedExpectedUser) {
+                $selectedExpectedOutletId = $selectedExpectedUser->outlet_id;
+                $selectedExpectedEntityName = $selectedExpectedUser->name . ($selectedExpectedUser->outlet_name ? ' (' . $selectedExpectedUser->outlet_name . ')' : '');
+            }
+        }
+
+        $expectedQuery = Product::with([
+            'category',
+            'unit',
+            'brand',
+            'inventoryStocks',
+            'variants' => function ($vq) use ($selectedExpectedOutletId) {
+                $vq->with(['color', 'size']);
+                if ($selectedExpectedOutletId) {
+                    $vq->withSum(['inventoryStocks' => function ($q) use ($selectedExpectedOutletId) {
+                        $q->where('outlet_id', $selectedExpectedOutletId);
+                    }], 'quantity');
+                } else {
+                    $vq->withSum('inventoryStocks', 'quantity');
+                }
+            }
+        ])->where('status', 1);
+
+        if ($selectedExpectedOutletId) {
+            $expectedQuery->withSum(['inventoryStocks' => function ($q) use ($selectedExpectedOutletId) {
+                $q->where('outlet_id', $selectedExpectedOutletId);
+            }], 'quantity');
+        } else {
+            $expectedQuery->withSum('inventoryStocks', 'quantity');
+        }
+
+        if ($request->expected_category_id) {
+            $expectedQuery->where('category_id', $request->expected_category_id);
+        }
+        if ($request->expected_brand_id) {
+            $expectedQuery->where('brand_id', $request->expected_brand_id);
+        }
+
+        $expectedSummaryQuery = DB::table('products')
+            ->join('inventory_stocks', 'products.id', '=', 'inventory_stocks.product_id')
+            ->join(DB::raw('(SELECT product_id, COALESCE(SUM(total) / NULLIF(SUM(qty), 0), 0) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'products.id', '=', 'costs.product_id')
+            ->where('products.status', 1);
+
+        if ($selectedExpectedOutletId) {
+            $expectedSummaryQuery->where('inventory_stocks.outlet_id', $selectedExpectedOutletId);
+        }
+        if ($request->expected_category_id) {
+            $expectedSummaryQuery->where('products.category_id', $request->expected_category_id);
+        }
+        if ($request->expected_brand_id) {
+            $expectedSummaryQuery->where('products.brand_id', $request->expected_brand_id);
+        }
+
+        $expectedSummaryData = $expectedSummaryQuery->selectRaw('
+            SUM(inventory_stocks.quantity) as untyped_total_qty,
+            SUM(inventory_stocks.quantity * costs.avg_cost) as untyped_total_cost,
+            SUM(inventory_stocks.quantity * COALESCE(products.outlet_price, 0)) as untyped_total_wholesale,
+            SUM(inventory_stocks.quantity * products.price) as untyped_expected_retail
+        ')->first();
+
+        $expTotalQty = $expectedSummaryData->untyped_total_qty ?? 0;
+        $expTotalCost = $expectedSummaryData->untyped_total_cost ?? 0;
+        $expTotalWholesale = $expectedSummaryData->untyped_total_wholesale ?? 0;
+        $expTotalRetail = $expectedSummaryData->untyped_expected_retail ?? 0;
+        $expTotalMargin = $expTotalRetail - $expTotalCost;
+
+        $expectedProducts = $expectedQuery->paginate(30, ['*'], 'expected_page')->withQueryString();
+
         if ($request->ajax()) {
             return response()->json([
                 'html' => view('backend.reports.partials.stock_table_rows', compact('products', 'settings'))->render(),
@@ -324,8 +410,13 @@ class ReportController extends Controller implements HasMiddleware
         }
 
         $latestPdf = $this->getLatestReportFile('stock_valuation_report', 'admin.reports.stock.pdf.download');
+        $latestExpectedPdf = $this->getLatestReportFile('expected_stock_report', 'admin.reports.stock.expected.pdf.download');
 
-        return view('backend.reports.stock', compact('products', 'categories', 'brands', 'totalQty', 'totalValue', 'potentialRevenue', 'potentialProfit', 'settings', 'latestPdf'));
+        return view('backend.reports.stock', compact(
+            'products', 'categories', 'brands', 'totalQty', 'totalValue', 'potentialRevenue', 'potentialProfit', 'settings', 'latestPdf', 'latestExpectedPdf',
+            'activeTab', 'outlets', 'customers', 'expectedProducts', 'selectedExpectedEntityName', 'selectedExpectedOutletId', 'selectedExpectedUserId',
+            'expTotalQty', 'expTotalCost', 'expTotalWholesale', 'expTotalRetail', 'expTotalMargin'
+        ));
     }
 
     /**
@@ -925,6 +1016,40 @@ class ReportController extends Controller implements HasMiddleware
     }
 
     /**
+     * Expected Retail Price Report — Dispatch PDF generation to Background Queue.
+     */
+    public function expectedStockReportPdf(Request $request): JsonResponse|RedirectResponse
+    {
+        $filters = [
+            'expected_outlet_id'   => $request->get('expected_outlet_id'),
+            'expected_user_id'     => $request->get('expected_user_id'),
+            'expected_category_id' => $request->get('expected_category_id'),
+            'expected_brand_id'    => $request->get('expected_brand_id'),
+        ];
+
+        dispatch(new GenerateExpectedStockReportPdfJob($filters, (int) auth()->id()));
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status'        => 'success',
+                'message'       => 'Expected Retail Price report is generating in the background. The Download button will appear when ready.',
+                'dispatched_at' => now()->timestamp,
+            ]);
+        }
+
+        Toastr::info('Expected Retail Price report is generating in the background. It will be ready in a few moments.');
+        return redirect()->back();
+    }
+
+    /**
+     * Expected Retail Price Report — Async PDF Generation alias.
+     */
+    public function expectedStockReportPdfAsync(Request $request): JsonResponse|RedirectResponse
+    {
+        return $this->expectedStockReportPdf($request);
+    }
+
+    /**
      * Procurement Report — Dispatch PDF generation to Background Queue.
      */
     public function procurementReportPdf(Request $request): JsonResponse|RedirectResponse
@@ -959,7 +1084,7 @@ class ReportController extends Controller implements HasMiddleware
     public function checkReportStatus(Request $request): JsonResponse
     {
         $reportType = (string) $request->get('type', 'order_sales_report');
-        $allowedTypes = ['order_sales_report', 'stock_valuation_report', 'procurement_report', 'audit_report'];
+        $allowedTypes = ['order_sales_report', 'stock_valuation_report', 'expected_stock_report', 'procurement_report', 'audit_report'];
 
         if (!in_array($reportType, $allowedTypes, true)) {
             return response()->json(['ready' => false]);
@@ -969,6 +1094,7 @@ class ReportController extends Controller implements HasMiddleware
 
         $downloadRoute = match ($reportType) {
             'stock_valuation_report' => 'admin.reports.stock.pdf.download',
+            'expected_stock_report'  => 'admin.reports.stock.expected.pdf.download',
             'procurement_report'     => 'admin.reports.procurement.pdf.download',
             'audit_report'           => 'admin.reports.audit.pdf.download',
             default                  => 'admin.reports.orders.pdf.download',

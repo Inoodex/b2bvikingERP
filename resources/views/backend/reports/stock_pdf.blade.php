@@ -234,7 +234,7 @@
                 <th style="width: 24px;" class="tc">#</th>
                 <th style="width: 32px;" class="tc">Image</th>
                 <th class="tl">Product Info</th>
-                <th style="width: 105px;" class="tl">Category / Brand</th>
+                <th style="width: 105px;" class="tl">Category</th>
                 <th style="width: 60px;" class="tc">Stock Qty</th>
                 <th style="width: 75px;" class="tr">Unit Cost</th>
                 <th style="width: 75px;" class="tr">Unit Price</th>
@@ -258,7 +258,6 @@
                     </td>
                     <td>
                         <div class="cat-text">{{ $product->category->name ?? '—' }}</div>
-                        <div class="brand-text">{{ $product->brand->name ?? '—' }}</div>
                     </td>
                     <td class="tc">
                         @if($product->calc_qty <= ($product->min_inventory_qty ?? 0))

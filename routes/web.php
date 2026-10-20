@@ -477,6 +477,8 @@ Route::middleware('auth')->group(function () {
             Route::get('reports/stock/pdf/async', 'stockReportPdfAsync')->name('reports.stock.pdf.async');
             Route::get('reports/stock/pdf/download/{file}', 'downloadReportPdf')->name('reports.stock.pdf.download');
             Route::get('reports/stock/check-status', 'checkReportStatus')->name('reports.stock.check-status');
+            Route::get('reports/stock/expected/pdf/async', 'expectedStockReportPdfAsync')->name('reports.stock.expected.pdf.async');
+            Route::get('reports/stock/expected/pdf/download/{file}', 'downloadReportPdf')->name('reports.stock.expected.pdf.download');
             Route::get('reports/purchase', 'purchaseReport')->name('reports.purchase');
             Route::get('reports/purchase/pdf', 'procurementReportPdf')->name('reports.procurement.pdf');
             Route::get('reports/purchase/pdf/async', 'procurementReportPdfAsync')->name('reports.procurement.pdf.async');
