@@ -43,6 +43,7 @@ use App\Http\Controllers\Backend\InventoryReportController;
 use App\Http\Controllers\Backend\JournalVoucherController;
 use App\Http\Controllers\Backend\LandedCostController;
 use App\Http\Controllers\Backend\LetterOfCreditController;
+use App\Http\Controllers\Backend\MenuSearchController;
 use App\Http\Controllers\Backend\MonthEndSnapshotController;
 use App\Http\Controllers\Backend\OrderApprovalController;
 use App\Http\Controllers\Backend\OutletController;
@@ -203,6 +204,10 @@ Route::middleware('auth')->group(function () {
 
     /** Backend Routes */
     Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin', 'as' => 'admin.'], function () {
+        /** Global Menu Search Command Palette */
+        Route::get('menu-search/registry', [MenuSearchController::class, 'registry'])->name('menu-search.registry');
+        Route::post('menu-search/clear-cache', [MenuSearchController::class, 'clearCache'])->name('menu-search.clear-cache');
+
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::put('users/change-status', [UserController::class, 'changeStatus'])->name('users.change-status');
         Route::resource('users', UserController::class);

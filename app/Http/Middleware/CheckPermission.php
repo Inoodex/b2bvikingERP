@@ -53,6 +53,7 @@ class CheckPermission
                 || str_contains($action, 'ProductRequestController')
                 || str_contains($action, 'CustomProductRequestController')
                 || str_contains($action, 'NotificationController')
+                || str_contains($action, 'MenuSearchController')
                 || $request->routeIs('admin.logout');
 
             if (!$isSelfGoverned) {
