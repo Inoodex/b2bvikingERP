@@ -200,13 +200,30 @@ class SalesReturnController extends Controller
                 $isItemRestock = ($item->disposition === 'restock' || (empty($item->disposition) && $salesReturn->return_to_stock));
                 
                 if ($isItemRestock) {
-                    $stock = InventoryStock::firstOrCreate(
-                        [
+                    $outletId = (int)($salesReturn->order?->outlet_id ?? 1);
+
+                    $stockQuery = InventoryStock::where('product_id', $item->product_id)
+                        ->where('outlet_id', $outletId);
+
+                    if (!empty($item->variant_id)) {
+                        $stockQuery->where('variant_id', $item->variant_id);
+                    } else {
+                        $stockQuery->where(function ($q) {
+                            $q->whereNull('variant_id')->orWhere('variant_id', 0);
+                        });
+                    }
+
+                    $stock = $stockQuery->lockForUpdate()->first();
+
+                    if (!$stock) {
+                        $stock = InventoryStock::create([
                             'product_id' => $item->product_id,
-                            'variant_id' => $item->variant_id,
-                        ],
-                        ['quantity' => 0]
-                    );
+                            'variant_id' => $item->variant_id ?? null,
+                            'outlet_id'  => $outletId,
+                            'bin_id'     => null,
+                            'quantity'   => 0,
+                        ]);
+                    }
 
                     $qtyBefore = (float)$stock->quantity;
                     $qtyAfter = $qtyBefore + (float)$item->qty;
@@ -215,13 +232,14 @@ class SalesReturnController extends Controller
                     StockLedger::create([
                         'product_id'      => $item->product_id,
                         'variant_id'      => $item->variant_id,
+                        'outlet_id'       => $outletId,
+                        'bin_id'          => $stock->bin_id ?? null,
                         'reference_type'  => 'SalesReturn',
                         'reference_id'    => $salesReturn->id,
-                        'transaction_type'=> 'IN',
-                        'quantity'        => (float)$item->qty,
+                        'in_qty'          => (float)$item->qty,
+                        'out_qty'         => 0,
                         'balance_qty'     => $qtyAfter,
-                        'notes'           => 'Restocked from Customer Return #' . $salesReturn->return_no,
-                        'created_by'      => Auth::id(),
+                        'date'            => now()->toDateString(),
                     ]);
                 }
             }

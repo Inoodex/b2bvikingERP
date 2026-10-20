@@ -281,14 +281,14 @@
 
     /* TABLE */
     .sr-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    #table-stock {
-        font-size: 12.5px;
+    #table-stock, #table-expected-stock {
+        font-size: 12px;
         border-collapse: separate;
         border-spacing: 0;
         width: 100%;
         margin: 0;
     }
-    #table-stock thead th {
+    #table-stock thead th, #table-expected-stock thead th {
         background: linear-gradient(135deg, #fafbfc, #f4f5f8);
         color: var(--sr-ink-soft);
         font-family: var(--sr-font);
@@ -296,7 +296,7 @@
         font-size: 10.5px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        padding: 12px 16px;
+        padding: 10px 14px;
         border: none;
         border-bottom: 2px solid var(--sr-border);
         white-space: nowrap;
@@ -304,8 +304,8 @@
         top: 0;
         z-index: 2;
     }
-    #table-stock tbody td {
-        padding: 12px 16px;
+    #table-stock tbody td, #table-expected-stock tbody td {
+        padding: 9px 14px;
         vertical-align: middle;
         color: var(--sr-ink);
         border-bottom: 1px solid var(--sr-border);
@@ -313,9 +313,9 @@
         transition: background 0.15s;
         font-weight: 500;
     }
-    #table-stock tbody tr:hover td { background: var(--sr-amber-soft); }
-    #table-stock tbody tr:nth-child(even) td { background: var(--sr-surface); }
-    #table-stock tbody tr:nth-child(even):hover td { background: var(--sr-amber-soft); }
+    #table-stock tbody tr:hover td, #table-expected-stock tbody tr:hover td { background: var(--sr-amber-soft); }
+    #table-stock tbody tr:nth-child(even) td, #table-expected-stock tbody tr:nth-child(even) td { background: var(--sr-surface); }
+    #table-stock tbody tr:nth-child(even):hover td, #table-expected-stock tbody tr:nth-child(even):hover td { background: var(--sr-amber-soft); }
 
     /* Product cell */
     .sr-product-cell {
@@ -354,10 +354,11 @@
         color: var(--sr-ink-soft);
         font-size: 10.5px;
         font-weight: 600;
-        padding: 3px 10px;
+        padding: 2.5px 9px;
         border-radius: 50px;
         border: 1px solid var(--sr-border);
-        margin-bottom: 3px;
+        margin-bottom: 0;
+        white-space: nowrap;
     }
     .sr-brand-text {
         font-size: 10.5px;
@@ -383,9 +384,11 @@
     }
 
     /* Money cells */
-    .sr-money { white-space: nowrap; }
-    .sr-money.asset { color: #4f46e5; }
-    .sr-money.profit { color: #16a34a; }
+    .sr-money { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 600; color: #1e293b; }
+    .sr-money.cost { color: #334155; font-weight: 600; }
+    .sr-money.wholesale { color: #0f172a; font-weight: 700; }
+    .sr-money.asset { color: #4f46e5; font-weight: 700; }
+    .sr-money.profit { color: #16a34a; font-weight: 700; }
 
     /* Grand Total Bar */
     .sr-grand-total {
@@ -645,8 +648,29 @@
         </div>
 
         <div class="section-body">
-            {{-- Summary Stat Cards --}}
-            <div class="sr-stats-grid">
+            {{-- Navigation Tabs --}}
+            <div class="card mb-3" style="border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.03); overflow: hidden;">
+                <div class="card-body p-0">
+                    <ul class="nav nav-tabs px-3 pt-2" id="stockReportTabs" role="tablist" style="border-bottom: 1px solid #e2e8f0; background: #fafbfc;">
+                        <li class="nav-item">
+                            <a class="nav-link {{ ($activeTab ?? 'general') === 'general' ? 'active' : '' }} font-weight-bold" id="tab-general-link" data-toggle="tab" href="#tab-general" role="tab" style="font-size: 13.5px; padding: 11px 20px; border-radius: 8px 8px 0 0;">
+                                <i class="fas fa-boxes mr-1 text-primary"></i> General Stock Valuation
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ ($activeTab ?? 'general') === 'expected' ? 'active' : '' }} font-weight-bold" id="tab-expected-link" data-toggle="tab" href="#tab-expected" role="tab" style="font-size: 13.5px; padding: 11px 20px; border-radius: 8px 8px 0 0;">
+                                <i class="fas fa-tags mr-1 text-success"></i> Expected Retail Price (User / Outlet)
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tab-content" id="stockTabsContent">
+                {{-- ─── TAB 1: GENERAL STOCK VALUATION (ORIGINAL UNTOUCHED) ─── --}}
+                <div class="tab-pane fade {{ ($activeTab ?? 'general') === 'general' ? 'show active' : '' }}" id="tab-general" role="tabpanel">
+                    {{-- Summary Stat Cards --}}
+                    <div class="sr-stats-grid">
                 <div class="sr-stat-card">
                     <div class="sr-stat-stripe indigo"></div>
                     <div class="sr-stat-header">
@@ -783,7 +807,7 @@
                             <thead>
                                 <tr>
                                     <th>Product Info</th>
-                                    <th>Category / Brand</th>
+                                    <th>Category</th>
                                     <th class="text-center">Stock Qty</th>
                                     <th class="text-right">Unit Cost</th>
                                     <th class="text-right">Unit Price</th>
@@ -819,8 +843,7 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <div class="sr-cat-badge">{{ $product->category->name ?? '-' }}</div>
-                                            <div class="sr-brand-text">{{ $product->brand->name ?? '-' }}</div>
+                                            <span class="sr-cat-badge">{{ $product->category->name ?? '-' }}</span>
                                         </td>
                                         <td class="text-center">
                                             @if($qty <= $product->min_inventory_qty)
@@ -867,7 +890,6 @@
                                         <div class="name">{{ $product->name }}</div>
                                         <div class="meta">
                                             <span class="sr-cat-badge" style="font-size: 9.5px; padding: 2px 8px;">{{ $product->category->name ?? '-' }}</span>
-                                            <span class="sr-brand-text">{{ $product->brand->name ?? '-' }}</span>
                                         </div>
                                     </div>
                                     @if($qty <= $product->min_inventory_qty)
@@ -926,7 +948,332 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> {{-- End #tab-general --}}
+
+        {{-- ─── TAB 2: EXPECTED RETAIL PRICE (USER / OUTLET) ─── --}}
+        <div class="tab-pane fade {{ ($activeTab ?? 'general') === 'expected' ? 'show active' : '' }}" id="tab-expected" role="tabpanel">
+            {{-- Summary Stat Cards for Tab 2 --}}
+            <div class="sr-stats-grid">
+                <div class="sr-stat-card">
+                    <div class="sr-stat-stripe indigo"></div>
+                    <div class="sr-stat-header">
+                        <span class="sr-stat-label">Total Stock Qty</span>
+                        <div class="sr-stat-icon indigo"><i class="fas fa-boxes"></i></div>
+                    </div>
+                    <div class="sr-stat-value" id="span-exp-total-qty">{{ number_format($expTotalQty ?? 0) }}</div>
+                    <div class="sr-stat-subtext">
+                        <i class="fas fa-cubes text-indigo mr-1"></i> Allocated Units
+                    </div>
+                </div>
+                <div class="sr-stat-card">
+                    <div class="sr-stat-stripe emerald"></div>
+                    <div class="sr-stat-header">
+                        <span class="sr-stat-label">Total Cost Basis</span>
+                        <div class="sr-stat-icon emerald"><i class="fas fa-dollar-sign"></i></div>
+                    </div>
+                    <div class="sr-stat-value text-emerald" id="span-exp-total-cost">{{ $settings->currency_icon }}{{ number_format($expTotalCost ?? 0, 2) }}</div>
+                    <div class="sr-stat-subtext">
+                        <i class="fas fa-receipt text-emerald mr-1"></i> Purchase Cost Valuation
+                    </div>
+                </div>
+                <div class="sr-stat-card">
+                    <div class="sr-stat-stripe sky"></div>
+                    <div class="sr-stat-header">
+                        <span class="sr-stat-label">Expected Retail Value</span>
+                        <div class="sr-stat-icon sky"><i class="fas fa-tags"></i></div>
+                    </div>
+                    <div class="sr-stat-value text-sky" id="span-exp-total-retail" style="color: #0284c7;">{{ $settings->currency_icon }}{{ number_format($expTotalRetail ?? 0, 2) }}</div>
+                    <div class="sr-stat-subtext">
+                        <i class="fas fa-chart-pie text-sky mr-1"></i> Stock × Expected Retail Price
+                    </div>
+                </div>
+                <div class="sr-stat-card">
+                    <div class="sr-stat-stripe amber"></div>
+                    <div class="sr-stat-header">
+                        <span class="sr-stat-label">Expected Profit Margin</span>
+                        <div class="sr-stat-icon amber"><i class="fas fa-chart-line"></i></div>
+                    </div>
+                    <div class="sr-stat-value text-amber" id="span-exp-total-margin">{{ $settings->currency_icon }}{{ number_format($expTotalMargin ?? 0, 2) }}</div>
+                    <div class="sr-stat-subtext">
+                        <i class="fas fa-arrow-trend-up text-amber mr-1"></i> Projected Gross Profit
+                    </div>
+                </div>
+            </div>
+
+            {{-- Filter Section for Tab 2 --}}
+            <div class="sr-filter-card">
+                <div class="sr-filter-head">
+                    <h4><i class="fas fa-filter"></i> Filter Options (Expected Retail)</h4>
+                    <a data-collapse="#sr-exp-filter-collapse" class="sr-collapse-btn" href="#"><i class="fas fa-minus"></i></a>
+                </div>
+                <div class="collapse show" id="sr-exp-filter-collapse">
+                    <div class="sr-filter-body">
+                        <form id="expected-filter-form" action="{{ route('admin.reports.stock') }}" method="GET">
+                            <input type="hidden" name="tab" value="expected">
+                            <div class="row g-3 mb-2">
+                                <div class="col-md-6">
+                                    <label class="font-weight-bold"><i class="fas fa-store mr-1 text-primary"></i> Outlet</label>
+                                    <select name="expected_outlet_id" id="filter-expected-outlet-id" class="form-control select2">
+                                        <option value="">All Outlets</option>
+                                        @foreach ($outlets as $outlet)
+                                            <option value="{{ $outlet->id }}" {{ ($selectedExpectedOutletId == $outlet->id) ? 'selected' : '' }}>
+                                                🏢 {{ $outlet->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="font-weight-bold"><i class="fas fa-user-tag mr-1 text-info"></i> Customer / User</label>
+                                    <select name="expected_user_id" id="filter-expected-user-id" class="form-control select2">
+                                        <option value="">All Customers / Users</option>
+                                        @foreach ($customers as $cust)
+                                            <option value="{{ $cust->id }}" {{ ($selectedExpectedUserId == $cust->id) ? 'selected' : '' }}>
+                                                👤 {{ $cust->name }} {{ $cust->outlet_name ? '('.$cust->outlet_name.')' : '' }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-4">
+                                    <label class="font-weight-bold">Category</label>
+                                    <select name="expected_category_id" class="form-control select2">
+                                        <option value="">All Categories</option>
+                                        @foreach ($categories as $category)
+                                            <option value="{{ $category->id }}" {{ request()->expected_category_id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="font-weight-bold">Brand</label>
+                                    <select name="expected_brand_id" class="form-control select2">
+                                        <option value="">All Brands</option>
+                                        @foreach ($brands as $brand)
+                                            <option value="{{ $brand->id }}" {{ request()->expected_brand_id == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="{{ route('admin.reports.stock', ['tab' => 'expected']) }}" class="sr-btn rose w-100" style="margin-top: 4px; justify-content: center; height: 38px;">
+                                        <i class="fas fa-undo"></i> Reset Filters
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Detailed Expected Retail Table --}}
+            <div class="sr-table-card">
+                <div class="sr-table-head">
+                    <h4>
+                        <i class="fas fa-tags text-primary"></i> Expected Retail Price & Stock Valuation
+                        @if(!empty($selectedExpectedEntityName))
+                            <span class="badge badge-primary ml-2 px-2 py-1" style="font-size: 11px; font-weight: 600; vertical-align: middle;">
+                                <i class="fas fa-map-marker-alt mr-1"></i> {{ $selectedExpectedEntityName }}
+                            </span>
+                        @endif
+                    </h4>
+                    <div class="sr-table-actions">
+                        @if(isset($latestExpectedPdf) && $latestExpectedPdf)
+                            <a href="{{ $latestExpectedPdf['url'] }}" id="btn-exp-download-pdf" class="sr-btn emerald btn-download-pdf" title="{{ $latestExpectedPdf['filename'] }}">
+                                <i class="fas fa-file-download"></i> Download PDF (Ready: {{ $latestExpectedPdf['time'] }})
+                            </a>
+                        @else
+                            <a href="#" id="btn-exp-download-pdf" class="sr-btn emerald btn-download-pdf" style="display:none;">
+                                <i class="fas fa-file-download"></i> Download PDF
+                            </a>
+                        @endif
+                        <button type="button" class="sr-btn amber btn-generate-pdf" id="btn-exp-generate-pdf"
+                            data-url="{{ route('admin.reports.stock.expected.pdf.async') }}"
+                            data-check-url="{{ route('admin.reports.stock.check-status') }}"
+                            data-type="expected_stock_report">
+                            <i class="fas fa-file-pdf"></i> Export PDF
+                        </button>
+                        <button type="button" class="sr-btn indigo" id="btn-exp-export-excel">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button type="button" class="sr-btn rose" id="btn-exp-print">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body" style="padding: 0 !important;">
+                    {{-- Desktop Table --}}
+                    <div class="sr-table-wrap">
+                        <table class="table" id="table-expected-stock">
+                            <thead>
+                                <tr>
+                                    <th style="width: 32px;" class="text-center">#</th>
+                                    <th>Product Info</th>
+                                    <th>Category</th>
+                                    <th class="text-center">Stock Qty</th>
+                                    <th class="text-right">Unit Cost</th>
+                                    <th class="text-right">Whole Sale Price</th>
+                                    <th class="text-right" style="background: #e0f2fe; color: #0369a1; font-weight: 800;">Expected Retail Price</th>
+                                    <th class="text-right" style="background: #ecfdf5; color: #047857; font-weight: 800;">Expected Total (Retail)</th>
+                                    <th class="text-right">Expected Margin</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expected-table-body">
+                                @foreach ($expectedProducts as $index => $product)
+                                    @php
+                                        $qty = $product->inventory_stocks_sum_quantity ?? 0;
+                                        $cost = $product->purchase_price ?? 0;
+                                        $wholesale = $product->outlet_price ?? 0;
+                                        $retail = $product->price ?? 0;
+                                        $totalCost = $qty * $cost;
+                                        $totalRetail = $qty * $retail;
+                                        $margin = $totalRetail - $totalCost;
+
+                                        $hasVariants = !empty($product->variants) && $product->variants->isNotEmpty();
+                                        $variantCount = $hasVariants ? $product->variants->count() : 0;
+
+                                        $imgSrc = asset('uploads/no-image.svg');
+                                        if (!empty($product->thumb_image)) {
+                                            if (str_starts_with($product->thumb_image, 'http')) {
+                                                $imgSrc = $product->thumb_image;
+                                            } elseif (file_exists(public_path('storage/' . $product->thumb_image))) {
+                                                $imgSrc = asset('storage/' . $product->thumb_image);
+                                            } elseif (file_exists(public_path($product->thumb_image))) {
+                                                $imgSrc = asset($product->thumb_image);
+                                            }
+                                        }
+                                    @endphp
+                                    <tr>
+                                        <td class="text-center text-muted font-weight-bold" style="font-size: 11px;">
+                                            {{ $expectedProducts->firstItem() ? ($expectedProducts->firstItem() + $index) : ($index + 1) }}
+                                        </td>
+                                        <td>
+                                            <div class="sr-product-cell">
+                                                <img src="{{ $imgSrc }}" onerror="this.onerror=null; this.src='{{ asset('uploads/no-image.svg') }}';" alt="{{ $product->name }}" class="sr-product-img">
+                                                <div class="sr-product-info-wrap">
+                                                    <div class="sr-product-name" title="{{ $product->name }}">{{ $product->name }}</div>
+                                                    @if($hasVariants)
+                                                        <button type="button" class="btn btn-xs toggle-variant-drawer mt-1" 
+                                                            data-target="#exp-variant-drawer-{{ $product->id }}"
+                                                            style="font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #38bdf8; color: #0284c7; background: #f0f9ff; cursor: pointer;">
+                                                            <i class="fas fa-layer-group"></i> {{ $variantCount }} Variants <i class="fas fa-chevron-down ml-1"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="sr-cat-badge">{{ $product->category->name ?? '-' }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            @if($qty <= $product->min_inventory_qty)
+                                                <span class="sr-stock-badge low">{{ number_format($qty) }}</span>
+                                            @else
+                                                <span class="sr-stock-badge ok">{{ number_format($qty) }}</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-right"><span class="sr-money cost">{{ $settings->currency_icon }}{{ number_format($cost, 2) }}</span></td>
+                                        <td class="text-right"><span class="sr-money wholesale" style="color: #0f172a !important; font-weight: 700;">{{ $settings->currency_icon }}{{ number_format($wholesale, 2) }}</span></td>
+                                        <td class="text-right" style="background: #f0f9ff;">
+                                            <span class="badge badge-info px-2 py-1 font-weight-bold" style="font-size: 12px; background: #0284c7;">
+                                                {{ $settings->currency_icon }}{{ number_format($retail, 2) }}
+                                            </span>
+                                        </td>
+                                        <td class="text-right" style="background: #f0fdf4;">
+                                            <span class="sr-money profit font-weight-bold" style="font-size: 13px; color: #15803d;">
+                                                {{ $settings->currency_icon }}{{ number_format($totalRetail, 2) }}
+                                            </span>
+                                        </td>
+                                        <td class="text-right"><span class="sr-money profit">{{ $settings->currency_icon }}{{ number_format($margin, 2) }}</span></td>
+                                    </tr>
+
+                                    @if($hasVariants)
+                                        <tr id="exp-variant-drawer-{{ $product->id }}" class="exp-variant-drawer-row" style="display: none; background: #f8fafc;">
+                                            <td colspan="9" style="padding: 0 !important; border-bottom: 2px solid #e2e8f0 !important;">
+                                                <div class="p-3" style="background: #f8fafc; border-left: 4px solid #0284c7;">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <span class="font-weight-bold text-dark" style="font-size: 12px;">
+                                                            <i class="fas fa-layer-group text-info mr-1"></i> Variant Breakdown: <strong class="text-primary">{{ $product->name }}</strong>
+                                                        </span>
+                                                        <span class="text-muted" style="font-size: 11px;">
+                                                            Total Variants: <strong>{{ $variantCount }}</strong>
+                                                        </span>
+                                                    </div>
+                                                    <div class="table-responsive bg-white rounded border">
+                                                        <table class="table table-sm table-hover mb-0" style="font-size: 11.5px; width: 100%;">
+                                                            <thead style="background: #f1f5f9; color: #475569; font-size: 10px; text-transform: uppercase;">
+                                                                <tr>
+                                                                    <th style="width: 28%;">Variant / Specs</th>
+                                                                    <th class="text-center" style="width: 12%;">Variant Stock</th>
+                                                                    <th class="text-right" style="width: 14%;">Unit Cost</th>
+                                                                    <th class="text-right" style="width: 15%;">Wholesale Price</th>
+                                                                    <th class="text-right" style="width: 15%; background: #e0f2fe; color: #0369a1;">Expected Retail</th>
+                                                                    <th class="text-right" style="width: 16%; background: #ecfdf5; color: #047857;">Expected Total (Retail)</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach($product->variants as $variant)
+                                                                    @php
+                                                                        $vQty = (float) ($variant->inventory_stocks_sum_quantity ?? 0);
+                                                                        $vCost = (float) ($product->purchase_price ?? 0);
+                                                                        $vWholesale = (float) ($variant->outlet_price ?? $product->outlet_price ?? 0);
+                                                                        $vRetail = (float) ($variant->price ?? $product->price ?? 0);
+                                                                        $vTotalRetail = $vQty * $vRetail;
+
+                                                                        $vSpecs = array_filter([$variant->name, $variant->color->name ?? null, $variant->size->name ?? null]);
+                                                                        $vTitle = !empty($vSpecs) ? implode(' / ', array_unique($vSpecs)) : ('Variant #' . $variant->id);
+                                                                    @endphp
+                                                                    <tr>
+                                                                        <td class="align-middle font-weight-bold">
+                                                                            <i class="fas fa-tag text-muted mr-1" style="font-size: 10px;"></i>
+                                                                            {{ $vTitle }}
+                                                                            @if(!empty($variant->barcode))
+                                                                                <small class="text-muted ml-1">({{ $variant->barcode }})</small>
+                                                                            @endif
+                                                                        </td>
+                                                                        <td class="align-middle text-center">
+                                                                            @if($vQty <= 0)
+                                                                                <span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;">0</span>
+                                                                            @else
+                                                                                <span class="badge badge-success font-weight-bold" style="font-size: 10.5px; padding: 2px 7px;">{{ number_format($vQty) }}</span>
+                                                                            @endif
+                                                                        </td>
+                                                                        <td class="align-middle text-right font-weight-bold" style="color: #334155;">{{ $settings->currency_icon }}{{ number_format($vCost, 2) }}</td>
+                                                                        <td class="align-middle text-right font-weight-bold" style="color: #0f172a !important;">{{ $settings->currency_icon }}{{ number_format($vWholesale, 2) }}</td>
+                                                                        <td class="align-middle text-right font-weight-bold text-info" style="background: #f0f9ff;">
+                                                                            {{ $settings->currency_icon }}{{ number_format($vRetail, 2) }}
+                                                                        </td>
+                                                                        <td class="align-middle text-right font-weight-bold text-success" style="background: #f0fdf4;">
+                                                                            {{ $settings->currency_icon }}{{ number_format($vTotalRetail, 2) }}
+                                                                        </td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{-- Pagination for Tab 2 --}}
+                    <div class="sr-pagination-wrap">
+                        <div class="sr-pagination-info">
+                            Showing
+                            <strong>{{ $expectedProducts->firstItem() ?? 0 }} – {{ $expectedProducts->lastItem() ?? 0 }}</strong>
+                            of
+                            <strong>{{ $expectedProducts->total() }}</strong>
+                            products
+                        </div>
+                        {{ $expectedProducts->links() }}
+                    </div>
+                </div>
+            </div>
+        </div> {{-- End #tab-expected --}}
+    </div> {{-- End #stockTabsContent --}}
+</div> {{-- End .section-body --}}
     </section>
 @endsection
 
@@ -963,26 +1310,25 @@
             ];
         }
 
-        function initStockDataTable() {
-            const cleanCellText = function (value) {
-                return $('<div>').html(value).text().replace(/\s+/g, ' ').trim();
-            };
-            const commonExportOptions = {
-                format: {
-                    body: function (data, row, column, node) {
-                        if (column === 0) {
-                            const nameElement = $(node).find('.sr-product-name, .font-weight-bold').first();
-                            if (nameElement.length) return nameElement.text().trim();
-                        }
-                        if (column === 1) {
-                            const category = $(node).find('.sr-cat-badge').first().text().trim() || '-';
-                            const brand = $(node).find('.sr-brand-text').first().text().trim() || '-';
-                            return 'Category: ' + category + '\nBrand: ' + brand;
-                        }
-                        return cleanCellText(data);
+        const cleanCellText = function (value) {
+            return $('<div>').html(value).text().replace(/\s+/g, ' ').trim();
+        };
+        const commonExportOptions = {
+            format: {
+                body: function (data, row, column, node) {
+                    if (column === 0) {
+                        const nameElement = $(node).find('.sr-product-name, .font-weight-bold').first();
+                        if (nameElement.length) return nameElement.text().trim();
                     }
+                    if ($(node).find('.sr-cat-badge').length) {
+                        return $(node).find('.sr-cat-badge').first().text().trim();
+                    }
+                    return cleanCellText(data);
                 }
-            };
+            }
+        };
+
+        function initStockDataTable() {
             const table = $('#table-stock').DataTable({
                 dom: 'Brt',
                 paging: false,
@@ -1016,6 +1362,80 @@
 
         $(document).on('change select2:select', '#stock-filter-form select[name="category_id"], #stock-filter-form select[name="brand_id"]', function () {
             $('#stock-filter-form').trigger('submit');
+        });
+
+        // ─── TAB 2: Expected Retail Price DataTable & Filters ───
+        function initExpectedDataTable() {
+            if ($('#table-expected-stock').length === 0) return null;
+
+            // Temporarily detach variant drawer rows so DataTable initializes without column warnings
+            const drawerRows = $('#table-expected-stock tbody tr.exp-variant-drawer-row').detach();
+
+            if ($.fn.DataTable.isDataTable('#table-expected-stock')) {
+                $('#table-expected-stock').DataTable().destroy();
+            }
+            const expTable = $('#table-expected-stock').DataTable({
+                dom: 'Brt',
+                paging: false,
+                info: false,
+                searching: false,
+                buttons: [
+                    { extend: 'copy', messageTop: 'Expected Retail Price Stock Valuation Report', exportOptions: commonExportOptions },
+                    { extend: 'csv', filename: 'expected-retail-stock-' + @json(date('Y-m-d')), exportOptions: commonExportOptions },
+                    { extend: 'excel', title: 'Expected Retail Price Stock Valuation', filename: 'expected-retail-stock-' + @json(date('Y-m-d')), exportOptions: commonExportOptions },
+                    { extend: 'print', title: 'Expected Retail Price Stock Valuation', messageTop: 'Generated on: ' + @json(date('F d, Y h:i A')) }
+                ]
+            });
+
+            // Re-attach variant drawer rows right after their respective parent product rows
+            drawerRows.each(function() {
+                const parentId = $(this).attr('id').replace('exp-variant-drawer-', '');
+                const $parentRow = $('#table-expected-stock tbody tr').filter(function() {
+                    return $(this).find('[data-target="#exp-variant-drawer-' + parentId + '"]').length > 0;
+                });
+                if ($parentRow.length) {
+                    $parentRow.after($(this));
+                }
+            });
+
+            $('#table-expected-stock_wrapper .dt-buttons').hide();
+            return expTable;
+        }
+
+        let expTable = initExpectedDataTable();
+
+        $('#btn-exp-export-excel').off('click').on('click', function () { 
+            if (expTable) expTable.button(2).trigger(); 
+        });
+        $('#btn-exp-print').off('click').on('click', function () { 
+            if (expTable) expTable.button(3).trigger(); 
+        });
+
+        $(document).on('click', '.toggle-variant-drawer', function (e) {
+            e.preventDefault();
+            const target = $(this).data('target');
+            $(target).fadeToggle(150);
+            const icon = $(this).find('.fa-chevron-down, .fa-chevron-up');
+            if (icon.hasClass('fa-chevron-down')) {
+                icon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+            } else {
+                icon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+            }
+        });
+
+        $(document).on('change select2:select', '#expected-filter-form select', function () {
+            $('#expected-filter-form').trigger('submit');
+        });
+
+        // Tab state preservation in browser URL
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            var target = $(e.target).attr("href");
+            if (window.history && window.history.replaceState) {
+                var tabParam = (target === '#tab-expected') ? 'expected' : 'general';
+                var newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('tab', tabParam);
+                window.history.replaceState({ path: newUrl.href }, '', newUrl.href);
+            }
         });
     </script>
     @include('backend.reports.partials.async_analytics_report_pdf_js')

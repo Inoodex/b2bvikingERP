@@ -43,6 +43,7 @@ use App\Http\Controllers\Backend\InventoryReportController;
 use App\Http\Controllers\Backend\JournalVoucherController;
 use App\Http\Controllers\Backend\LandedCostController;
 use App\Http\Controllers\Backend\LetterOfCreditController;
+use App\Http\Controllers\Backend\MenuSearchController;
 use App\Http\Controllers\Backend\MonthEndSnapshotController;
 use App\Http\Controllers\Backend\OrderApprovalController;
 use App\Http\Controllers\Backend\OutletController;
@@ -203,6 +204,10 @@ Route::middleware('auth')->group(function () {
 
     /** Backend Routes */
     Route::group(['middleware' => ['auth', 'check.permission'], 'prefix' => 'admin', 'as' => 'admin.'], function () {
+        /** Global Menu Search Command Palette */
+        Route::get('menu-search/registry', [MenuSearchController::class, 'registry'])->name('menu-search.registry');
+        Route::post('menu-search/clear-cache', [MenuSearchController::class, 'clearCache'])->name('menu-search.clear-cache');
+
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::put('users/change-status', [UserController::class, 'changeStatus'])->name('users.change-status');
         Route::resource('users', UserController::class);
@@ -472,6 +477,8 @@ Route::middleware('auth')->group(function () {
             Route::get('reports/stock/pdf/async', 'stockReportPdfAsync')->name('reports.stock.pdf.async');
             Route::get('reports/stock/pdf/download/{file}', 'downloadReportPdf')->name('reports.stock.pdf.download');
             Route::get('reports/stock/check-status', 'checkReportStatus')->name('reports.stock.check-status');
+            Route::get('reports/stock/expected/pdf/async', 'expectedStockReportPdfAsync')->name('reports.stock.expected.pdf.async');
+            Route::get('reports/stock/expected/pdf/download/{file}', 'downloadReportPdf')->name('reports.stock.expected.pdf.download');
             Route::get('reports/purchase', 'purchaseReport')->name('reports.purchase');
             Route::get('reports/purchase/pdf', 'procurementReportPdf')->name('reports.procurement.pdf');
             Route::get('reports/purchase/pdf/async', 'procurementReportPdfAsync')->name('reports.procurement.pdf.async');
@@ -779,6 +786,7 @@ Route::middleware('auth')->group(function () {
         Route::controller(PurchaseReportController::class)->prefix('purchase-reports')->name('purchase-reports.')->group(function () {
             Route::get('/supplier-wise', 'supplierWise')->name('supplier-wise');
             Route::get('/item-wise', 'itemWise')->name('item-wise');
+            Route::get('/item-wise/{product}/breakdown', 'itemPcBreakdown')->name('item-wise.breakdown');
             Route::get('/total-value', 'totalValue')->name('total-value');
             Route::get('/total-value/pdf/async', 'totalValuePdfAsync')->name('total-value.pdf.async');
             Route::get('/total-value/pdf/download/{file}', 'downloadReportPdf')->name('total-value.pdf.download');

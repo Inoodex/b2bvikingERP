@@ -20,11 +20,20 @@ class ItemWisePurchaseDataTable extends DataTable
 
         return (new EloquentDataTable($query))
             ->editColumn('name', fn($row) => '<strong>' . e($row->name) . '</strong><br><small class="text-muted">SKU / Code: ' . e($row->product_number ?? $row->sku ?? ('PROD-' . $row->id)) . '</small>')
-            ->editColumn('total_qty', fn($row) => '<span class="badge badge-light border font-weight-bold">' . number_format($row->total_qty ?? 0) . '</span>')
+            ->editColumn('total_qty', function ($row) {
+                $unit = $row->unit ? (' ' . e($row->unit->name)) : '';
+                return '<span class="badge badge-light border font-weight-bold">' . number_format($row->total_qty ?? 0) . $unit . '</span>' . 
+                       ($row->po_count > 1 ? '<br><small class="text-muted">Across ' . $row->po_count . ' Orders</small>' : '');
+            })
             ->editColumn('avg_unit_price', fn($row) => $icon . number_format($row->avg_unit_price ?? 0, 2))
             ->editColumn('avg_landed_cost', fn($row) => $icon . number_format($row->avg_landed_cost ?? 0, 2))
             ->editColumn('total_value', fn($row) => '<strong class="text-primary">' . $icon . number_format($row->total_value ?? 0, 2) . '</strong>')
-            ->rawColumns(['name', 'total_qty', 'total_value'])
+            ->addColumn('action', function ($row) {
+                return '<button type="button" class="btn btn-sm btn-outline-primary btn-view-pc-breakdown shadow-sm" ' .
+                       'data-product-id="' . $row->id . '" data-product-name="' . e($row->name) . '" title="View Order History">' .
+                       '<i class="fas fa-list-ul mr-1"></i> Breakdown</button>';
+            })
+            ->rawColumns(['name', 'total_qty', 'total_value', 'action'])
             ->setRowId('id');
     }
 
@@ -32,15 +41,17 @@ class ItemWisePurchaseDataTable extends DataTable
     {
         $request = request();
 
-        // Single-pass database aggregation subquery (eliminates 100+ joined queries)
+        // Single-pass database aggregation subquery (Weighted Average Cost by Quantity)
         $subQuery = DB::table('purchase_details')
             ->join('purchases', 'purchases.id', '=', 'purchase_details.purchase_id')
+            ->join('products', 'products.id', '=', 'purchase_details.product_id')
             ->select(
                 'purchase_details.product_id',
                 DB::raw('COALESCE(SUM(purchase_details.qty), 0) as total_qty'),
-                DB::raw('COALESCE(AVG(purchase_details.unit_cost), 0) as avg_unit_price'),
-                DB::raw('COALESCE(AVG(purchase_details.landed_cost), 0) as avg_landed_cost'),
-                DB::raw('COALESCE(SUM(purchase_details.total), 0) as total_value')
+                DB::raw('COALESCE(SUM(CASE WHEN purchase_details.total > 0 THEN purchase_details.total ELSE (purchase_details.qty * COALESCE(NULLIF(purchase_details.unit_cost, 0), products.purchase_price, 0)) END) / NULLIF(SUM(purchase_details.qty), 0), 0) as avg_unit_price'),
+                DB::raw('COALESCE(SUM((CASE WHEN purchase_details.landed_cost > 0 THEN purchase_details.landed_cost WHEN purchase_details.unit_cost > 0 THEN purchase_details.unit_cost ELSE products.purchase_price END) * purchase_details.qty) / NULLIF(SUM(purchase_details.qty), 0), 0) as avg_landed_cost'),
+                DB::raw('COALESCE(SUM(CASE WHEN purchase_details.total > 0 THEN purchase_details.total ELSE (purchase_details.qty * COALESCE(NULLIF(purchase_details.unit_cost, 0), products.purchase_price, 0)) END), 0) as total_value'),
+                DB::raw('COUNT(DISTINCT purchase_details.purchase_id) as po_count')
             )
             ->where('purchases.status', 1)
             ->when($request->filled('start_date'), fn($q) => $q->whereDate('purchases.date', '>=', $request->start_date))
@@ -49,7 +60,8 @@ class ItemWisePurchaseDataTable extends DataTable
             ->groupBy('purchase_details.product_id');
 
         $query = $model->newQuery()
-            ->select('products.*', 'pd_agg.total_qty', 'pd_agg.avg_unit_price', 'pd_agg.avg_landed_cost', 'pd_agg.total_value')
+            ->with('unit')
+            ->select('products.*', 'pd_agg.total_qty', 'pd_agg.avg_unit_price', 'pd_agg.avg_landed_cost', 'pd_agg.total_value', 'pd_agg.po_count')
             ->joinSub($subQuery, 'pd_agg', function ($join) {
                 $join->on('products.id', '=', 'pd_agg.product_id');
             })
@@ -96,6 +108,7 @@ class ItemWisePurchaseDataTable extends DataTable
             Column::make('avg_unit_price')->title('Average Unit Cost')->addClass('text-right'),
             Column::make('avg_landed_cost')->title('Average Landed Cost')->addClass('text-right'),
             Column::make('total_value')->title('Total Purchase Value')->addClass('text-right'),
+            Column::computed('action')->title('Breakdown')->addClass('text-center')->orderable(false)->searchable(false),
         ];
     }
 }

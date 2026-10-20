@@ -25,6 +25,16 @@ class GoodsReceiptItem extends Model
         'rejected_qty' => 'decimal:2',
     ];
 
+    protected static function booted(): void
+    {
+        static::created(function ($item) {
+            $grn = $item->goodsReceipt ?? GoodsReceipt::find($item->goods_receipt_id);
+            if ($grn) {
+                app(\App\Observers\AccountingObserver::class)->handleGoodsReceipt($grn);
+            }
+        });
+    }
+
     public function goodsReceipt(): BelongsTo
     {
         return $this->belongsTo(GoodsReceipt::class, 'goods_receipt_id');

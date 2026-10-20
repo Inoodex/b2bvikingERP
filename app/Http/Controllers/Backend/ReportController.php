@@ -14,12 +14,14 @@ use App\Models\OrderItem;
 use App\Models\OrderPayment;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
+use App\Models\Outlet;
 use App\Models\User;
 use App\Models\Vendor;
 use App\DataTables\ProductPurchaseHistoryDataTable;
 use App\DataTables\PurchaseHistoryDataTable;
 use App\Jobs\GenerateReportPdfJob;
 use App\Jobs\GenerateStockReportPdfJob;
+use App\Jobs\GenerateExpectedStockReportPdfJob;
 use App\Jobs\GenerateProcurementReportPdfJob;
 use App\Jobs\GenerateAuditReportPdfJob;
 use App\Traits\HasEphemeralPdfReports;
@@ -285,7 +287,7 @@ class ReportController extends Controller implements HasMiddleware
         // Calculate Summary Stats from database aggregates BEFORE pagination
         $summaryQuery = DB::table('products')
             ->join('inventory_stocks', 'products.id', '=', 'inventory_stocks.product_id')
-            ->join(DB::raw('(SELECT product_id, AVG(unit_cost) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'products.id', '=', 'costs.product_id')
+            ->join(DB::raw('(SELECT product_id, COALESCE(SUM(total) / NULLIF(SUM(qty), 0), 0) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'products.id', '=', 'costs.product_id')
             ->where('products.status', 1);
 
         if ($request->category_id) {
@@ -312,6 +314,90 @@ class ReportController extends Controller implements HasMiddleware
         $brands = Brand::where('status', 1)->get();
         $settings = GeneralSetting::first() ?? new GeneralSetting(['site_name' => 'B2B Viking ERP', 'currency_icon' => 'Kr.']);
 
+        // ─── TAB 2: Expected Retail Price (User / Outlet) Data ───
+        $activeTab = $request->get('tab', 'general');
+
+        $outlets = Outlet::where('status', 1)->orderBy('name')->get();
+        $customers = User::where(function($q) {
+            $q->whereIn('role_id', [2, 3])->orWhereNotNull('outlet_id');
+        })->orderBy('name')->get(['id', 'name', 'outlet_id', 'outlet_name']);
+
+        $selectedExpectedOutletId = $request->filled('expected_outlet_id') ? (int) $request->expected_outlet_id : null;
+        $selectedExpectedUserId = $request->filled('expected_user_id') ? (int) $request->expected_user_id : null;
+        $selectedExpectedEntityName = null;
+
+        if ($selectedExpectedOutletId) {
+            $selectedExpectedEntityName = Outlet::where('id', $selectedExpectedOutletId)->value('name');
+        } elseif ($selectedExpectedUserId) {
+            $selectedExpectedUser = User::find($selectedExpectedUserId);
+            if ($selectedExpectedUser) {
+                $selectedExpectedOutletId = $selectedExpectedUser->outlet_id;
+                $selectedExpectedEntityName = $selectedExpectedUser->name . ($selectedExpectedUser->outlet_name ? ' (' . $selectedExpectedUser->outlet_name . ')' : '');
+            }
+        }
+
+        $expectedQuery = Product::with([
+            'category',
+            'unit',
+            'brand',
+            'inventoryStocks',
+            'variants' => function ($vq) use ($selectedExpectedOutletId) {
+                $vq->with(['color', 'size']);
+                if ($selectedExpectedOutletId) {
+                    $vq->withSum(['inventoryStocks' => function ($q) use ($selectedExpectedOutletId) {
+                        $q->where('outlet_id', $selectedExpectedOutletId);
+                    }], 'quantity');
+                } else {
+                    $vq->withSum('inventoryStocks', 'quantity');
+                }
+            }
+        ])->where('status', 1);
+
+        if ($selectedExpectedOutletId) {
+            $expectedQuery->withSum(['inventoryStocks' => function ($q) use ($selectedExpectedOutletId) {
+                $q->where('outlet_id', $selectedExpectedOutletId);
+            }], 'quantity');
+        } else {
+            $expectedQuery->withSum('inventoryStocks', 'quantity');
+        }
+
+        if ($request->expected_category_id) {
+            $expectedQuery->where('category_id', $request->expected_category_id);
+        }
+        if ($request->expected_brand_id) {
+            $expectedQuery->where('brand_id', $request->expected_brand_id);
+        }
+
+        $expectedSummaryQuery = DB::table('products')
+            ->join('inventory_stocks', 'products.id', '=', 'inventory_stocks.product_id')
+            ->join(DB::raw('(SELECT product_id, COALESCE(SUM(total) / NULLIF(SUM(qty), 0), 0) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'products.id', '=', 'costs.product_id')
+            ->where('products.status', 1);
+
+        if ($selectedExpectedOutletId) {
+            $expectedSummaryQuery->where('inventory_stocks.outlet_id', $selectedExpectedOutletId);
+        }
+        if ($request->expected_category_id) {
+            $expectedSummaryQuery->where('products.category_id', $request->expected_category_id);
+        }
+        if ($request->expected_brand_id) {
+            $expectedSummaryQuery->where('products.brand_id', $request->expected_brand_id);
+        }
+
+        $expectedSummaryData = $expectedSummaryQuery->selectRaw('
+            SUM(inventory_stocks.quantity) as untyped_total_qty,
+            SUM(inventory_stocks.quantity * costs.avg_cost) as untyped_total_cost,
+            SUM(inventory_stocks.quantity * COALESCE(products.outlet_price, 0)) as untyped_total_wholesale,
+            SUM(inventory_stocks.quantity * products.price) as untyped_expected_retail
+        ')->first();
+
+        $expTotalQty = $expectedSummaryData->untyped_total_qty ?? 0;
+        $expTotalCost = $expectedSummaryData->untyped_total_cost ?? 0;
+        $expTotalWholesale = $expectedSummaryData->untyped_total_wholesale ?? 0;
+        $expTotalRetail = $expectedSummaryData->untyped_expected_retail ?? 0;
+        $expTotalMargin = $expTotalRetail - $expTotalCost;
+
+        $expectedProducts = $expectedQuery->paginate(30, ['*'], 'expected_page')->withQueryString();
+
         if ($request->ajax()) {
             return response()->json([
                 'html' => view('backend.reports.partials.stock_table_rows', compact('products', 'settings'))->render(),
@@ -324,8 +410,13 @@ class ReportController extends Controller implements HasMiddleware
         }
 
         $latestPdf = $this->getLatestReportFile('stock_valuation_report', 'admin.reports.stock.pdf.download');
+        $latestExpectedPdf = $this->getLatestReportFile('expected_stock_report', 'admin.reports.stock.expected.pdf.download');
 
-        return view('backend.reports.stock', compact('products', 'categories', 'brands', 'totalQty', 'totalValue', 'potentialRevenue', 'potentialProfit', 'settings', 'latestPdf'));
+        return view('backend.reports.stock', compact(
+            'products', 'categories', 'brands', 'totalQty', 'totalValue', 'potentialRevenue', 'potentialProfit', 'settings', 'latestPdf', 'latestExpectedPdf',
+            'activeTab', 'outlets', 'customers', 'expectedProducts', 'selectedExpectedEntityName', 'selectedExpectedOutletId', 'selectedExpectedUserId',
+            'expTotalQty', 'expTotalCost', 'expTotalWholesale', 'expTotalRetail', 'expTotalMargin'
+        ));
     }
 
     /**
@@ -665,7 +756,7 @@ class ReportController extends Controller implements HasMiddleware
 
             $totalCost = DB::table('order_items')
                 ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                ->join(DB::raw('(SELECT product_id, AVG(unit_cost) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'order_items.product_id', '=', 'costs.product_id')
+                ->join(DB::raw('(SELECT product_id, COALESCE(SUM(total) / NULLIF(SUM(qty), 0), 0) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'order_items.product_id', '=', 'costs.product_id')
                 ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
                 ->where('orders.status', 'completed')
                 ->when($request->start_date, fn($q) => $q->whereDate('orders.placed_at', '>=', $request->start_date))
@@ -677,7 +768,7 @@ class ReportController extends Controller implements HasMiddleware
                 ->sum(DB::raw('issue_items.quantity * COALESCE(issue_items.unit_price, 0)'));
 
             $totalCost = DB::table('issue_items')
-                ->join(DB::raw('(SELECT product_id, AVG(unit_cost) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'issue_items.product_id', '=', 'costs.product_id')
+                ->join(DB::raw('(SELECT product_id, COALESCE(SUM(total) / NULLIF(SUM(qty), 0), 0) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'issue_items.product_id', '=', 'costs.product_id')
                 ->leftJoin('products', 'issue_items.product_id', '=', 'products.id')
                 ->sum(DB::raw('issue_items.quantity * COALESCE(NULLIF(costs.avg_cost, 0), products.purchase_price, 0)'));
         }
@@ -745,24 +836,51 @@ class ReportController extends Controller implements HasMiddleware
             $issueValue = 0;
             $pendingValue = 0;
 
-            $orders = $query->with('items')->orderByDesc('placed_at')->get();
+            $orders = $query->with('items')->orderByDesc('placed_at')->paginate(15, ['*'], 'orders_page')->withQueryString()->fragment('ordersTab');
             $issues = collect();
 
             $payments = OrderPayment::with('order')
                 ->whereIn('order_id', $orderIds)
                 ->orderByDesc('created_at')
-                ->get();
+                ->paginate(15, ['*'], 'payments_page')
+                ->withQueryString()
+                ->fragment('paymentsTab');
+
+            $demandedSummary = OrderItem::whereIn('order_id', $orderIds)
+                ->selectRaw('
+                    COUNT(DISTINCT CONCAT(COALESCE(product_id, 0), "-", product_name)) as total_items,
+                    COALESCE(SUM(quantity), 0) as total_qty,
+                    COALESCE(SUM(line_total), 0) as total_value
+                ')->first();
 
             $productComparison = OrderItem::whereIn('order_id', $orderIds)
-                ->selectRaw('product_id, product_name, SUM(quantity) as ordered_qty, COALESCE(SUM(line_total),0) as ordered_value')
+                ->with(['product.category'])
+                ->selectRaw('
+                    product_id,
+                    product_name,
+                    MAX(product_image) as item_image,
+                    MAX(category_name) as item_category,
+                    COUNT(DISTINCT order_id) as times_ordered,
+                    SUM(quantity) as ordered_qty,
+                    COALESCE(SUM(line_total),0) as ordered_value
+                ')
                 ->groupBy('product_id', 'product_name')
+                ->orderByDesc('ordered_qty')
                 ->orderByDesc('ordered_value')
-                ->get()
-                ->map(function ($item) {
-                    $item->issued_qty = (int) $item->ordered_qty;
-                    $item->pending_qty = 0;
-                    return $item;
-                });
+                ->paginate(20, ['*'], 'products_page')
+                ->withQueryString()
+                ->fragment('productsTab');
+
+            $productComparison->getCollection()->transform(function ($item) {
+                $item->issued_qty = (int) $item->ordered_qty;
+                $item->pending_qty = 0;
+                $item->avg_price = $item->ordered_qty > 0 ? ($item->ordered_value / $item->ordered_qty) : 0;
+                $item->display_image = $item->product?->thumb_image ?: $item->item_image;
+                $item->sku = $item->product?->sku ?: $item->product?->product_number;
+                $item->display_category = $item->product?->category?->name ?: ($item->item_category ?: 'General');
+                $item->current_stock = $item->product?->qty ?? 0;
+                return $item;
+            });
 
             $monthlyTrend = Order::where('status', 'completed')
                 ->where('user_id', $request->user_id)
@@ -772,14 +890,16 @@ class ReportController extends Controller implements HasMiddleware
                 ->when($request->filled('year'), fn($q) => $q->whereYear('placed_at', $request->year))
                 ->selectRaw("DATE_FORMAT(placed_at, '%Y-%m') as month, COUNT(*) as orders_count, COALESCE(SUM(total_amount),0) as total_amount")
                 ->groupBy('month')->orderBy('month', 'desc')
-                ->get();
+                ->paginate(12, ['*'], 'monthly_page')
+                ->withQueryString()
+                ->fragment('monthlyTab');
 
             $latestPdf = $this->getLatestReportFile('order_sales_report', 'admin.reports.orders.pdf.download');
 
             return view('backend.reports.orders', compact(
                 'user', 'users', 'summary', 'issueStats', 'orderIds',
                 'paymentStats', 'totalDue', 'issueValue', 'pendingValue',
-                'orders', 'issues', 'payments', 'productComparison', 'monthlyTrend', 'totalRevenue', 'latestPdf'
+                'orders', 'issues', 'payments', 'productComparison', 'demandedSummary', 'monthlyTrend', 'totalRevenue', 'latestPdf'
             ));
         }
 
@@ -801,7 +921,9 @@ class ReportController extends Controller implements HasMiddleware
             ->when($request->filled('year'), fn($q) => $q->whereYear('placed_at', $request->year))
             ->selectRaw("DATE_FORMAT(placed_at, '%Y-%m') as month, COUNT(*) as orders_count, COALESCE(SUM(total_amount),0) as total_amount")
             ->groupBy('month')->orderBy('month', 'desc')
-            ->get();
+            ->paginate(12, ['*'], 'monthly_page')
+            ->withQueryString()
+            ->fragment('monthly');
 
         $userSummary = DB::table('orders')
             ->leftJoin('order_items', 'orders.id', '=', 'order_items.order_id')
@@ -894,6 +1016,40 @@ class ReportController extends Controller implements HasMiddleware
     }
 
     /**
+     * Expected Retail Price Report — Dispatch PDF generation to Background Queue.
+     */
+    public function expectedStockReportPdf(Request $request): JsonResponse|RedirectResponse
+    {
+        $filters = [
+            'expected_outlet_id'   => $request->get('expected_outlet_id'),
+            'expected_user_id'     => $request->get('expected_user_id'),
+            'expected_category_id' => $request->get('expected_category_id'),
+            'expected_brand_id'    => $request->get('expected_brand_id'),
+        ];
+
+        dispatch(new GenerateExpectedStockReportPdfJob($filters, (int) auth()->id()));
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status'        => 'success',
+                'message'       => 'Expected Retail Price report is generating in the background. The Download button will appear when ready.',
+                'dispatched_at' => now()->timestamp,
+            ]);
+        }
+
+        Toastr::info('Expected Retail Price report is generating in the background. It will be ready in a few moments.');
+        return redirect()->back();
+    }
+
+    /**
+     * Expected Retail Price Report — Async PDF Generation alias.
+     */
+    public function expectedStockReportPdfAsync(Request $request): JsonResponse|RedirectResponse
+    {
+        return $this->expectedStockReportPdf($request);
+    }
+
+    /**
      * Procurement Report — Dispatch PDF generation to Background Queue.
      */
     public function procurementReportPdf(Request $request): JsonResponse|RedirectResponse
@@ -928,7 +1084,7 @@ class ReportController extends Controller implements HasMiddleware
     public function checkReportStatus(Request $request): JsonResponse
     {
         $reportType = (string) $request->get('type', 'order_sales_report');
-        $allowedTypes = ['order_sales_report', 'stock_valuation_report', 'procurement_report', 'audit_report'];
+        $allowedTypes = ['order_sales_report', 'stock_valuation_report', 'expected_stock_report', 'procurement_report', 'audit_report'];
 
         if (!in_array($reportType, $allowedTypes, true)) {
             return response()->json(['ready' => false]);
@@ -938,6 +1094,7 @@ class ReportController extends Controller implements HasMiddleware
 
         $downloadRoute = match ($reportType) {
             'stock_valuation_report' => 'admin.reports.stock.pdf.download',
+            'expected_stock_report'  => 'admin.reports.stock.expected.pdf.download',
             'procurement_report'     => 'admin.reports.procurement.pdf.download',
             'audit_report'           => 'admin.reports.audit.pdf.download',
             default                  => 'admin.reports.orders.pdf.download',

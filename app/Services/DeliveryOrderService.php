@@ -95,27 +95,44 @@ class DeliveryOrderService
                 'dispatched_by' => $dispatchedBy,
             ]);
 
-            foreach ($deliveryOrder->items as $item) {
-                $stock = InventoryStock::firstOrCreate(
-                    [
-                        'product_id' => $item->product_id,
-                        'variant_id' => $item->variant_id,
-                    ],
-                    ['quantity' => 0]
-                );
+            $outletId = (int)($deliveryOrder->outlet_id ?? ($deliveryOrder->order?->outlet_id ?? 1));
 
-                $qtyBefore = (float)$stock->quantity;
-                $qtyAfter = max(0, $qtyBefore - (float)$item->qty_delivered);
+            foreach ($deliveryOrder->items as $item) {
+                $stockQuery = InventoryStock::where('product_id', $item->product_id)
+                    ->where('outlet_id', $outletId);
+
+                if (!empty($item->variant_id)) {
+                    $stockQuery->where('variant_id', $item->variant_id);
+                } else {
+                    $stockQuery->where(function ($q) {
+                        $q->whereNull('variant_id')->orWhere('variant_id', 0);
+                    });
+                }
+
+                if (!empty($item->bin_id)) {
+                    $stockQuery->where('bin_id', $item->bin_id);
+                }
+
+                $stock = $stockQuery->lockForUpdate()->first();
+                $qtyDelivered = (float)$item->qty_delivered;
+                $qtyBefore = $stock ? (float)$stock->quantity : 0.0;
+
+                if (!$stock || $qtyBefore < $qtyDelivered) {
+                    throw new \Exception("Insufficient stock in Outlet #{$outletId} for Product ID: {$item->product_id}. Available: {$qtyBefore}, Requested: {$qtyDelivered}");
+                }
+
+                $qtyAfter = $qtyBefore - $qtyDelivered;
                 $stock->update(['quantity' => $qtyAfter]);
 
                 StockLedger::create([
                     'product_id'     => $item->product_id,
                     'variant_id'     => $item->variant_id,
-                    'outlet_id'      => $deliveryOrder->order?->outlet_id ?? 1,
+                    'outlet_id'      => $outletId,
+                    'bin_id'         => $stock->bin_id ?? null,
                     'reference_type' => 'DeliveryOrder',
                     'reference_id'   => $deliveryOrder->id,
                     'in_qty'         => 0,
-                    'out_qty'        => (float)$item->qty_delivered,
+                    'out_qty'        => $qtyDelivered,
                     'balance_qty'    => $qtyAfter,
                     'date'           => now()->toDateString(),
                 ]);

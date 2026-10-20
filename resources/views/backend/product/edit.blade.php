@@ -387,6 +387,11 @@
             // Get sub categories
             $('body').on('change', '.main-category', function(e) {
                 let id = $(this).val();
+                if (!id) {
+                    $('.sub-category').html('<option value="">Select Sub Category</option>').val('').trigger('change');
+                    $('.child-category').html('<option value="">Select Child Category</option>').val('').trigger('change');
+                    return;
+                }
                 $.ajax({
                     method: 'GET',
                     url: "{{ route('admin.get-subCategories') }}",
@@ -394,21 +399,26 @@
                         id: id
                     },
                     success: function(data) {
-                        $('.sub-category').html('<option value="">Select Sub Category</option>')
-                        $('.child-category').html('<option value="">Select Child Category</option>')
+                        let html = '<option value="">Select Sub Category</option>';
                         $.each(data, function(i, item) {
-                            $('.sub-category').append(`<option value="${item.id}">${item.name}</option>`)
-                        })
+                            html += `<option value="${item.id}">${item.name}</option>`;
+                        });
+                        $('.sub-category').html(html).val('').trigger('change');
+                        $('.child-category').html('<option value="">Select Child Category</option>').val('').trigger('change');
                     },
                     error: function(xhr, status, error) {
                         console.log(error);
                     }
-                })
-            })
+                });
+            });
 
             // Get child categories
             $('body').on('change', '.sub-category', function(e) {
                 let id = $(this).val();
+                if (!id) {
+                    $('.child-category').html('<option value="">Select Child Category</option>').val('').trigger('change');
+                    return;
+                }
                 $.ajax({
                     method: 'GET',
                     url: "{{ route('admin.get-child-categories') }}",
@@ -416,16 +426,17 @@
                         id: id
                     },
                     success: function(data) {
-                        $('.child-category').html('<option value="">Select Child Category</option>')
+                        let html = '<option value="">Select Child Category</option>';
                         $.each(data, function(i, item) {
-                            $('.child-category').append(`<option value="${item.id}">${item.name}</option>`)
-                        })
+                            html += `<option value="${item.id}">${item.name}</option>`;
+                        });
+                        $('.child-category').html(html).val('').trigger('change');
                     },
                     error: function(xhr, status, error) {
                         console.log(error);
                     }
-                })
-            })
+                });
+            });
 
             // Variant Logic
             let variantCount = {{ count($product->variants) }};

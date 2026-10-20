@@ -24,33 +24,53 @@ class AccountingObserver
      */
     public function created(Model $model): void
     {
-        // Enterprise Idempotency Guard: Never duplicate if already posted
-        if (JournalEntry::where('reference_type', $model->getMorphClass())->where('reference_id', $model->id)->exists()) {
-            return;
-        }
-
         if ($model instanceof GoodsReceipt) {
             $this->handleGoodsReceipt($model);
+        } elseif ($model instanceof GoodsReceiptItem) {
+            $receipt = $model->goodsReceipt ?? \App\Models\GoodsReceipt::find($model->goods_receipt_id);
+            if ($receipt) {
+                $this->handleGoodsReceipt($receipt);
+            }
         } elseif ($model instanceof OrderPayment) {
+            // Enterprise Idempotency Guard: Never duplicate if already posted
+            if (JournalEntry::where('reference_type', $model->getMorphClass())->where('reference_id', $model->id)->exists()) {
+                return;
+            }
             $this->handleOrderPayment($model);
         }
     }
 
-    protected function handleGoodsReceipt(GoodsReceipt $receipt): void
+    public function handleGoodsReceipt(GoodsReceipt $receipt): void
     {
         try {
-            $receipt->loadMissing(['items.product']);
-            $totalAmount = (float) $receipt->items->sum(fn($item) => $item->accepted_qty * ($item->product?->purchase_price ?? 0));
+            // Enterprise Idempotency Guard: Never duplicate if already posted
+            if (JournalEntry::where('reference_type', $receipt->getMorphClass())->where('reference_id', $receipt->id)->exists()) {
+                return;
+            }
+
+            $receipt->load(['items.product']);
+            $totalAmount = (float) $receipt->items->sum(fn($item) => (float)$item->accepted_qty * (float)($item->product?->purchase_price ?? 0));
             if ($totalAmount <= 0) return;
 
+            $assetAccount = \App\Models\ChartOfAccount::where('account_code', '1050')->first()
+                ?? \App\Models\ChartOfAccount::where('account_type', 'asset')->first();
+            $clearingAccount = \App\Models\ChartOfAccount::where('account_code', '2020')->first()
+                ?? \App\Models\ChartOfAccount::where('account_type', 'liability')->first()
+                ?? \App\Models\ChartOfAccount::where('account_type', 'revenue')->first()
+                ?? \App\Models\ChartOfAccount::first();
+
+            $assetCode = $assetAccount ? $assetAccount->account_code : '1050';
+            $clearingCode = $clearingAccount ? $clearingAccount->account_code : '2020';
+
             $lines = [
-                ['account_code' => '1050', 'debit' => $totalAmount, 'credit' => 0], // DR Inventory Asset
-                ['account_code' => '2020', 'debit' => 0,           'credit' => $totalAmount], // CR GRN Accrued Clearing
+                ['account_code' => $assetCode, 'debit' => $totalAmount, 'credit' => 0], // DR Inventory Asset
+                ['account_code' => $clearingCode, 'debit' => 0,          'credit' => $totalAmount], // CR GRN Accrued Clearing
             ];
 
-            $date = $receipt->receipt_date ? $receipt->receipt_date->toDateString() : null;
-            $this->journalService->postJournal('Goods Receipt (GRN)', $receipt, $lines, $date, "Inventory GRN #{$receipt->receipt_no}");
-        } catch (\Exception $e) {
+            $date = $receipt->receipt_date ? (is_string($receipt->receipt_date) ? $receipt->receipt_date : $receipt->receipt_date->toDateString()) : now()->toDateString();
+            $receiptNo = $receipt->grn_no ?? ($receipt->receipt_no ?? "GRN-{$receipt->id}");
+            $this->journalService->postJournal('Goods Receipt (GRN)', $receipt, $lines, $date, "Inventory GRN #{$receiptNo}");
+        } catch (\Throwable $e) {
             Log::error("AccountingObserver error on GoodsReceipt #{$receipt->id}: " . $e->getMessage());
         }
     }

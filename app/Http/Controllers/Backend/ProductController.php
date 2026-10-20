@@ -319,9 +319,22 @@ class ProductController extends Controller implements HasMiddleware
     public function edit(string $id)
     {
         $product = Product::findOrFail($id);
-        $categories = Category::where('status', 1)->get();
-        $subCategories = SubCategory::where('category_id', $product->category_id)->get();
-        $childCategories = ChildCategory::where('sub_category_id', $product->sub_category_id)->get();
+        $categories = Category::where('status', 1)
+            ->orWhere('id', $product->category_id)
+            ->orderBy('name', 'asc')
+            ->get();
+        $subCategories = SubCategory::where('category_id', $product->category_id)
+            ->where(function ($q) use ($product) {
+                $q->where('status', 1)->orWhere('id', $product->sub_category_id);
+            })
+            ->orderBy('name', 'asc')
+            ->get();
+        $childCategories = ChildCategory::where('sub_category_id', $product->sub_category_id)
+            ->where(function ($q) use ($product) {
+                $q->where('status', 1)->orWhere('id', $product->child_category_id);
+            })
+            ->orderBy('name', 'asc')
+            ->get();
         $brands = Brand::where('status', 1)->get();
         $units = Unit::where('status', 1)->get();
         $vendors = Vendor::where('status', 1)->get();
@@ -390,9 +403,27 @@ class ProductController extends Controller implements HasMiddleware
 
             $product->name = $request->name;
             $product->slug = Str::slug($request->name);
-            $product->category_id = $request->category_id;
-            $product->sub_category_id = $request->sub_category_id;
-            $product->child_category_id = $request->child_category_id;
+            $product->category_id = (int) $request->category_id;
+
+            // Ensure sub-category belongs to selected category and sanitize
+            $subCategoryId = $request->filled('sub_category_id') ? (int) $request->sub_category_id : null;
+            if ($subCategoryId) {
+                $subCategoryValid = SubCategory::where('id', $subCategoryId)->where('category_id', $product->category_id)->exists();
+                if (!$subCategoryValid) {
+                    $subCategoryId = null;
+                }
+            }
+            $product->sub_category_id = $subCategoryId;
+
+            // Ensure child-category belongs to selected sub-category and sanitize
+            $childCategoryId = ($subCategoryId && $request->filled('child_category_id')) ? (int) $request->child_category_id : null;
+            if ($childCategoryId) {
+                $childCategoryValid = ChildCategory::where('id', $childCategoryId)->where('sub_category_id', $subCategoryId)->exists();
+                if (!$childCategoryValid) {
+                    $childCategoryId = null;
+                }
+            }
+            $product->child_category_id = $childCategoryId;
             $product->brand_id = $request->brand_id;
             $product->vendor_id = $request->vendor_id;
             $product->unit_id = $request->unit_id;

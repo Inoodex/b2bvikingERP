@@ -142,6 +142,7 @@ class InvoicePaymentController extends Controller
                 $this->customerPaymentService->recordPayment([
                     'order_id'         => $invoice->order_id,
                     'customer_id'      => $invoice->user_id,
+                    'sales_invoice_id' => $invoice->id,
                     'account_id'       => $bankAccount ? $bankAccount->id : 1,
                     'amount'           => $settledAmount,
                     'payment_method'   => 'paypal',
@@ -150,13 +151,16 @@ class InvoicePaymentController extends Controller
                     'notes'            => "Online PayPal settlement for Invoice #{$invoice->invoice_no}",
                     'allow_advance'    => false,
                     'allocations'      => [
-                        $invoice->id => $settledAmount,
+                        [
+                            'sales_invoice_id' => $invoice->id,
+                            'amount'           => $settledAmount,
+                        ],
                     ],
-                ]);
+                ], (int)($invoice->user_id ?? 1));
 
                 return redirect()->route('invoices.pay', $token)->with('success', "Payment of kr. " . number_format($settledAmount, 2) . " received successfully! Invoice #{$invoice->invoice_no} has been settled.");
             });
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             Log::error("Invoice PayPal Capture Failed: " . $e->getMessage());
             return redirect()->route('invoices.pay', $token)->with('error', "Payment capture failed: " . $e->getMessage());
         }

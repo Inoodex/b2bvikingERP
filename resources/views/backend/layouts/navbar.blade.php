@@ -369,13 +369,14 @@
         left: 0;
     }
 
-    .hamburger-toggle {
+    .hamburger-toggle,
+    .topbar-search-toggle {
         position: relative;
         color: var(--nb-text) !important;
         padding: 9px 11px;
         border-radius: 10px;
         transition: all 0.22s cubic-bezier(.2, .8, .2, 1);
-        font-size: 17px;
+        font-size: 16px;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid var(--glass-border);
         box-shadow: inset 0 1px 0 var(--glass-highlight), 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -384,9 +385,55 @@
         justify-content: center;
         flex-shrink: 0;
         overflow: hidden;
+        cursor: pointer;
     }
 
-    .hamburger-toggle:hover {
+    .topbar-search-toggle {
+        margin-left: 8px;
+        padding: 8px 12px;
+        gap: 8px;
+        color: var(--nb-muted-2) !important;
+        font-size: 14px;
+    }
+
+    .topbar-search-toggle .search-kbd-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .topbar-search-toggle kbd {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        color: var(--nb-muted-2);
+        font-size: 10.5px;
+        font-weight: 700;
+        padding: 1.5px 5px;
+        border-radius: 4px;
+        font-family: inherit;
+        line-height: 1.2;
+        letter-spacing: 0.3px;
+        transition: all 0.2s;
+    }
+
+    .topbar-search-toggle:hover kbd {
+        background: rgba(205, 160, 90, 0.2);
+        border-color: rgba(205, 160, 90, 0.4);
+        color: var(--nb-gold-bright);
+    }
+
+    @media (max-width: 767.98px) {
+        .topbar-search-toggle {
+            padding: 9px 11px;
+            margin-left: 6px;
+        }
+        .topbar-search-toggle .search-kbd-badge {
+            display: none;
+        }
+    }
+
+    .hamburger-toggle:hover,
+    .topbar-search-toggle:hover {
         background: var(--nb-gold-soft);
         border-color: var(--nb-border-strong);
         color: var(--nb-gold-bright) !important;
@@ -394,7 +441,8 @@
         box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 20px rgba(205, 160, 90, 0.22);
     }
 
-    .hamburger-toggle:active {
+    .hamburger-toggle:active,
+    .topbar-search-toggle:active {
         transform: translateY(0) scale(0.94);
     }
 
@@ -1584,8 +1632,15 @@
      TOPBAR
      ============================================ --}}
 <nav class="topbar">
-    <button class="hamburger-toggle" id="sidebarToggle" aria-label="Toggle menu">
+    <button class="hamburger-toggle" id="sidebarToggle" aria-label="Toggle menu" title="Toggle Sidebar">
         <i class="fas fa-bars"></i>
+    </button>
+
+    {{-- Global Menu Search Icon Toggle (Command Palette) --}}
+    <button type="button" class="topbar-search-toggle" id="menuSearchToggle" onclick="openMenuSearchModal()" 
+            aria-label="Search menus" title="Search ERP Menus (Ctrl + K)">
+        <i class="fas fa-search"></i>
+        <span class="search-kbd-badge"><kbd>Ctrl</kbd> <kbd>K</kbd></span>
     </button>
 
     <ul class="navbar-right" style="list-style:none;">
@@ -1751,6 +1806,11 @@
 @include('backend.layouts.partials.cart_drawer')
 
 {{-- ============================================
+     GLOBAL MENU SEARCH COMMAND PALETTE (Modal)
+     ============================================ --}}
+@include('backend.layouts.partials.menu_search_modal')
+
+{{-- ============================================
      LEFT SIDEBAR
      ============================================ --}}
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -1858,8 +1918,7 @@
                             <li class="sb-submenu-divider"></li>
                         @endif
                         @if (auth()->user()?->can('Manage Stock Ledger') || auth()->user()?->hasRole('Admin'))
-                            <li><a href="{{ route('admin.stock-ledger.index') }}"><i class="fas fa-book"></i> Stock
-                                    Ledger</a></li>
+                            <li><a href="{{ route('admin.stock-ledger.index') }}"><i class="fas fa-exchange-alt"></i> Stock Ledger & Movements</a></li>
                         @endif
                         @if (auth()->user()?->can('Manage Stock Batches') || auth()->user()?->hasRole('Admin'))
                             <li><a href="{{ route('admin.stock-batches.index') }}"><i class="fas fa-boxes"></i> Stock
@@ -2077,6 +2136,8 @@
                         <li class="sb-submenu-header">Analytics & Stock Reports</li>
                         <li><a href="{{ route('admin.reports.orders') }}"><i class="fas fa-file-invoice"></i> Order &
                                 Sales Report</a></li>
+                        <li><a href="{{ route('admin.reports.top-customers') }}"><i class="fas fa-crown text-warning"></i> Top
+                                Customers</a></li>
                         <li><a href="{{ route('admin.reports.best-sellers') }}"><i class="fas fa-fire text-danger"></i> Best
                                 Seller Products</a></li>
                         <li><a href="{{ route('admin.reports.reorder-risk') }}"><i

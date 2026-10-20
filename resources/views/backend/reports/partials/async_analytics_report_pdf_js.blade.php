@@ -24,11 +24,29 @@ $(document).ready(function() {
             }
         }
 
+        if (reportType === 'expected_stock_report') {
+            var expCatVal = $('select[name="expected_category_id"]').val();
+            var expBrandVal = $('select[name="expected_brand_id"]').val();
+            if (!expCatVal && !expBrandVal) {
+                if (typeof toastr !== 'undefined') {
+                    toastr.warning('Please select a Category or Brand filter before exporting PDF. For full inventory, please use Excel export.', 'Filter Required');
+                }
+                return;
+            }
+        }
+
         // Capture current form filter values if a form exists
-        var $form = $('form#stock-filter-form, form#filter-form-user, form#filter-form-global, form[action*="reports"]').first();
+        var $form;
+        if (reportType === 'expected_stock_report') {
+            $form = $('#expected-filter-form');
+        } else if ($btn.closest('.tab-pane').find('form').length) {
+            $form = $btn.closest('.tab-pane').find('form').first();
+        } else {
+            $form = $('form#stock-filter-form, form#filter-form-user, form#filter-form-global, form[action*="reports"]').first();
+        }
         var formData = '';
 
-        if ($form.length) {
+        if ($form && $form.length) {
             formData = $form.serialize();
         } else {
             formData = window.location.search.replace(/^\?/, '');
@@ -74,8 +92,15 @@ $(document).ready(function() {
                                 $('#btn-download-pdf-placeholder').hide();
 
                                 // Update and reveal the download button
-                                var $dlBtn = $('#btn-download-pdf, .btn-download-pdf');
-                                if ($dlBtn.length) {
+                                var $dlBtn;
+                                if (reportType === 'expected_stock_report') {
+                                    $dlBtn = $('#btn-exp-download-pdf');
+                                } else if ($btn.siblings('.btn-download-pdf').length) {
+                                    $dlBtn = $btn.siblings('.btn-download-pdf');
+                                } else {
+                                    $dlBtn = $('#btn-download-pdf, .btn-download-pdf');
+                                }
+                                if ($dlBtn && $dlBtn.length) {
                                     $dlBtn.attr('href', statusRes.download_url);
                                     $dlBtn.attr('title', statusRes.filename || 'Download PDF');
                                     if ($dlBtn.find('svg').length > 0) {

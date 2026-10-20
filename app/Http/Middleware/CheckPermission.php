@@ -47,6 +47,18 @@ class CheckPermission
             if (!$hasPermission) {
                 abort(403, 'Access Denied. You do not have the required permission to access this page.');
             }
+        } elseif ($request->is('admin') || $request->is('admin/*')) {
+            $action = $request->route()?->getActionName() ?? '';
+            $isSelfGoverned = str_contains($action, 'ProfileController')
+                || str_contains($action, 'ProductRequestController')
+                || str_contains($action, 'CustomProductRequestController')
+                || str_contains($action, 'NotificationController')
+                || str_contains($action, 'MenuSearchController')
+                || $request->routeIs('admin.logout');
+
+            if (!$isSelfGoverned) {
+                abort(403, 'Access Denied. You do not have administrative permissions for this resource.');
+            }
         }
 
         return $next($request);
@@ -166,15 +178,27 @@ class CheckPermission
             'ApprovalInboxController' => ['Manage Approval Workflows', 'Manage Enterprise Setup', 'Manage Orders', 'Manage Procurement', 'Manage Accounts'],
             'OrderApprovalController' => ['Manage Approval Workflows', 'Manage Enterprise Setup', 'Manage Orders'],
 
-            // System Administration
+            // System Administration, Backups & Disaster Recovery
             'UserController' => ['Manage Users', 'Administration'],
             'RolesController' => ['Manage Roles', 'Administration'],
             'PermissionController' => ['Manage Permissions', 'Administration'],
             'SettingController' => ['Manage Settings', 'Administration'],
+            'PaymentSettingController' => ['Manage Settings', 'Administration'],
+            'FeatureToggleController' => ['Manage Settings', 'Administration'],
+            'BackupController' => ['Manage Settings', 'Administration'],
+            'RecycleBinController' => ['Manage Settings', 'Administration'],
             'TaxController' => ['Manage Taxes', 'Administration'],
             'DiscountController' => ['Manage Discounts', 'Administration'],
             'DocumentSequenceController' => ['Manage Document Sequences', 'Manage Settings', 'Administration'],
             'NotificationController' => ['Manage Notification', 'Administration'],
+            'PaymentTransactionController' => ['Manage Accounts', 'Accountants', 'Administration'],
+            'PayPalPaymentController' => ['Manage Accounts', 'Accountants', 'Administration'],
+            'CodManagementController' => ['Manage Accounts', 'Accountants', 'Administration'],
+            'B2bProductVisibilityController' => ['Manage Products', 'Manage Settings'],
+            'BarcodeLabelController' => ['Manage Products', 'Manage Inventory'],
+            'HandlingUnitController' => ['Manage Inventory', 'Manage Delivery Orders'],
+            'PayablesReceivablesReportController' => ['Manage Reports', 'Manage Accounts', 'Accountants'],
+            'ProformaInvoiceController' => ['Manage Sales Quotations', 'Manage Orders'],
 
             // Dashboard
             'DashboardController' => ['Manage Dashboard'],
