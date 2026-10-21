@@ -127,10 +127,7 @@
                         <td class="text-center">
                             @if ($stock->optimized_image)
                                 <img src="{{ $stock->optimized_image }}" 
-                                    style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
-                            @elseif ($stock->product && $stock->product->thumb_image)
-                                <img src="{{ public_path('storage/' . $stock->product->thumb_image) }}"
-                                    style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                                    style="width: 40px; height: 40px; object-fit: contain; border-radius: 4px;">
                             @else
                                 <span style="font-size: 8px; color: #ccc;">N/A</span>
                             @endif
@@ -138,7 +135,15 @@
                         <td>{{ $stock->product->name ?? 'N/A' }}</td>
                         <td>{{ $stock->variant ? $stock->variant->name : '-' }}</td>
                         <td>{{ $stock->product->product_number ?? '-' }}</td>
-                        <td>{{ $stock->product->category->name ?? '-' }}</td>
+                        <td>
+                            <div style="font-weight: bold;">{{ $stock->product->category->name ?? '-' }}</div>
+                            @if ($stock->product && $stock->product->subCategory)
+                                <div style="font-size: 10px; color: #555;">&rsaquo; {{ $stock->product->subCategory->name }}</div>
+                            @endif
+                            @if ($stock->product && $stock->product->childCategory)
+                                <div style="font-size: 9px; color: #777; padding-left: 6px;">&raquo; {{ $stock->product->childCategory->name }}</div>
+                            @endif
+                        </td>
                         <td class="text-center font-weight-bold">
                             {{ $stock->quantity }}
                         </td>
