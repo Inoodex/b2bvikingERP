@@ -102,9 +102,11 @@ class PdfImageHelper
             // Maintain aspect ratio
             $ratio = $origW / $origH;
             if ($width / $height > $ratio) {
-                $width = $height * $ratio;
+                $width = (int) round($height * $ratio);
+                $height = (int) round($height);
             } else {
-                $height = $width / $ratio;
+                $height = (int) round($width / $ratio);
+                $width = (int) round($width);
             }
 
             $dst = imagecreatetruecolor($width, $height);
