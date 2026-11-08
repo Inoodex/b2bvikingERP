@@ -58,6 +58,7 @@
                 </div>
                 <div class="card-body">
                     <form id="best-sellers-filter-form" method="GET" action="{{ route('admin.reports.best-sellers') }}">
+                        <input type="hidden" name="rank_by" id="rank_by_input" value="{{ $rankBy ?? 'frequency' }}">
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
@@ -129,24 +130,47 @@
             {{-- Navigation Tabs --}}
             <ul class="nav nav-pills mb-4" id="bestSellerReportTabs" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link font-weight-bold active py-2.5 px-4 shadow-sm" id="ranking-tab" data-toggle="pill" href="#tab-ranking" role="tab" style="border-radius: 8px;">
-                        <i class="fas fa-fire mr-1.5 text-danger"></i> 1. Best Seller Demand & Velocity Ranking
+                    <a class="nav-link font-weight-bold {{ ($rankBy ?? 'frequency') === 'frequency' ? 'active' : '' }} py-2.5 px-4 shadow-sm"
+                        id="frequency-tab" data-toggle="pill" href="#tab-ranking" role="tab" data-rank-by="frequency"
+                        style="border-radius: 8px;">
+                        <i class="fas fa-fire mr-1.5 text-danger"></i> 1. Ranked by Order Frequency
                     </a>
                 </li>
                 <li class="nav-item ml-md-2 mt-2 mt-md-0">
-                    <a class="nav-link font-weight-bold py-2.5 px-4 shadow-sm" id="calculator-tab" data-toggle="pill" href="#tab-calculator" role="tab" style="border-radius: 8px;">
-                        <i class="fas fa-calculator mr-1.5 text-primary"></i> 2. Reorder Volume Split Calculator
+                    <a class="nav-link font-weight-bold {{ ($rankBy ?? '') === 'quantity' ? 'active' : '' }} py-2.5 px-4 shadow-sm"
+                        id="quantity-tab" data-toggle="pill" href="#tab-ranking" role="tab" data-rank-by="quantity"
+                        style="border-radius: 8px;">
+                        <i class="fas fa-boxes mr-1.5 text-success"></i> 2. Ranked by Quantity Sold
+                    </a>
+                </li>
+                <li class="nav-item ml-md-2 mt-2 mt-md-0">
+                    <a class="nav-link font-weight-bold py-2.5 px-4 shadow-sm" id="calculator-tab" data-toggle="pill"
+                        href="#tab-calculator" role="tab" style="border-radius: 8px;">
+                        <i class="fas fa-calculator mr-1.5 text-primary"></i> 3. Reorder Volume Split Calculator
                     </a>
                 </li>
             </ul>
 
             <div class="tab-content" id="bestSellerReportTabsContent">
-                {{-- TAB 1: Ranking --}}
+                {{-- TAB 1 & 2: Ranking Container --}}
                 <div class="tab-pane fade show active" id="tab-ranking" role="tabpanel">
                     <div class="card border shadow-sm" style="border-radius: 12px;">
-                        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap" style="gap:10px;">
-                            <h5 class="mb-0 font-weight-bold text-dark"><i class="fas fa-list-ol mr-2 text-danger"></i>All Products Demand Ranking</h5>
-                            <span class="badge badge-light border text-muted">Sorted by Order Frequency & Sold Volume</span>
+                        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap"
+                            style="gap:10px;">
+                            <h5 class="mb-0 font-weight-bold text-dark" id="ranking-card-title">
+                                @if (($rankBy ?? 'frequency') === 'quantity')
+                                    <i class="fas fa-boxes mr-2 text-success"></i>All Products Volume Ranking
+                                @else
+                                    <i class="fas fa-fire mr-2 text-danger"></i>All Products Demand Ranking
+                                @endif
+                            </h5>
+                            <span class="badge badge-light border text-muted" id="ranking-card-badge">
+                                @if (($rankBy ?? 'frequency') === 'quantity')
+                                    Sorted by Total Quantity Sold (Physical Pieces)
+                                @else
+                                    Sorted by Order Frequency (Popularity)
+                                @endif
+                            </span>
                         </div>
 
                         <div class="card-body p-0" id="best-sellers-table-container">
@@ -348,16 +372,16 @@
                     : noImageFallback;
 
                 var categoryBadge = item.category_name 
-                    ? '<span class="badge badge-light border" style="font-size: 10.5px;">' + item.category_name + '</span>' 
+                    ? '<span class="badge badge-light border text-muted" style="font-size: 9.5px; padding: 1.5px 6px; font-weight: 600;">' + item.category_name + '</span>' 
                     : '';
 
                 var rowHtml = '<tr>' +
                     '<td class="text-center font-weight-bold">' + medal + '</td>' +
                     '<td>' +
-                        '<div class="d-flex align-items-center">' +
-                            '<img src="' + imgSrc + '" onerror="this.onerror=null;this.src=\'' + noImageFallback + '\';" style="width: 38px; height: 38px; object-fit: cover; border-radius: 6px;" class="mr-2.5 border" alt="">' +
-                            '<div>' +
-                                '<strong class="text-dark d-block">' + item.product_name + '</strong>' +
+                        '<div class="d-flex align-items-center" style="gap: 10px;">' +
+                            '<img src="' + imgSrc + '" onerror="this.onerror=null;this.src=\'' + noImageFallback + '\';" style="width: 38px; height: 38px; object-fit: contain; border-radius: 6px; background: #f8fafc; padding: 2px;" class="border flex-shrink-0" alt="">' +
+                            '<div class="min-w-0">' +
+                                '<strong class="text-dark d-block text-truncate" style="font-size: 13px; line-height: 1.25; margin-bottom: 2px;" title="' + item.product_name + '">' + item.product_name + '</strong>' +
                                 categoryBadge +
                             '</div>' +
                         '</div>' +
@@ -419,11 +443,55 @@
         }
 
         $(document).ready(function () {
-            // Check if URL has tab parameter
+            // Check if URL has tab or rank_by parameter
             var urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('tab') === 'calculator') {
+            var initialTab = urlParams.get('tab');
+            var initialRankBy = urlParams.get('rank_by') || '{{ $rankBy ?? "frequency" }}';
+
+            if (initialTab === 'calculator') {
                 $('#calculator-tab').tab('show');
+            } else if (initialRankBy === 'quantity' || initialTab === 'quantity') {
+                $('#quantity-tab').tab('show');
+                $('#rank_by_input').val('quantity');
+            } else {
+                $('#frequency-tab').tab('show');
+                $('#rank_by_input').val('frequency');
             }
+
+            function updateUrlParam(key, val) {
+                var url = new URL(window.location);
+                if (key === 'tab' && val === 'calculator') {
+                    url.searchParams.set('tab', 'calculator');
+                } else if (key === 'rank_by') {
+                    url.searchParams.delete('tab');
+                    url.searchParams.set('rank_by', val);
+                }
+                window.history.pushState(null, '', url.toString());
+            }
+
+            $('#frequency-tab').on('click', function (e) {
+                if ($('#rank_by_input').val() !== 'frequency') {
+                    $('#rank_by_input').val('frequency');
+                    $('#ranking-card-title').html('<i class="fas fa-fire mr-2 text-danger"></i>All Products Demand Ranking');
+                    $('#ranking-card-badge').text('Sorted by Order Frequency (Popularity)');
+                    updateUrlParam('rank_by', 'frequency');
+                    fetchBestSellers();
+                }
+            });
+
+            $('#quantity-tab').on('click', function (e) {
+                if ($('#rank_by_input').val() !== 'quantity') {
+                    $('#rank_by_input').val('quantity');
+                    $('#ranking-card-title').html('<i class="fas fa-boxes mr-2 text-success"></i>All Products Volume Ranking');
+                    $('#ranking-card-badge').text('Sorted by Total Quantity Sold (Physical Pieces)');
+                    updateUrlParam('rank_by', 'quantity');
+                    fetchBestSellers();
+                }
+            });
+
+            $('#calculator-tab').on('click', function (e) {
+                updateUrlParam('tab', 'calculator');
+            });
 
             renderCalculator();
 
