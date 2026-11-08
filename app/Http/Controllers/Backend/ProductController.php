@@ -142,20 +142,31 @@ class ProductController extends Controller implements HasMiddleware
 
         if ($request->filled('order_status')) {
             $os = $request->order_status;
-            if ($os === 'in_stock') {
-                $query->whereHas('inventoryStocks', function($q) {
-                    $q->havingRaw('SUM(quantity) > 0');
-                });
-            } elseif ($os === 'on_order') {
+            if ($os === 'on_order') {
                 $query->whereHas('activePurchaseDetails');
+            } elseif ($os === 'in_shipment') {
+                $query->whereHas('activePurchaseDetails.purchase', function($q) {
+                    $q->where('milestone_status', 'shipped')
+                      ->orWhereHas('shipments', function($sq) {
+                          $sq->where('status', 'in_transit');
+                      });
+                });
+            } elseif ($os === 'in_stock') {
+                $query->whereHas('inventoryStocks', function($q) {
+                    $q->select('product_id')->groupBy('product_id')->havingRaw('SUM(quantity) > 0');
+                });
             } elseif ($os === 'out_of_stock_not_ordered') {
-                $query->whereDoesntHave('activePurchaseDetails')
-                    ->where(function($q) {
-                        $q->whereDoesntHave('inventoryStocks')
-                          ->orWhereHas('inventoryStocks', function($sq) {
-                              $sq->havingRaw('SUM(quantity) <= 0');
-                          });
-                    });
+                $inStockSubquery = InventoryStock::select('product_id')
+                    ->groupBy('product_id')
+                    ->havingRaw('SUM(quantity) > 0');
+                $query->whereNotIn('id', $inStockSubquery)
+                    ->whereDoesntHave('activePurchaseDetails');
+            } elseif ($os === 'out_of_stock_ordered') {
+                $inStockSubquery = InventoryStock::select('product_id')
+                    ->groupBy('product_id')
+                    ->havingRaw('SUM(quantity) > 0');
+                $query->whereNotIn('id', $inStockSubquery)
+                    ->whereHas('activePurchaseDetails');
             }
         }
 
