@@ -60,6 +60,7 @@ use App\Http\Controllers\Backend\ProductRequestController;
 use App\Http\Controllers\Backend\ProductTypeController;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\ProformaInvoiceController;
+use App\Http\Controllers\Backend\StationeryController;
 use App\Http\Controllers\Backend\PurchaseController;
 use App\Http\Controllers\Backend\PurchaseOrderController;
 use App\Http\Controllers\Backend\PurchasePaymentController;
@@ -647,6 +648,26 @@ Route::middleware('auth')->group(function () {
         Route::controller(InventoryReportController::class)->group(function () {
             Route::get('inventory-reports/export-pdf', 'exportPdf')->name('inventory-reports.export-pdf');
             Route::get('inventory-reports', 'index')->name('inventory-reports.index');
+        });
+
+        /** Stationery & Supplies Management Routes */
+        Route::prefix('stationery-supplies')->name('stationery-supplies.')->controller(StationeryController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/store', 'storeItem')->name('store');
+            Route::put('/update/{item}', 'updateItem')->name('update');
+            Route::delete('/destroy/{item}', 'destroyItem')->name('destroy');
+            Route::post('/toggle-sale/{item}', 'toggleAllowSale')->name('toggle-sale');
+
+            Route::get('/purchases', 'purchases')->name('purchases');
+            Route::get('/purchases/create', 'createPurchase')->name('purchases.create');
+            Route::post('/purchases/store', 'storePurchase')->name('purchases.store');
+            Route::post('/purchases/{purchase}/settle-payment', 'settlePurchasePayment')->name('purchases.settle-payment');
+
+            Route::get('/consumptions', 'consumptions')->name('consumptions');
+            Route::get('/consumptions/create', 'createConsumption')->name('consumptions.create');
+            Route::post('/consumptions/store', 'storeConsumption')->name('consumptions.store');
+
+            Route::get('/ledger', 'ledger')->name('ledger');
         });
 
         /** profile routes */

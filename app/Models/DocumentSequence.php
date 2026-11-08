@@ -39,6 +39,8 @@ class DocumentSequence extends Model
             'SalesInvoice' => 'INV-',
             'DeliveryOrder' => 'DO-',
             'CreditNote' => 'CN-',
+            'StationeryPurchase' => 'ST-PO-',
+            'StationeryConsumption' => 'ST-ISS-',
         ];
 
         $sequence = static::firstOrCreate(
@@ -71,6 +73,8 @@ class DocumentSequence extends Model
             'SalesInvoice' => 'INV-',
             'DeliveryOrder' => 'DO-',
             'CreditNote' => 'CN-',
+            'StationeryPurchase' => 'ST-PO-',
+            'StationeryConsumption' => 'ST-ISS-',
         ];
 
         $sequence = static::firstOrCreate(
@@ -93,6 +97,8 @@ class DocumentSequence extends Model
             'SalesOrder'     => [\App\Models\Order::class, 'order_no'],
             'WebOrder'       => [\App\Models\Order::class, 'order_no'],
             'OutletOrder'    => [\App\Models\Order::class, 'order_no'],
+            'StationeryPurchase'    => [\App\Models\StationeryPurchase::class, 'purchase_no'],
+            'StationeryConsumption' => [\App\Models\StationeryConsumption::class, 'issue_no'],
         ];
 
         do {

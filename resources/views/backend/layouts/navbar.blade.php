@@ -38,6 +38,7 @@
         'admin.vendor-returns.*',
         'admin.purchases.*',
     );
+    $stationeryActive = request()->routeIs('admin.stationery-supplies.*');
     $reportsActive = request()->routeIs(
         'admin.reports.*',
         'admin.purchase-reports.*',
@@ -2098,6 +2099,25 @@
                             <li><a href="{{ route('admin.vendor-returns.index') }}"><i class="fas fa-undo"></i>
                                     Vendor Returns</a></li>
                         @endif
+                    </ul>
+                </li>
+            @endif
+
+            @if (auth()->user()?->can('Manage Procurement') ||
+                    auth()->user()?->can('Manage Inventory') ||
+                    auth()->user()?->hasRole('Admin'))
+                <li class="sb-item has-children {{ $stationeryActive ? 'active open' : '' }}">
+                    <a href="#" class="sb-link sb-toggle" title="Stationery & Supplies">
+                        <i class="fas fa-pencil-ruler"></i>
+                        <span class="sb-label">Stationery & Supplies</span>
+                        <i class="fas fa-chevron-down sb-arrow"></i>
+                    </a>
+                    <ul class="sb-submenu">
+                        <li class="sb-flyout-title">Stationery & Supplies</li>
+                        <li><a href="{{ route('admin.stationery-supplies.index') }}"><i class="fas fa-boxes"></i> Items Master & Stock</a></li>
+                        <li><a href="{{ route('admin.stationery-supplies.purchases') }}"><i class="fas fa-truck-loading"></i> Purchases (Stock In)</a></li>
+                        <li><a href="{{ route('admin.stationery-supplies.consumptions') }}"><i class="fas fa-hand-holding"></i> Department Issues</a></li>
+                        <li><a href="{{ route('admin.stationery-supplies.ledger') }}"><i class="fas fa-history"></i> Movement Ledger</a></li>
                     </ul>
                 </li>
             @endif
