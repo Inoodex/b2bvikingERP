@@ -25,7 +25,8 @@
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 12px;
+        margin-top: 4px;
         margin-bottom: 20px;
         padding: 0;
         position: relative;
@@ -216,7 +217,7 @@
     }
 
     @media (max-width: 767.98px) {
-        .pp-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .pp-header { flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 4px; }
         .pp-header h1 { font-size: 16px; gap: 8px; }
         .pp-header h1 .pp-icon { width: 28px; height: 28px; min-width: 28px; font-size: 12px; }
         .pp-card-header { flex-direction: column; align-items: flex-start; gap: 8px; }

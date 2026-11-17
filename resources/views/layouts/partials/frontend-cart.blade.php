@@ -21,7 +21,7 @@
              class="absolute inset-0 bg-indigo-900/40 backdrop-blur-[2px] transition-opacity"></div>
 
         {{-- Panel --}}
-        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-4 sm:pl-10">
             <div x-show="isCartOpen"
                  x-transition:enter="transform transition ease-in-out duration-500 sm:duration-700"
                  x-transition:enter-start="translate-x-full"

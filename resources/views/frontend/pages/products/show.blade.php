@@ -211,8 +211,8 @@
                                     </p>
                                 </div>
 
-                                <div class="grid gap-2.5 sm:grid-cols-[160px_1fr_auto]">
-                                    <div class="flex h-10 items-center rounded-md border border-slate-200 bg-white">
+                                <div class="grid grid-cols-[1fr_auto] gap-2.5 sm:grid-cols-[160px_1fr_auto]">
+                                    <div class="col-span-2 flex h-10 items-center rounded-md border border-slate-200 bg-white sm:col-span-1">
                                         <button type="button"
                                             @click="lastRawQty = null; qty = Math.max(minimumOrderQty, (parseInt(qty) || minimumOrderQty) - minimumOrderQty); normalizeQty()"
                                             class="h-full w-9 text-slate-500 transition hover:text-slate-800">
@@ -238,14 +238,14 @@
                                         :class="canAdd
                                             ? 'bg-slate-900 text-white hover:bg-black'
                                             : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
-                                        class="h-10 rounded-md px-4 text-[11px] font-bold uppercase tracking-[0.14em] transition">
+                                        class="col-span-1 h-10 rounded-md px-4 text-[11px] font-bold uppercase tracking-[0.14em] transition">
                                         <span x-show="!adding">Add To Cart</span>
                                         <span x-show="adding">Adding...</span>
                                     </button>
 
                                     <button @click="toggleWishlist()"
                                         :disabled="wishlistBusy"
-                                        class="h-10 w-10 rounded-md border-2 transition"
+                                        class="col-span-1 h-10 w-10 rounded-md border-2 transition"
                                         :class="isInWishlist
                                             ? 'border-rose-300 bg-rose-50 text-rose-500 hover:bg-rose-100'
                                             : 'border-slate-200 bg-white text-slate-400 hover:border-rose-300 hover:text-rose-500'"

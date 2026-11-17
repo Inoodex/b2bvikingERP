@@ -6,13 +6,13 @@
     $status = strtolower((string) $customProductRequest->status);
     $currency = $settings->currency_icon ?? '$';
 @endphp
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+    <div class="mb-6 sm:mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-            <h1 class="text-3xl font-black text-slate-900">Request Details</h1>
-            <p class="text-sm text-slate-500 mt-2">Request No: {{ $customProductRequest->request_no }}</p>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900">Request Details</h1>
+            <p class="text-sm text-slate-500 mt-1 sm:mt-2">Request No: {{ $customProductRequest->request_no }}</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-3">
             <form method="POST" action="{{ route('account.custom-product-requests.reorder', $customProductRequest->id) }}">
                 @csrf
                 <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:border-indigo-200 hover:text-indigo-600">
@@ -26,9 +26,9 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         <div class="lg:col-span-2 space-y-6">
-            <section class="bg-white border border-slate-100 rounded-2xl p-6">
+            <section class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6">
                 <h2 class="text-lg font-bold text-slate-900 mb-4">Request Info</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-600">
                     <p><span class="font-semibold text-slate-900">Product Name:</span> {{ $customProductRequest->product_name ?: 'Custom Product' }}</p>
@@ -38,13 +38,13 @@
                 </div>
             </section>
 
-            <section class="bg-white border border-slate-100 rounded-2xl p-6">
+            <section class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6">
                 <h2 class="text-lg font-bold text-slate-900 mb-4">Product Description</h2>
                 <p class="text-sm text-slate-600 whitespace-pre-line">{{ $customProductRequest->product_description }}</p>
             </section>
 
             @if(!empty($customProductRequest->example_image))
-                <section class="bg-white border border-slate-100 rounded-2xl p-6">
+                <section class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6">
                     <h2 class="text-lg font-bold text-slate-900 mb-4">Example Images</h2>
                     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                         @foreach($customProductRequest->example_image as $index => $image)
@@ -57,7 +57,7 @@
             @endif
 
             @if(!empty($customProductRequest->admin_note))
-                <section class="bg-white border border-slate-100 rounded-2xl p-6">
+                <section class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6">
                     <h2 class="text-lg font-bold text-slate-900 mb-4">Admin Note</h2>
                     <p class="text-sm text-slate-600 whitespace-pre-line">{{ $customProductRequest->admin_note }}</p>
                 </section>
@@ -66,7 +66,7 @@
 
         <aside class="lg:col-span-1">
             <div class="sticky top-24 space-y-6">
-            <div class="bg-white border border-slate-100 rounded-2xl p-6">
+            <div class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6">
                 <h3 class="text-lg font-bold text-slate-900 mb-4">Status</h3>
                 <p class="mb-4">
                     <span class="text-xs font-black px-3 py-1 rounded-full
@@ -88,7 +88,7 @@
                 </div>
             </div>
 
-            <div class="bg-white border border-slate-100 rounded-2xl p-6">
+            <div class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6">
                 <h3 class="text-lg font-bold text-slate-900 mb-4">Customer Info</h3>
                 <div class="space-y-2 text-sm text-slate-600">
                     <p><span class="font-semibold text-slate-900">Name:</span> {{ $customProductRequest->user?->name ?? '—' }}</p>

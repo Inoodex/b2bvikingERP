@@ -265,7 +265,7 @@
 <div class="rounded-md border border-slate-200 bg-black/3 p-3 text-[9.5px] font-semibold uppercase tracking-wide text-slate-600 mb-1">
 
     <!-- লাইন ১: MIM + TOTAL IN CART (যদি থাকে) -->
-    <div class="flex justify-between items-center mb-1">
+    <div class="flex flex-wrap justify-between items-center gap-1 mb-1">
         <span>MIM: <span class="text-slate-800" x-text="minimumOrderQty"></span></span>
 
         {{-- <template x-if="inCartQty >= 0">
@@ -277,7 +277,7 @@
     </div>
 
     <!-- লাইন ২: THIS VARIANT + IN STOCK -->
-    <div class="flex justify-between items-center">
+    <div class="flex flex-wrap justify-between items-center gap-1">
 
         <!-- বাম দিক: variant specific qty — selected থাকলে সবসময় দেখাবে (0 হলেও) -->
         <template x-if="hasVariants">

@@ -8,7 +8,7 @@
         <style>
             .executive-header-bar {
                 border-bottom: 1px solid #e2e8f0;
-                padding-top: 28px;
+                padding-top: 6px;
                 padding-bottom: 20px;
                 margin-bottom: 24px;
             }
@@ -58,6 +58,12 @@
                 border-color: #cbd5e1;
             }
 
+            .dashboard-leaderboard-row,
+            .dashboard-leaderboard-info,
+            .dashboard-leaderboard-value {
+                min-width: 0;
+            }
+
             .kpi-accent-stripe {
                 position: absolute;
                 top: 0;
@@ -75,6 +81,13 @@
                 transition: all 0.15s ease;
             }
 
+            @media (max-width: 575.98px) {
+                .period-tab-btn {
+                    padding: 4px 9px;
+                    font-size: 11px;
+                }
+            }
+
             .period-tab-btn.active {
                 background: #ffffff;
                 color: #0f172a !important;
@@ -87,6 +100,39 @@
 
             .period-tab-btn:not(.active):hover {
                 color: #0f172a !important;
+            }
+
+            @media (max-width: 575.98px) {
+                .dashboard-leaderboard-row {
+                    flex-wrap: wrap;
+                    align-items: flex-start !important;
+                }
+
+                .dashboard-leaderboard-info,
+                .dashboard-leaderboard-value {
+                    flex: 1 1 100% !important;
+                    width: 100%;
+                    max-width: 100%;
+                }
+
+                .dashboard-leaderboard-info {
+                    align-items: flex-start !important;
+                }
+
+                .dashboard-leaderboard-value {
+                    text-align: right !important;
+                    padding-left: 0 !important;
+                    overflow-wrap: anywhere;
+                }
+
+                .dashboard-leaderboard-value .badge {
+                    white-space: normal;
+                }
+
+                .dashboard-leaderboard-meta {
+                    flex-wrap: wrap;
+                    overflow-wrap: anywhere;
+                }
             }
         </style>
 
@@ -624,10 +670,10 @@
                                         ? asset($product->image)
                                         : asset('uploads/no-image.svg');
                                 @endphp
-                                <div class="list-group-item d-flex align-items-center justify-content-between p-3 border-bottom"
+                                <div class="list-group-item d-flex align-items-center justify-content-between p-3 border-bottom dashboard-leaderboard-row"
                                     style="transition: all 0.2s ease; gap: 12px; border-color: #f1f5f9 !important;">
                                     {{-- Rank Badge & Product Info --}}
-                                    <div class="d-flex align-items-center min-w-0" style="gap: 12px; flex: 1;">
+                                    <div class="d-flex align-items-center min-w-0 dashboard-leaderboard-info" style="gap: 12px; flex: 1;">
                                         {{-- Rank Badge --}}
                                         <div class="font-weight-bold d-flex align-items-center justify-content-center shadow-none flex-shrink-0"
                                             style="width: 26px; height: 26px; border-radius: 50%; font-size: 11.5px; {{ $rankBg }}">
@@ -671,7 +717,7 @@
                                     </div>
 
                                     {{-- Revenue & Times Ordered --}}
-                                    <div class="text-right flex-shrink-0 pl-2">
+                                    <div class="text-right flex-shrink-0 pl-2 dashboard-leaderboard-value">
                                         <div class="font-weight-bold text-dark"
                                             style="font-size: 14.5px; letter-spacing: -0.01em;">
                                             {!! formatWithCurrency($product->total_revenue) !!}
@@ -732,10 +778,10 @@
                                         strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $displayName), 0, 2)) ?: 'CL';
                                     $hasDue = ($customer->due_amount ?? 0) > 0.01;
                                 @endphp
-                                <div class="list-group-item d-flex align-items-center justify-content-between p-3 border-bottom"
+                                <div class="list-group-item d-flex align-items-center justify-content-between p-3 border-bottom dashboard-leaderboard-row"
                                     style="transition: all 0.2s ease; gap: 12px; border-color: #f1f5f9 !important;">
                                     {{-- Rank Badge & Customer Info --}}
-                                    <div class="d-flex align-items-center min-w-0" style="gap: 12px; flex: 1;">
+                                    <div class="d-flex align-items-center min-w-0 dashboard-leaderboard-info" style="gap: 12px; flex: 1;">
                                         {{-- Rank Number --}}
                                         <div class="font-weight-bold text-muted flex-shrink-0"
                                             style="width: 20px; font-size: 12.5px;">
@@ -757,7 +803,7 @@
                                                     {{ $displayName }}
                                                 </a>
                                             </div>
-                                            <div class="d-flex align-items-center text-muted small mt-0.5"
+                                            <div class="d-flex align-items-center text-muted small mt-0.5 dashboard-leaderboard-meta"
                                                 style="font-size: 11px; gap: 6px;">
                                                 @if (optional($customer->user)->phone)
                                                     <span><i
@@ -773,7 +819,7 @@
                                     </div>
 
                                     {{-- Spend Value & Outstanding Due Status --}}
-                                    <div class="text-right flex-shrink-0 pl-2">
+                                    <div class="text-right flex-shrink-0 pl-2 dashboard-leaderboard-value">
                                         <div class="font-weight-bold text-dark"
                                             style="font-size: 14.5px; letter-spacing: -0.01em;">
                                             {!! formatWithCurrency($customer->total_value) !!}

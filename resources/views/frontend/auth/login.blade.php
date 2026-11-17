@@ -17,12 +17,12 @@
         </div>
     </section>
 
-    <section class="py-12">
+    <section class="py-8 sm:py-12">
         <div class="mx-auto max-w-xl px-4 sm:px-6 lg:px-8">
             <h2 class="text-center text-xl font-semibold uppercase tracking-[0.3em] text-slate-900 sm:text-2xl">Login</h2>
             <p class="mt-3 text-center text-sm text-slate-500">Thank you for visiting our site!</p>
 
-            <div class="mt-8 border border-dashed border-slate-300 bg-white/80 p-8 sm:p-10">
+            <div class="mt-8 border border-dashed border-slate-300 bg-white/80 p-5 sm:p-8 md:p-10">
                 @if (session('error'))
                     <div class="mb-6 border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
                         {{ session('error') }}
@@ -48,7 +48,7 @@
                     </div>
 
                     <div x-data="{ showPassword: false }">
-                        <div class="flex items-center justify-between">
+                        <div class="flex flex-wrap items-center justify-between gap-1">
                             <label for="password" class="block text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600">Password *</label>
                             <a href="{{ route('password.request') }}" class="text-[11px] uppercase tracking-[0.1em] text-slate-600 hover:text-slate-900">Forgotten password?</a>
                         </div>

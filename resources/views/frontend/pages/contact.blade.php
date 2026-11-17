@@ -5,7 +5,7 @@
     <div class="bg-slate-50 py-10 sm:py-12">
         <div class="mx-auto flex max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
             <!-- Header Section -->
-            <section class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
+            <section class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 md:p-10">
                 <div class="pointer-events-none absolute -right-16 -top-24 h-56 w-56 rounded-full bg-slate-100 blur-3xl"></div>
                 <div class="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-[#efe7d9] blur-3xl"></div>
 
@@ -22,7 +22,7 @@
             <!-- Contact Info & Form Section -->
             <section class="grid gap-8 lg:grid-cols-2">
                 <!-- Contact Information -->
-                <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 md:p-10">
                     <h2 class="text-xl font-bold text-slate-900">Get In Touch</h2>
                     <p class="mt-2 text-sm text-slate-600">
                         Fill out the form and our team will get back to you within 24 hours.
@@ -112,7 +112,7 @@
                 </div>
 
                 <!-- Contact Form -->
-                <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 md:p-10">
                     <h2 class="text-xl font-bold text-slate-900">Send Us a Message</h2>
                     <p class="mt-2 text-sm text-slate-600">
                         Have a question? Fill out the form below and we'll get back to you.

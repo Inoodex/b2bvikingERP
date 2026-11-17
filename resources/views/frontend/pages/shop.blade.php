@@ -23,11 +23,12 @@
         data-sort="{{ request('sort', 'latest') }}"
         data-product-type="{{ request('product_type', '') }}"
          data-search="{{ request('search', '') }}">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="flex flex-col sm:flex-row gap-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+            <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
                 <!-- Sidebar Filters -->
                 <aside class="shop-desktop-sidebar hidden lg:block w-full lg:w-72 shrink-0">
-                    <div class="bg-white rounded-lg p-6 shadow-sm border border-slate-200 sm:sticky sm:top-24">
+                    <div class="bg-white rounded-lg p-6 shadow-sm border border-slate-200 sm:sticky sm:top-24 overflow-hidden relative">
+                        <div class="absolute top-0 left-0 right-0 h-[2.5px]" style="background: linear-gradient(90deg, #82966A 0%, #B0789B 50%, #328A9A 100%);"></div>
                         <div class="flex items-center justify-between mb-5">
                             <h2 class="text-[13px] font-semibold uppercase tracking-[0.12em] text-slate-900">Filters</h2>
                             <button type="button"
@@ -188,25 +189,25 @@
                                 results</span>
                         </div>
 
-                        <div class="flex items-center flex-wrap justify-between md:justify-end gap-3 w-full">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between md:justify-end gap-3 w-full md:w-auto">
                             @auth
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
                                 <label
-                                    class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] hidden sm:block">Sort
+                                    class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] shrink-0">Sort
                                     by:</label>
                                 <select x-model="sort" @change="applyFilters()"
-                                    class="bg-white border border-slate-200 rounded-md px-3.5 py-2 text-[12px] font-medium text-slate-700 outline-none focus:border-slate-900 cursor-pointer appearance-none pr-9 relative">
+                                    class="w-full sm:w-auto bg-white border border-slate-200 rounded-md px-3.5 py-2 text-[12px] font-medium text-slate-700 outline-none focus:border-slate-900 cursor-pointer appearance-none pr-9 relative">
                                     <option value="stock_first">In Stock First</option>
                                     <option value="latest">Latest Product</option>
                                     <option value="price_low_high">Price: Low to High</option>
                                     <option value="price_high_low">Price: High to Low</option>
                                 </select>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <label class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.12em] hidden sm:block">Occasion/Type:</label>
+                            <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+                                <label class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.12em] shrink-0">Occasion/Type:</label>
                                 @php $selectedType = (string) request('product_type', ''); @endphp
                                 <select x-model="productType" @change="applyFilters()"
-                                        class="bg-white border border-slate-200 rounded-md px-3.5 py-2 text-[12px] font-medium text-slate-700 outline-none focus:border-slate-900 cursor-pointer appearance-none pr-9 relative">
+                                        class="w-full sm:w-auto bg-white border border-slate-200 rounded-md px-3.5 py-2 text-[12px] font-medium text-slate-700 outline-none focus:border-slate-900 cursor-pointer appearance-none pr-9 relative">
                                     <option value="" {{ $selectedType === '' ? 'selected' : '' }}>All Types</option>
                                     <option value="new_arrival" {{ $selectedType === 'new_arrival' ? 'selected' : '' }}>New Arrival (Legacy)</option>
                                     <option value="upcoming" {{ $selectedType === 'upcoming' ? 'selected' : '' }}>Upcoming (Legacy)</option>
@@ -221,7 +222,7 @@
                     </div>
 
                     <!-- Products Grid -->
-                    <div class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                         @forelse($shopCards as $card)
                             <x-frontend.product-card
                                 :product="$card['product']"
@@ -263,7 +264,7 @@
              class="fixed inset-0 z-[70] lg:hidden">
             <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"
                  @click="closeMobileFilters()"></div>
-            <div class="absolute inset-y-0 left-0 w-[min(92vw,380px)] bg-white shadow-2xl overflow-y-auto">
+            <div class="absolute inset-y-0 left-0 w-[min(92vw,380px)] sm:w-[380px] md:w-[420px] bg-white shadow-2xl overflow-y-auto">
                 <div class="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-slate-100 px-4 py-4 flex items-center justify-between">
                     <div>
                         <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">Shop</p>

@@ -4,16 +4,16 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" x-data="wishlistPage({{ count($wishlistItems) }})">
 
     {{-- Page Header --}}
-    <div class="mb-10 flex items-center justify-between">
+    <div class="mb-8 sm:mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-4xl font-black text-slate-900 tracking-tighter">My Wishlist</h1>
+            <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter">My Wishlist</h1>
             <p class="text-slate-400 font-medium mt-1">
                 <span x-text="wishlistCount"></span>
                 <span x-text="wishlistCount === 1 ? 'item' : 'items'"></span>
                 saved
             </p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-3">
             <button x-show="wishlistCount > 0"
                     @click="showClearConfirm = true"
                     class="flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 transition-colors text-sm rounded-xl border border-rose-200">
@@ -72,7 +72,7 @@
         </div>
     </template>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" x-show="wishlistCount > 0">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6" x-show="wishlistCount > 0">
         @foreach($wishlistItems as $item)
             <div class="group relative flex flex-col bg-white rounded-3xl border border-slate-100 p-4 hover:shadow-xl transition-all duration-300"
                  x-data="wishlistItem({{ json_encode($item) }})"

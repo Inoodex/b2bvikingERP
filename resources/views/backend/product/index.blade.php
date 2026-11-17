@@ -82,7 +82,7 @@
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 20px;
-            margin-top: 18px;
+            margin-top: 4px;
             padding: 18px 22px;
             background: #fff;
             border-radius: var(--pp-radius-md);
@@ -773,6 +773,7 @@
                 align-items: flex-start;
                 padding: 14px 16px;
                 gap: 8px;
+                margin-top: 4px;
             }
 
             .pp-header h1 {
@@ -802,6 +803,7 @@
 
         @media (max-width: 767.98px) {
             .pp-header {
+                margin-top: 4px;
                 margin-bottom: 14px;
             }
 

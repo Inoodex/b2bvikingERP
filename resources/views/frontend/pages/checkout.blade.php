@@ -2,16 +2,16 @@
 @section('title', 'Checkout')
 
 @section('content')
-<div class="min-h-screen bg-slate-50 py-10" x-data="{ shipDifferent: {{ old('ship_different') ? 'true' : 'false' }} }">
+<div class="min-h-screen bg-slate-50 py-6 sm:py-10" x-data="{ shipDifferent: {{ old('ship_different') ? 'true' : 'false' }} }">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="mb-8">
-            <h1 class="text-3xl font-black text-slate-900">Checkout</h1>
-            <p class="text-sm text-slate-500 mt-2">Review your items and billing details before placing order.</p>
+        <div class="mb-6 sm:mb-8">
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900">Checkout</h1>
+            <p class="text-sm text-slate-500 mt-1 sm:mt-2">Review your items and billing details before placing order.</p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-8">
-                <section class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div class="lg:col-span-2 space-y-6 sm:space-y-8">
+                <section class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6">
                     <div class="flex items-center justify-between mb-5">
                         <h2 class="text-lg font-bold text-slate-900">Product Info</h2>
                         <span class="text-xs font-black uppercase tracking-widest text-indigo-500">Summary</span>
@@ -57,7 +57,7 @@
                     @endif
                 </section>
 
-                <section class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                <section class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6">
                     <h2 class="text-lg font-bold text-slate-900 mb-4">Shipping & Billing Info</h2>
 
                     <form id="checkout-form" action="{{ route('checkout.place-order') }}" method="POST">
@@ -207,7 +207,7 @@
             </div>
 
             <aside class="lg:col-span-1">
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 sticky top-24">
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 sticky top-24">
                     <h3 class="text-lg font-bold text-slate-900 mb-5">Order Summary</h3>
 
                     <div class="space-y-3 text-sm">

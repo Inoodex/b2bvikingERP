@@ -41,6 +41,7 @@
      NAVIGATION BAR
      ===================================================== --}}
 <nav class="bg-white border-b border-slate-200 sticky top-0 z-50" x-data="navbarSearch(@js($settings->currency_icon ?? 'Tk'))">
+    <div class="h-[2.5px] w-full" style="background: linear-gradient(90deg, #82966A 0%, #B0789B 50%, #328A9A 100%);"></div>
     @php
         $isAdminAuth = auth()->check() && auth()->user()->hasRole('Admin');
         $isFrontendCustomer = auth()->check() && !$isAdminAuth;
@@ -61,18 +62,20 @@
             {{-- Logo & Site Name --}}
             <div class="flex items-center">
                 <a href="{{ route('home') }}" class="flex items-center gap-3 group">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 overflow-hidden rounded-md border border-slate-100 flex items-center justify-center p-1 bg-white transition-all duration-300">
-                        <img src="{{ asset(optional($settings)->site_logo ?: 'uploads/logo.png') }}" alt="{{ config('app.name') }}" class="w-full h-full object-contain">
+                    <div class="p-[2px] rounded-xl transition-all duration-300 shadow-sm group-hover:shadow-md" style="background: linear-gradient(135deg, #82966A 0%, #B0789B 50%, #328A9A 100%);">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 overflow-hidden rounded-[10px] bg-white flex items-center justify-center p-1">
+                            <img src="{{ asset(optional($settings)->site_logo ?: 'uploads/logo.png') }}" alt="{{ config('app.name') }}" class="w-full h-full object-contain">
+                        </div>
                     </div>
-                    <div class="flex flex-col min-w-0">
-                        <span class="truncate text-[14px] md:text-xl font-bold text-slate-900 leading-none group-hover:text-indigo-600 transition-colors">{{ config('app.name', 'Inventory B2B') }}</span>
-                        <span class="truncate text-[10px] md:text-[10px] font-bold text-indigo-500 uppercase tracking-widest mt-1">{{ optional($settings)->site_name ?? 'B2B Portal' }}</span>
+                    <div class="flex flex-col min-w-0 max-w-[135px] sm:max-w-xs md:max-w-none">
+                        <span class="truncate text-[14px] md:text-xl font-bold text-slate-900 leading-none group-hover:text-[#328A9A] transition-colors">{{ config('app.name', 'Inventory B2B') }}</span>
+                        <span class="truncate text-[10px] md:text-[10px] font-black uppercase tracking-widest mt-1" style="background: linear-gradient(135deg, #328A9A, #B0789B); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ optional($settings)->site_name ?? 'B2B Portal' }}</span>
                     </div>
                 </a>
             </div>
 
-            {{-- Navigation Links (desktop only, to avoid tablet overflow) --}}
-            <div class="hidden lg:flex items-center gap-8">
+            {{-- Navigation Links (desktop & laptop) --}}
+            <div class="hidden lg:flex items-center gap-5 xl:gap-8">
                 <a href="{{ route('home') }}"
                    class="text-[12px] font-medium uppercase tracking-[0.1em] transition-colors {{ request()->routeIs('home') ? 'text-blue-600' : 'text-slate-600 hover:text-slate-900' }}">
                     Home
@@ -205,16 +208,6 @@
                             </form>
                         </div>
                     </div>
-                    {{-- Mobile/Tablet Menu --}}
-                <button type="button"
-                        @click="openMobileNav()"
-                        class="lg:hidden relative grid h-10 w-10 place-items-center rounded-xl text-slate-500 transition duration-300 hover:bg-slate-100/80 hover:text-slate-900"
-                        :aria-expanded="mobileNavOpen.toString()"
-                        aria-label="Open menu">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
                 @elseif($isAdminAuth)
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -229,6 +222,17 @@
                         <span class="text-[12px] font-semibold uppercase tracking-[0.1em] hidden sm:block">Login</span>
                     </a>
                 @endif
+
+                {{-- Mobile/Tablet Menu --}}
+                <button type="button"
+                        @click="openMobileNav()"
+                        class="lg:hidden relative grid h-10 w-10 place-items-center rounded-xl text-slate-500 transition duration-300 hover:bg-slate-100/80 hover:text-slate-900"
+                        :aria-expanded="mobileNavOpen.toString()"
+                        aria-label="Open menu">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
             </div>
 
         </div>
@@ -318,9 +322,10 @@
                  x-transition:leave="transform transition ease-in duration-200"
                  x-transition:leave-start="translate-x-0"
                  x-transition:leave-end="-translate-x-full">
+                <div class="h-[2.5px] w-full" style="background: linear-gradient(90deg, #82966A 0%, #B0789B 50%, #328A9A 100%);"></div>
                 <div class="flex items-center justify-between border-b border-slate-100 px-4 py-4">
                     <div class="min-w-0">
-                        <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Menu</p>
+                        <p class="text-[10px] font-black uppercase tracking-[0.18em]" style="background: linear-gradient(135deg, #328A9A, #B0789B); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Menu</p>
                         <p class="truncate text-base font-semibold text-slate-900">{{ config('app.name', 'Inventory B2B') }}</p>
                     </div>
                     <button type="button"
@@ -394,6 +399,21 @@
                                 Logout
                             </button>
                         </form>
+                    </div>
+                @elseif($isAdminAuth)
+                    <div class="mt-auto border-t border-slate-100 px-4 py-4">
+                        <form method="POST" action="{{ route('logout') }}" @submit="closeMobileNav()">
+                            @csrf
+                            <button type="submit" class="w-full rounded-xl bg-rose-50 px-4 py-3 text-[11px] font-extrabold uppercase tracking-[0.2em] text-rose-700 hover:bg-rose-100 transition">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                @else
+                    <div class="mt-auto border-t border-slate-100 px-4 py-4">
+                        <a href="{{ route('login') }}" class="block text-center w-full rounded-xl bg-slate-900 px-4 py-3 text-[11px] font-extrabold uppercase tracking-[0.2em] text-white hover:bg-black transition">
+                            Login
+                        </a>
                     </div>
                 @endif
             </div>

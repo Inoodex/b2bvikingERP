@@ -4,7 +4,7 @@
 @section('content')
     <div class="bg-slate-50 py-10 sm:py-12">
         <div class="mx-auto flex max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
-            <section class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
+            <section class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 md:p-10">
                 <div class="pointer-events-none absolute -right-16 -top-24 h-56 w-56 rounded-full bg-slate-100 blur-3xl"></div>
                 <div class="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-[#efe7d9] blur-3xl"></div>
 
@@ -19,7 +19,7 @@
                 </div>
             </section>
 
-            <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
+            <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 md:p-10">
                 <div class="mx-auto max-w-3xl text-center">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Eligibility</p>
                     <h2 class="mt-2 text-2xl font-bold text-slate-900">Who This Policy Applies To</h2>
@@ -60,7 +60,7 @@
                 </div>
             </section>
 
-            <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
+            <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 md:p-10">
                 <div class="grid gap-6 md:grid-cols-2">
                     <div>
                         <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Payments</p>
@@ -81,7 +81,7 @@
                 </div>
             </section>
 
-            <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
+            <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 md:p-10">
                 <div class="grid gap-6 md:grid-cols-2">
                     <div>
                         <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Returns</p>

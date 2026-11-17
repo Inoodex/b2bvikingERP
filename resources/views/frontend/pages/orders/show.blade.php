@@ -2,13 +2,13 @@
 @section('title', 'Order Details')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="mb-8 flex items-center justify-between">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+    <div class="mb-6 sm:mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-            <h1 class="text-3xl font-black text-slate-900">Order Details</h1>
-            <p class="text-sm text-slate-500 mt-2">Order No: {{ $order->order_no }}</p>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900">Order Details</h1>
+            <p class="text-sm text-slate-500 mt-1 sm:mt-2">Order No: {{ $order->order_no }}</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
             @php
                 $hasPi = \App\Support\PiInfoSupport::hasContent($order->pi_info);
                 $invoice = \App\Models\SalesInvoice::where('order_id', $order->id)->latest()->first();
@@ -47,9 +47,9 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         <div class="lg:col-span-2 space-y-6">
-            <section class="bg-white border border-slate-100 rounded-2xl p-6">
+            <section class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6">
                 <h2 class="text-lg font-bold text-slate-900 mb-4">Items</h2>
                 <div class="space-y-4">
                     @foreach($order->items as $item)
@@ -74,7 +74,7 @@
                 </div>
             </section>
 
-            <section class="bg-white border border-slate-100 rounded-2xl p-6">
+            <section class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6">
                 <h2 class="text-lg font-bold text-slate-900 mb-4">Shipping & Billing Info</h2>
                 <div class="text-sm text-slate-600 space-y-1">
                     <p><span class="font-semibold text-slate-900">Name:</span> {{ $order->billing_name }}</p>
@@ -88,7 +88,7 @@
             </section>
 
             @if($order->ship_different)
-                <section class="bg-white border border-slate-100 rounded-2xl p-6">
+                <section class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6">
                     <h2 class="text-lg font-bold text-slate-900 mb-4">Shipping Info</h2>
                     <div class="text-sm text-slate-600 space-y-1">
                         <p><span class="font-semibold text-slate-900">Name:</span> {{ $order->shipping_name }}</p>
@@ -108,7 +108,7 @@
         </div>
 
         <aside class="lg:col-span-1">
-            <div class="bg-white border border-slate-100 rounded-2xl p-6 sticky top-24">
+            <div class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6 sticky top-24">
                 <h3 class="text-lg font-bold text-slate-900 mb-4">Summary</h3>
                 @php $status = strtolower($order->status); @endphp
                 <p class="mb-3">
