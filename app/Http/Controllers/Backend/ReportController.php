@@ -110,7 +110,13 @@ class ReportController extends Controller implements HasMiddleware
             $query->where('products.child_category_id', $request->child_category_id);
         }
 
-        $products = $query->orderByDesc('times_ordered')->orderByDesc('total_qty')->paginate(30)->withQueryString();
+        $rankBy = $request->get('rank_by', 'frequency');
+
+        if ($rankBy === 'quantity') {
+            $products = $query->orderByDesc('total_qty')->orderByDesc('times_ordered')->paginate(30)->withQueryString();
+        } else {
+            $products = $query->orderByDesc('times_ordered')->orderByDesc('total_qty')->paginate(30)->withQueryString();
+        }
 
         $grandTotals = OrderItem::whereIn('order_id', $completedOrderIds)
             ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
@@ -134,11 +140,13 @@ class ReportController extends Controller implements HasMiddleware
             $items[$i]->category_share = ($totalQty > 0) ? round(($currQty / $totalQty) * 100, 1) : 0;
 
             if ($i + 1 < $count) {
-                $nextQty = (float) $items[$i + 1]->total_qty;
-                if ($nextQty > 0) {
-                    $velocity = round((($currQty - $nextQty) / $nextQty) * 100, 1);
+                if ($rankBy === 'quantity') {
+                    $nextQty = (float) $items[$i + 1]->total_qty;
+                    $velocity = $nextQty > 0 ? round((($currQty - $nextQty) / $nextQty) * 100, 1) : 100.0;
                 } else {
-                    $velocity = 100.0;
+                    $currTimes = (float) $items[$i]->times_ordered;
+                    $nextTimes = (float) $items[$i + 1]->times_ordered;
+                    $velocity = $nextTimes > 0 ? round((($currTimes - $nextTimes) / $nextTimes) * 100, 1) : 100.0;
                 }
                 $items[$i]->velocity_vs_next = $velocity;
             } else {
@@ -156,7 +164,7 @@ class ReportController extends Controller implements HasMiddleware
         $settings = GeneralSetting::first();
 
         if ($request->ajax()) {
-            $html = view('backend.reports.partials.best_sellers_table', compact('products', 'grandTotals', 'settings'))->render();
+            $html = view('backend.reports.partials.best_sellers_table', compact('products', 'grandTotals', 'settings', 'rankBy'))->render();
             return response()->json([
                 'html' => $html,
                 'pagination' => $products->links()->render(),
@@ -168,6 +176,7 @@ class ReportController extends Controller implements HasMiddleware
                 'total' => $products->total(),
                 'has_more' => $products->hasMorePages(),
                 'items' => $items,
+                'rank_by' => $rankBy,
             ]);
         }
 
@@ -175,7 +184,7 @@ class ReportController extends Controller implements HasMiddleware
         $targetVolume = (float) $request->get('target_volume', 2000);
         $scope = (int) $request->get('scope', 5);
 
-        return view('backend.reports.best_sellers', compact('products', 'grandTotals', 'categories', 'settings', 'availableYears', 'topCalculatorItems', 'targetVolume', 'scope'));
+        return view('backend.reports.best_sellers', compact('products', 'grandTotals', 'categories', 'settings', 'availableYears', 'topCalculatorItems', 'targetVolume', 'scope', 'rankBy'));
     }
 
     /**

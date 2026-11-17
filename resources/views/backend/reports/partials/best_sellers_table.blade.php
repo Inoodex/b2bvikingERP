@@ -42,25 +42,42 @@
                             @endif
                         </td>
                         <td>
-                            <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center" style="gap: 10px;">
                                 <img src="{{ $imgSrc }}" 
                                      onerror="this.onerror=null;this.src='{{ $noImageFallback }}';" 
-                                     style="width: 38px; height: 38px; object-fit: cover; border-radius: 6px;" 
-                                     class="mr-2.5 border" alt="">
-                                <div>
-                                    <strong class="text-dark d-block">{{ $product->product_name }}</strong>
+                                     style="width: 38px; height: 38px; object-fit: contain; border-radius: 6px; background: #f8fafc; padding: 2px;" 
+                                     class="border flex-shrink-0" alt="">
+                                <div class="min-w-0">
+                                    <strong class="text-dark d-block text-truncate" style="font-size: 13px; line-height: 1.25; margin-bottom: 2px;" title="{{ $product->product_name }}">
+                                        {{ $product->product_name }}
+                                    </strong>
                                     @if(!empty($product->category_name))
-                                        <span class="badge badge-light border" style="font-size: 10.5px;">{{ $product->category_name }}</span>
+                                        <span class="badge badge-light border text-muted" style="font-size: 9.5px; padding: 1.5px 6px; font-weight: 600;">
+                                            {{ $product->category_name }}
+                                        </span>
                                     @endif
                                 </div>
                             </div>
                         </td>
-                        <td class="text-center">
-                            <span class="badge badge-danger px-2.5 py-1 font-weight-bold" style="font-size: 11px;">
-                                <i class="fas fa-shopping-cart mr-1"></i>{{ number_format($product->times_ordered) }} orders
-                            </span>
-                        </td>
-                        <td class="text-center font-weight-bold text-dark">{{ number_format($product->total_qty) }} pcs</td>
+                        @if(($rankBy ?? 'frequency') === 'quantity')
+                            <td class="text-center">
+                                <span class="badge badge-light border text-dark font-weight-bold px-2 py-1" style="font-size: 11px;">
+                                    <i class="fas fa-shopping-cart mr-1 text-muted"></i>{{ number_format($product->times_ordered) }} orders
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-success px-2.5 py-1 font-weight-bold shadow-sm" style="font-size: 11.5px; background: #059669;">
+                                    <i class="fas fa-boxes mr-1"></i>{{ number_format($product->total_qty) }} pcs
+                                </span>
+                            </td>
+                        @else
+                            <td class="text-center">
+                                <span class="badge badge-danger px-2.5 py-1 font-weight-bold shadow-sm" style="font-size: 11px;">
+                                    <i class="fas fa-shopping-cart mr-1"></i>{{ number_format($product->times_ordered) }} orders
+                                </span>
+                            </td>
+                            <td class="text-center font-weight-bold text-dark">{{ number_format($product->total_qty) }} pcs</td>
+                        @endif
                         <td class="text-right font-weight-bold text-dark">{!! formatWithCurrency($product->total_value) !!}</td>
                         <td class="text-center">
                             <span class="badge badge-info px-2 py-1 font-weight-bold" style="font-size: 11px;">

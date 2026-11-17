@@ -59,6 +59,7 @@ class SeedChartOfAccountsCommand extends Command
                 ['code' => '5000', 'name' => 'Expenses', 'type' => 'expense', 'balance' => 'debit', 'is_group' => true, 'parent' => null],
                 ['code' => '5010', 'name' => 'Cost of Goods Sold (COGS)', 'type' => 'expense', 'balance' => 'debit', 'is_group' => false, 'parent' => '5000'],
                 ['code' => '5020', 'name' => 'Operating Expenses', 'type' => 'expense', 'balance' => 'debit', 'is_group' => false, 'parent' => '5000'],
+                ['code' => '5025', 'name' => 'Packaging & Stationery Supplies Expense', 'type' => 'expense', 'balance' => 'debit', 'is_group' => false, 'parent' => '5000'],
                 ['code' => '5030', 'name' => 'Freight & Shipping Expense', 'type' => 'expense', 'balance' => 'debit', 'is_group' => false, 'parent' => '5000'],
                 ['code' => '5080', 'name' => 'Depreciation Expense', 'type' => 'expense', 'balance' => 'debit', 'is_group' => false, 'parent' => '5000'],
             ];

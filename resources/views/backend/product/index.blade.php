@@ -1470,7 +1470,7 @@
                                         </select>
                                     </div>
                                     @if (isset($vendors) && $vendors->count() > 0)
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-12 col-md-2">
                                             <select name="product_type" id="product_type_filter"
                                                 class="form-control select2 pp-select2">
                                                 <option value="">Occasion / Type</option>
@@ -1499,7 +1499,7 @@
                                             </select>
                                         </div>
                                     @else
-                                        <div class="col-12 col-md-5">
+                                        <div class="col-12 col-md-4">
                                             <select name="product_type" id="product_type_filter"
                                                 class="form-control select2 pp-select2">
                                                 <option value="">Occasion / Type</option>
@@ -1517,6 +1517,17 @@
                                             </select>
                                         </div>
                                     @endif
+                                    <div class="col-12 col-md-2">
+                                        <select name="order_status" id="order_status_filter"
+                                            class="form-control select2 pp-select2">
+                                            <option value="">Order Pipeline (All)</option>
+                                            <option value="on_order" {{ request('order_status') == 'on_order' ? 'selected' : '' }}>⏳ On Order / Active PO</option>
+                                            <option value="in_shipment" {{ request('order_status') == 'in_shipment' ? 'selected' : '' }}>🚢 In Shipment / Shipped</option>
+                                            <option value="out_of_stock_not_ordered" {{ request('order_status') == 'out_of_stock_not_ordered' ? 'selected' : '' }}>⚠️ Stockout • Not Ordered</option>
+                                            <option value="out_of_stock_ordered" {{ request('order_status') == 'out_of_stock_ordered' ? 'selected' : '' }}>📦 Stockout • Already Ordered</option>
+                                            <option value="in_stock" {{ request('order_status') == 'in_stock' ? 'selected' : '' }}>✅ In Stock (Qty &gt; 0)</option>
+                                        </select>
+                                    </div>
                                     <div class="col-12 col-md-2">
                                         <button type="button" id="reset-filters"
                                             class="btn pp-btn pp-btn-reset btn-sm shadow-sm w-100 d-flex align-items-center justify-content-center"
@@ -1690,6 +1701,9 @@
             }
             $('#grid-loader').hide();
 
+            $('[data-toggle="popover"]').popover();
+            $('[data-toggle="tooltip"]').tooltip();
+
             // --- Fast Database Cart Logic ---
             let activeBookingIds = [];
             let activeRequestIds = [];
@@ -1774,6 +1788,31 @@
                 const productImg = $card.find('.pp-card-img-wrap img').attr('src') ||
                     "{{ asset('uploads/no-image.svg') }}";
                 const vendorName = $card.find('.pp-badge-category').text().trim() || 'Primary Supplier';
+
+                const hasActivePo = Number($btn.data('has-active-po')) === 1;
+                const poInfo = $btn.data('po-info') || 'This product is already on order.';
+
+                if (!$btn.hasClass('added') && hasActivePo && typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: '⚠️ Already on Order!',
+                        html: `<strong>${productName}</strong><br><span class="text-warning font-weight-bold">${poInfo}</span><br><br><span style="font-size: 13px; color: #4b5563;">An active procurement order already exists for this product. Do you want to add it to Procurement Basket again?</span>`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#f59e0b',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: '<i class="fas fa-plus-circle mr-1"></i> Yes, Order Again',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            if (hasVariants) {
+                                openQuickVariantModal(productId, 'booking', productName, productImg, vendorName);
+                            } else {
+                                handleDirectCartToggle($btn, productId, 'booking', productName, productImg, vendorName);
+                            }
+                        }
+                    });
+                    return;
+                }
 
                 if (hasVariants) {
                     openQuickVariantModal(productId, 'booking', productName, productImg, vendorName);
@@ -2148,6 +2187,7 @@
                 let alphabet = $('#alphabet-dropdown').val();
                 let product_type = $('#product_type_filter').val();
                 let vendor = $('#vendor_filter').val();
+                let order_status = $('#order_status_filter').val();
                 let sort = $('#sort').val();
 
                 $.ajax({
@@ -2161,6 +2201,7 @@
                         alphabet: alphabet,
                         product_type: product_type,
                         vendor: vendor,
+                        order_status: order_status,
                         sort: sort
                     },
                     beforeSend: function() {
@@ -2201,6 +2242,8 @@
                             child_category: child_category,
                             alphabet: alphabet,
                             product_type: product_type,
+                            vendor: vendor,
+                            order_status: order_status,
                             sort: sort
                         });
 
@@ -2378,6 +2421,11 @@
                 fetchProducts();
             });
 
+            // Order Pipeline Filter Change
+            $('body').on('change', '#order_status_filter', function() {
+                fetchProducts();
+            });
+
             // Reset Filters
             $('body').on('click', '#reset-filters', function() {
                 $('.search-input').val('');
@@ -2389,6 +2437,7 @@
                 $('#alphabet-dropdown').val('');
                 $('#product_type_filter').val('');
                 $('#vendor_filter').val('');
+                $('#order_status_filter').val('');
                 $('#sort').val('latest');
 
                 // Re-trigger select2 UI update without triggering 'change' listener

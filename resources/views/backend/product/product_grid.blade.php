@@ -9,6 +9,11 @@
 </style>
 <div class="row" style="margin: 0 -6px;">
     @foreach ($products as $key => $product)
+        @php
+            $stock = (float) $product->inventory_stock;
+            $pipeline = $product->procurement_pipeline;
+            $hasActiveOrder = !empty($pipeline['has_active_order']);
+        @endphp
         <div class="col-6 col-md-4 col-lg-5th col-xl-5th mb-3" style="padding: 0 6px;">
             <div class="card h-100 border-0 shadow-sm pp-card" id="product-card-{{ $product->id }}">
                 <div class="pp-card-img-wrap d-flex align-items-center justify-content-center position-relative">
@@ -43,7 +48,8 @@
                                     $textStyle = 'color: #000;';
                                 }
                             @endphp
-                            <span class="badge {{ $badgeClass }} pp-badge-type shadow-sm" style="{{ $textStyle }}">
+                            <span class="badge {{ $badgeClass }} pp-badge-type shadow-sm"
+                                style="{{ $textStyle }}">
                                 {{ $product->productType->name }}
                             </span>
                         @endif
@@ -74,10 +80,35 @@
                 <div class="pp-card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="pp-badge-category">{{ $product->category->name ?? 'Uncategorized' }}</span>
-                        @php $stock = $product->inventory_stock; @endphp
-                        <span class="pp-badge-stock {{ $stock > 0 ? 'in-stock' : 'out-of-stock' }}">
-                            {{ (float) $stock }}
+                        <span class="pp-badge-stock {{ $stock > 0 ? 'in-stock' : 'out-of-stock' }}"
+                            title="Warehouse Inventory Stock">
+                            Stock: {{ (float) $stock }}
                         </span>
+                    </div>
+
+                    <div class="mb-1 d-flex align-items-center" style="min-height: 20px;">
+                        @if ($hasActiveOrder)
+                            <span
+                                class="badge {{ $pipeline['badge_class'] }} px-2 py-1 po-popover-trigger text-truncate w-100 text-left"
+                                style="font-size: 9.5px; cursor: pointer; font-weight: 600; border-radius: 4px;"
+                                data-toggle="popover" data-trigger="hover focus" data-html="true"
+                                data-title="{{ $pipeline['popover_title'] }}" data-content="{!! htmlspecialchars($pipeline['popover_content'], ENT_QUOTES, 'UTF-8') !!}">
+                                <i class="fas {{ $pipeline['icon'] }} mr-1"></i> {{ $pipeline['status_label'] }}
+                            </span>
+                        @elseif ($stock <= 0)
+                            <span class="badge badge-danger px-2 py-1 po-popover-trigger text-truncate w-100 text-left"
+                                style="font-size: 9.5px; cursor: pointer; font-weight: 600; border-radius: 4px;"
+                                data-toggle="popover" data-trigger="hover focus" data-html="true"
+                                data-title="⚠️ Urgent: Out of Stock"
+                                data-content="Warehouse stock is 0 and no purchase order exists in the pipeline.">
+                                <i class="fas fa-exclamation-triangle mr-1"></i> Stockout • Not Ordered
+                            </span>
+                        @else
+                            <span class="badge badge-light border text-muted px-2 py-1 text-truncate w-100 text-left"
+                                style="font-size: 9px; border-radius: 4px; background: #f8fafc;">
+                                <i class="fas fa-check-circle mr-1 text-success"></i> Stock Normal (No Active PO)
+                            </span>
+                        @endif
                     </div>
 
                     <h6 class="pp-card-title" title="{{ $product->name }}">
@@ -96,10 +127,9 @@
                     @endphp
 
                     <div class="d-flex align-items-center mb-2" style="margin-top: 3px;">
-                        <a href="{{ route('admin.reviews.index', ['product_id' => $product->id]) }}" 
-                           class="d-flex align-items-center text-decoration-none" 
-                           style="gap: 2px;" 
-                           title="{{ $reviewCount > 0 ? 'View ' . $reviewCount . ' review(s) for this product' : 'Inspect reviews' }}">
+                        <a href="{{ route('admin.reviews.index', ['product_id' => $product->id]) }}"
+                            class="d-flex align-items-center text-decoration-none" style="gap: 2px;"
+                            title="{{ $reviewCount > 0 ? 'View ' . $reviewCount . ' review(s) for this product' : 'Inspect reviews' }}">
                             @for ($i = 1; $i <= 5; $i++)
                                 <i class="fas fa-star"
                                     style="color: {{ $i <= round($avgRating) ? '#f59e0b' : '#d1d5db' }}; font-size: 9px;"></i>
@@ -186,9 +216,18 @@
                             @can('Manage Order Place')
                                 <button type="button" class="btn btn-sm pp-btn-card pp-btn-amber flex-fill add-to-basket"
                                     data-id="{{ $product->id }}" data-has-variants="{{ $hasVariants ? 1 : 0 }}"
-                                    title="Procurement Basket"
-                                    style="padding: 7px 0; font-size: 13px; display: flex; align-items: center; justify-content: center;">
+                                    data-has-active-po="{{ $hasActiveOrder ? 1 : 0 }}"
+                                    data-po-info="{{ $hasActiveOrder ? 'Already on order (' . number_format($pipeline['total_ordered_qty']) . ' pcs on ' . $pipeline['po_no'] . ' - ' . ($pipeline['status_key'] ?? 'PO') . ')' : '' }}"
+                                    title="{{ $hasActiveOrder ? '⚠️ Notice: ' . number_format($pipeline['total_ordered_qty']) . ' pcs already on ' . $pipeline['po_no'] . ' - Click to order more' : 'Procurement Basket' }}"
+                                    style="padding: 7px 0; font-size: 13px; display: flex; align-items: center; justify-content: center; position: relative;">
                                     <i class="fas fa-shopping-basket"></i>
+                                    @if ($hasActiveOrder)
+                                        <span class="badge badge-danger position-absolute"
+                                            style="top: -5px; right: -5px; font-size: 8px; padding: 2px 4px; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.25);"
+                                            title="Active order in progress">
+                                            <i class="fas fa-clock"></i>
+                                        </span>
+                                    @endif
                                 </button>
                             @endcan
                             @if (Auth::user()->can('Manage Sales Quotations') ||
@@ -207,18 +246,21 @@
 
                     @can('Manage Products')
                         <div class="mt-2 d-flex" style="gap: 6px;">
-                            <button type="button" class="btn btn-outline-info btn-sm flex-fill pp-edit-btn view-stock-movement"
+                            <button type="button"
+                                class="btn btn-outline-info btn-sm flex-fill pp-edit-btn view-stock-movement"
                                 data-id="{{ $product->id }}" data-toggle="tooltip" title="Stock Movement & History"
                                 style="padding: 6px 0; font-size: 13px; display: flex; align-items: center; justify-content: center;">
                                 <i class="fas fa-history"></i>
                             </button>
                             <a href="{{ route('admin.products.edit', ['product' => $product->id] + request()->query()) }}"
-                                class="btn btn-outline-primary btn-sm flex-fill pp-edit-btn" data-toggle="tooltip" title="Edit Product"
+                                class="btn btn-outline-primary btn-sm flex-fill pp-edit-btn" data-toggle="tooltip"
+                                title="Edit Product"
                                 style="padding: 6px 0; font-size: 13px; display: flex; align-items: center; justify-content: center;">
                                 <i class="fas fa-edit"></i>
                             </a>
                             <a href="{{ route('admin.products.destroy', $product->id) }}"
-                                class="btn btn-outline-danger btn-sm flex-fill pp-edit-btn delete-item" data-toggle="tooltip" title="Delete Product"
+                                class="btn btn-outline-danger btn-sm flex-fill pp-edit-btn delete-item"
+                                data-toggle="tooltip" title="Delete Product"
                                 style="padding: 6px 0; font-size: 13px; display: flex; align-items: center; justify-content: center;">
                                 <i class="fas fa-trash"></i>
                             </a>
