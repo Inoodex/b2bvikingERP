@@ -195,7 +195,7 @@
                             icon: 'warning',
                             title: 'No Return Quantity Entered',
                             text: 'Please enter a return quantity greater than 0 for at least one item before submitting.',
-                            confirmButtonColor: '#6777ef'
+                            confirmButtonColor: '#2563eb'
                         });
                     } else {
                         alert('Please enter a return quantity greater than 0 for at least one item before submitting.');

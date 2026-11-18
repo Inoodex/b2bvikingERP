@@ -236,7 +236,7 @@
         {{-- KPI 1: Total Outstanding Payables --}}
         <div class="col-12 col-md-4 mb-3 mb-md-0">
             <div class="modern-kpi-card">
-                <div class="kpi-top-stripe" style="background: linear-gradient(90deg, #ef4444, #f87171);"></div>
+                <div class="kpi-top-stripe" style="background: linear-gradient(90deg, #dc2626, #f87171);"></div>
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <span class="text-uppercase font-weight-bold" style="font-size: 11px; letter-spacing: 0.06em; color: #64748b;">
@@ -246,7 +246,7 @@
                             kr. {{ number_format($summary['total_payables'], 2) }}
                         </div>
                     </div>
-                    <div class="kpi-icon-circle" style="background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2;">
+                    <div class="kpi-icon-circle" style="background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2;">
                         <i class="fas fa-file-invoice-dollar"></i>
                     </div>
                 </div>
@@ -259,7 +259,7 @@
         {{-- KPI 2: Suppliers with Dues --}}
         <div class="col-12 col-md-4 mb-3 mb-md-0">
             <div class="modern-kpi-card">
-                <div class="kpi-top-stripe" style="background: linear-gradient(90deg, #f59e0b, #fbbf24);"></div>
+                <div class="kpi-top-stripe" style="background: linear-gradient(90deg, #f97316, #fbbf24);"></div>
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <span class="text-uppercase font-weight-bold" style="font-size: 11px; letter-spacing: 0.06em; color: #64748b;">
@@ -269,11 +269,11 @@
                             {{ number_format($summary['active_dues']) }} <span style="font-size: 14px; font-weight: 500; color: #64748b;">Vendors</span>
                         </div>
                     </div>
-                    <div class="kpi-icon-circle" style="background: #fffbeb; color: #d97706; border: 1px solid #fef3c7;">
+                    <div class="kpi-icon-circle" style="background: #fffbeb; color: #c2410c; border: 1px solid #fef3c7;">
                         <i class="fas fa-user-clock"></i>
                     </div>
                 </div>
-                <div class="d-flex align-items-center mt-2" style="font-size: 12px; color: #d97706; font-weight: 600;">
+                <div class="d-flex align-items-center mt-2" style="font-size: 12px; color: #c2410c; font-weight: 600;">
                     <i class="fas fa-hourglass-half mr-1"></i> Require Payment Clearance
                 </div>
             </div>
@@ -282,7 +282,7 @@
         {{-- KPI 3: Fully Settled Suppliers --}}
         <div class="col-12 col-md-4">
             <div class="modern-kpi-card">
-                <div class="kpi-top-stripe" style="background: linear-gradient(90deg, #10b981, #34d399);"></div>
+                <div class="kpi-top-stripe" style="background: linear-gradient(90deg, #15803d, #34d399);"></div>
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <span class="text-uppercase font-weight-bold" style="font-size: 11px; letter-spacing: 0.06em; color: #64748b;">
@@ -292,11 +292,11 @@
                             {{ number_format($summary['settled_vendors']) }} <span style="font-size: 14px; font-weight: 500; color: #64748b;">/ {{ number_format($summary['total_vendors']) }}</span>
                         </div>
                     </div>
-                    <div class="kpi-icon-circle" style="background: #ecfdf5; color: #059669; border: 1px solid #d1fae5;">
+                    <div class="kpi-icon-circle" style="background: #ecfdf5; color: #15803d; border: 1px solid #d1fae5;">
                         <i class="fas fa-check-double"></i>
                     </div>
                 </div>
-                <div class="d-flex align-items-center mt-2" style="font-size: 12px; color: #059669; font-weight: 600;">
+                <div class="d-flex align-items-center mt-2" style="font-size: 12px; color: #15803d; font-weight: 600;">
                     <i class="fas fa-check-circle mr-1"></i> 100% Zero Outstanding Balance
                 </div>
             </div>
@@ -323,12 +323,12 @@
                 {{-- Sleek Segmented Switcher (Zero-Reload Live Filter) --}}
                 <div class="segmented-filter-nav">
                     <button type="button" class="segmented-btn active" data-filter="has_due">
-                        <span class="filter-status-dot" style="background: #ef4444;"></span>
+                        <span class="filter-status-dot" style="background: #dc2626;"></span>
                         Has Dues
                         <span class="filter-count-badge bg-danger text-white">{{ $summary['active_dues'] }}</span>
                     </button>
                     <button type="button" class="segmented-btn" data-filter="settled">
-                        <span class="filter-status-dot" style="background: #10b981;"></span>
+                        <span class="filter-status-dot" style="background: #15803d;"></span>
                         Settled
                         <span class="filter-count-badge bg-success text-white">{{ $summary['settled_vendors'] }}</span>
                     </button>

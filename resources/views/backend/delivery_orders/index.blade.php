@@ -1,6 +1,24 @@
 @extends('backend.layouts.master')
 @section('title', 'Delivery Orders (Challans)')
 
+@push('css')
+    <style>
+        #delivery-order-table {
+            min-width: 900px !important;
+        }
+
+        #delivery-order-table th,
+        #delivery-order-table td {
+            white-space: nowrap;
+        }
+
+        #delivery-order-table th:last-child,
+        #delivery-order-table td:last-child {
+            min-width: 150px;
+        }
+    </style>
+@endpush
+
 @section('content')
     <section class="section">
         <div class="section-header">

@@ -224,7 +224,7 @@
             }
             #basket_table tr.basket-row { 
                 margin-bottom: 20px; 
-                border: 1px solid #e4e6fc !important; 
+                border: 1px solid #dbeafe !important;
                 border-radius: 10px; 
                 padding: 15px; 
                 background: #fff; 

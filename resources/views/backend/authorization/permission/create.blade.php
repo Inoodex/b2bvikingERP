@@ -5,19 +5,19 @@
 <style>
     :root {
         --pp-obsidian: #0b1120;
-        --pp-amber: #d4a24e;
-        --pp-amber-bright: #ecc78b;
-        --pp-amber-deep: #b8852a;
-        --pp-amber-soft: rgba(212, 162, 78, 0.08);
+        --pp-blue: #2563eb;
+        --pp-blue-bright: #60a5fa;
+        --pp-blue-deep: #1d4ed8;
+        --pp-blue-soft: rgba(37, 99, 235, 0.08);
         --pp-border: rgba(11, 17, 32, 0.07);
-        --pp-border-hover: rgba(212, 162, 78, 0.15);
+        --pp-border-hover: rgba(37, 99, 235, 0.15);
         --pp-ink: #161e2e;
         --pp-ink-soft: #2d3748;
         --pp-muted: #6b788e;
         --pp-radius-md: 14px;
         --pp-radius-lg: 20px;
         --pp-shadow-card: 0 1px 3px rgba(11,17,32,0.04), 0 8px 20px -12px rgba(11,17,32,0.12);
-        --pp-shadow-card-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(212,162,78,0.06);
+        --pp-shadow-card-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(37, 99, 235,0.06);
     }
 
     .pp-header {
@@ -49,9 +49,9 @@
         justify-content: center;
         border-radius: 10px;
         font-size: 14px;
-        color: #1a1306;
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber));
-        box-shadow: 0 4px 14px rgba(212, 162, 78, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+        color: #ffffff;
+        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue));
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
     }
 
     .pp-btn {
@@ -67,12 +67,12 @@
     }
     .pp-btn:hover { transform: translateY(-2px); }
     .pp-btn:active { transform: translateY(0) scale(0.97); }
-    .pp-btn-amber {
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep)) !important;
-        color: #1a1306 !important;
-        box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.45), inset 0 1px 0 rgba(255,255,255,0.25);
+    .pp-btn-blue {
+        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue-deep)) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 14px -4px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255,255,255,0.25);
     }
-    .pp-btn-amber:hover { filter: brightness(1.06); box-shadow: 0 8px 24px -6px rgba(212, 162, 78, 0.5); }
+    .pp-btn-blue:hover { filter: brightness(1.06); box-shadow: 0 8px 24px -6px rgba(37, 99, 235, 0.5); }
     .pp-btn-outline {
         border: 1.5px solid var(--pp-border) !important;
         color: var(--pp-ink-soft) !important;
@@ -84,9 +84,9 @@
         transition: all 0.2s ease !important;
     }
     .pp-btn-outline:hover {
-        border-color: var(--pp-amber) !important;
-        background: var(--pp-amber-soft) !important;
-        color: var(--pp-amber-deep) !important;
+        border-color: var(--pp-blue) !important;
+        background: var(--pp-blue-soft) !important;
+        color: var(--pp-blue-deep) !important;
     }
 
     .pp-card {
@@ -118,7 +118,7 @@
         align-items: center;
         gap: 8px;
     }
-    .pp-card-header h4 i { color: var(--pp-amber); }
+    .pp-card-header h4 i { color: var(--pp-blue); }
 
     .form-label {
         font-weight: 700;
@@ -137,8 +137,8 @@
         background: #fff !important;
     }
     .pp-input:focus {
-        border-color: var(--pp-amber) !important;
-        box-shadow: 0 0 0 3px var(--pp-amber-soft), 0 4px 12px -8px rgba(212,162,78,0.15) !important;
+        border-color: var(--pp-blue) !important;
+        box-shadow: 0 0 0 3px var(--pp-blue-soft), 0 4px 12px -8px rgba(37, 99, 235,0.15) !important;
         outline: none;
     }
     .pp-input::placeholder { color: #aab2c0; }
@@ -188,7 +188,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <label for="permissionName" class="form-label">
-                                            <i class="fas fa-tag mr-1" style="color: var(--pp-amber);"></i> Permission Name
+                                            <i class="fas fa-tag mr-1" style="color: var(--pp-blue);"></i> Permission Name
                                         </label>
                                         <input type="text" class="form-control pp-input" id="permissionName" name="name"
                                             value="{{ old('name') }}" placeholder="e.g. edit_users, view_reports">
@@ -198,7 +198,7 @@
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-end mt-4">
-                                    <button type="submit" class="btn pp-btn pp-btn-amber shadow-sm">
+                                    <button type="submit" class="btn pp-btn pp-btn-blue shadow-sm">
                                         <i class="fas fa-plus-circle mr-1"></i> Create Permission
                                     </button>
                                 </div>

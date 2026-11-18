@@ -18,7 +18,7 @@
                     </div>
 
                     @if($cartItems->isEmpty())
-                        <div class="rounded-xl bg-amber-50 border border-amber-200 p-4 text-amber-700 text-sm">
+                        <div class="rounded-xl bg-blue-50 border border-blue-200 p-4 text-blue-700 text-sm">
                             Your cart is empty. Please add products before checkout.
                         </div>
                     @else

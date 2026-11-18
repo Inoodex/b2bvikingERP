@@ -224,7 +224,7 @@
                             icon: 'warning',
                             title: 'No Dispatch Quantity Entered',
                             text: 'Please enter a dispatch quantity greater than 0 for at least one item before creating delivery order.',
-                            confirmButtonColor: '#6777ef'
+                            confirmButtonColor: '#2563eb'
                         });
                     } else {
                         alert('Please enter a dispatch quantity greater than 0 for at least one item.');

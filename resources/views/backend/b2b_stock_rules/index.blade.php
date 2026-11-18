@@ -61,16 +61,16 @@
         transform: none !important;
     }
     .b2b-tab-btn.active {
-        background-color: #6777ef !important;
-        border-color: #6777ef !important;
+        background-color: #2563eb !important;
+        border-color: #2563eb !important;
         color: #ffffff !important;
         font-weight: 600;
-        box-shadow: 0 2px 6px #acb5f6 !important;
+        box-shadow: 0 2px 6px #bfdbfe !important;
         transform: none !important;
     }
     .b2b-tab-btn.active:focus,
     .b2b-tab-btn.active:active {
-        box-shadow: 0 2px 6px #acb5f6 !important;
+        box-shadow: 0 2px 6px #bfdbfe !important;
         transform: none !important;
     }
     .b2b-tab-btn.active i {
@@ -82,7 +82,7 @@
 
     /* Red-styled Reset Button ("reset ta red ar moto") */
     .btn-filter-reset {
-        color: #ef4444 !important;
+        color: #dc2626 !important;
         background-color: #fef2f2 !important;
         border: 1.5px solid #fecaca !important;
         border-radius: 8px !important;
@@ -159,11 +159,11 @@
     }
     #matrix-scope-group label.btn.active,
     #modal-scope-pills label.btn.active {
-        background-color: #6777ef !important;
-        border-color: #6777ef !important;
+        background-color: #2563eb !important;
+        border-color: #2563eb !important;
         color: #ffffff !important;
         font-weight: 600 !important;
-        box-shadow: 0 2px 6px rgba(103, 119, 239, 0.35) !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35) !important;
     }
     #matrix-scope-group label.btn.active i,
     #modal-scope-pills label.btn.active i {
@@ -176,10 +176,10 @@
 
     /* Enterprise Load Matrix Button */
     #btn-load-matrix {
-        background-color: #6777ef !important;
-        border-color: #6777ef !important;
+        background-color: #2563eb !important;
+        border-color: #2563eb !important;
         color: #ffffff !important;
-        box-shadow: 0 2px 6px #acb5f6 !important;
+        box-shadow: 0 2px 6px #bfdbfe !important;
         border-radius: 8px !important;
         height: 38px !important;
         font-weight: 600 !important;
@@ -195,12 +195,12 @@
         background-color: #5a67d8 !important;
         border-color: #5a67d8 !important;
         color: #ffffff !important;
-        box-shadow: 0 4px 12px rgba(103, 119, 239, 0.35) !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
         transform: translateY(-1px) !important;
     }
     #btn-load-matrix:active,
     #btn-load-matrix:focus {
-        box-shadow: 0 2px 6px #acb5f6 !important;
+        box-shadow: 0 2px 6px #bfdbfe !important;
         transform: translateY(0) !important;
         outline: none !important;
     }
@@ -263,7 +263,7 @@
         color: #1e293b;
     }
     .matrix-seg-btn.seg-in-stock.active {
-        background: #059669 !important;
+        background: #15803d !important;
         color: #ffffff !important;
         box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35) !important;
     }
@@ -301,7 +301,7 @@
         box-shadow: 0 1px 3px rgba(16, 185, 129, 0.15);
     }
     .matrix-quota-wrapper.active .matrix-quota-box:focus-within {
-        border-color: #059669;
+        border-color: #15803d;
         box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
     }
     .matrix-quota-wrapper.disabled {
@@ -321,7 +321,7 @@
         background: transparent;
     }
     .matrix-quota-wrapper.active .matrix-quota-input {
-        color: #059669;
+        color: #15803d;
     }
     .matrix-quota-unit {
         font-size: 10px;
@@ -336,7 +336,7 @@
     }
     .matrix-quota-wrapper.active .matrix-quota-unit {
         background: #ecfdf5;
-        color: #059669;
+        color: #15803d;
         border-left-color: #a7f3d0;
     }
     .matrix-quota-feedback {
@@ -367,7 +367,7 @@
     }
     .matrix-status-green {
         background: rgba(16, 185, 129, 0.12);
-        color: #059669;
+        color: #15803d;
         border: 1px solid rgba(16, 185, 129, 0.35);
     }
     .matrix-status-red {
@@ -421,9 +421,9 @@
         color: #1e293b;
     }
     .matrix-catalog-pill-btn.active {
-        background-color: #6777ef !important;
+        background-color: #2563eb !important;
         color: #ffffff !important;
-        box-shadow: 0 2px 6px rgba(103, 119, 239, 0.4) !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4) !important;
     }
 
     /* Enterprise Slide-Over Drawer Styling (ZERO FLASH ON REFRESH) */
@@ -494,7 +494,7 @@
     }
     .audit-drawer .drawer-close-btn:hover {
         background: #fee2e2 !important;
-        color: #ef4444 !important;
+        color: #dc2626 !important;
         border-color: #fca5a5 !important;
     }
 
@@ -525,6 +525,22 @@
         scrollbar-width: thin !important;
         scrollbar-color: #cbd5e1 transparent !important;
     }
+
+    @media (min-width: 768px) and (max-width: 1199.98px) {
+        .b2b-metrics-grid > .b2b-metric-column,
+        .b2b-filter-grid > .b2b-filter-column {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .b2b-metrics-grid > .b2b-metric-column,
+        .b2b-filter-grid > .b2b-filter-column {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
 </style>
 @endpush
 
@@ -534,7 +550,7 @@
     <div class="section-header border-0 shadow-sm mb-4" style="background: #ffffff; border-radius: 16px; padding: 20px 24px; margin-top: 25px !important;">
         <div class="d-flex align-items-center flex-wrap w-100 justify-content-between" style="gap: 16px;">
             <div class="d-flex align-items-center mb-2 mb-md-0">
-                <div class="mr-3 p-3 rounded-circle text-white shadow-sm" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(212, 162, 78, 0.3);">
+                <div class="mr-3 p-3 rounded-circle text-white shadow-sm" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(37, 99, 235, 0.3);">
                     <i class="fas fa-users-cog text-warning" style="font-size: 1.35rem;"></i>
                 </div>
                 <div>
@@ -565,11 +581,11 @@
     </div>
 
     {{-- Metrics Ribbon --}}
-    <div class="row mb-4">
-        <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0">
-            <div class="card border-0 shadow-sm mb-0" style="border-radius: 14px; background: #ffffff; border-left: 4px solid #3b82f6 !important;">
+    <div class="row mb-4 b2b-metrics-grid">
+        <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0 b2b-metric-column">
+            <div class="card border-0 shadow-sm mb-0" style="border-radius: 14px; background: #ffffff; border-left: 4px solid #2563eb !important;">
                 <div class="card-body p-3 d-flex align-items-center">
-                    <div class="mr-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(59, 130, 246, 0.12); display: flex; align-items: center; justify-content: center; color: #3b82f6;">
+                    <div class="mr-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(59, 130, 246, 0.12); display: flex; align-items: center; justify-content: center; color: #2563eb;">
                         <i class="fas fa-shield-alt" style="font-size: 20px;"></i>
                     </div>
                     <div>
@@ -580,10 +596,10 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0">
-            <div class="card border-0 shadow-sm mb-0" style="border-radius: 14px; background: #ffffff; border-left: 4px solid #10b981 !important;">
+        <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0 b2b-metric-column">
+            <div class="card border-0 shadow-sm mb-0" style="border-radius: 14px; background: #ffffff; border-left: 4px solid #15803d !important;">
                 <div class="card-body p-3 d-flex align-items-center">
-                    <div class="mr-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.12); display: flex; align-items: center; justify-content: center; color: #10b981;">
+                    <div class="mr-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.12); display: flex; align-items: center; justify-content: center; color: #15803d;">
                         <i class="fas fa-check-circle" style="font-size: 20px;"></i>
                     </div>
                     <div>
@@ -594,10 +610,10 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0">
-            <div class="card border-0 shadow-sm mb-0" style="border-radius: 14px; background: #ffffff; border-left: 4px solid #ef4444 !important;">
+        <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0 b2b-metric-column">
+            <div class="card border-0 shadow-sm mb-0" style="border-radius: 14px; background: #ffffff; border-left: 4px solid #dc2626 !important;">
                 <div class="card-body p-3 d-flex align-items-center">
-                    <div class="mr-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(239, 68, 68, 0.12); display: flex; align-items: center; justify-content: center; color: #ef4444;">
+                    <div class="mr-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(239, 68, 68, 0.12); display: flex; align-items: center; justify-content: center; color: #dc2626;">
                         <i class="fas fa-ban" style="font-size: 20px;"></i>
                     </div>
                     <div>
@@ -608,7 +624,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6 col-12">
+        <div class="col-lg-3 col-md-6 col-12 b2b-metric-column">
             <div class="card border-0 shadow-sm mb-0" style="border-radius: 14px; background: #ffffff; border-left: 4px solid #64748b !important;">
                 <div class="card-body p-3 d-flex align-items-center">
                     <div class="mr-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(100, 116, 139, 0.12); display: flex; align-items: center; justify-content: center; color: #64748b;">
@@ -632,7 +648,7 @@
         <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px; background: #ffffff;">
             <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap" style="gap: 12px;">
                 <div class="d-flex align-items-center">
-                    <div class="mr-2 p-2 rounded text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(103, 119, 239, 0.1);">
+                    <div class="mr-2 p-2 rounded text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(37, 99, 235, 0.1);">
                         <i class="fas fa-filter" style="font-size: 13px;"></i>
                     </div>
                     <div>
@@ -647,9 +663,9 @@
             </div>
             <div class="card-body p-4">
                 <form id="filter-form">
-                    <div class="row">
+                    <div class="row b2b-filter-grid">
                         {{-- Row 1: Target Scope, Company, and Outlet --}}
-                        <div class="col-lg-4 col-md-6 col-12 mb-3">
+                        <div class="col-lg-4 col-md-6 col-12 mb-3 b2b-filter-column">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-layer-group text-primary mr-1"></i> Target Scope
                             </label>
@@ -661,7 +677,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-4 col-md-6 col-12 mb-3">
+                        <div class="col-lg-4 col-md-6 col-12 mb-3 b2b-filter-column">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-building text-info mr-1"></i> Target Company
                             </label>
@@ -673,7 +689,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-4 col-md-12 col-12 mb-3">
+                        <div class="col-lg-4 col-md-12 col-12 mb-3 b2b-filter-column">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-store text-warning mr-1"></i> Retail Outlet Branch
                             </label>
@@ -686,7 +702,7 @@
                         </div>
 
                         {{-- Row 2: Target Buyer, Product Category & Availability Policy --}}
-                        <div class="col-lg-4 col-md-6 col-12 mb-2">
+                        <div class="col-lg-4 col-md-6 col-12 mb-2 b2b-filter-column">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-user-check text-dark mr-1"></i> Target Buyer / Customer
                             </label>
@@ -698,7 +714,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-4 col-md-6 col-12 mb-2">
+                        <div class="col-lg-4 col-md-6 col-12 mb-2 b2b-filter-column">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-tags text-success mr-1"></i> Product Category
                             </label>
@@ -710,7 +726,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-4 col-md-12 col-12 mb-2">
+                        <div class="col-lg-4 col-md-12 col-12 mb-2 b2b-filter-column">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-shield-alt text-danger mr-1"></i> Availability Policy
                             </label>
@@ -750,7 +766,7 @@
         <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px; background: #ffffff;">
             <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap" style="gap: 12px;">
                 <div class="d-flex align-items-center">
-                    <div class="mr-2 p-2 rounded text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(103, 119, 239, 0.1);">
+                    <div class="mr-2 p-2 rounded text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(37, 99, 235, 0.1);">
                         <i class="fas fa-sliders-h" style="font-size: 13px;"></i>
                     </div>
                     <div>
@@ -962,7 +978,7 @@
 <div class="audit-drawer" id="b2bRuleDrawer" style="display: none; width: min(680px, 95vw);">
     <div class="drawer-header bg-white py-3 px-4 border-bottom d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center">
-            <div class="mr-3 p-2 rounded-circle" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+            <div class="mr-3 p-2 rounded-circle" style="background: rgba(59, 130, 246, 0.1); color: #2563eb;">
                 <i class="fas fa-shield-alt font-size-18"></i>
             </div>
             <div>
@@ -1390,7 +1406,7 @@
                 text: "This customer or outlet will immediately revert to standard warehouse inventory.",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "#ef4444",
+                confirmButtonColor: "#dc2626",
                 cancelButtonColor: "#64748b",
                 confirmButtonText: "<i class='fas fa-trash-alt mr-1'></i> Yes, remove it!",
                 cancelButtonText: "Cancel",
@@ -1518,7 +1534,7 @@
                 icon = '<i class="fas fa-phone-alt text-warning mr-1"></i>';
             }
             $('#matrix-selected-account-label').html(`
-                <span class="badge px-3 py-1 font-weight-bold" style="background: rgba(103, 119, 239, 0.12); color: #6777ef; border: 1px solid rgba(103, 119, 239, 0.3); border-radius: 20px; font-size: 12px;">
+                <span class="badge px-3 py-1 font-weight-bold" style="background: rgba(37, 99, 235, 0.12); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 20px; font-size: 12px;">
                     ${icon} Active Target: ${label}
                 </span>
             `);

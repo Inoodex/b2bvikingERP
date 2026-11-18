@@ -48,9 +48,9 @@
         transition: all 0.3s ease;
     }
     .milestone-step.active .milestone-icon {
-        background: #6777ef;
+        background: #2563eb;
         color: #ffffff;
-        box-shadow: 0 0 0 6px rgba(103,119,239,0.22);
+        box-shadow: 0 0 0 6px rgba(37, 99, 235,0.22);
     }
     .milestone-step.completed .milestone-icon {
         background: #47c363;
@@ -65,7 +65,7 @@
         letter-spacing: 0.4px;
     }
     .milestone-step.active .milestone-label {
-        color: #6777ef;
+        color: #2563eb;
     }
     .milestone-step.completed .milestone-label {
         color: #47c363;
@@ -519,7 +519,7 @@
                     text: "Are you sure you want to cancel this Purchase Order?",
                     icon: "warning",
                     showCancelButton: true,
-                    confirmButtonColor: "#fc544b",
+                    confirmButtonColor: "#dc2626",
                     cancelButtonColor: "#6c757d",
                     confirmButtonText: "Yes, Cancel PO!",
                     cancelButtonText: "Keep Active"

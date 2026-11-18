@@ -5,12 +5,12 @@
 <style>
     :root {
         --pp-obsidian: #0b1120;
-        --pp-amber: #d4a24e;
-        --pp-amber-bright: #ecc78b;
-        --pp-amber-deep: #b8852a;
-        --pp-amber-soft: rgba(212, 162, 78, 0.08);
+        --pp-blue: #2563eb;
+        --pp-blue-bright: #60a5fa;
+        --pp-blue-deep: #1d4ed8;
+        --pp-blue-soft: rgba(37, 99, 235, 0.08);
         --pp-border: rgba(11, 17, 32, 0.08);
-        --pp-border-hover: rgba(212, 162, 78, 0.35);
+        --pp-border-hover: rgba(37, 99, 235, 0.35);
         --pp-ink: #0f172a;
         --pp-ink-soft: #334155;
         --pp-muted: #64748b;
@@ -19,7 +19,7 @@
         --pp-radius-md: 12px;
         --pp-radius-lg: 16px;
         --pp-shadow-card: 0 4px 16px -4px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.03);
-        --pp-shadow-card-hover: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(212, 162, 78, 0.15);
+        --pp-shadow-card-hover: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(37, 99, 235, 0.15);
     }
 
     .pp-header {
@@ -47,9 +47,9 @@
         justify-content: center;
         border-radius: 10px;
         font-size: 14px;
-        color: #1a1306;
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber));
-        box-shadow: 0 4px 14px rgba(212, 162, 78, 0.35);
+        color: #ffffff;
+        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue));
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
         margin-right: 12px;
     }
 
@@ -63,21 +63,21 @@
         cursor: pointer;
     }
     .pp-btn:hover { transform: translateY(-1px); }
-    .pp-btn-amber {
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep)) !important;
-        color: #1a1306 !important;
-        box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.45);
+    .pp-btn-blue {
+        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue-deep)) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 14px -4px rgba(37, 99, 235, 0.45);
     }
-    .pp-btn-amber:hover { filter: brightness(1.05); }
+    .pp-btn-blue:hover { filter: brightness(1.05); }
     .pp-btn-outline {
         border: 1.5px solid var(--pp-border) !important;
         color: var(--pp-ink-soft) !important;
         background: #fff !important;
     }
     .pp-btn-outline:hover {
-        border-color: var(--pp-amber) !important;
-        background: var(--pp-amber-soft) !important;
-        color: var(--pp-amber-deep) !important;
+        border-color: var(--pp-blue) !important;
+        background: var(--pp-blue-soft) !important;
+        color: var(--pp-blue-deep) !important;
     }
 
     /* Role Top Setup Card */
@@ -107,8 +107,8 @@
         background: #fff !important;
     }
     .pp-input:focus {
-        border-color: var(--pp-amber) !important;
-        box-shadow: 0 0 0 3px var(--pp-amber-soft) !important;
+        border-color: var(--pp-blue) !important;
+        box-shadow: 0 0 0 3px var(--pp-blue-soft) !important;
         outline: none;
     }
 
@@ -125,7 +125,7 @@
         color: var(--pp-ink-soft);
     }
     .role-counter-pill span {
-        color: var(--pp-amber-deep);
+        color: var(--pp-blue-deep);
         margin-right: 4px;
         font-weight: 800;
     }
@@ -219,15 +219,15 @@
         user-select: none;
     }
     .pp-permission-card:hover {
-        border-color: rgba(212, 162, 78, 0.45);
+        border-color: rgba(37, 99, 235, 0.45);
         background: #ffffff;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px -4px rgba(0,0,0,0.06);
     }
     .pp-permission-card.is-active {
         background: #fffdf9 !important;
-        border-color: rgba(212, 162, 78, 0.5) !important;
-        box-shadow: 0 3px 10px -3px rgba(212, 162, 78, 0.2) !important;
+        border-color: rgba(37, 99, 235, 0.5) !important;
+        box-shadow: 0 3px 10px -3px rgba(37, 99, 235, 0.2) !important;
     }
     .pp-permission-name {
         font-weight: 600;
@@ -237,7 +237,7 @@
         margin-right: 8px;
     }
     .pp-permission-card.is-active .pp-permission-name {
-        color: #1a1306;
+        color: #ffffff;
         font-weight: 700;
     }
 
@@ -260,9 +260,9 @@
         box-shadow: 0 1px 3px rgba(0,0,0,0.15);
     }
     .pp-toggle .custom-switch-input:checked ~ .custom-switch-indicator {
-        background: linear-gradient(135deg, var(--pp-amber-bright), var(--pp-amber)) !important;
-        border-color: var(--pp-amber) !important;
-        box-shadow: 0 2px 8px -2px rgba(212, 162, 78, 0.4);
+        background: linear-gradient(135deg, var(--pp-blue-bright), var(--pp-blue)) !important;
+        border-color: var(--pp-blue) !important;
+        box-shadow: 0 2px 8px -2px rgba(37, 99, 235, 0.4);
     }
     .pp-toggle .custom-switch-input:checked ~ .custom-switch-indicator::after {
         left: 14px !important;

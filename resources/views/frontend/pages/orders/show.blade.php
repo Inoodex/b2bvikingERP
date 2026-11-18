@@ -119,7 +119,7 @@
                         {{ $status === 'shipped' ? 'bg-blue-100 text-blue-700' : '' }}
                         {{ $status === 'rejected' ? 'bg-rose-100 text-rose-700' : '' }}
                         {{ $status === 'cancelled' ? 'bg-rose-100 text-rose-700' : '' }}
-                        {{ $status === 'pending' ? 'bg-amber-100 text-amber-700' : '' }}">
+                        {{ $status === 'pending' ? 'bg-blue-100 text-blue-700' : '' }}">
                         {{ ucfirst($order->status) }}
                     </span>
                 </p>
@@ -162,8 +162,8 @@
                                     <i class="fas fa-adjust text-sky-600"></i> Partial
                                 </span>
                             @else
-                                <span class="inline-flex items-center gap-1 text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full text-xs font-bold border border-amber-200">
-                                    <i class="fas fa-clock text-amber-600"></i> Pending
+                                <span class="inline-flex items-center gap-1 text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full text-xs font-bold border border-blue-200">
+                                    <i class="fas fa-clock text-blue-600"></i> Pending
                                 </span>
                             @endif
                         </span>
@@ -183,9 +183,9 @@
                 </div>
 
                 @if($order->payment_method === 'paypal' && $order->payment_status !== 'paid')
-                    <div class="mt-5 p-4 rounded-xl bg-amber-50 border border-amber-200 text-center shadow-sm">
-                        <p class="text-xs font-semibold text-amber-800 mb-3 flex items-center justify-center gap-1.5">
-                            <i class="fas fa-exclamation-circle text-amber-600"></i> Payment is pending. Complete checkout now:
+                    <div class="mt-5 p-4 rounded-xl bg-blue-50 border border-blue-200 text-center shadow-sm">
+                        <p class="text-xs font-semibold text-blue-800 mb-3 flex items-center justify-center gap-1.5">
+                            <i class="fas fa-exclamation-circle text-blue-600"></i> Payment is pending. Complete checkout now:
                         </p>
                         <form method="POST" action="{{ route('orders.retry-paypal', $order->id) }}">
                             @csrf

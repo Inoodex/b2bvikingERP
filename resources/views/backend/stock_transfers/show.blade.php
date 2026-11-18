@@ -423,7 +423,7 @@
                 text: "This will deduct the items from the source warehouse inventory and mark the transfer as in-transit.",
                 icon: "question",
                 showCancelButton: true,
-                confirmButtonColor: "#6777ef",
+                confirmButtonColor: "#2563eb",
                 cancelButtonColor: "#6c757d",
                 confirmButtonText: "Yes, Dispatch Now!",
                 cancelButtonText: "Cancel"
@@ -441,7 +441,7 @@
                 text: "Are you sure you want to cancel this draft stock transfer?",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "#fc544b",
+                confirmButtonColor: "#dc2626",
                 cancelButtonColor: "#6c757d",
                 confirmButtonText: "Yes, Cancel Transfer!",
                 cancelButtonText: "Keep Draft"
@@ -475,7 +475,7 @@
                     placeholder: 'Enter transfer quantity'
                 },
                 showCancelButton: true,
-                confirmButtonColor: '#6777ef',
+                confirmButtonColor: '#2563eb',
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Update Quantity',
                 cancelButtonText: 'Cancel',
@@ -537,7 +537,7 @@
                 text: 'Are you sure you want to remove this product from this draft transfer?',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#fc544b',
+                confirmButtonColor: '#dc2626',
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Yes, Remove It!',
                 cancelButtonText: 'Cancel'

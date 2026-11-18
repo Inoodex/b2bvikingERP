@@ -4,12 +4,12 @@
 @push('css')
 <style>
     :root {
-        --sr-amber: #d4a24e;
-        --sr-amber-bright: #ecc78b;
-        --sr-amber-deep: #b8852a;
-        --sr-amber-soft: rgba(212, 162, 78, 0.08);
+        --sr-blue: #2563eb;
+        --sr-blue-bright: #60a5fa;
+        --sr-blue-deep: #1d4ed8;
+        --sr-blue-soft: rgba(37, 99, 235, 0.08);
         --sr-border: rgba(11, 17, 32, 0.07);
-        --sr-border-hover: rgba(212, 162, 78, 0.18);
+        --sr-border-hover: rgba(37, 99, 235, 0.18);
         --sr-ink: #161e2e;
         --sr-ink-soft: #2d3748;
         --sr-muted: #6b788e;
@@ -17,7 +17,7 @@
         --sr-radius: 14px;
         --sr-radius-lg: 20px;
         --sr-shadow: 0 1px 3px rgba(11,17,32,0.04), 0 8px 20px -12px rgba(11,17,32,0.12);
-        --sr-shadow-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(212,162,78,0.06);
+        --sr-shadow-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(37, 99, 235,0.06);
         --sr-font: 'Inter', 'Segoe UI', system-ui, sans-serif;
     }
 
@@ -50,7 +50,7 @@
         border-radius: 11px;
         font-size: 14px;
         color: #fff;
-        background: linear-gradient(145deg, #f59e0b, #d97706);
+        background: linear-gradient(145deg, #f97316, #c2410c);
         box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35);
     }
     .sr-breadcrumb {
@@ -62,9 +62,9 @@
     .sr-breadcrumb span + span::before {
         content: '/'; position: absolute; left: 0; color: rgba(11,17,32,0.15);
     }
-    .sr-breadcrumb a { color: var(--sr-amber); text-decoration: none; transition: color 0.2s; }
-    .sr-breadcrumb a:hover { color: var(--sr-amber-deep); }
-    .sr-breadcrumb .active { color: var(--sr-amber-deep); }
+    .sr-breadcrumb a { color: var(--sr-blue); text-decoration: none; transition: color 0.2s; }
+    .sr-breadcrumb a:hover { color: var(--sr-blue-deep); }
+    .sr-breadcrumb .active { color: var(--sr-blue-deep); }
 
     /* ============================
        FILTER CARD (Matching Stock Report Design)
@@ -89,7 +89,7 @@
         color: var(--sr-ink); margin: 0;
         display: flex; align-items: center; gap: 8px;
     }
-    .sr-filter-head h4 i { color: var(--sr-amber); font-size: 13px; }
+    .sr-filter-head h4 i { color: var(--sr-blue); font-size: 13px; }
     .sr-filter-head .sr-collapse-btn {
         width: 28px; height: 28px;
         display: flex; align-items: center; justify-content: center;
@@ -101,7 +101,7 @@
         transition: all 0.2s;
         font-size: 11px;
     }
-    .sr-filter-head .sr-collapse-btn:hover { background: var(--sr-amber-soft); color: var(--sr-amber); border-color: var(--sr-border-hover); }
+    .sr-filter-head .sr-collapse-btn:hover { background: var(--sr-blue-soft); color: var(--sr-blue); border-color: var(--sr-border-hover); }
     .sr-filter-body { padding: 18px 20px; }
     .sr-filter-body label {
         font-family: var(--sr-font);
@@ -122,8 +122,8 @@
     .sr-filter-body .select2-selection--single .select2-selection__arrow { height: 36px; right: 10px; }
     .sr-filter-body .select2-container--focus .select2-selection--single,
     .sr-filter-body .select2-container--open .select2-selection--single {
-        border-color: var(--sr-amber) !important;
-        box-shadow: 0 0 0 3px var(--sr-amber-soft) !important;
+        border-color: var(--sr-blue) !important;
+        box-shadow: 0 0 0 3px var(--sr-blue-soft) !important;
     }
 
     /* ============================
@@ -147,8 +147,8 @@
     .sr-btn:hover { transform: translateY(-1.5px); }
     .sr-btn.rose { background: linear-gradient(145deg, #fb7185, #e11d48); color: #fff; box-shadow: 0 4px 12px -4px rgba(225,29,72,0.3); }
     .sr-btn.rose:hover { filter: brightness(1.06); box-shadow: 0 6px 18px -4px rgba(225,29,72,0.4); color: #fff; }
-    .sr-btn.amber { background: linear-gradient(145deg, var(--sr-amber-bright), var(--sr-amber-deep)); color: #1a1306; box-shadow: 0 4px 12px -4px rgba(212,162,78,0.3); }
-    .sr-btn.amber:hover { filter: brightness(1.06); box-shadow: 0 6px 18px -4px rgba(212,162,78,0.4); color: #1a1306; }
+    .sr-btn.blue { background: linear-gradient(145deg, var(--sr-blue-bright), var(--sr-blue-deep)); color: #ffffff; box-shadow: 0 4px 12px -4px rgba(37, 99, 235,0.3); }
+    .sr-btn.blue:hover { filter: brightness(1.06); box-shadow: 0 6px 18px -4px rgba(37, 99, 235,0.4); color: #ffffff; }
 
     /* ============================
        TABLE CARD
@@ -174,7 +174,7 @@
         color: var(--sr-ink); margin: 0;
         display: flex; align-items: center; gap: 8px;
     }
-    .sr-table-head h4 i { color: #f59e0b; font-size: 13px; }
+    .sr-table-head h4 i { color: #f97316; font-size: 13px; }
     .sr-table-actions {
         display: flex;
         align-items: center;
@@ -229,7 +229,7 @@
         transition: background 0.15s;
     }
     #low-stock-table tbody tr:hover td {
-        background: var(--sr-amber-soft) !important;
+        background: var(--sr-blue-soft) !important;
     }
     #low-stock-table tbody tr.table-danger td {
         background: #fff5f5;
@@ -261,9 +261,9 @@
         border-radius: 4px;
     }
     .add-variant-to-basket.added {
-        background: #10b981 !important;
+        background: #15803d !important;
         color: #fff !important;
-        border-color: #10b981 !important;
+        border-color: #15803d !important;
     }
 
     #low-stock-table td {
@@ -420,7 +420,7 @@
                         Products Below Minimum Inventory Level
                     </h4>
                     <div class="sr-table-actions">
-                        <button type="button" class="sr-btn amber font-weight-bold" id="add_to_booking_btn" style="display: none;">
+                        <button type="button" class="sr-btn blue font-weight-bold" id="add_to_booking_btn" style="display: none;">
                             <i class="fas fa-shopping-basket"></i> Add to Procurement Cart (<span id="selected_count">0</span>)
                         </button>
                     </div>
@@ -476,7 +476,7 @@
                 </div>
                 <div class="modal-footer bg-light px-4 py-3 border-top d-flex justify-content-between">
                     <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-dismiss="modal" style="border-radius: 6px;">Cancel</button>
-                    <button type="button" class="btn btn-amber btn-sm px-4 font-weight-bold shadow-sm" id="btn_submit_quick_variants" style="border-radius: 6px;">
+                    <button type="button" class="btn btn-blue btn-sm px-4 font-weight-bold shadow-sm" id="btn_submit_quick_variants" style="border-radius: 6px;">
                         <i class="fas fa-check mr-1"></i> Update Basket
                     </button>
                 </div>

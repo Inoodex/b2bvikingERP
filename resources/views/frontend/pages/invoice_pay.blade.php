@@ -70,11 +70,11 @@
         @endif
 
         @if(session('warning'))
-            <div class="rounded-xl bg-amber-50 border border-amber-200 p-4 mb-6 flex items-start gap-3 shadow-sm">
-                <i class="fas fa-info-circle text-amber-600 text-xl mt-0.5"></i>
+            <div class="rounded-xl bg-blue-50 border border-blue-200 p-4 mb-6 flex items-start gap-3 shadow-sm">
+                <i class="fas fa-info-circle text-blue-600 text-xl mt-0.5"></i>
                 <div>
-                    <h4 class="font-bold text-amber-900 text-sm">Notice</h4>
-                    <p class="text-amber-700 text-xs mt-0.5">{{ session('warning') }}</p>
+                    <h4 class="font-bold text-blue-900 text-sm">Notice</h4>
+                    <p class="text-blue-700 text-xs mt-0.5">{{ session('warning') }}</p>
                 </div>
             </div>
         @endif
@@ -266,7 +266,7 @@
                             <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Payment Due</span>
                             <div class="flex items-baseline justify-between mt-1">
                                 <span class="text-3xl font-black text-slate-900">kr. {{ number_format($invoice->due_amount, 2) }}</span>
-                                <span class="text-xs font-semibold px-2 py-0.5 bg-amber-50 text-amber-700 rounded-md border border-amber-200">
+                                <span class="text-xs font-semibold px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md border border-blue-200">
                                     DKK
                                 </span>
                             </div>

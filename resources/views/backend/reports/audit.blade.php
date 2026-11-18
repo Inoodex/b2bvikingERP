@@ -67,7 +67,7 @@
         height: 3.5px;
     }
     .executive-kpi-card.stripe-blue::before { background: #2563eb; }
-    .executive-kpi-card.stripe-emerald::before { background: #10b981; }
+    .executive-kpi-card.stripe-emerald::before { background: #15803d; }
     .executive-kpi-card.stripe-red::before { background: #dc2626; }
     .executive-kpi-card.stripe-slate::before { background: #64748b; }
 
@@ -94,7 +94,7 @@
         justify-content: center;
     }
     .kpi-icon-medallion.icon-blue { background: #eff6ff; color: #2563eb; }
-    .kpi-icon-medallion.icon-emerald { background: #ecfdf5; color: #059669; }
+    .kpi-icon-medallion.icon-emerald { background: #ecfdf5; color: #15803d; }
     .kpi-icon-medallion.icon-red { background: #fff1f2; color: #dc2626; }
     .kpi-icon-medallion.icon-slate { background: #f1f5f9; color: #475569; }
 
@@ -226,7 +226,7 @@
         justify-content: center;
     }
     .search-clear-btn:hover {
-        color: #ef4444;
+        color: #dc2626;
         background: #fee2e2;
     }
 
@@ -1012,7 +1012,7 @@
                     <label class="filter-label d-none d-lg-block" style="visibility: hidden;">Status</label>
                     <div class="d-flex align-items-center justify-content-lg-end" style="height: 38px;">
                         <div class="d-inline-flex align-items-center text-muted" style="font-size: 11.5px; gap: 6px; background: #f8fafc; padding: 7px 12px; border-radius: 8px; border: 1px solid #e2e8f0; width: 100%; justify-content: center;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             <span>Auto-filtering active</span>
                         </div>
                     </div>
@@ -1463,7 +1463,7 @@ $(document).ready(function() {
         const ip = $('#drawerIp').text().trim();
         navigator.clipboard.writeText(ip).then(() => {
             const orig = $(this).text();
-            $(this).text('Copied!').css('color', '#059669');
+            $(this).text('Copied!').css('color', '#15803d');
             setTimeout(() => {
                 $(this).text(orig).css('color', '');
             }, 1500);

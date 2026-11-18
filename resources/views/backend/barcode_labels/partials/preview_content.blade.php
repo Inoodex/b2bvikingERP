@@ -5,7 +5,7 @@
 @if($labels->isEmpty())
     <div class="text-center py-5 text-muted px-3">
         <div class="preview-empty-icon mb-3">
-            <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 56px; height: 56px; background: rgba(245, 158, 11, 0.1);">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 56px; height: 56px; background: rgba(249, 115, 22, 0.1);">
                 <i class="fas fa-barcode fa-2x text-warning"></i>
             </span>
         </div>

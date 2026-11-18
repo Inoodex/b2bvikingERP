@@ -4,12 +4,12 @@
 @push('css')
 <style>
     :root {
-        --sr-amber: #d4a24e;
-        --sr-amber-bright: #ecc78b;
-        --sr-amber-deep: #b8852a;
-        --sr-amber-soft: rgba(212, 162, 78, 0.08);
+        --sr-blue: #2563eb;
+        --sr-blue-bright: #60a5fa;
+        --sr-blue-deep: #1d4ed8;
+        --sr-blue-soft: rgba(37, 99, 235, 0.08);
         --sr-border: rgba(11, 17, 32, 0.07);
-        --sr-border-hover: rgba(212, 162, 78, 0.18);
+        --sr-border-hover: rgba(37, 99, 235, 0.18);
         --sr-ink: #161e2e;
         --sr-ink-soft: #2d3748;
         --sr-muted: #6b788e;
@@ -17,7 +17,7 @@
         --sr-radius: 14px;
         --sr-radius-lg: 20px;
         --sr-shadow: 0 1px 3px rgba(11,17,32,0.04), 0 8px 20px -12px rgba(11,17,32,0.12);
-        --sr-shadow-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(212,162,78,0.06);
+        --sr-shadow-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(37, 99, 235,0.06);
         --sr-font: 'Inter', 'Segoe UI', system-ui, sans-serif;
     }
 
@@ -49,9 +49,9 @@
         display: flex; align-items: center; justify-content: center;
         border-radius: 11px;
         font-size: 14px;
-        color: #1a1306;
-        background: linear-gradient(145deg, var(--sr-amber-bright), var(--sr-amber));
-        box-shadow: 0 4px 14px rgba(212,162,78,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+        color: #ffffff;
+        background: linear-gradient(145deg, var(--sr-blue-bright), var(--sr-blue));
+        box-shadow: 0 4px 14px rgba(37, 99, 235,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
     }
     .sr-breadcrumb {
         display: flex; align-items: center; gap: 6px;
@@ -62,9 +62,9 @@
     .sr-breadcrumb span + span::before {
         content: '/'; position: absolute; left: 0; color: rgba(11,17,32,0.15);
     }
-    .sr-breadcrumb a { color: var(--sr-amber); text-decoration: none; transition: color 0.2s; }
-    .sr-breadcrumb a:hover { color: var(--sr-amber-deep); }
-    .sr-breadcrumb .active { color: var(--sr-amber-deep); }
+    .sr-breadcrumb a { color: var(--sr-blue); text-decoration: none; transition: color 0.2s; }
+    .sr-breadcrumb a:hover { color: var(--sr-blue-deep); }
+    .sr-breadcrumb .active { color: var(--sr-blue-deep); }
 
     /* ============================
        STAT CARDS — Executive KPI Cards
@@ -102,9 +102,9 @@
         height: 3.5px;
     }
     .sr-stat-stripe.indigo { background: linear-gradient(90deg, #6366f1, #818cf8); }
-    .sr-stat-stripe.emerald { background: linear-gradient(90deg, #10b981, #34d399); }
+    .sr-stat-stripe.emerald { background: linear-gradient(90deg, #15803d, #34d399); }
     .sr-stat-stripe.sky { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
-    .sr-stat-stripe.amber { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .sr-stat-stripe.blue { background: linear-gradient(90deg, #f97316, #fbbf24); }
 
     .sr-stat-header {
         display: flex;
@@ -132,9 +132,9 @@
         flex-shrink: 0;
     }
     .sr-stat-icon.indigo { background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; }
-    .sr-stat-icon.emerald { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+    .sr-stat-icon.emerald { background: #ecfdf5; color: #15803d; border: 1px solid #a7f3d0; }
     .sr-stat-icon.sky { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
-    .sr-stat-icon.amber { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .sr-stat-icon.blue { background: #fffbeb; color: #c2410c; border: 1px solid #fde68a; }
 
     .sr-stat-value {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -146,9 +146,9 @@
         margin: 8px 0 6px 0;
         white-space: nowrap;
     }
-    .sr-stat-value.text-emerald { color: #059669; }
+    .sr-stat-value.text-emerald { color: #15803d; }
     .sr-stat-value.text-sky { color: #0284c7; }
-    .sr-stat-value.text-amber { color: #b45309; }
+    .sr-stat-value.text-blue { color: #b45309; }
 
     .sr-stat-subtext {
         font-size: 11px;
@@ -161,9 +161,9 @@
         text-overflow: ellipsis;
     }
     .text-indigo { color: #6366f1 !important; }
-    .text-emerald { color: #10b981 !important; }
+    .text-emerald { color: #15803d !important; }
     .text-sky { color: #0ea5e9 !important; }
-    .text-amber { color: #f59e0b !important; }
+    .text-blue { color: #f97316 !important; }
 
     /* ============================
        FILTER CARD
@@ -188,7 +188,7 @@
         color: var(--sr-ink); margin: 0;
         display: flex; align-items: center; gap: 8px;
     }
-    .sr-filter-head h4 i { color: var(--sr-amber); font-size: 13px; }
+    .sr-filter-head h4 i { color: var(--sr-blue); font-size: 13px; }
     .sr-filter-head .sr-collapse-btn {
         width: 28px; height: 28px;
         display: flex; align-items: center; justify-content: center;
@@ -200,7 +200,7 @@
         transition: all 0.2s;
         font-size: 11px;
     }
-    .sr-filter-head .sr-collapse-btn:hover { background: var(--sr-amber-soft); color: var(--sr-amber); border-color: var(--sr-border-hover); }
+    .sr-filter-head .sr-collapse-btn:hover { background: var(--sr-blue-soft); color: var(--sr-blue); border-color: var(--sr-border-hover); }
     .sr-filter-body { padding: 18px 20px; }
     .sr-filter-body label {
         font-family: var(--sr-font);
@@ -221,8 +221,8 @@
     .sr-filter-body .select2-selection--single .select2-selection__arrow { height: 36px; right: 10px; }
     .sr-filter-body .select2-container--focus .select2-selection--single,
     .sr-filter-body .select2-container--open .select2-selection--single {
-        border-color: var(--sr-amber) !important;
-        box-shadow: 0 0 0 3px var(--sr-amber-soft) !important;
+        border-color: var(--sr-blue) !important;
+        box-shadow: 0 0 0 3px var(--sr-blue-soft) !important;
     }
 
     /* ============================
@@ -246,12 +246,12 @@
     .sr-btn:hover { transform: translateY(-1.5px); }
     .sr-btn.indigo { background: linear-gradient(145deg, #6366f1, #4f46e5); color: #fff; box-shadow: 0 4px 12px -4px rgba(99,102,241,0.3); }
     .sr-btn.indigo:hover { filter: brightness(1.06); box-shadow: 0 6px 18px -4px rgba(99,102,241,0.4); color: #fff; }
-    .sr-btn.emerald { background: linear-gradient(145deg, #34d399, #16a34a); color: #fff; box-shadow: 0 4px 12px -4px rgba(22,163,74,0.3); }
-    .sr-btn.emerald:hover { filter: brightness(1.06); box-shadow: 0 6px 18px -4px rgba(22,163,74,0.4); color: #fff; }
+    .sr-btn.emerald { background: linear-gradient(145deg, #34d399, #15803d); color: #fff; box-shadow: 0 4px 12px -4px rgba(21, 128, 61,0.3); }
+    .sr-btn.emerald:hover { filter: brightness(1.06); box-shadow: 0 6px 18px -4px rgba(21, 128, 61,0.4); color: #fff; }
     .sr-btn.rose { background: linear-gradient(145deg, #fb7185, #e11d48); color: #fff; box-shadow: 0 4px 12px -4px rgba(225,29,72,0.3); }
     .sr-btn.rose:hover { filter: brightness(1.06); box-shadow: 0 6px 18px -4px rgba(225,29,72,0.4); color: #fff; }
-    .sr-btn.amber { background: linear-gradient(145deg, var(--sr-amber-bright), var(--sr-amber-deep)); color: #1a1306; box-shadow: 0 4px 12px -4px rgba(212,162,78,0.3); }
-    .sr-btn.amber:hover { filter: brightness(1.06); box-shadow: 0 6px 18px -4px rgba(212,162,78,0.4); color: #1a1306; }
+    .sr-btn.blue { background: linear-gradient(145deg, var(--sr-blue-bright), var(--sr-blue-deep)); color: #ffffff; box-shadow: 0 4px 12px -4px rgba(37, 99, 235,0.3); }
+    .sr-btn.blue:hover { filter: brightness(1.06); box-shadow: 0 6px 18px -4px rgba(37, 99, 235,0.4); color: #ffffff; }
 
     /* ============================
        TABLE CARD
@@ -276,7 +276,7 @@
         color: var(--sr-ink); margin: 0;
         display: flex; align-items: center; gap: 8px;
     }
-    .sr-table-head h4 i { color: var(--sr-amber); font-size: 13px; }
+    .sr-table-head h4 i { color: var(--sr-blue); font-size: 13px; }
     .sr-table-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
     /* TABLE */
@@ -313,9 +313,9 @@
         transition: background 0.15s;
         font-weight: 500;
     }
-    #table-stock tbody tr:hover td, #table-expected-stock tbody tr:hover td { background: var(--sr-amber-soft); }
+    #table-stock tbody tr:hover td, #table-expected-stock tbody tr:hover td { background: var(--sr-blue-soft); }
     #table-stock tbody tr:nth-child(even) td, #table-expected-stock tbody tr:nth-child(even) td { background: var(--sr-surface); }
-    #table-stock tbody tr:nth-child(even):hover td, #table-expected-stock tbody tr:nth-child(even):hover td { background: var(--sr-amber-soft); }
+    #table-stock tbody tr:nth-child(even):hover td, #table-expected-stock tbody tr:nth-child(even):hover td { background: var(--sr-blue-soft); }
 
     /* Product cell */
     .sr-product-cell {
@@ -375,7 +375,7 @@
         font-size: 11px;
         font-weight: 700;
     }
-    .sr-stock-badge.ok { background: rgba(22,163,74,0.1); color: #16a34a; }
+    .sr-stock-badge.ok { background: rgba(21, 128, 61,0.1); color: #15803d; }
     .sr-stock-badge.low { background: rgba(220,38,38,0.1); color: #dc2626; animation: sr-pulse 2s infinite; }
 
     @keyframes sr-pulse {
@@ -388,7 +388,7 @@
     .sr-money.cost { color: #334155; font-weight: 600; }
     .sr-money.wholesale { color: #0f172a; font-weight: 700; }
     .sr-money.asset { color: #4f46e5; font-weight: 700; }
-    .sr-money.profit { color: #16a34a; font-weight: 700; }
+    .sr-money.profit { color: #15803d; font-weight: 700; }
 
     /* Grand Total Bar */
     .sr-grand-total {
@@ -396,7 +396,7 @@
         align-items: center;
         justify-content: space-between;
         padding: 16px 22px;
-        border-top: 2px solid var(--sr-amber);
+        border-top: 2px solid var(--sr-blue);
         background: linear-gradient(135deg, #fffdf7, #fffbeb);
     }
     .sr-gt-label {
@@ -408,7 +408,7 @@
         letter-spacing: 0.5px;
         display: flex; align-items: center; gap: 8px;
     }
-    .sr-gt-label i { color: var(--sr-amber); font-size: 14px; }
+    .sr-gt-label i { color: var(--sr-blue); font-size: 14px; }
     .sr-gt-values { display: flex; align-items: center; gap: 20px; }
     .sr-gt-chip {
         display: flex; flex-direction: column; align-items: flex-end;
@@ -417,8 +417,8 @@
     .sr-gt-chip-val { font-size: 16px; font-weight: 800; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
     .sr-gt-chip.asset .sr-gt-chip-label { color: #6366f1; }
     .sr-gt-chip.asset .sr-gt-chip-val { color: #4f46e5; }
-    .sr-gt-chip.profit .sr-gt-chip-label { color: #10b981; }
-    .sr-gt-chip.profit .sr-gt-chip-val { color: #16a34a; }
+    .sr-gt-chip.profit .sr-gt-chip-label { color: #15803d; }
+    .sr-gt-chip.profit .sr-gt-chip-val { color: #15803d; }
 
     /* Pagination */
     .sr-pagination-wrap {
@@ -446,15 +446,15 @@
         background: #fff;
     }
     .sr-pagination-wrap .pagination .page-link:hover {
-        border-color: var(--sr-amber);
-        background: var(--sr-amber-soft);
-        color: var(--sr-amber-deep);
+        border-color: var(--sr-blue);
+        background: var(--sr-blue-soft);
+        color: var(--sr-blue-deep);
     }
     .sr-pagination-wrap .pagination .page-item.active .page-link {
-        background: linear-gradient(145deg, var(--sr-amber-bright), var(--sr-amber));
-        border-color: var(--sr-amber);
-        color: #1a1306;
-        box-shadow: 0 4px 14px -3px rgba(212,162,78,0.35);
+        background: linear-gradient(145deg, var(--sr-blue-bright), var(--sr-blue));
+        border-color: var(--sr-blue);
+        color: #ffffff;
+        box-shadow: 0 4px 14px -3px rgba(37, 99, 235,0.35);
     }
 
     /* ============================
@@ -527,7 +527,7 @@
             color: var(--sr-ink);
         }
         .sr-mobile-card-field .value.asset { color: #4f46e5; }
-        .sr-mobile-card-field .value.profit { color: #16a34a; }
+        .sr-mobile-card-field .value.profit { color: #15803d; }
     }
 
     /* ============================
@@ -705,14 +705,14 @@
                     </div>
                 </div>
                 <div class="sr-stat-card">
-                    <div class="sr-stat-stripe amber"></div>
+                    <div class="sr-stat-stripe blue"></div>
                     <div class="sr-stat-header">
                         <span class="sr-stat-label">Potential Profit</span>
-                        <div class="sr-stat-icon amber"><i class="fas fa-chart-line"></i></div>
+                        <div class="sr-stat-icon blue"><i class="fas fa-chart-line"></i></div>
                     </div>
-                    <div class="sr-stat-value text-amber" id="span-potential-profit">{{ $settings->currency_icon }}{{ number_format($potentialProfit, 2) }}</div>
+                    <div class="sr-stat-value text-blue" id="span-potential-profit">{{ $settings->currency_icon }}{{ number_format($potentialProfit, 2) }}</div>
                     <div class="sr-stat-subtext">
-                        <i class="fas fa-arrow-trend-up text-amber mr-1"></i> Projected gross margin
+                        <i class="fas fa-arrow-trend-up text-blue mr-1"></i> Projected gross margin
                     </div>
                 </div>
             </div>
@@ -770,7 +770,7 @@
                                 <i class="fas fa-file-download"></i> Download PDF
                             </a>
                         @endif
-                        <button type="button" class="sr-btn amber btn-generate-pdf" id="btn-generate-pdf"
+                        <button type="button" class="sr-btn blue btn-generate-pdf" id="btn-generate-pdf"
                             data-url="{{ route('admin.reports.stock.pdf.async') }}"
                             data-check-url="{{ route('admin.reports.stock.check-status') }}"
                             data-type="stock_valuation_report">
@@ -988,14 +988,14 @@
                     </div>
                 </div>
                 <div class="sr-stat-card">
-                    <div class="sr-stat-stripe amber"></div>
+                    <div class="sr-stat-stripe blue"></div>
                     <div class="sr-stat-header">
                         <span class="sr-stat-label">Expected Profit Margin</span>
-                        <div class="sr-stat-icon amber"><i class="fas fa-chart-line"></i></div>
+                        <div class="sr-stat-icon blue"><i class="fas fa-chart-line"></i></div>
                     </div>
-                    <div class="sr-stat-value text-amber" id="span-exp-total-margin">{{ $settings->currency_icon }}{{ number_format($expTotalMargin ?? 0, 2) }}</div>
+                    <div class="sr-stat-value text-blue" id="span-exp-total-margin">{{ $settings->currency_icon }}{{ number_format($expTotalMargin ?? 0, 2) }}</div>
                     <div class="sr-stat-subtext">
-                        <i class="fas fa-arrow-trend-up text-amber mr-1"></i> Projected Gross Profit
+                        <i class="fas fa-arrow-trend-up text-blue mr-1"></i> Projected Gross Profit
                     </div>
                 </div>
             </div>
@@ -1085,7 +1085,7 @@
                                 <i class="fas fa-file-download"></i> Download PDF
                             </a>
                         @endif
-                        <button type="button" class="sr-btn amber btn-generate-pdf" id="btn-exp-generate-pdf"
+                        <button type="button" class="sr-btn blue btn-generate-pdf" id="btn-exp-generate-pdf"
                             data-url="{{ route('admin.reports.stock.expected.pdf.async') }}"
                             data-check-url="{{ route('admin.reports.stock.check-status') }}"
                             data-type="expected_stock_report">

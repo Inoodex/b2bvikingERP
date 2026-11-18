@@ -131,7 +131,7 @@
                             <i class="fas fa-boxes mr-2 text-success"></i>Purchased Supply Items
                         </h6>
                         <button type="button" class="btn btn-sm font-weight-bold shadow-sm" id="add-row-btn"
-                            style="background: #059669; color: #fff; border-radius: 6px;">
+                            style="background: #15803d; color: #fff; border-radius: 6px;">
                             <i class="fas fa-plus mr-1"></i> Add Item Line
                         </button>
                     </div>
@@ -225,7 +225,7 @@
                             <a href="{{ route('admin.stationery-supplies.purchases') }}"
                                 class="btn btn-light border mr-2 font-weight-bold" style="border-radius: 8px;">Cancel</a>
                             <button type="submit" class="btn font-weight-bold shadow-sm"
-                                style="background: #059669; color: #fff; border-radius: 8px; padding: 7px 20px;">
+                                style="background: #15803d; color: #fff; border-radius: 8px; padding: 7px 20px;">
                                 <i class="fas fa-check-circle mr-1"></i> Save & Inward Stock
                             </button>
                         </div>

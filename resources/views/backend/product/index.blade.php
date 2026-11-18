@@ -5,13 +5,13 @@
         :root {
             --pp-obsidian: #0b1120;
             --pp-obsidian-2: #060a14;
-            --pp-amber: #d4a24e;
-            --pp-amber-bright: #ecc78b;
-            --pp-amber-deep: #b8852a;
-            --pp-amber-soft: rgba(212, 162, 78, 0.08);
-            --pp-amber-glow: rgba(212, 162, 78, 0.30);
+            --pp-blue: #2563eb;
+            --pp-blue-bright: #60a5fa;
+            --pp-blue-deep: #1d4ed8;
+            --pp-blue-soft: rgba(37, 99, 235, 0.08);
+            --pp-blue-glow: rgba(37, 99, 235, 0.30);
             --pp-border: rgba(11, 17, 32, 0.07);
-            --pp-border-hover: rgba(212, 162, 78, 0.15);
+            --pp-border-hover: rgba(37, 99, 235, 0.15);
             --pp-ink: #161e2e;
             --pp-ink-soft: #2d3748;
             --pp-muted: #6b788e;
@@ -23,8 +23,8 @@
             --pp-radius-md: 14px;
             --pp-radius-lg: 20px;
             --pp-shadow-card: 0 1px 3px rgba(11, 17, 32, 0.04), 0 8px 20px -12px rgba(11, 17, 32, 0.12);
-            --pp-shadow-card-hover: 0 12px 32px -12px rgba(11, 17, 32, 0.16), 0 0 0 1px rgba(212, 162, 78, 0.06);
-            --pp-shadow-lift: 0 20px 50px -16px rgba(11, 17, 32, 0.2), 0 0 0 1px rgba(212, 162, 78, 0.1);
+            --pp-shadow-card-hover: 0 12px 32px -12px rgba(11, 17, 32, 0.16), 0 0 0 1px rgba(37, 99, 235, 0.06);
+            --pp-shadow-lift: 0 20px 50px -16px rgba(11, 17, 32, 0.2), 0 0 0 1px rgba(37, 99, 235, 0.1);
         }
 
         @keyframes ppFadeSlide {
@@ -121,9 +121,9 @@
             justify-content: center;
             border-radius: 10px;
             font-size: 14px;
-            color: #1a1306;
-            background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber));
-            box-shadow: 0 4px 14px rgba(212, 162, 78, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue));
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .pp-breadcrumb {
@@ -154,13 +154,13 @@
         }
 
         .pp-breadcrumb-item a {
-            color: var(--pp-amber-deep);
+            color: var(--pp-blue-deep);
             text-decoration: none;
             transition: color 0.2s ease;
         }
 
         .pp-breadcrumb-item a:hover {
-            color: var(--pp-amber);
+            color: var(--pp-blue);
         }
 
         .pp-breadcrumb-item.active {
@@ -191,7 +191,7 @@
             left: 0;
             right: 0;
             height: 2.5px;
-            background: linear-gradient(90deg, var(--pp-amber-bright), var(--pp-amber) 50%, transparent 96%);
+            background: linear-gradient(90deg, var(--pp-blue-bright), var(--pp-blue) 50%, transparent 96%);
         }
 
         .pp-filter-card .card-body {
@@ -207,8 +207,8 @@
         }
 
         .pp-search-wrap:focus-within {
-            border-color: var(--pp-amber) !important;
-            box-shadow: 0 0 0 3px var(--pp-amber-soft), 0 4px 12px -8px rgba(212, 162, 78, 0.15) !important;
+            border-color: var(--pp-blue) !important;
+            box-shadow: 0 0 0 3px var(--pp-blue-soft), 0 4px 12px -8px rgba(37, 99, 235, 0.15) !important;
             background: #fff !important;
         }
 
@@ -253,14 +253,14 @@
         }
 
         .pp-select2 .select2-selection--single .select2-selection__arrow b {
-            border-color: var(--pp-amber) transparent transparent transparent !important;
+            border-color: var(--pp-blue) transparent transparent transparent !important;
             border-width: 4px 4px 0 !important;
         }
 
         .pp-select2.select2-container--open .select2-selection--single,
         .pp-select2.select2-container--focus .select2-selection--single {
-            border-color: var(--pp-amber) !important;
-            box-shadow: 0 0 0 3px var(--pp-amber-soft) !important;
+            border-color: var(--pp-blue) !important;
+            box-shadow: 0 0 0 3px var(--pp-blue-soft) !important;
             background: #fff !important;
         }
 
@@ -279,12 +279,12 @@
         }
 
         .pp-select2 .select2-results__option--highlighted[aria-selected] {
-            background: linear-gradient(135deg, var(--pp-amber-bright), var(--pp-amber)) !important;
-            color: #1a1306 !important;
+            background: linear-gradient(135deg, var(--pp-blue-bright), var(--pp-blue)) !important;
+            color: #ffffff !important;
         }
 
         .pp-select2 .select2-results__option[aria-selected=true] {
-            background: var(--pp-amber-soft) !important;
+            background: var(--pp-blue-soft) !important;
             color: var(--pp-ink) !important;
         }
 
@@ -315,45 +315,45 @@
             transform: translateY(0) scale(0.97);
         }
 
-        .pp-btn-amber {
-            background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep)) !important;
-            color: #1a1306 !important;
-            box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        .pp-btn-blue {
+            background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue-deep)) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px -4px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
         }
 
-        .pp-btn-amber:hover {
+        .pp-btn-blue:hover {
             filter: brightness(1.06);
-            box-shadow: 0 8px 24px -6px rgba(212, 162, 78, 0.5);
+            box-shadow: 0 8px 24px -6px rgba(37, 99, 235, 0.5);
         }
 
         .pp-btn-emerald {
-            background: linear-gradient(145deg, #34d399, #16a34a) !important;
+            background: linear-gradient(145deg, #34d399, #15803d) !important;
             color: #fff !important;
-            box-shadow: 0 4px 14px -4px rgba(22, 163, 74, 0.34);
+            box-shadow: 0 4px 14px -4px rgba(21, 128, 61, 0.34);
         }
 
         .pp-btn-emerald:hover {
             filter: brightness(1.06);
-            box-shadow: 0 8px 24px -6px rgba(22, 163, 74, 0.4);
+            box-shadow: 0 8px 24px -6px rgba(21, 128, 61, 0.4);
         }
 
         .pp-btn-reset {
             background: #fff !important;
-            color: var(--pp-amber-deep) !important;
-            border: 1.5px solid rgba(212, 162, 78, 0.25) !important;
+            color: var(--pp-blue-deep) !important;
+            border: 1.5px solid rgba(37, 99, 235, 0.25) !important;
             border-radius: 10px !important;
             font-weight: 700 !important;
             font-size: 11.5px !important;
             padding: 7px 14px !important;
             letter-spacing: 0.2px;
             transition: all 0.2s ease !important;
-            box-shadow: 0 2px 8px rgba(212, 162, 78, 0.06);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
         }
 
         .pp-btn-reset:hover {
-            background: rgba(212, 162, 78, 0.07) !important;
-            border-color: var(--pp-amber) !important;
-            box-shadow: 0 4px 16px -6px rgba(212, 162, 78, 0.2);
+            background: rgba(37, 99, 235, 0.07) !important;
+            border-color: var(--pp-blue) !important;
+            box-shadow: 0 4px 16px -6px rgba(37, 99, 235, 0.2);
             transform: translateY(-1px);
         }
 
@@ -383,7 +383,7 @@
             right: 0;
             bottom: -1px;
             height: 2px;
-            background: linear-gradient(90deg, transparent, var(--pp-amber-bright), transparent);
+            background: linear-gradient(90deg, transparent, var(--pp-blue-bright), transparent);
             opacity: 0.6;
         }
 
@@ -397,7 +397,7 @@
         }
 
         .pp-modal .modal-title i {
-            color: var(--pp-amber-bright) !important;
+            color: var(--pp-blue-bright) !important;
             font-size: 15px;
         }
 
@@ -410,7 +410,7 @@
 
         .pp-modal .close:hover {
             opacity: 1;
-            color: var(--pp-amber-bright);
+            color: var(--pp-blue-bright);
         }
 
         .pp-modal .modal-body {
@@ -432,14 +432,14 @@
             transition: all 0.2s ease;
         }
 
-        .pp-modal .btn-amber {
-            background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep));
+        .pp-modal .btn-blue {
+            background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue-deep));
             border: none;
-            color: #1a1306;
-            box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.4);
+            color: #ffffff;
+            box-shadow: 0 4px 14px -4px rgba(37, 99, 235, 0.4);
         }
 
-        .pp-modal .btn-amber:hover {
+        .pp-modal .btn-blue:hover {
             filter: brightness(1.06);
             transform: translateY(-1px);
         }
@@ -452,7 +452,7 @@
 
         .pp-modal .btn-secondary:hover {
             background: #dee2e9;
-            border-color: var(--pp-amber);
+            border-color: var(--pp-blue);
         }
 
         .pp-star-rating .rating-star {
@@ -461,7 +461,7 @@
 
         .pp-star-rating .rating-star:hover {
             transform: scale(1.2) rotate(-5deg);
-            color: #f59e0b !important;
+            color: #f97316 !important;
         }
 
         /* ===== Product Card ===== */
@@ -532,7 +532,7 @@
         }
 
         .pp-card:hover .pp-card-title {
-            color: var(--pp-amber-deep);
+            color: var(--pp-blue-deep);
         }
 
         .pp-badge-category {
@@ -547,9 +547,9 @@
         }
 
         .pp-card:hover .pp-badge-category {
-            background: var(--pp-amber-soft);
+            background: var(--pp-blue-soft);
             border-color: var(--pp-border-hover);
-            color: var(--pp-amber-deep);
+            color: var(--pp-blue-deep);
         }
 
         .pp-badge-stock {
@@ -561,9 +561,9 @@
         }
 
         .pp-badge-stock.in-stock {
-            background: rgba(22, 163, 74, 0.08);
-            color: #16a34a;
-            border: 1px solid rgba(22, 163, 74, 0.15);
+            background: rgba(21, 128, 61, 0.08);
+            color: #15803d;
+            border: 1px solid rgba(21, 128, 61, 0.15);
         }
 
         .pp-badge-stock.out-of-stock {
@@ -587,7 +587,7 @@
             max-height: 110px;
             overflow-y: auto;
             scrollbar-width: thin;
-            scrollbar-color: var(--pp-amber) transparent;
+            scrollbar-color: var(--pp-blue) transparent;
         }
 
         .pp-variant-scroll::-webkit-scrollbar {
@@ -595,7 +595,7 @@
         }
 
         .pp-variant-scroll::-webkit-scrollbar-thumb {
-            background: var(--pp-amber);
+            background: var(--pp-blue);
             border-radius: 10px;
         }
 
@@ -639,7 +639,7 @@
 
         .pp-btn-card:hover {
             transform: translateY(-1.5px);
-            box-shadow: 0 4px 12px -4px rgba(212, 162, 78, 0.2);
+            box-shadow: 0 4px 12px -4px rgba(37, 99, 235, 0.2);
         }
 
         .pp-btn-outline {
@@ -649,9 +649,9 @@
         }
 
         .pp-btn-outline:hover {
-            border-color: var(--pp-amber) !important;
-            background: var(--pp-amber-soft) !important;
-            color: var(--pp-amber-deep) !important;
+            border-color: var(--pp-blue) !important;
+            background: var(--pp-blue-soft) !important;
+            color: var(--pp-blue-deep) !important;
         }
 
         .pp-edit-btn {
@@ -684,9 +684,9 @@
         }
 
         .pp-status-switch .custom-switch-input:checked~.custom-switch-indicator {
-            background: linear-gradient(135deg, var(--pp-amber-bright), var(--pp-amber)) !important;
-            border-color: var(--pp-amber) !important;
-            box-shadow: 0 2px 8px -2px rgba(212, 162, 78, 0.3);
+            background: linear-gradient(135deg, var(--pp-blue-bright), var(--pp-blue)) !important;
+            border-color: var(--pp-blue) !important;
+            box-shadow: 0 2px 8px -2px rgba(37, 99, 235, 0.3);
         }
 
         .pp-count-badge {
@@ -701,7 +701,7 @@
         }
 
         .pp-count-badge strong {
-            color: var(--pp-amber-deep);
+            color: var(--pp-blue-deep);
         }
 
         .pp-pagination .pagination .page-link {
@@ -717,17 +717,17 @@
         }
 
         .pp-pagination .pagination .page-link:hover {
-            border-color: var(--pp-amber) !important;
-            background: var(--pp-amber-soft) !important;
-            color: var(--pp-amber-deep) !important;
+            border-color: var(--pp-blue) !important;
+            background: var(--pp-blue-soft) !important;
+            color: var(--pp-blue-deep) !important;
             transform: translateY(-1px);
         }
 
         .pp-pagination .pagination .page-item.active .page-link {
-            background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber)) !important;
-            border-color: var(--pp-amber) !important;
-            color: #1a1306 !important;
-            box-shadow: 0 4px 14px -3px rgba(212, 162, 78, 0.35);
+            background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue)) !important;
+            border-color: var(--pp-blue) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px -3px rgba(37, 99, 235, 0.35);
             transform: translateY(-1px);
         }
 
@@ -1062,7 +1062,7 @@
 
         .audit-drawer .drawer-close-btn:hover {
             background: #fee2e2 !important;
-            color: #ef4444 !important;
+            color: #dc2626 !important;
             border-color: #fca5a5 !important;
             transform: scale(1.08);
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
@@ -1142,7 +1142,7 @@
 
         #stockMovementDrawer .select2-container--open .select2-selection--single,
         #stockMovementDrawer .select2-container--focus .select2-selection--single {
-            border-color: #3b82f6 !important;
+            border-color: #2563eb !important;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
         }
 
@@ -1176,7 +1176,7 @@
         }
 
         #stockMovementDrawer .select2-results__option--highlighted[aria-selected] {
-            background: #3b82f6 !important;
+            background: #2563eb !important;
             color: #ffffff !important;
         }
 
@@ -1347,7 +1347,7 @@
             width: 100%;
         }
         .b2b-phone-input-wrap:focus-within {
-            border-color: #3b82f6 !important;
+            border-color: #2563eb !important;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
         }
         .b2b-phone-input-wrap i {
@@ -1436,7 +1436,7 @@
                                                 <i class="fas fa-file-import mr-1"></i> Import
                                             </a>
                                             <a href="{{ route('admin.products.create') }}"
-                                                class="btn pp-btn pp-btn-amber shadow-sm d-block">
+                                                class="btn pp-btn pp-btn-blue shadow-sm d-block">
                                                 <i class="fas fa-plus mr-1"></i> Create
                                             </a>
                                         @endcan
@@ -1600,7 +1600,7 @@
                 <div class="modal-footer bg-light px-4 py-3 border-top d-flex justify-content-between">
                     <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-dismiss="modal"
                         style="border-radius: 6px;">Cancel</button>
-                    <button type="button" class="btn btn-amber btn-sm px-4 font-weight-bold shadow-sm"
+                    <button type="button" class="btn btn-blue btn-sm px-4 font-weight-bold shadow-sm"
                         id="btn_submit_quick_variants" style="border-radius: 6px;">
                         <i class="fas fa-check mr-1"></i> Add Selected to Cart
                     </button>
@@ -1617,7 +1617,7 @@
             <div>
                 <div class="d-flex align-items-center mb-1" style="gap: 6px;">
                     <span class="chip-severity"
-                        style="background: rgba(212, 162, 78, 0.15); color: #b8852a; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Inventory</span>
+                        style="background: rgba(37, 99, 235, 0.15); color: #1d4ed8; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Inventory</span>
                     <span class="chip-module"
                         style="background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase;">Movement Ledger</span>
                 </div>
@@ -1800,7 +1800,7 @@
                         html: `<strong>${productName}</strong><br><span class="text-warning font-weight-bold">${poInfo}</span><br><br><span style="font-size: 13px; color: #4b5563;">An active procurement order already exists for this product. Do you want to add it to Procurement Basket again?</span>`,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonColor: '#f59e0b',
+                        confirmButtonColor: '#f97316',
                         cancelButtonColor: '#6b7280',
                         confirmButtonText: '<i class="fas fa-plus-circle mr-1"></i> Yes, Order Again',
                         cancelButtonText: 'Cancel'
@@ -2775,7 +2775,7 @@
                         text: "This customer/outlet override will be removed. The entity will revert to seeing actual warehouse stock.",
                         icon: "warning",
                         showCancelButton: true,
-                        confirmButtonColor: "#ef4444",
+                        confirmButtonColor: "#dc2626",
                         cancelButtonColor: "#64748b",
                         confirmButtonText: "<i class='fas fa-trash-alt mr-1'></i> Yes, remove it!",
                         cancelButtonText: "Cancel",

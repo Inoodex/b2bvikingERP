@@ -56,28 +56,28 @@
             </div>
 
             <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                <div class="card border-0 shadow-sm h-100 p-3 ar-card" style="border-left: 5px solid #10b981 !important;">
+                <div class="card border-0 shadow-sm h-100 p-3 ar-card" style="border-left: 5px solid #15803d !important;">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <span class="text-uppercase text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">Current (0-30 Days Dues)</span>
                             <h3 class="font-weight-bold text-success mb-0 mt-2" style="font-size: 22px;">kr. {{ number_format((float)$totals['current_0_30'], 2) }}</h3>
                         </div>
                         <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background: rgba(16, 185, 129, 0.12); min-width: 50px; min-height: 50px;">
-                            <i class="fas fa-calendar-check" style="font-size: 22px; color: #10b981 !important;"></i>
+                            <i class="fas fa-calendar-check" style="font-size: 22px; color: #15803d !important;"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                <div class="card border-0 shadow-sm h-100 p-3 ar-card" style="border-left: 5px solid #f59e0b !important;">
+                <div class="card border-0 shadow-sm h-100 p-3 ar-card" style="border-left: 5px solid #f97316 !important;">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <span class="text-uppercase text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">31 - 60 Days Dues</span>
                             <h3 class="font-weight-bold text-warning mb-0 mt-2" style="font-size: 22px;">kr. {{ number_format((float)$totals['days_31_60'], 2) }}</h3>
                         </div>
-                        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background: rgba(245, 158, 11, 0.12); min-width: 50px; min-height: 50px;">
-                            <i class="fas fa-exclamation-circle" style="font-size: 22px; color: #f59e0b !important;"></i>
+                        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background: rgba(249, 115, 22, 0.12); min-width: 50px; min-height: 50px;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 22px; color: #f97316 !important;"></i>
                         </div>
                     </div>
                 </div>
@@ -98,14 +98,14 @@
             </div>
 
             <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
-                <div class="card border-0 shadow-sm h-100 p-3 ar-card" style="border-left: 5px solid #ef4444 !important;">
+                <div class="card border-0 shadow-sm h-100 p-3 ar-card" style="border-left: 5px solid #dc2626 !important;">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <span class="text-uppercase text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">90+ Days (Critical High Risk)</span>
                             <h3 class="font-weight-bold text-danger mb-0 mt-2" style="font-size: 22px;">kr. {{ number_format((float)$totals['over_90'], 2) }}</h3>
                         </div>
                         <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background: rgba(239, 68, 68, 0.12); min-width: 50px; min-height: 50px;">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 22px; color: #ef4444 !important;"></i>
+                            <i class="fas fa-exclamation-triangle" style="font-size: 22px; color: #dc2626 !important;"></i>
                         </div>
                     </div>
                 </div>

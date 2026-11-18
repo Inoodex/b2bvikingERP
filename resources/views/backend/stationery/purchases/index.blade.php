@@ -26,7 +26,7 @@
             <a href="{{ route('admin.stationery-supplies.index') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #ffffff; color: #0f172a; border-radius: 8px; font-size: 12px; padding: 8px 16px; border: 1px solid #e2e8f0;">
                 <i class="fas fa-boxes mr-1 text-muted"></i> Items Master
             </a>
-            <a href="{{ route('admin.stationery-supplies.purchases.create') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #059669; color: #ffffff; border-radius: 8px; font-size: 12px; padding: 8px 16px; gap: 6px; border: 1px solid #059669;">
+            <a href="{{ route('admin.stationery-supplies.purchases.create') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #15803d; color: #ffffff; border-radius: 8px; font-size: 12px; padding: 8px 16px; gap: 6px; border: 1px solid #15803d;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 New Purchase Inward
             </a>
@@ -153,7 +153,7 @@
                                 <tr>
                                     <td colspan="8" class="text-center py-5 text-muted">
                                         <p class="mb-2 font-weight-bold">No stationery purchases recorded yet.</p>
-                                        <a href="{{ route('admin.stationery-supplies.purchases.create') }}" class="btn btn-sm font-weight-bold" style="background: #059669; color: #fff; border-radius: 6px;">
+                                        <a href="{{ route('admin.stationery-supplies.purchases.create') }}" class="btn btn-sm font-weight-bold" style="background: #15803d; color: #fff; border-radius: 6px;">
                                             <i class="fas fa-plus-circle mr-1"></i> Record Stock Inward
                                         </a>
                                     </td>
@@ -260,7 +260,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <form method="POST" action="" id="settlePaymentForm" class="modal-content border-0 shadow-lg" style="border-radius: 14px; overflow: hidden;">
             @csrf
-            <div class="modal-header px-4 py-3" style="background: #059669; color: #fff;">
+            <div class="modal-header px-4 py-3" style="background: #15803d; color: #fff;">
                 <h5 class="modal-title font-weight-bold mb-0 text-white"><i class="fas fa-money-bill-wave mr-2"></i> Settle Due Payment</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.8;">
                     <span aria-hidden="true">&times;</span>

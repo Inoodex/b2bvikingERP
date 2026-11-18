@@ -220,7 +220,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-5 text-md-right mt-3 mt-md-0">
-                                    <button type="button" class="btn btn-warning font-weight-bold px-4 py-2.5 shadow-sm text-dark" id="btn_add_scope_to_basket" style="border-radius: 8px; font-size: 0.95rem; background: #f59e0b; border: none;">
+                                    <button type="button" class="btn btn-warning font-weight-bold px-4 py-2.5 shadow-sm text-dark" id="btn_add_scope_to_basket" style="border-radius: 8px; font-size: 0.95rem; background: #f97316; border: none;">
                                         <i class="fas fa-shopping-basket mr-1.5"></i> Add Scope to Procurement Cart
                                     </button>
                                 </div>

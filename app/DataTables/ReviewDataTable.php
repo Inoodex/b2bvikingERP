@@ -202,12 +202,12 @@ class ReviewDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::computed('product')->title('Product')->width(230),
-            Column::computed('customer')->title('Customer / Outlet')->width(180),
-            Column::computed('rating_display')->title('Rating')->width(100)->addClass('text-center'),
-            Column::make('comment')->title('Review Comment')->width(210),
+            Column::computed('product')->title('Product'),
+            Column::computed('customer')->title('Customer / Outlet'),
+            Column::computed('rating_display')->title('Rating')->width(90)->addClass('text-center'),
+            Column::make('comment')->title('Review Comment'),
             Column::computed('status')->title('Published')->width(80)->addClass('text-center'),
-            Column::make('created_at')->title('Date')->width(105)->addClass('text-center'),
+            Column::make('created_at')->title('Date')->width(100)->addClass('text-center'),
             Column::computed('action')->title('Action')
                 ->exportable(false)
                 ->printable(false)

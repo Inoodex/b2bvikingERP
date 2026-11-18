@@ -192,7 +192,7 @@
                                                 <span class="px-2 py-1 text-xs font-bold rounded-sm
                                                     {{ $pRequest->status === 'completed' ? 'bg-emerald-100 text-emerald-700' : '' }}
                                                     {{ $pRequest->status === 'cancelled' ? 'bg-rose-100 text-rose-700' : '' }}
-                                                    {{ $pRequest->status === 'pending' ? 'bg-amber-100 text-amber-700' : '' }}">
+                                                    {{ $pRequest->status === 'pending' ? 'bg-blue-100 text-blue-700' : '' }}">
                                                     {{ ucfirst($pRequest->status) }}
                                                 </span>
                                             </td>
@@ -352,7 +352,7 @@
                                                     <span class="px-2 py-1 text-xs font-bold rounded-sm
                                                         {{ $request->status === 'approved' ? 'bg-emerald-100 text-emerald-700' : '' }}
                                                         {{ $request->status === 'rejected' ? 'bg-rose-100 text-rose-700' : '' }}
-                                                        {{ $request->status === 'pending' ? 'bg-amber-100 text-amber-700' : '' }}">
+                                                        {{ $request->status === 'pending' ? 'bg-blue-100 text-blue-700' : '' }}">
                                                         {{ ucfirst($request->status) }}
                                                     </span>
                                                 </td>
@@ -422,7 +422,7 @@
                                                 <span class="text-[11px] font-black px-2 py-1 rounded
                                                     {{ $savedStatus === 'approved' ? 'bg-sky-100 text-sky-700' : '' }}
                                                     {{ $savedStatus === 'cancelled' ? 'bg-rose-100 text-rose-700' : '' }}
-                                                    {{ $savedStatus === 'pending' ? 'bg-amber-100 text-amber-700' : '' }}
+                                                    {{ $savedStatus === 'pending' ? 'bg-blue-100 text-blue-700' : '' }}
                                                     {{ $savedStatus === 'saved' ? 'bg-slate-200 text-slate-700' : '' }}">
                                                     {{ ucfirst((string) $savedForm->status) }}
                                                 </span>

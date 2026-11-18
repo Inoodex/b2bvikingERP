@@ -79,7 +79,7 @@
                     <h6 class="mb-0 font-weight-bold text-dark" style="font-size: 14px;">
                         <i class="fas fa-boxes mr-2 text-warning"></i>Supplies to Issue
                     </h6>
-                    <button type="button" class="btn btn-sm font-weight-bold shadow-sm" id="add-row-btn" style="background: #d97706; color: #fff; border-radius: 6px;">
+                    <button type="button" class="btn btn-sm font-weight-bold shadow-sm" id="add-row-btn" style="background: #c2410c; color: #fff; border-radius: 6px;">
                         <i class="fas fa-plus mr-1"></i> Add Supply Line
                     </button>
                 </div>
@@ -152,7 +152,7 @@
                     </span>
                     <div>
                         <a href="{{ route('admin.stationery-supplies.consumptions') }}" class="btn btn-light border mr-2 font-weight-bold" style="border-radius: 8px;">Cancel</a>
-                        <button type="submit" class="btn font-weight-bold shadow-sm" id="submitBtn" style="background: #d97706; color: #fff; border-radius: 8px; padding: 7px 20px;">
+                        <button type="submit" class="btn font-weight-bold shadow-sm" id="submitBtn" style="background: #c2410c; color: #fff; border-radius: 8px; padding: 7px 20px;">
                             <i class="fas fa-check-circle mr-1"></i> Issue & Deduct Stock
                         </button>
                     </div>

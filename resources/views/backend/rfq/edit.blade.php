@@ -23,18 +23,18 @@
         margin-bottom: 8px;
     }
     .vendor-checkbox-card:hover {
-        border-color: #6777ef;
+        border-color: #2563eb;
         background: #f0f3ff;
     }
     .vendor-checkbox-card.selected {
-        border-color: #6777ef;
+        border-color: #2563eb;
         background: #eef2ff;
-        box-shadow: 0 2px 6px rgba(103,119,239,0.15);
+        box-shadow: 0 2px 6px rgba(37, 99, 235,0.15);
     }
     .vendor-checkbox-card input[type="checkbox"] {
         width: 18px;
         height: 18px;
-        accent-color: #6777ef;
+        accent-color: #2563eb;
         cursor: pointer;
     }
     .product-thumb-square {

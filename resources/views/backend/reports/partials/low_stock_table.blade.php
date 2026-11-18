@@ -145,7 +145,7 @@
                     @if($hasVariants)
                         <tr id="variant-drawer-{{ $product->id }}" class="variant-drawer-row" style="display: none; background: #f8fafc;">
                             <td colspan="8" style="padding: 0 !important; border-bottom: 2px solid #e2e8f0 !important;">
-                                <div class="p-3 bg-light border-bottom" style="background: #f8fafc; border-left: 4px solid #f59e0b;">
+                                <div class="p-3 bg-light border-bottom" style="background: #f8fafc; border-left: 4px solid #f97316;">
                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                         <h6 class="mb-0 font-weight-bold text-dark" style="font-size: 12.5px;">
                                             <i class="fas fa-layer-group text-primary mr-1"></i> Variant Stock Breakdown: <span class="text-primary">{{ $product->name }}</span>

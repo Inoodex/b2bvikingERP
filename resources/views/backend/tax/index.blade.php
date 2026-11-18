@@ -135,22 +135,22 @@
     }
 
     .badge-success {
-        background: linear-gradient(135deg, #1cc88a, #13855c) !important;
+        background: linear-gradient(135deg, #15803d, #13855c) !important;
         color: #ffffff !important;
     }
 
     .badge-danger {
-        background: linear-gradient(135deg, #e74a3b, #c0392b) !important;
+        background: linear-gradient(135deg, #dc2626, #c0392b) !important;
         color: #ffffff !important;
     }
 
     .badge-info {
-        background: linear-gradient(135deg, #36b9cc, #258391) !important;
+        background: linear-gradient(135deg, #2563eb, #258391) !important;
         color: #ffffff !important;
     }
 
     .badge-warning {
-        background: linear-gradient(135deg, #f6c23e, #dda20a) !important;
+        background: linear-gradient(135deg, #f97316, #dda20a) !important;
         color: #1a1a2e !important;
     }
 
@@ -196,8 +196,8 @@
     }
 
     .custom-switch .custom-control-input:checked ~ .custom-control-label::before {
-        background: linear-gradient(135deg, #1cc88a, #13855c) !important;
-        border-color: #1cc88a !important;
+        background: linear-gradient(135deg, #15803d, #13855c) !important;
+        border-color: #15803d !important;
     }
 
     .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
@@ -206,7 +206,7 @@
     }
 
     .custom-switch .custom-control-input:focus ~ .custom-control-label::before {
-        box-shadow: 0 0 0 0.2rem rgba(28, 200, 138, 0.25) !important;
+        box-shadow: 0 0 0 0.2rem rgba(21, 128, 61, 0.25) !important;
     }
 
     /* Action Buttons */
@@ -244,7 +244,7 @@
     }
 
     .btn-action-edit {
-        background: #1cc88a !important;
+        background: #15803d !important;
         color: #fff !important;
     }
 
@@ -253,7 +253,7 @@
     }
 
     .btn-action-delete {
-        background: #e74a3b !important;
+        background: #dc2626 !important;
         color: #fff !important;
     }
 
@@ -262,7 +262,7 @@
     }
 
     .btn-action-default {
-        background: #f6c23e !important;
+        background: #f97316 !important;
         color: #1a1a2e !important;
     }
 
@@ -660,9 +660,9 @@
     }
 
     @keyframes pulse-green {
-        0% { box-shadow: 0 0 0 0 rgba(28, 200, 138, 0.4); }
-        70% { box-shadow: 0 0 0 6px rgba(28, 200, 138, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(28, 200, 138, 0); }
+        0% { box-shadow: 0 0 0 0 rgba(21, 128, 61, 0.4); }
+        70% { box-shadow: 0 0 0 6px rgba(21, 128, 61, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(21, 128, 61, 0); }
     }
 
     /* DataTable wrapper responsive */

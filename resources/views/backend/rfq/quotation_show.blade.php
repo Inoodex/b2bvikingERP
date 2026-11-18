@@ -14,14 +14,14 @@
         width: 60px;
         height: 60px;
         border-radius: 14px;
-        background: linear-gradient(135deg, #6777ef 0%, #3f4ecc 100%);
+        background: linear-gradient(135deg, #2563eb 0%, #3f4ecc 100%);
         color: #ffffff;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 24px;
         font-weight: 700;
-        box-shadow: 0 4px 12px rgba(103,119,239,0.3);
+        box-shadow: 0 4px 12px rgba(37, 99, 235,0.3);
     }
     .hero-stat-card {
         background: #f8fafc;

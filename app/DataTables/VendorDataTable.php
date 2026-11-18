@@ -88,7 +88,7 @@ class VendorDataTable extends DataTable
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)
-                ->width(200)
+                ->width(120)
                 ->addClass('text-center'),
         ];
     }

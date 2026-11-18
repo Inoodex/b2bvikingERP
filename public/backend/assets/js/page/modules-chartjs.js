@@ -9,8 +9,8 @@ var myChart = new Chart(ctx, {
       label: 'Statistics',
       data: [460, 458, 330, 502, 430, 610, 488],
       borderWidth: 2,
-      backgroundColor: '#6777ef',
-      borderColor: '#6777ef',
+      backgroundColor: '#2563eb',
+      borderColor: '#2563eb',
       borderWidth: 2.5,
       pointBackgroundColor: '#ffffff',
       pointRadius: 4
@@ -52,8 +52,8 @@ var myChart = new Chart(ctx, {
       label: 'Statistics',
       data: [460, 458, 330, 502, 430, 610, 488],
       borderWidth: 2,
-      backgroundColor: '#6777ef',
-      borderColor: '#6777ef',
+      backgroundColor: '#2563eb',
+      borderColor: '#2563eb',
       borderWidth: 2.5,
       pointBackgroundColor: '#ffffff',
       pointRadius: 4
@@ -100,17 +100,17 @@ var myChart = new Chart(ctx, {
       ],
       backgroundColor: [
         '#191d21',
-        '#63ed7a',
-        '#ffa426',
-        '#fc544b',
-        '#6777ef',
+        '#15803d',
+        '#f97316',
+        '#dc2626',
+        '#2563eb',
       ],
       label: 'Dataset 1'
     }],
     labels: [
       'Black',
       'Green',
-      'Yellow',
+      'Orange',
       'Red',
       'Blue'
     ],
@@ -137,17 +137,17 @@ var myChart = new Chart(ctx, {
       ],
       backgroundColor: [
         '#191d21',
-        '#63ed7a',
-        '#ffa426',
-        '#fc544b',
-        '#6777ef',
+        '#15803d',
+        '#f97316',
+        '#dc2626',
+        '#2563eb',
       ],
       label: 'Dataset 1'
     }],
     labels: [
       'Black',
       'Green',
-      'Yellow',
+      'Orange',
       'Red',
       'Blue'
     ],

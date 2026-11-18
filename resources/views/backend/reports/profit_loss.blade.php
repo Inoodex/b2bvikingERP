@@ -131,7 +131,7 @@
                                                     <strong>Low Margin:</strong> Your profit margin is below 10%. Consider optimizing costs or increasing prices.
                                                 </div>
                                             @else
-                                                <div class="alert alert-primary mt-3" style="background: linear-gradient(135deg, #4e73df, #224abe); color: #fff; border: none; border-radius: 12px; padding: 18px 24px; box-shadow: 0 4px 20px rgba(78, 115, 223, 0.35);">
+                                                <div class="alert alert-primary mt-3" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; border: none; border-radius: 12px; padding: 18px 24px; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);">
                                                     <div style="display: flex; align-items: center; gap: 14px;">
                                                         <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                                             <i class="fas fa-check-circle" style="font-size: 20px; color: #fff;"></i>

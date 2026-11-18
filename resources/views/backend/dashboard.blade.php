@@ -102,6 +102,35 @@
                 color: #0f172a !important;
             }
 
+            .dashboard-chart-toggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 4px;
+                background: #f1f5f9;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+            }
+
+            .dashboard-chart-toggle > .btn {
+                margin: 0 !important;
+                border-radius: 6px !important;
+            }
+
+            .dashboard-ribbon-action {
+                min-width: 76px;
+                min-height: 36px;
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                padding: 6px 12px !important;
+                border-radius: 7px !important;
+                font-size: 12px !important;
+                line-height: 1.2;
+                white-space: nowrap;
+                flex: 0 0 auto;
+            }
+
             @media (max-width: 575.98px) {
                 .dashboard-leaderboard-row {
                     flex-wrap: wrap;
@@ -193,7 +222,7 @@
         <div class="executive-kpi-grid">
             {{-- KPI 1: Total Sales Revenue --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: #10b981;"></div>
+                <div class="kpi-accent-stripe" style="background: #15803d;"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold"
@@ -201,7 +230,7 @@
                             Total Sales Revenue
                         </span>
                         <div class="d-flex align-items-center justify-content-center"
-                            style="width: 32px; height: 32px; border-radius: 7px; background: #ecfdf5; color: #059669;">
+                            style="width: 32px; height: 32px; border-radius: 7px; background: #ecfdf5; color: #15803d;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
@@ -313,7 +342,7 @@
 
             {{-- KPI 4: Accounts Receivable (AR) --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: #d97706;"></div>
+                <div class="kpi-accent-stripe" style="background: #c2410c;"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold"
@@ -321,7 +350,7 @@
                             Accounts Receivable
                         </span>
                         <div class="d-flex align-items-center justify-content-center"
-                            style="width: 32px; height: 32px; border-radius: 7px; background: #fffbeb; color: #d97706;">
+                            style="width: 32px; height: 32px; border-radius: 7px; background: #fffbeb; color: #c2410c;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
@@ -410,8 +439,7 @@
                         </div>
                     </div>
                     <a href="{{ route('admin.orders.index') }}"
-                        class="btn btn-sm btn-light border py-1 px-2.5 font-weight-bold text-primary"
-                        style="font-size: 11px; border-radius: 6px;">
+                        class="btn btn-primary dashboard-ribbon-action font-weight-bold">
                         View
                     </a>
                 </div>
@@ -421,7 +449,7 @@
                     style="border-color: #f1f5f9 !important;">
                     <div class="d-flex align-items-center" style="gap: 12px;">
                         <div class="d-flex align-items-center justify-content-center flex-shrink-0"
-                            style="width: 36px; height: 36px; border-radius: 8px; background: #fffbeb; color: #d97706;">
+                            style="width: 36px; height: 36px; border-radius: 8px; background: #fffbeb; color: #c2410c;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
@@ -436,8 +464,7 @@
                         </div>
                     </div>
                     <a href="{{ route('admin.approvals.index') }}"
-                        class="btn btn-sm btn-light border py-1 px-2.5 font-weight-bold text-warning"
-                        style="font-size: 11px; border-radius: 6px;">
+                        class="btn btn-primary dashboard-ribbon-action font-weight-bold">
                         Approve
                     </a>
                 </div>
@@ -462,8 +489,7 @@
                         </div>
                     </div>
                     <a href="{{ route('admin.products.index') }}"
-                        class="btn btn-sm btn-light border py-1 px-2.5 font-weight-bold text-danger"
-                        style="font-size: 11px; border-radius: 6px;">
+                        class="btn btn-primary dashboard-ribbon-action font-weight-bold">
                         Restock
                     </a>
                 </div>
@@ -473,7 +499,7 @@
                     style="border-color: #f1f5f9 !important;">
                     <div class="d-flex align-items-center" style="gap: 12px;">
                         <div class="d-flex align-items-center justify-content-center flex-shrink-0"
-                            style="width: 36px; height: 36px; border-radius: 8px; background: #ecfdf5; color: #059669;">
+                            style="width: 36px; height: 36px; border-radius: 8px; background: #ecfdf5; color: #15803d;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"></path>
@@ -527,8 +553,7 @@
                         </div>
                         <div class="d-flex align-items-center" style="gap: 8px;">
                             {{-- Interactive Metric Switcher --}}
-                            <div class="btn-group btn-group-sm p-0.5 bg-light border"
-                                style="border-radius: 8px; border-color: #e2e8f0 !important;">
+                            <div class="dashboard-chart-toggle">
                                 <button type="button" class="btn btn-sm font-weight-bold shadow-none"
                                     id="btnChartRevenue" onclick="switchExecutiveChart('revenue')"
                                     style="font-size: 11px; border-radius: 6px; padding: 3px 10px; background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1;">
@@ -634,7 +659,7 @@
                         style="border-bottom: 1px solid #f1f5f9;">
                         <div class="d-flex align-items-center" style="gap: 8px;">
                             <span class="d-flex align-items-center justify-content-center"
-                                style="width: 28px; height: 28px; border-radius: 6px; background: #fef2f2; color: #ef4444;">
+                                style="width: 28px; height: 28px; border-radius: 6px; background: #fef2f2; color: #dc2626;">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -661,7 +686,7 @@
                                 @php
                                     $rank = $index + 1;
                                     $rankBg = match ($rank) {
-                                        1 => 'background: #fef3c7; color: #b45309; border: 1px solid #f59e0b;',
+                                        1 => 'background: #fef3c7; color: #b45309; border: 1px solid #f97316;',
                                         2 => 'background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;',
                                         3 => 'background: #ffedd5; color: #c2410c; border: 1px solid #fb923c;',
                                         default => 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;',
@@ -745,7 +770,7 @@
                         style="border-bottom: 1px solid #f1f5f9;">
                         <div class="d-flex align-items-center" style="gap: 8px;">
                             <span class="d-flex align-items-center justify-content-center"
-                                style="width: 28px; height: 28px; border-radius: 6px; background: #fffbeb; color: #d97706;">
+                                style="width: 28px; height: 28px; border-radius: 6px; background: #fffbeb; color: #c2410c;">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -827,7 +852,7 @@
                                         <div class="mt-1">
                                             @if ($hasDue)
                                                 <span class="badge font-weight-bold px-2 py-0.5"
-                                                    style="font-size: 9.5px; background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;">
+                                                    style="font-size: 9.5px; background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5;">
                                                     kr. {{ number_format($customer->due_amount, 2) }} due
                                                 </span>
                                             @else
@@ -946,7 +971,7 @@
                                                     </span>
                                                 @else
                                                     <span class="badge px-2 py-0.5 font-weight-bold"
-                                                        style="font-size: 10px; background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px;">
+                                                        style="font-size: 10px; background: #fef2f2; color: #7f1d1d; border: 1px solid #fca5a5; border-radius: 4px;">
                                                         DUE
                                                     </span>
                                                 @endif
@@ -1146,8 +1171,8 @@
                             backgroundColor: [
                                 '#4f46e5',
                                 '#06b6d4',
-                                '#f59e0b',
-                                '#10b981',
+                                '#f97316',
+                                '#15803d',
                                 '#ec4899'
                             ],
                             borderWidth: 2,

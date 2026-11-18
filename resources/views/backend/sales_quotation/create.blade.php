@@ -33,7 +33,7 @@
                     </div>
                     <div>
                         <strong class="d-block font-weight-bold" style="font-size: 0.95rem;">Pre-filled from Sales Quotation Cart!</strong>
-                        <span class="small" style="color: #3b82f6;">{{ $cartItems->count() }} item(s) have been pre-loaded from your visual catalog selection. Review quantities, select a customer, and save to finalize the quote.</span>
+                        <span class="small" style="color: #2563eb;">{{ $cartItems->count() }} item(s) have been pre-loaded from your visual catalog selection. Review quantities, select a customer, and save to finalize the quote.</span>
                     </div>
                 </div>
             @endif
@@ -66,7 +66,7 @@
                                     <label class="font-weight-bold text-dark d-flex align-items-center mb-2" style="font-size: 0.85rem; letter-spacing: 0.5px;">
                                         <i class="fas fa-layer-group text-primary mr-2"></i> QUOTATION TYPE <span class="text-danger ml-1">*</span>
                                     </label>
-                                    <div class="nav nav-pills quotation-type-nav p-1 bg-light rounded d-inline-flex border" style="border-color: #e4e6fc !important; background-color: #f4f6f9 !important; gap: 4px;">
+                                    <div class="nav nav-pills quotation-type-nav p-1 bg-light rounded d-inline-flex border" style="border-color: #dbeafe !important; background-color: #f4f6f9 !important; gap: 4px;">
                                         <a href="javascript:void(0)" 
                                            class="nav-link quotation-type-btn active font-weight-bold px-3 py-2" 
                                            data-mode="registered" 

@@ -82,7 +82,7 @@
                     </div>
 
                     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-50 text-amber-500">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-500">
                             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 2a1 1 0 01.894.553l2.618 5.3 5.852.851a1 1 0 01.554 1.705l-4.235 4.126 1 5.828a1 1 0 01-1.451 1.055L12 18.896l-5.238 2.522a1 1 0 01-1.451-1.055l1-5.828L2.076 10.41a1 1 0 01.554-1.705l5.852-.851 2.618-5.3A1 1 0 0112 2z" />
                             </svg>
@@ -118,7 +118,7 @@
                     </div>
 
                     <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 text-center">
-                        <div class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white text-amber-500 shadow-sm">
+                        <div class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white text-blue-500 shadow-sm">
                             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 2a1 1 0 01.894.553L14.5 6h3.5a1 1 0 01.707 1.707l-2.9 2.9 1.1 4.8a1 1 0 01-1.465 1.114L12 14.5l-3.442 2.02a1 1 0 01-1.465-1.114l1.1-4.8-2.9-2.9A1 1 0 016 6h3.5l1.606-3.447A1 1 0 0112 2z" />
                             </svg>

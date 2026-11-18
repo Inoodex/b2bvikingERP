@@ -86,7 +86,7 @@ class SizeDataTable extends DataTable
             Column::computed('action')->title('Action')->addClass('text-center')
                 ->exportable(false)
                 ->printable(false)
-                ->width(260)
+                ->width(120)
                 ->addClass('text-center'),
         ];
     }

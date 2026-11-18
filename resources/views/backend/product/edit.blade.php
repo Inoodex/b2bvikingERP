@@ -319,7 +319,7 @@
                              id="headingStockMovement"
                              style="cursor: pointer; user-select: none; transition: all 0.2s ease;">
                             <div class="d-flex align-items-center">
-                                <div class="mr-3" style="width: 42px; height: 42px; border-radius: 10px; background: rgba(103, 119, 239, 0.1); display: flex; align-items: center; justify-content: center; color: #6777ef; font-size: 19px;">
+                                <div class="mr-3" style="width: 42px; height: 42px; border-radius: 10px; background: rgba(37, 99, 235, 0.1); display: flex; align-items: center; justify-content: center; color: #2563eb; font-size: 19px;">
                                     <i class="fas fa-history"></i>
                                 </div>
                                 <div>
@@ -733,7 +733,7 @@
                         text: "This customer/outlet override will be removed. The entity will revert to seeing actual warehouse stock.",
                         icon: "warning",
                         showCancelButton: true,
-                        confirmButtonColor: "#ef4444",
+                        confirmButtonColor: "#dc2626",
                         cancelButtonColor: "#64748b",
                         confirmButtonText: "<i class='fas fa-trash-alt mr-1'></i> Yes, remove it!",
                         cancelButtonText: "Cancel",

@@ -19,7 +19,7 @@
     <!-- 3 KPI Cards -->
     <div class="row mb-4">
         <div class="col-lg-4 col-md-6 col-12 mb-3">
-            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px; border-left: 4px solid #6777ef !important;">
+            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px; border-left: 4px solid #2563eb !important;">
                 <div class="card-icon bg-primary text-white">
                     <i class="fas fa-receipt fa-2x"></i>
                 </div>

@@ -58,12 +58,12 @@
             }
 
             .btn-download {
-                background: #3abaf4;
+                background: #2563eb;
                 color: #fff;
             }
 
             .btn-back {
-                background: #6777ef;
+                background: #2563eb;
                 color: #fff;
             }
 
@@ -184,7 +184,7 @@
         }
 
         .badge-primary {
-            background-color: #6777ef;
+            background-color: #2563eb;
         }
 
         .badge-success {
@@ -566,7 +566,7 @@
         ])
 
         @if ($order->ship_different)
-            <div style="margin-top: 15px; background: #f8f9fa; padding: 15px; border-left: 4px solid #6777ef;">
+            <div style="margin-top: 15px; background: #f8f9fa; padding: 15px; border-left: 4px solid #2563eb;">
                 <strong>Shipping Address:</strong><br>
                 {{ $order->shipping_name ?: 'N/A' }} |
                 {{ $order->shipping_phone ?: 'N/A' }} |

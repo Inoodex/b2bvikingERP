@@ -101,7 +101,7 @@
   <!-- DataTables CSS for Bootstrap 4 -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
+  <link rel="stylesheet" href="{{ asset('backend/assets/modules/datatables/Responsive-2.2.1/css/responsive.bootstrap4.css') }}">
 </head>
 
 <body class="layout-3">
@@ -184,6 +184,8 @@
   <!-- Datatables JS -->
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+  <script src="{{ asset('backend/assets/modules/datatables/Responsive-2.2.1/js/dataTables.responsive.min.js') }}"></script>
+  <script src="{{ asset('backend/assets/modules/datatables/Responsive-2.2.1/js/responsive.bootstrap4.min.js') }}"></script>
   <!-- Buttons JS -->
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap4.min.js"></script>

@@ -71,7 +71,7 @@
 
                         <!-- Working Hours -->
                         <div class="flex items-start gap-4">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-500">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-500">
                                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                                     <path fill-rule="evenodd" d="M12 2a1 1 0 011 1v1h3a1 1 0 010 2h-1v9a2 2 0 01-2 2H7a2 2 0 01-2-2V6H4a1 1 0 010-2h3V3a1 1 0 011-1zm0 10a1 1 0 011 1v3h1a1 1 0 110 2H7a1 1 0 110-2h1v-3a1 1 0 011-1z" clip-rule="evenodd"/>
                                 </svg>

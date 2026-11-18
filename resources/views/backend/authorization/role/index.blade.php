@@ -16,7 +16,7 @@
         gap: 6px;
     }
     #role-table_wrapper .dataTables_length select {
-        border: 1px solid #e4e6fc !important;
+        border: 1px solid #dbeafe !important;
         border-radius: 4px !important;
         padding: 4px 10px !important;
         height: 35px !important;
@@ -25,8 +25,8 @@
         min-width: 65px;
     }
     #role-table_wrapper .dataTables_length select:focus {
-        border-color: #6777ef !important;
-        box-shadow: 0 0 0 0.2rem rgba(103, 119, 239, 0.2) !important;
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.2) !important;
     }
 
     #role-table_wrapper .dataTables_filter {
@@ -43,7 +43,7 @@
         gap: 8px;
     }
     #role-table_wrapper .dataTables_filter input {
-        border: 1px solid #e4e6fc !important;
+        border: 1px solid #dbeafe !important;
         border-radius: 4px !important;
         padding: 6px 12px !important;
         height: 35px !important;
@@ -54,8 +54,8 @@
     }
     #role-table_wrapper .dataTables_filter input:focus {
         width: 260px !important;
-        border-color: #6777ef !important;
-        box-shadow: 0 0 0 0.2rem rgba(103, 119, 239, 0.2) !important;
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.2) !important;
     }
 
     /* Table Typography */
@@ -97,7 +97,7 @@
         margin: 0 !important;
     }
     #role-table_wrapper .page-item .page-link {
-        color: #6777ef !important;
+        color: #2563eb !important;
         background-color: #f9fafe !important;
         border: none !important;
         border-radius: 4px !important;
@@ -110,21 +110,21 @@
         transition: all 0.2s ease !important;
     }
     #role-table_wrapper .page-item .page-link:hover {
-        background-color: #6777ef !important;
+        background-color: #2563eb !important;
         color: #ffffff !important;
         border: none !important;
     }
     #role-table_wrapper .page-item.active .page-link {
-        background-color: #6777ef !important;
+        background-color: #2563eb !important;
         border: none !important;
         color: #ffffff !important;
         font-weight: 700 !important;
-        box-shadow: 0 2px 6px #acb5f6 !important;
+        box-shadow: 0 2px 6px #bfdbfe !important;
     }
     #role-table_wrapper .page-item.disabled .page-link {
         border: none !important;
         background-color: #f9fafe !important;
-        color: #6777ef !important;
+        color: #2563eb !important;
         opacity: 0.55 !important;
         cursor: not-allowed !important;
         box-shadow: none !important;

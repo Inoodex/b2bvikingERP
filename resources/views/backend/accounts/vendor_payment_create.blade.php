@@ -216,8 +216,8 @@
     }
 
     .form-control:focus {
-        border-color: #4e73df;
-        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.15);
+        border-color: #2563eb;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
         background: #ffffff;
     }
 
@@ -227,16 +227,16 @@
     }
 
     .form-control.is-invalid:focus {
-        border-color: #e74a3b;
-        box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.15);
+        border-color: #dc2626;
+        box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.15);
     }
 
     /* Input Group */
     .input-group .input-group-append .btn {
         border-radius: 0 10px 10px 0 !important;
-        border: 2px solid #4e73df;
+        border: 2px solid #2563eb;
         border-left: none;
-        background: #4e73df !important;
+        background: #2563eb !important;
         color: #fff !important;
         padding: 0 1.5rem !important;
         font-weight: 600 !important;
@@ -249,7 +249,7 @@
     }
 
     .input-group .form-control:focus + .input-group-append .btn {
-        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.15);
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
     }
 
     /* Custom File Input */
@@ -269,13 +269,13 @@
     }
 
     .custom-file-label:hover {
-        border-color: #4e73df;
+        border-color: #2563eb;
         background: #f8f9fc;
     }
 
     .custom-file-input:focus ~ .custom-file-label {
-        border-color: #4e73df;
-        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.15);
+        border-color: #2563eb;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
     }
 
     /* Badge */
@@ -292,12 +292,12 @@
     }
 
     .badge-warning {
-        background: #f6c23e !important;
+        background: #f97316 !important;
         color: #1a1a2e !important;
     }
 
     .badge-success {
-        background: #1cc88a !important;
+        background: #15803d !important;
         color: #fff !important;
     }
 
@@ -325,25 +325,25 @@
     }
 
     .btn-primary {
-        background: #4e73df !important;
+        background: #2563eb !important;
         border: none !important;
         color: #ffffff !important;
     }
 
     .btn-primary:hover {
-        background: #224abe !important;
-        box-shadow: 0 6px 20px rgba(78, 115, 223, 0.35) !important;
+        background: #1d4ed8 !important;
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35) !important;
     }
 
     .btn-success {
-        background: #1cc88a !important;
+        background: #15803d !important;
         border: none !important;
         color: #ffffff !important;
     }
 
     .btn-success:hover {
         background: #13855c !important;
-        box-shadow: 0 6px 20px rgba(28, 200, 138, 0.35) !important;
+        box-shadow: 0 6px 20px rgba(21, 128, 61, 0.35) !important;
     }
 
     .btn-block {
@@ -525,12 +525,12 @@
     }
 
     ::-webkit-scrollbar-thumb {
-        background: #4e73df;
+        background: #2563eb;
         border-radius: 10px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background: #224abe;
+        background: #1d4ed8;
     }
 
     /* Loading State */
@@ -560,18 +560,18 @@
 
     /* Hover effects */
     .form-control:hover {
-        border-color: #4e73df;
+        border-color: #2563eb;
         background: #ffffff;
     }
 
     .custom-file-label:hover {
-        border-color: #4e73df;
+        border-color: #2563eb;
         background: #ffffff;
     }
 
     /* Focus glow */
     .form-control:focus {
-        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.15) !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
     }
 
     select.form-control {

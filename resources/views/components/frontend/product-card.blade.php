@@ -49,7 +49,7 @@
                 @php
                     $productTypeLower = strtolower($productType);
                     if (str_contains($productTypeLower, 'upcoming')) {
-                        $badgeClass = 'border-amber-200 bg-amber-50 text-amber-600';
+                        $badgeClass = 'border-blue-200 bg-blue-50 text-blue-600';
                     } elseif (str_contains($productTypeLower, 'new') || str_contains($productTypeLower, 'arrival')) {
                         $badgeClass = 'border-emerald-200 bg-emerald-50 text-emerald-600';
                     } else {
@@ -191,7 +191,7 @@
                                 <p class="mt-1 break-words text-[9px] font-semibold leading-tight text-slate-400" x-text="`Max add: ${maxAddableQty}`"></p>
                             </template> --}}
                             <template x-if="(!hasVariants || selectedVariant) && currentStock > 0 && maxAddableQty === 0">
-                                <p class="mt-1 break-words text-[9px] font-semibold leading-tight text-amber-600" x-text="`MIM ${minimumOrderQty}, stock ${currentStock}`"></p>
+                                <p class="mt-1 break-words text-[9px] font-semibold leading-tight text-blue-600" x-text="`MIM ${minimumOrderQty}, stock ${currentStock}`"></p>
                             </template>
                         </div>
                     </div>

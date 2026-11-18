@@ -78,7 +78,7 @@ class DeliveryOrderDataTable extends DataTable
             Column::computed('action')->title('Action')->addClass('text-center')
                 ->exportable(false)
                 ->printable(false)
-                ->width(140),
+                ->width(160),
         ];
     }
 

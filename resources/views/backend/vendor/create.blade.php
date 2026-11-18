@@ -279,8 +279,8 @@
     }
 
     .form-control.is-invalid:focus {
-        border-color: #e74a3b;
-        box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.15);
+        border-color: #dc2626;
+        box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.15);
     }
 
     .form-control:hover {
@@ -719,12 +719,12 @@
 
     .was-validated .form-control:valid,
     .form-control.is-valid {
-        border-color: #1cc88a !important;
+        border-color: #15803d !important;
     }
 
     .was-validated .form-control:invalid,
     .form-control.is-invalid {
-        border-color: #e74a3b !important;
+        border-color: #dc2626 !important;
     }
 
     .text-danger {

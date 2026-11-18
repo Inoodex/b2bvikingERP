@@ -239,7 +239,7 @@
                     text: 'Are you sure you want to convert Quotation {{ $salesQuotation->quotation_no }} into an official Sales Order (SO)?',
                     icon: 'question',
                     showCancelButton: true,
-                    confirmButtonColor: '#10b981',
+                    confirmButtonColor: '#15803d',
                     cancelButtonColor: '#6c757d',
                     confirmButtonText: 'Yes, Convert to SO!',
                 }).then((result) => {

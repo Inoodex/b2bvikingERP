@@ -48,8 +48,8 @@
                 border: none;
             }
             .btn-print { background: #ffc107; color: #000; }
-            .btn-download { background: #3abaf4; color: #fff; }
-            .btn-back { background: #6777ef; color: #fff; }
+            .btn-download { background: #2563eb; color: #fff; }
+            .btn-back { background: #2563eb; color: #fff; }
             .btn-close { background: #6c757d; color: #fff; }
         }
 
@@ -153,7 +153,7 @@
         .badge-warning { background-color: #ffc107; color: #000; }
         .badge-success { background-color: #28a745; }
         .badge-danger { background-color: #dc3545; }
-        .badge-primary { background-color: #6777ef; }
+        .badge-primary { background-color: #2563eb; }
     </style>
 </head>
 <body>
@@ -270,7 +270,7 @@
         @endif
 
         @if($productRequest->admin_note)
-        <div style="margin-bottom: 20px; background: #eef2ff; padding: 15px; border-left: 4px solid #6777ef;">
+        <div style="margin-bottom: 20px; background: #eef2ff; padding: 15px; border-left: 4px solid #2563eb;">
             <strong>Admin Remarks:</strong><br>
             {{ $productRequest->admin_note }}
         </div>

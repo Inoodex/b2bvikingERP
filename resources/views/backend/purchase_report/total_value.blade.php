@@ -233,7 +233,7 @@
                             <span class="d-inline-block mr-1" style="width: 10px; height: 10px; background: #28549e; border-radius: 2px;"></span> Net Spend
                         </span>
                         <span class="mr-3" style="font-size: 11px; color: #495057;">
-                            <span class="d-inline-block mr-1" style="width: 10px; height: 10px; background: #10b981; border-radius: 50%;"></span> POs Issued
+                            <span class="d-inline-block mr-1" style="width: 10px; height: 10px; background: #15803d; border-radius: 50%;"></span> POs Issued
                         </span>
                         <span class="badge badge-light border text-muted mr-2" style="font-size: 11px;">
                             <i class="fas fa-calendar-check mr-1 text-primary"></i> {{ $activePeriodsCount }} {{ Str::plural('Month', $activePeriodsCount) }}
@@ -562,9 +562,9 @@ $(document).ready(function() {
                         label: 'POs Issued',
                         data: poCounts,
                         type: 'line',
-                        borderColor: '#10b981',
+                        borderColor: '#15803d',
                         backgroundColor: 'rgba(16, 185, 129, 0.08)',
-                        pointBackgroundColor: '#10b981',
+                        pointBackgroundColor: '#15803d',
                         pointBorderColor: '#ffffff',
                         pointBorderWidth: 2,
                         pointRadius: 4,
@@ -615,7 +615,7 @@ $(document).ready(function() {
                             ticks: {
                                 beginAtZero: true,
                                 precision: 0,
-                                fontColor: '#10b981'
+                                fontColor: '#15803d'
                             }
                         }
                     ]

@@ -105,7 +105,7 @@
     }
 
     .table tbody tr:hover {
-        background-color: rgba(78, 115, 223, 0.04);
+        background-color: rgba(37, 99, 235, 0.04);
         transform: scale(1.002);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
@@ -133,27 +133,27 @@
     }
 
     .badge-success {
-        background: #1cc88a !important;
+        background: #15803d !important;
         color: #ffffff !important;
     }
 
     .badge-danger {
-        background: #e74a3b !important;
+        background: #dc2626 !important;
         color: #ffffff !important;
     }
 
     .badge-info {
-        background: #36b9cc !important;
+        background: #2563eb !important;
         color: #ffffff !important;
     }
 
     .badge-warning {
-        background: #f6c23e !important;
+        background: #f97316 !important;
         color: #1a1a2e !important;
     }
 
     .badge-primary {
-        background: #4e73df !important;
+        background: #2563eb !important;
         color: #ffffff !important;
     }
 
@@ -173,7 +173,7 @@
 
     .discount-type-percent {
         background: #e8f0fe;
-        color: #4e73df;
+        color: #2563eb;
     }
 
     .discount-type-flat {
@@ -220,8 +220,8 @@
     }
 
     .custom-switch .custom-control-input:checked ~ .custom-control-label::before {
-        background: #1cc88a;
-        border-color: #1cc88a;
+        background: #15803d;
+        border-color: #15803d;
     }
 
     .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
@@ -230,7 +230,7 @@
     }
 
     .custom-switch .custom-control-input:focus ~ .custom-control-label::before {
-        box-shadow: 0 0 0 0.2rem rgba(28, 200, 138, 0.25);
+        box-shadow: 0 0 0 0.2rem rgba(21, 128, 61, 0.25);
     }
 
     /* Action Buttons */
@@ -263,16 +263,16 @@
     }
 
     .btn-action-view {
-        background: #4e73df !important;
+        background: #2563eb !important;
         color: #fff !important;
     }
 
     .btn-action-view:hover {
-        background: #224abe !important;
+        background: #1d4ed8 !important;
     }
 
     .btn-action-edit {
-        background: #1cc88a !important;
+        background: #15803d !important;
         color: #fff !important;
     }
 
@@ -281,7 +281,7 @@
     }
 
     .btn-action-delete {
-        background: #e74a3b !important;
+        background: #dc2626 !important;
         color: #fff !important;
     }
 
@@ -290,7 +290,7 @@
     }
 
     .btn-action-default {
-        background: #f6c23e !important;
+        background: #f97316 !important;
         color: #1a1a2e !important;
     }
 
@@ -321,14 +321,14 @@
     }
 
     .btn-primary {
-        background: #4e73df !important;
+        background: #2563eb !important;
         border: none !important;
         color: #ffffff !important;
     }
 
     .btn-primary:hover {
-        background: #224abe !important;
-        box-shadow: 0 6px 20px rgba(78, 115, 223, 0.35) !important;
+        background: #1d4ed8 !important;
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35) !important;
     }
 
     /* Scrollbar */
@@ -343,12 +343,12 @@
     }
 
     ::-webkit-scrollbar-thumb {
-        background: #4e73df;
+        background: #2563eb;
         border-radius: 10px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background: #224abe;
+        background: #1d4ed8;
     }
 
     /* DataTable Custom */
@@ -363,17 +363,17 @@
     }
 
     .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-        background: #4e73df !important;
+        background: #2563eb !important;
         color: #fff !important;
         border: none !important;
-        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.3);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
     }
 
     .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-        background: #4e73df !important;
+        background: #2563eb !important;
         color: #fff !important;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.2);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
     }
 
     .dataTables_wrapper .dataTables_filter input {
@@ -386,8 +386,8 @@
     }
 
     .dataTables_wrapper .dataTables_filter input:focus {
-        border-color: #4e73df !important;
-        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.15);
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
         background: #ffffff !important;
     }
 
@@ -596,7 +596,7 @@
 
     /* Table Striped Alternative */
     .table tbody tr:nth-child(even) {
-        background-color: rgba(78, 115, 223, 0.02);
+        background-color: rgba(37, 99, 235, 0.02);
     }
 
     /* Status Badge Animation */
@@ -605,9 +605,9 @@
     }
 
     @keyframes pulse-green {
-        0% { box-shadow: 0 0 0 0 rgba(28, 200, 138, 0.4); }
-        70% { box-shadow: 0 0 0 6px rgba(28, 200, 138, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(28, 200, 138, 0); }
+        0% { box-shadow: 0 0 0 0 rgba(21, 128, 61, 0.4); }
+        70% { box-shadow: 0 0 0 6px rgba(21, 128, 61, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(21, 128, 61, 0); }
     }
 
     .badge-danger {
@@ -615,9 +615,9 @@
     }
 
     @keyframes pulse-red {
-        0% { box-shadow: 0 0 0 0 rgba(231, 74, 59, 0.4); }
-        70% { box-shadow: 0 0 0 6px rgba(231, 74, 59, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(231, 74, 59, 0); }
+        0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+        70% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
     }
 </style>
 @endpush

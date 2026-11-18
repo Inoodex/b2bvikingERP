@@ -123,7 +123,7 @@
                         <div class="card-footer bg-white border-top text-right py-3 d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
                                 <span class="text-muted font-weight-bold mr-2 text-uppercase" style="font-size: 12px; letter-spacing: 0.5px;">Grand Total Units:</span>
-                                <span id="grand_total_transfer_units" class="badge badge-primary font-weight-bold px-3 py-2" style="font-size: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(103,119,239,0.25);">0.00</span>
+                                <span id="grand_total_transfer_units" class="badge badge-primary font-weight-bold px-3 py-2" style="font-size: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(37, 99, 235,0.25);">0.00</span>
                             </div>
                             <div>
                                 <a href="{{ route('admin.stock-transfers.index') }}" class="btn btn-light border mr-2 font-weight-bold px-3" style="border-radius: 8px;">Cancel</a>
@@ -279,7 +279,7 @@
         flex-shrink: 0;
         border-radius: 8px;
         background: #fef2f2;
-        color: #ef4444;
+        color: #dc2626;
         border: 1px solid #fee2e2;
         display: inline-flex;
         align-items: center;
@@ -288,9 +288,9 @@
         cursor: pointer;
     }
     .btn-card-trash:hover {
-        background: #ef4444;
+        background: #dc2626;
         color: #ffffff;
-        border-color: #ef4444;
+        border-color: #dc2626;
         box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
     }
 

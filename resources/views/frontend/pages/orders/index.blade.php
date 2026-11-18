@@ -39,7 +39,7 @@
                                 {{ $status === 'shipped' ? 'bg-blue-100 text-blue-700' : '' }}
                                 {{ $status === 'rejected' ? 'bg-rose-100 text-rose-700' : '' }}
                                 {{ $status === 'cancelled' ? 'bg-rose-100 text-rose-700' : '' }}
-                                {{ $status === 'pending' ? 'bg-amber-100 text-amber-700' : '' }}">
+                                {{ $status === 'pending' ? 'bg-blue-100 text-blue-700' : '' }}">
                                 {{ ucfirst($order->status) }}
                             </span>
                         </div>

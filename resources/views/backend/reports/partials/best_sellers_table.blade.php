@@ -66,7 +66,7 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <span class="badge badge-success px-2.5 py-1 font-weight-bold shadow-sm" style="font-size: 11.5px; background: #059669;">
+                                <span class="badge badge-success px-2.5 py-1 font-weight-bold shadow-sm" style="font-size: 11.5px; background: #15803d;">
                                     <i class="fas fa-boxes mr-1"></i>{{ number_format($product->total_qty) }} pcs
                                 </span>
                             </td>

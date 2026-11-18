@@ -402,13 +402,13 @@
 
             {{-- KPI 3: Net Annual Variance --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: {{ $isExpansion ? '#dc2626' : '#10b981' }};"></div>
+                <div class="kpi-accent-stripe" style="background: {{ $isExpansion ? '#dc2626' : '#15803d' }};"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold" style="font-size: 10.5px; letter-spacing: 0.06em; color: #64748b;">
                             Net Annual Variance
                         </span>
-                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: {{ $isExpansion ? '#fef2f2; color: #dc2626;' : '#ecfdf5; color: #059669;' }}">
+                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: {{ $isExpansion ? '#fef2f2; color: #dc2626;' : '#ecfdf5; color: #15803d;' }}">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="{{ $isExpansion ? '23 6 13.5 15.5 8.5 10.5 1 18' : '23 18 13.5 8.5 8.5 13.5 1 6' }}"></polyline><polyline points="{{ $isExpansion ? '17 6 23 6 23 12' : '17 18 23 18 23 12' }}"></polyline></svg>
                         </div>
                     </div>
@@ -428,13 +428,13 @@
 
             {{-- KPI 4: Annual YoY Growth Rate --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: {{ $growth >= 0 ? '#d97706' : '#10b981' }};"></div>
+                <div class="kpi-accent-stripe" style="background: {{ $growth >= 0 ? '#c2410c' : '#15803d' }};"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold" style="font-size: 10.5px; letter-spacing: 0.06em; color: #64748b;">
                             Annual YoY Growth Rate
                         </span>
-                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: {{ $growth >= 0 ? '#fffbeb; color: #d97706;' : '#ecfdf5; color: #059669;' }}">
+                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: {{ $growth >= 0 ? '#fffbeb; color: #c2410c;' : '#ecfdf5; color: #15803d;' }}">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m16 12-4-4-4 4"></path><path d="M12 16V8"></path></svg>
                         </div>
                     </div>
@@ -489,7 +489,7 @@
                 {{-- Velocity 3: Lowest Spend Month --}}
                 <div class="col-xl-3 col-md-6 col-12 p-3 border-right border-bottom border-md-bottom-0 d-flex align-items-center justify-content-between" style="border-color: #f1f5f9 !important;">
                     <div class="d-flex align-items-center" style="gap: 12px;">
-                        <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; border-radius: 8px; background: #ecfdf5; color: #059669;">
+                        <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; border-radius: 8px; background: #ecfdf5; color: #15803d;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                         </div>
                         <div>
@@ -503,7 +503,7 @@
                 {{-- Velocity 4: Fiscal Spend Trajectory --}}
                 <div class="col-xl-3 col-md-6 col-12 p-3 d-flex align-items-center justify-content-between" style="border-color: #f1f5f9 !important;">
                     <div class="d-flex align-items-center" style="gap: 12px;">
-                        <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; border-radius: 8px; background: {{ $isExpansion ? '#fffbeb; color: #d97706;' : '#ecfdf5; color: #059669;' }}">
+                        <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; border-radius: 8px; background: {{ $isExpansion ? '#fffbeb; color: #c2410c;' : '#ecfdf5; color: #15803d;' }}">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="{{ $isExpansion ? '23 6 13.5 15.5 8.5 10.5 1 18' : '23 18 13.5 8.5 8.5 13.5 1 6' }}"></polyline><polyline points="{{ $isExpansion ? '17 6 23 6 23 12' : '17 18 23 18 23 12' }}"></polyline></svg>
                         </div>
                         <div>
@@ -723,7 +723,7 @@
                                     <td class="text-right" style="font-size: 13px; font-weight: 700; color: #0f172a;">
                                         {!! formatConverted($cSpend) !!}
                                     </td>
-                                    <td class="text-right" style="font-size: 13px; font-weight: 700; color: {{ $rowVar > 0 ? '#dc2626' : ($rowVar < 0 ? '#10b981' : '#64748b') }};">
+                                    <td class="text-right" style="font-size: 13px; font-weight: 700; color: {{ $rowVar > 0 ? '#dc2626' : ($rowVar < 0 ? '#15803d' : '#64748b') }};">
                                         {{ $rowVar > 0 ? '+' : ($rowVar < 0 ? '-' : '') }}{!! formatConverted(abs($rowVar)) !!}
                                     </td>
                                     <td class="text-center">
@@ -755,7 +755,7 @@
                                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
                                             </span>
                                         @elseif($rowVar < 0)
-                                            <span style="color: #10b981;" title="Spend Savings ({{ number_format($rowGrowth, 1) }}%)">
+                                            <span style="color: #15803d;" title="Spend Savings ({{ number_format($rowGrowth, 1) }}%)">
                                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>
                                             </span>
                                         @else
@@ -788,7 +788,7 @@
                                 <td class="text-right" style="padding: 14px 18px; font-weight: 800; color: #0f172a; font-size: 14.5px;">
                                     {!! formatConverted($currentVal) !!}
                                 </td>
-                                <td class="text-right" style="padding: 14px 18px; font-weight: 800; font-size: 14px; color: {{ $variance > 0 ? '#dc2626' : ($variance < 0 ? '#10b981' : '#0f172a') }};">
+                                <td class="text-right" style="padding: 14px 18px; font-weight: 800; font-size: 14px; color: {{ $variance > 0 ? '#dc2626' : ($variance < 0 ? '#15803d' : '#0f172a') }};">
                                     {{ $variance > 0 ? '+' : ($variance < 0 ? '-' : '') }}{!! formatConverted(abs($variance)) !!}
                                 </td>
                                 <td class="text-center" style="padding: 14px 18px;">
@@ -800,7 +800,7 @@
                                     <span class="badge font-weight-bold px-2 py-0.5 text-dark border" style="font-size: 10px; background: #ffffff; border-radius: 4px;">100.0%</span>
                                 </td>
                                 <td class="text-center" style="padding: 14px 18px;">
-                                    <span style="color: {{ $isExpansion ? '#dc2626' : '#10b981' }};">
+                                    <span style="color: {{ $isExpansion ? '#dc2626' : '#15803d' }};">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="{{ $isExpansion ? '23 6 13.5 15.5 8.5 10.5 1 18' : '23 18 13.5 8.5 8.5 13.5 1 6' }}"></polyline><polyline points="{{ $isExpansion ? '17 6 23 6 23 12' : '17 18 23 18 23 12' }}"></polyline></svg>
                                     </span>
                                 </td>

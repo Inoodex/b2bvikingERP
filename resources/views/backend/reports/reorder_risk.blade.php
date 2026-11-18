@@ -207,7 +207,7 @@
                                                     </div>
                                                 @endforeach
                                             @elseif($stock <= 0)
-                                                <span class="badge badge-danger px-2.5 py-1.5 font-weight-bold shadow-sm" style="font-size: 11px; background: #ef4444; border-radius: 6px;">
+                                                <span class="badge badge-danger px-2.5 py-1.5 font-weight-bold shadow-sm" style="font-size: 11px; background: #dc2626; border-radius: 6px;">
                                                     <i class="fas fa-exclamation-triangle mr-1"></i> Out of Stock • NOT Ordered
                                                 </span>
                                             @else
