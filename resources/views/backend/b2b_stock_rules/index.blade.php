@@ -720,7 +720,7 @@
     {{-- Metrics Ribbon --}}
     <div class="row mb-3 b2b-metrics-grid">
         <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0 b2b-metric-column">
-            <div class="card b2b-metric-card border-0 shadow-sm mb-0" style="border-left: 4px solid #2563eb !important;">
+            <div class="card b2b-metric-card border-0 shadow-sm mb-0">
                 <div class="card-body p-3 d-flex align-items-center">
                     <div class="b2b-metric-icon mr-3" style="background: rgba(59, 130, 246, 0.12); color: #2563eb;">
                         <i class="fas fa-shield-alt"></i>
@@ -734,7 +734,7 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0 b2b-metric-column">
-            <div class="card b2b-metric-card border-0 shadow-sm mb-0" style="border-left: 4px solid #15803d !important;">
+            <div class="card b2b-metric-card border-0 shadow-sm mb-0">
                 <div class="card-body p-3 d-flex align-items-center">
                     <div class="b2b-metric-icon mr-3" style="background: rgba(16, 185, 129, 0.12); color: #15803d;">
                         <i class="fas fa-check-circle"></i>
@@ -748,7 +748,7 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0 b2b-metric-column">
-            <div class="card b2b-metric-card border-0 shadow-sm mb-0" style="border-left: 4px solid #E11835 !important;">
+            <div class="card b2b-metric-card border-0 shadow-sm mb-0">
                 <div class="card-body p-3 d-flex align-items-center">
                     <div class="b2b-metric-icon mr-3" style="background: rgba(225, 24, 53, 0.12); color: #E11835;">
                         <i class="fas fa-ban"></i>
@@ -762,7 +762,7 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6 col-12 b2b-metric-column">
-            <div class="card b2b-metric-card border-0 shadow-sm mb-0" style="border-left: 4px solid #64748b !important;">
+            <div class="card b2b-metric-card border-0 shadow-sm mb-0">
                 <div class="card-body p-3 d-flex align-items-center">
                     <div class="b2b-metric-icon mr-3" style="background: rgba(100, 116, 139, 0.12); color: #64748b;">
                         <i class="fas fa-building"></i>

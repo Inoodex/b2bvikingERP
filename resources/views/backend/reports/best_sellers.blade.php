@@ -181,7 +181,7 @@
 
                 {{-- TAB 2: Calculator --}}
                 <div class="tab-pane fade" id="tab-calculator" role="tabpanel">
-                    <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-left: 5px solid #2563eb !important;">
+                    <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
                         <div class="card-header bg-transparent py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap" style="gap: 10px;">
                             <div>
                                 <h5 class="mb-0 font-weight-bold text-dark">

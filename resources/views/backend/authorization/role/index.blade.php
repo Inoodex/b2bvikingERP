@@ -60,12 +60,22 @@
 
     /* Table Typography */
     #role-table thead th {
-        background-color: #f9fafe !important;
-        color: #34395e !important;
+        background: #2563eb !important;
+        background-color: #2563eb !important;
+        color: #ffffff !important;
         font-weight: 700 !important;
         font-size: 12px !important;
         border-bottom: 2px solid #edf2f9 !important;
         padding: 12px 14px !important;
+    }
+    #role-table thead th *,
+    #role-table thead .sorting:before,
+    #role-table thead .sorting_asc:before,
+    #role-table thead .sorting_desc:before,
+    #role-table thead .sorting:after,
+    #role-table thead .sorting_asc:after,
+    #role-table thead .sorting_desc:after {
+        color: #ffffff !important;
     }
     #role-table tbody td {
         vertical-align: middle !important;

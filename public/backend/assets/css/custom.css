@@ -2,31 +2,161 @@
    CUSTOM CSS - Complete Mobile Responsive
    ============================================= */
 :root {
-    --theme-orange: #E11835;
-    --theme-red: #E11835;
+    --theme-orange: #f97316;
+    --theme-red: #dc2626;
     --theme-green: #15803d;
     --theme-blue: #2563eb;
 }
 
-/* Keep backend action buttons consistent regardless of their Bootstrap variant. */
-.btn:not(.btn-social):not(.btn-social-icon):not(.btn-link) {
+/* Buttons without a semantic variant use the shared primary color. */
+.btn:not(.btn-social):not(.btn-social-icon):not(.btn-link):not(.btn-white):not([class*="btn-outline-"]):not(.btn-primary):not(.btn-secondary):not(.btn-success):not(.btn-danger):not(.btn-warning):not(.btn-info):not(.btn-dark):not(.btn-light) {
     background-color: var(--theme-blue) !important;
     border-color: var(--theme-blue) !important;
     color: #fff !important;
 }
 
-.btn:not(.btn-social):not(.btn-social-icon):not(.btn-link):has(.fa-trash),
-.btn:not(.btn-social):not(.btn-social-icon):not(.btn-link):has(.fa-trash-alt),
-.btn:not(.btn-social):not(.btn-social-icon):not(.btn-link):has(.fa-trash-can) {
-    background-color: #E11835 !important;
-    border-color: #E11835 !important;
+/* Keep semantic button colors consistent across backend pages. */
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.disabled,
+.btn-primary:disabled,
+.btn-info,
+.btn-info:hover,
+.btn-info:focus,
+.btn-info:active,
+.btn-info.disabled,
+.btn-info:disabled {
+    background-color: var(--theme-blue) !important;
+    border-color: var(--theme-blue) !important;
     color: #fff !important;
 }
 
-.btn:not(.btn-social):not(.btn-social-icon):not(.btn-link):has(.fa-trash) .fa-trash,
-.btn:not(.btn-social):not(.btn-social-icon):not(.btn-link):has(.fa-trash-alt) .fa-trash-alt,
-.btn:not(.btn-social):not(.btn-social-icon):not(.btn-link):has(.fa-trash-can) .fa-trash-can {
+.btn-success,
+.btn-success:hover,
+.btn-success:focus,
+.btn-success:active,
+.btn-success.disabled,
+.btn-success:disabled {
+    background-color: var(--theme-green) !important;
+    border-color: var(--theme-green) !important;
     color: #fff !important;
+}
+
+.btn-danger,
+.btn-danger:hover,
+.btn-danger:focus,
+.btn-danger:active,
+.btn-danger.disabled,
+.btn-danger:disabled {
+    background-color: var(--theme-red) !important;
+    border-color: var(--theme-red) !important;
+    color: #fff !important;
+}
+
+.btn-warning,
+.btn-warning:hover,
+.btn-warning:focus,
+.btn-warning:active,
+.btn-warning.disabled,
+.btn-warning:disabled {
+    background-color: var(--theme-orange) !important;
+    border-color: var(--theme-orange) !important;
+    color: #1f2937 !important;
+}
+
+.btn-secondary,
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active,
+.btn-secondary.disabled,
+.btn-secondary:disabled {
+    background-color: #64748b !important;
+    border-color: #64748b !important;
+    color: #fff !important;
+}
+
+.btn-dark,
+.btn-dark:hover,
+.btn-dark:focus,
+.btn-dark:active,
+.btn-dark.disabled,
+.btn-dark:disabled {
+    background-color: #1f2937 !important;
+    border-color: #1f2937 !important;
+    color: #fff !important;
+}
+
+.btn-light,
+.btn-light:hover,
+.btn-light:focus,
+.btn-light:active,
+.btn-light.disabled,
+.btn-light:disabled {
+    background-color: #e2e8f0 !important;
+    border-color: #e2e8f0 !important;
+    color: #1f2937 !important;
+}
+
+.btn-outline-primary,
+.btn-outline-info {
+    background-color: transparent !important;
+    border-color: var(--theme-blue) !important;
+    color: var(--theme-blue) !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-info:hover,
+.btn-outline-info:focus,
+.btn-outline-info:active {
+    background-color: var(--theme-blue) !important;
+    border-color: var(--theme-blue) !important;
+    color: #fff !important;
+}
+
+.btn-outline-success {
+    background-color: transparent !important;
+    border-color: var(--theme-green) !important;
+    color: var(--theme-green) !important;
+}
+
+.btn-outline-success:hover,
+.btn-outline-success:focus,
+.btn-outline-success:active {
+    background-color: var(--theme-green) !important;
+    border-color: var(--theme-green) !important;
+    color: #fff !important;
+}
+
+.btn-outline-danger {
+    background-color: transparent !important;
+    border-color: var(--theme-red) !important;
+    color: var(--theme-red) !important;
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus,
+.btn-outline-danger:active {
+    background-color: var(--theme-red) !important;
+    border-color: var(--theme-red) !important;
+    color: #fff !important;
+}
+
+.btn-outline-warning {
+    background-color: transparent !important;
+    border-color: var(--theme-orange) !important;
+    color: #c2410c !important;
+}
+
+.btn-outline-warning:hover,
+.btn-outline-warning:focus,
+.btn-outline-warning:active {
+    background-color: var(--theme-orange) !important;
+    border-color: var(--theme-orange) !important;
+    color: #1f2937 !important;
 }
 
 .bg-warning {
@@ -108,11 +238,16 @@ input[type="number"]::-webkit-outer-spin-button {
     border-collapse: collapse !important;
 }
 
-.table thead th,
-.dataTable thead th {
+.table th,
+.table thead th *,
+.dataTable thead th,
+.dataTable thead th *,
+table.dataTable thead th,
+table.dataTable thead th * {
     background: #2563EB !important;
+    background-color: #2563EB !important;
     background-image: none !important;
-    color: #fff !important;
+    color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 11px !important;
     text-transform: uppercase !important;
@@ -122,6 +257,29 @@ input[type="number"]::-webkit-outer-spin-button {
     border-bottom: 2px solid rgba(11, 17, 32, 0.08) !important;
     vertical-align: middle !important;
     white-space: nowrap !important;
+}
+
+table.dataTable thead .sorting:before,
+table.dataTable thead .sorting_asc:before,
+table.dataTable thead .sorting_desc:before,
+table.dataTable thead .sorting:after,
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_desc:after,
+.dataTable thead .sorting:before,
+.dataTable thead .sorting_asc:before,
+.dataTable thead .sorting_desc:before,
+.dataTable thead .sorting:after,
+.dataTable thead .sorting_asc:after,
+.dataTable thead .sorting_desc:after {
+    color: #ffffff !important;
+    opacity: 0.75 !important;
+}
+
+table.dataTable thead .sorting_asc:before,
+table.dataTable thead .sorting_desc:after,
+.dataTable thead .sorting_asc:before,
+.dataTable thead .sorting_desc:after {
+    opacity: 1 !important;
 }
 
 .table td,
@@ -136,7 +294,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .table tbody tr:hover td,
 .dataTable tbody tr:hover td {
-    background: rgba(37, 99, 235, 0.06) !important;
+    background: rgba(212, 162, 78, 0.06) !important;
 }
 
 /* Universal Action Column & Buttons in Tables */
@@ -167,9 +325,9 @@ input[type="number"]::-webkit-outer-spin-button {
     transition: all 0.2s ease !important;
 }
 
-.dataTable td .btn + .btn,
-.table td .btn + .btn,
-.dataTables_wrapper td .btn + .btn {
+.dataTable td .btn+.btn,
+.table td .btn+.btn,
+.dataTables_wrapper td .btn+.btn {
     margin-left: 3px !important;
 }
 
@@ -182,6 +340,7 @@ input[type="number"]::-webkit-outer-spin-button {
     align-items: center !important;
     vertical-align: middle !important;
 }
+
 .dataTable td .custom-switch-indicator,
 .table td .custom-switch-indicator {
     width: 32px !important;
@@ -192,6 +351,7 @@ input[type="number"]::-webkit-outer-spin-button {
     transition: all 0.2s ease !important;
     cursor: pointer;
 }
+
 .dataTable td .custom-switch-indicator::after,
 .table td .custom-switch-indicator::after {
     width: 12px !important;
@@ -200,14 +360,16 @@ input[type="number"]::-webkit-outer-spin-button {
     left: 2px !important;
     transition: all 0.2s ease !important;
 }
-.dataTable td .custom-switch-input:checked ~ .custom-switch-indicator,
-.table td .custom-switch-input:checked ~ .custom-switch-indicator {
+
+.dataTable td .custom-switch-input:checked~.custom-switch-indicator,
+.table td .custom-switch-input:checked~.custom-switch-indicator {
     background: linear-gradient(135deg, #328A9A, #256b77) !important;
     border-color: #328A9A !important;
     box-shadow: 0 2px 6px -1px rgba(50, 138, 154, 0.4) !important;
 }
-.dataTable td .custom-switch-input:checked ~ .custom-switch-indicator::after,
-.table td .custom-switch-input:checked ~ .custom-switch-indicator::after {
+
+.dataTable td .custom-switch-input:checked~.custom-switch-indicator::after,
+.table td .custom-switch-input:checked~.custom-switch-indicator::after {
     left: calc(100% - 14px) !important;
 }
 
@@ -324,12 +486,33 @@ input[type="number"]::-webkit-outer-spin-button {
     }
 
     /* All standard tables fit 100% without horizontal overflow on tablet */
-    #category-table, #subcategory-table, #childcategory-table, #brand-table,
-    #unit-table, #color-table, #size-table, #role-table, #permission-table,
-    #tax-table, #department-table, #outlet-table, #currency-table, #company-table,
-    #discount-table, #coupon-table, #review-table, #slider-table, #producttype-table,
-    #b2bvisibility-table, #warehousezone-table, #warehousebin-table, #approvalworkflow-table,
-    #pricelist-table, #giftcard-table, .table-compact, .table-fits-screen {
+    #category-table,
+    #subcategory-table,
+    #childcategory-table,
+    #brand-table,
+    #unit-table,
+    #color-table,
+    #size-table,
+    #role-table,
+    #permission-table,
+    #tax-table,
+    #department-table,
+    #outlet-table,
+    #currency-table,
+    #company-table,
+    #discount-table,
+    #coupon-table,
+    #review-table,
+    #slider-table,
+    #producttype-table,
+    #b2bvisibility-table,
+    #warehousezone-table,
+    #warehousebin-table,
+    #approvalworkflow-table,
+    #pricelist-table,
+    #giftcard-table,
+    .table-compact,
+    .table-fits-screen {
         width: 100% !important;
         min-width: 100% !important;
         max-width: 100% !important;
@@ -464,7 +647,7 @@ input[type="number"]::-webkit-outer-spin-button {
     .pp-table-container {
         overflow-x: visible !important;
     }
-    
+
     .table-responsive .table,
     .dataTables_wrapper .table,
     .dataTable {
@@ -472,7 +655,7 @@ input[type="number"]::-webkit-outer-spin-button {
         font-size: 11px !important;
         margin-bottom: 0 !important;
     }
-    
+
     .table-responsive .table th,
     .table-responsive .table td,
     .dataTable thead th,
@@ -497,22 +680,22 @@ input[type="number"]::-webkit-outer-spin-button {
         max-width: 100% !important;
     }
 
-    .dataTables_wrapper > .row:first-child,
-    .dataTables_wrapper > .row:last-child {
+    .dataTables_wrapper>.row:first-child,
+    .dataTables_wrapper>.row:last-child {
         margin-left: 0 !important;
         margin-right: 0 !important;
         width: 100% !important;
     }
 
-    .dataTables_wrapper > .row:first-child > [class*="col-"],
-    .dataTables_wrapper > .row:last-child > [class*="col-"] {
+    .dataTables_wrapper>.row:first-child>[class*="col-"],
+    .dataTables_wrapper>.row:last-child>[class*="col-"] {
         padding-left: 0 !important;
         padding-right: 0 !important;
         max-width: 100% !important;
     }
 
     /* Make ONLY the table row inside .dataTables_wrapper horizontally scrollable on mobile */
-    .dataTables_wrapper > .row:nth-child(2) {
+    .dataTables_wrapper>.row:nth-child(2) {
         width: 100% !important;
         max-width: 100% !important;
         overflow-x: auto !important;
@@ -524,7 +707,7 @@ input[type="number"]::-webkit-outer-spin-button {
         -webkit-overflow-scrolling: touch !important;
     }
 
-    .dataTables_wrapper > .row:nth-child(2) > [class*="col-"] {
+    .dataTables_wrapper>.row:nth-child(2)>[class*="col-"] {
         padding: 0 !important;
         max-width: 100% !important;
     }
@@ -590,14 +773,14 @@ input[type="number"]::-webkit-outer-spin-button {
         font-size: 10px !important;
         margin: 1px !important;
     }
-    
+
     /* Better scrollbar on mobile */
-    .dataTables_wrapper > .row:nth-child(2)::-webkit-scrollbar,
+    .dataTables_wrapper>.row:nth-child(2)::-webkit-scrollbar,
     .table-responsive::-webkit-scrollbar {
         height: 5px !important;
     }
-    
-    .dataTables_wrapper > .row:nth-child(2)::-webkit-scrollbar-thumb,
+
+    .dataTables_wrapper>.row:nth-child(2)::-webkit-scrollbar-thumb,
     .table-responsive::-webkit-scrollbar-thumb {
         background: #328A9A !important;
         border-radius: 3px !important;
@@ -613,24 +796,24 @@ input[type="number"]::-webkit-outer-spin-button {
         min-width: 550px !important;
         font-size: 11px !important;
     }
-    
+
     .table-responsive .table th,
     .table-responsive .table td {
         padding: 8px 8px !important;
         font-size: 11px !important;
         min-width: 50px !important;
     }
-    
+
     .table-responsive .table .btn-sm {
         padding: 2px 5px !important;
         font-size: 10px !important;
     }
-    
+
     .table-responsive .table .badge {
         font-size: 9px !important;
         padding: 2px 6px !important;
     }
-    
+
     .table-responsive::after {
         font-size: 10px !important;
         padding: 5px 0 !important;
@@ -659,7 +842,7 @@ input[type="number"]::-webkit-outer-spin-button {
         min-width: 30px !important;
         text-align: center !important;
     }
-    
+
     .custom-pagination .page-item.disabled .page-link {
         opacity: 0.5 !important;
     }
@@ -673,7 +856,7 @@ input[type="number"]::-webkit-outer-spin-button {
         flex-wrap: wrap !important;
         gap: 2px !important;
     }
-    
+
     .table-responsive .page-item .page-link {
         padding: 4px 8px !important;
         font-size: 11px !important;
@@ -691,11 +874,11 @@ input[type="number"]::-webkit-outer-spin-button {
     .card-view-mobile {
         display: block !important;
     }
-    
+
     .table-view-desktop {
         display: none !important;
     }
-    
+
     .order-card-mobile {
         background: white;
         border: 1px solid #e9ecef;
@@ -703,24 +886,24 @@ input[type="number"]::-webkit-outer-spin-button {
         padding: 15px;
         margin-bottom: 12px;
         transition: all 0.2s ease;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         animation: fadeIn 0.3s ease-out;
     }
-    
+
     .order-card-mobile:active {
         background: #f8f9fc;
         transform: scale(0.99);
     }
-    
+
     .order-card-mobile .row {
         margin: 0 -5px !important;
     }
-    
+
     .order-card-mobile .col-6,
     .order-card-mobile .col-12 {
         padding: 4px 5px !important;
     }
-    
+
     .order-card-mobile .label {
         font-size: 10px;
         color: #858796;
@@ -730,26 +913,26 @@ input[type="number"]::-webkit-outer-spin-button {
         display: block;
         margin-bottom: 2px;
     }
-    
+
     .order-card-mobile .value {
         font-size: 13px;
         color: #2d3748;
         font-weight: 500;
         word-break: break-word;
     }
-    
+
     .order-card-mobile .badge {
         font-size: 10px !important;
         padding: 3px 8px !important;
     }
-    
+
     .order-card-mobile .btn-group-mobile {
         display: flex;
         gap: 5px;
         margin-top: 10px;
         flex-wrap: wrap;
     }
-    
+
     .order-card-mobile .btn-group-mobile .btn {
         flex: 1;
         min-width: 30%;
@@ -762,7 +945,7 @@ input[type="number"]::-webkit-outer-spin-button {
     .card-view-mobile {
         display: none !important;
     }
-    
+
     .table-view-desktop {
         display: block !important;
     }
@@ -815,7 +998,7 @@ input[type="number"]::-webkit-outer-spin-button {
         top: -5px !important;
         right: -5px !important;
         border: 2px solid #fff !important;
-        background: #E11835 !important;
+        background: #dc2626 !important;
         color: #fff !important;
         font-weight: 700 !important;
         border-radius: 50% !important;
@@ -879,18 +1062,18 @@ input[type="number"]::-webkit-outer-spin-button {
         gap: 10px !important;
         padding: 15px !important;
     }
-    
+
     .section-header h1 {
         font-size: 1.1rem !important;
         width: 100% !important;
     }
-    
+
     .section-header .ml-auto {
         margin-left: 0 !important;
         width: 100% !important;
         justify-content: space-between !important;
     }
-    
+
     .section-header .breadcrumb {
         font-size: 12px !important;
     }
@@ -904,12 +1087,12 @@ input[type="number"]::-webkit-outer-spin-button {
         gap: 10px !important;
         padding: 12px 15px !important;
     }
-    
+
     .card-header .ml-auto {
         margin-left: 0 !important;
         width: 100% !important;
     }
-    
+
     .card-header .btn {
         width: 100% !important;
     }
@@ -922,7 +1105,7 @@ input[type="number"]::-webkit-outer-spin-button {
         align-items: center !important;
         gap: 10px !important;
     }
-    
+
     .card-footer .text-muted {
         text-align: center !important;
     }
@@ -967,6 +1150,7 @@ input[type="number"]::-webkit-outer-spin-button {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -999,7 +1183,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .badge-warning {
-    background-color: #E11835 !important;
+    background-color: #f97316 !important;
     color: #1a1a1a !important;
 }
 
@@ -1009,7 +1193,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .badge-danger {
-    background-color: #E11835 !important;
+    background-color: #dc2626 !important;
     color: #ffffff !important;
 }
 
@@ -1057,11 +1241,11 @@ input[type="number"]::-webkit-outer-spin-button {
     .card-header .d-flex .input-group {
         display: none !important;
     }
-    
+
     .table-responsive {
         overflow: visible !important;
     }
-    
+
     .table-responsive .table {
         min-width: 100% !important;
     }
@@ -1081,7 +1265,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 /* Make ONLY the table row inside the wrapper scrollable */
-.dataTables_wrapper > .row:nth-child(2) {
+.dataTables_wrapper>.row:nth-child(2) {
     overflow-x: auto !important;
     overflow-y: visible !important;
     width: 100% !important;
@@ -1093,25 +1277,28 @@ input[type="number"]::-webkit-outer-spin-button {
     margin-right: 0 !important;
 }
 
-.dataTables_wrapper > .row:nth-child(2) > [class*="col-"] {
+.dataTables_wrapper>.row:nth-child(2)>[class*="col-"] {
     padding-left: 0 !important;
     padding-right: 0 !important;
     max-width: 100% !important;
 }
 
 /* Apply scrollbar styles to the new scrollable area */
-.dataTables_wrapper > .row:nth-child(2)::-webkit-scrollbar {
+.dataTables_wrapper>.row:nth-child(2)::-webkit-scrollbar {
     height: 7px !important;
 }
-.dataTables_wrapper > .row:nth-child(2)::-webkit-scrollbar-track {
+
+.dataTables_wrapper>.row:nth-child(2)::-webkit-scrollbar-track {
     background: #f1f5f9 !important;
     border-radius: 4px !important;
 }
-.dataTables_wrapper > .row:nth-child(2)::-webkit-scrollbar-thumb {
+
+.dataTables_wrapper>.row:nth-child(2)::-webkit-scrollbar-thumb {
     background: #328A9A !important;
     border-radius: 4px !important;
 }
-.dataTables_wrapper > .row:nth-child(2)::-webkit-scrollbar-thumb:hover {
+
+.dataTables_wrapper>.row:nth-child(2)::-webkit-scrollbar-thumb:hover {
     background: #256b77 !important;
 }
 
@@ -1151,10 +1338,12 @@ input[type="number"]::-webkit-outer-spin-button {
         opacity: 0;
         margin-top: -18px;
     }
+
     70% {
         opacity: 1;
         margin-top: 2px;
     }
+
     100% {
         opacity: 1;
         margin-top: 0;
@@ -1166,10 +1355,12 @@ input[type="number"]::-webkit-outer-spin-button {
         opacity: 0;
         margin-bottom: -18px;
     }
+
     70% {
         opacity: 1;
         margin-bottom: 2px;
     }
+
     100% {
         opacity: 1;
         margin-bottom: 0;
@@ -1193,9 +1384,9 @@ input[type="number"]::-webkit-outer-spin-button {
    GLOBAL FORM FIELDS FOCUS HIGHLIGHT (THEME COLORED BORDER)
    ======================================================== */
 :root {
-    --form-focus-border: #E11835;
-    --form-focus-glow: rgba(225, 24, 53, 0.22);
-    --form-focus-hover: #E11835;
+    --form-focus-border: #328A9A;
+    --form-focus-glow: rgba(50, 138, 154, 0.22);
+    --form-focus-hover: rgba(50, 138, 154, 0.45);
     --form-focus-bg: #ffffff;
 }
 
@@ -1210,9 +1401,7 @@ select,
 textarea,
 select.form-control,
 textarea.form-control,
-input.form-control,
-input[type="file"] {
-    border-color: var(--form-focus-border) !important;
+input.form-control {
     transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease !important;
 }
 
@@ -1231,7 +1420,7 @@ textarea:hover:not(:focus) {
 .form-control:focus,
 .form-control:focus-within,
 .custom-select:focus,
-.custom-file-input:focus ~ .custom-file-label,
+.custom-file-input:focus~.custom-file-label,
 .pp-input:focus,
 .pp-select:focus,
 input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="hidden"]):not([type="range"]):not([type="color"]):not([type="file"]):focus,
@@ -1251,6 +1440,7 @@ input.form-control:focus {
     box-shadow: 0 0 0 3.5px var(--form-focus-glow) !important;
     border-radius: 8px;
 }
+
 .input-group:focus-within .form-control,
 .input-group:focus-within .input-group-text,
 .input-group:focus-within .input-group-prepend .input-group-text,
@@ -1263,12 +1453,7 @@ input.form-control:focus {
 .select2-container--default .select2-selection--multiple,
 .select2-container .select2-selection--single,
 .select2-container .select2-selection--multiple {
-    border-color: var(--form-focus-border) !important;
     transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.selectric {
-    border-color: var(--form-focus-border) !important;
 }
 
 .select2-container--default:hover .select2-selection--single:not(:focus),
@@ -1304,18 +1489,18 @@ input.form-control:focus {
 }
 
 /* Custom Checkboxes and Radios */
-.custom-control-input:focus ~ .custom-control-label::before {
+.custom-control-input:focus~.custom-control-label::before {
     border-color: var(--form-focus-border) !important;
     box-shadow: 0 0 0 3.5px var(--form-focus-glow) !important;
 }
 
-.custom-control-input:checked ~ .custom-control-label::before {
+.custom-control-input:checked~.custom-control-label::before {
     border-color: var(--form-focus-border) !important;
     background-color: var(--form-focus-border) !important;
 }
 
 /* Bootstrap Switches */
-.custom-switch-input:focus ~ .custom-switch-indicator {
+.custom-switch-input:focus~.custom-switch-indicator {
     border-color: var(--form-focus-border) !important;
     box-shadow: 0 0 0 3.5px var(--form-focus-glow) !important;
 }
@@ -1329,6 +1514,6 @@ input.form-control:focus {
 /* Keep Invalid / Validation State Intact */
 .form-control.is-invalid:focus,
 .was-validated .form-control:invalid:focus {
-    border-color: #E11835 !important;
-    box-shadow: 0 0 0 3.5px rgba(225, 24, 53, 0.20) !important;
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 3.5px rgba(220, 38, 38, 0.20) !important;
 }

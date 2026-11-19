@@ -203,18 +203,6 @@
     .link-card:active {
         transform: translateY(-1px);
     }
-    .link-card .lc-bar {
-        width: 4px;
-        flex-shrink: 0;
-        align-self: stretch;
-    }
-    .link-card.purple .lc-bar { background: #6366f1; }
-    .link-card.green .lc-bar { background: #15803d; }
-    .link-card.blue .lc-bar { background: #06b6d4; }
-    .link-card.blue .lc-bar { background: var(--pp-blue); }
-    .link-card.dark .lc-bar { background: #475569; }
-    .link-card.rose .lc-bar { background: #E11835; }
-
     .link-card .lc-body {
         flex: 1;
         display: flex;
@@ -452,7 +440,6 @@
                 </div>
                 <div class="link-grid">
                     <a href="{{ route('admin.reports.stock') }}" class="link-card purple">
-                        <div class="lc-bar"></div>
                         <div class="lc-body">
                             <div class="lc-icon"><i class="fas fa-warehouse"></i></div>
                             <div class="lc-text">
@@ -463,7 +450,6 @@
                         </div>
                     </a>
                     <a href="{{ route('admin.reports.purchase') }}" class="link-card green">
-                        <div class="lc-bar"></div>
                         <div class="lc-body">
                             <div class="lc-icon"><i class="fas fa-file-invoice"></i></div>
                             <div class="lc-text">
@@ -474,7 +460,6 @@
                         </div>
                     </a>
                     <a href="{{ route('admin.reports.product-purchase-history') }}" class="link-card blue">
-                        <div class="lc-bar"></div>
                         <div class="lc-body">
                             <div class="lc-icon"><i class="fas fa-history"></i></div>
                             <div class="lc-text">
@@ -485,7 +470,6 @@
                         </div>
                     </a>
                     <a href="{{ route('admin.reports.low-stock') }}" class="link-card blue">
-                        <div class="lc-bar"></div>
                         <div class="lc-body">
                             <div class="lc-icon"><i class="fas fa-exclamation-circle"></i></div>
                             <div class="lc-text">
@@ -496,7 +480,6 @@
                         </div>
                     </a>
                     <a href="{{ route('admin.reports.audit') }}" class="link-card dark">
-                        <div class="lc-bar"></div>
                         <div class="lc-body">
                             <div class="lc-icon"><i class="fas fa-user-shield"></i></div>
                             <div class="lc-text">
@@ -507,7 +490,6 @@
                         </div>
                     </a>
                     <a href="{{ route('admin.reports.orders') }}" class="link-card rose">
-                        <div class="lc-bar"></div>
                         <div class="lc-body">
                             <div class="lc-icon"><i class="fas fa-shopping-cart"></i></div>
                             <div class="lc-text">

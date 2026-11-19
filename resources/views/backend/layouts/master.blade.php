@@ -102,6 +102,40 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
   <link rel="stylesheet" href="{{ asset('backend/assets/modules/datatables/Responsive-2.2.1/css/responsive.bootstrap4.css') }}">
+  <style>
+    /* Universal Crisp White DataTables Headers across all backend pages */
+    .table thead th,
+    .table thead th *,
+    .dataTable thead th,
+    .dataTable thead th *,
+    table.dataTable thead th,
+    table.dataTable thead th *,
+    table[id$="-table"] thead th,
+    table[id$="-table"] thead th * {
+      color: #ffffff !important;
+    }
+    table.dataTable thead .sorting:before,
+    table.dataTable thead .sorting_asc:before,
+    table.dataTable thead .sorting_desc:before,
+    table.dataTable thead .sorting:after,
+    table.dataTable thead .sorting_asc:after,
+    table.dataTable thead .sorting_desc:after,
+    .dataTable thead .sorting:before,
+    .dataTable thead .sorting_asc:before,
+    .dataTable thead .sorting_desc:before,
+    .dataTable thead .sorting:after,
+    .dataTable thead .sorting_asc:after,
+    .dataTable thead .sorting_desc:after {
+      color: #ffffff !important;
+      opacity: 0.75 !important;
+    }
+    table.dataTable thead .sorting_asc:before,
+    table.dataTable thead .sorting_desc:after,
+    .dataTable thead .sorting_asc:before,
+    .dataTable thead .sorting_desc:after {
+      opacity: 1 !important;
+    }
+  </style>
 </head>
 
 <body class="layout-3">

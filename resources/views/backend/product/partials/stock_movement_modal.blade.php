@@ -27,7 +27,7 @@
     {{-- Lifetime & Real-time KPI Ribbon --}}
     <div class="row mb-3">
         <div class="col-6 col-md-3 mb-2 mb-md-0">
-            <div class="p-3 bg-white rounded shadow-sm text-center" style="border-left: 4px solid #15803d; border: 1px solid #e5e7eb; border-left-width: 4px;">
+            <div class="p-3 bg-white rounded shadow-sm text-center" style="border: 1px solid #e5e7eb;">
                 <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 10px;">Lifetime Inflow</div>
                 <div class="h5 mb-0 font-weight-bold text-success mt-1" id="kpi-lifetime-inflow">
                     +{{ number_format($lifetimeInflow) }}
@@ -36,7 +36,7 @@
             </div>
         </div>
         <div class="col-6 col-md-3 mb-2 mb-md-0">
-            <div class="p-3 bg-white rounded shadow-sm text-center" style="border-left: 4px solid #E11835; border: 1px solid #e5e7eb; border-left-width: 4px;">
+            <div class="p-3 bg-white rounded shadow-sm text-center" style="border: 1px solid #e5e7eb;">
                 <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 10px;">Lifetime Outflow</div>
                 <div class="h5 mb-0 font-weight-bold text-danger mt-1" id="kpi-lifetime-outflow">
                     -{{ number_format($lifetimeOutflow) }}
@@ -45,7 +45,7 @@
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="p-3 bg-white rounded shadow-sm text-center" style="border-left: 4px solid #2563eb; border: 1px solid #e5e7eb; border-left-width: 4px;">
+            <div class="p-3 bg-white rounded shadow-sm text-center" style="border: 1px solid #e5e7eb;">
                 <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 10px;">Period Inflow</div>
                 <div class="h5 mb-0 font-weight-bold text-primary mt-1" id="kpi-period-inflow">
                     {{ number_format($velocity['inflow_qty']) }}
@@ -54,7 +54,7 @@
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="p-3 bg-white rounded shadow-sm text-center" style="border-left: 4px solid #E11835; border: 1px solid #e5e7eb; border-left-width: 4px;">
+            <div class="p-3 bg-white rounded shadow-sm text-center" style="border: 1px solid #e5e7eb;">
                 <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 10px;">Period Sold</div>
                 <div class="h5 mb-0 font-weight-bold text-warning mt-1" id="kpi-period-sold">
                     {{ number_format($velocity['sold_qty']) }}

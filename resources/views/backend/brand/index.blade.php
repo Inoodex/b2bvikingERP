@@ -4,12 +4,12 @@
 @push('css')
 <style>
     :root {
-        --pp-blue: #2563eb;
-        --pp-blue-bright: #60a5fa;
-        --pp-blue-deep: #1d4ed8;
-        --pp-blue-soft: rgba(37, 99, 235, 0.08);
+        --pp-amber: #d4a24e;
+        --pp-amber-bright: #ecc78b;
+        --pp-amber-deep: #b8852a;
+        --pp-amber-soft: rgba(212, 162, 78, 0.08);
         --pp-border: rgba(11, 17, 32, 0.07);
-        --pp-border-hover: rgba(37, 99, 235, 0.15);
+        --pp-border-hover: rgba(212, 162, 78, 0.15);
         --pp-ink: #161e2e;
         --pp-ink-soft: #2d3748;
         --pp-muted: #6b788e;
@@ -17,7 +17,7 @@
         --pp-radius-md: 14px;
         --pp-radius-lg: 20px;
         --pp-shadow-card: 0 1px 3px rgba(11,17,32,0.04), 0 8px 20px -12px rgba(11,17,32,0.12);
-        --pp-shadow-card-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(37, 99, 235, 0.06);
+        --pp-shadow-card-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(212,162,78,0.06);
     }
 
     .pp-header {
@@ -50,9 +50,9 @@
         justify-content: center;
         border-radius: 10px;
         font-size: 14px;
-        color: #ffffff;
-        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue));
-        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+        color: #1a1306;
+        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber));
+        box-shadow: 0 4px 14px rgba(212, 162, 78, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
     }
     .pp-btn {
         border: none !important;
@@ -103,7 +103,7 @@
         align-items: center;
         gap: 8px;
     }
-    .pp-card-header h4 i { color: var(--pp-blue); }
+    .pp-card-header h4 i { color: var(--pp-amber); }
 
     #category-table_wrapper .dataTables_length label,
     #category-table_wrapper .dataTables_filter label,
@@ -128,8 +128,8 @@
     #category-table_wrapper .dataTables_filter input:focus,
     #brand-table_wrapper .dataTables_length select:focus,
     #brand-table_wrapper .dataTables_filter input:focus {
-        border-color: var(--pp-blue) !important;
-        box-shadow: 0 0 0 3px var(--pp-blue-soft) !important;
+        border-color: var(--pp-amber) !important;
+        box-shadow: 0 0 0 3px var(--pp-amber-soft) !important;
         outline: none;
     }
     #category-table,
@@ -141,8 +141,8 @@
     }
     #category-table thead th,
     #brand-table thead th {
-        background: linear-gradient(135deg, #fafbfc, #f4f5f8);
-        color: var(--pp-ink-soft) !important;
+        background: #2563eb !important;
+        color: #ffffff !important;
         font-weight: 700;
         font-size: 11px;
         text-transform: uppercase;
@@ -150,6 +150,16 @@
         padding: 12px 14px !important;
         border: none !important;
         border-bottom: 2px solid var(--pp-border) !important;
+    }
+    #category-table thead th *,
+    #brand-table thead th *,
+    #brand-table thead .sorting:before,
+    #brand-table thead .sorting_asc:before,
+    #brand-table thead .sorting_desc:before,
+    #brand-table thead .sorting:after,
+    #brand-table thead .sorting_asc:after,
+    #brand-table thead .sorting_desc:after {
+        color: #ffffff !important;
     }
     #category-table tbody td,
     #brand-table tbody td {
@@ -162,7 +172,7 @@
     }
     #category-table tbody tr:hover td,
     #brand-table tbody tr:hover td {
-        background: var(--pp-blue-soft);
+        background: var(--pp-amber-soft);
     }
     #category-table tbody tr:nth-child(even) td,
     #brand-table tbody tr:nth-child(even) td {
@@ -170,7 +180,7 @@
     }
     #category-table tbody tr:nth-child(even):hover td,
     #brand-table tbody tr:nth-child(even):hover td {
-        background: var(--pp-blue-soft);
+        background: var(--pp-amber-soft);
     }
     #category-table_wrapper .dataTables_info,
     #brand-table_wrapper .dataTables_info {
@@ -197,16 +207,16 @@
     }
     #category-table_wrapper .paginate_button:hover,
     #brand-table_wrapper .paginate_button:hover {
-        border-color: var(--pp-blue) !important;
-        background: var(--pp-blue-soft) !important;
-        color: var(--pp-blue-deep) !important;
+        border-color: var(--pp-amber) !important;
+        background: var(--pp-amber-soft) !important;
+        color: var(--pp-amber-deep) !important;
     }
     #category-table_wrapper .paginate_button.current,
     #brand-table_wrapper .paginate_button.current {
-        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue)) !important;
-        border-color: var(--pp-blue) !important;
-        color: #ffffff !important;
-        box-shadow: 0 4px 14px -3px rgba(37, 99, 235, 0.35);
+        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber)) !important;
+        border-color: var(--pp-amber) !important;
+        color: #1a1306 !important;
+        box-shadow: 0 4px 14px -3px rgba(212, 162, 78, 0.35);
     }
     #category-table_wrapper .paginate_button.disabled,
     #brand-table_wrapper .paginate_button.disabled {
@@ -229,9 +239,9 @@
         transition: all 0.25s ease !important;
     }
     .pp-status-switch .custom-switch-input:checked ~ .custom-switch-indicator {
-        background: linear-gradient(135deg, var(--pp-blue-bright), var(--pp-blue)) !important;
-        border-color: var(--pp-blue) !important;
-        box-shadow: 0 2px 8px -2px rgba(37, 99, 235, 0.3);
+        background: linear-gradient(135deg, var(--pp-amber-bright), var(--pp-amber)) !important;
+        border-color: var(--pp-amber) !important;
+        box-shadow: 0 2px 8px -2px rgba(212, 162, 78, 0.3);
     }
 
     @media (min-width: 768px) and (max-width: 991.98px) {

@@ -4,10 +4,10 @@
 @push('css')
 <style>
     :root {
-        --pp-blue: #2563eb;
-        --pp-blue-bright: #60a5fa;
-        --pp-blue-deep: #1d4ed8;
-        --pp-blue-soft: rgba(37, 99, 235, 0.08);
+        --pp-amber: #d4a24e;
+        --pp-amber-bright: #ecc78b;
+        --pp-amber-deep: #b8852a;
+        --pp-amber-soft: rgba(212, 162, 78, 0.08);
         --pp-teal: #328A9A;
         --pp-teal-soft: rgba(50, 138, 154, 0.12);
         --pp-border: rgba(11, 17, 32, 0.07);
@@ -52,9 +52,9 @@
         justify-content: center;
         border-radius: 10px;
         font-size: 14px;
-        color: #ffffff;
-        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue));
-        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+        color: #1a1306;
+        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber));
+        box-shadow: 0 4px 14px rgba(212, 162, 78, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
     }
     .pp-btn {
         border: none !important;
@@ -69,12 +69,12 @@
     }
     .pp-btn:hover { transform: translateY(-2px); }
     .pp-btn:active { transform: translateY(0) scale(0.97); }
-    .pp-btn-blue {
-        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue-deep)) !important;
-        color: #ffffff !important;
-        box-shadow: 0 4px 14px -4px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255,255,255,0.25);
+    .pp-btn-amber {
+        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep)) !important;
+        color: #1a1306 !important;
+        box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.45), inset 0 1px 0 rgba(255,255,255,0.25);
     }
-    .pp-btn-blue:hover { filter: brightness(1.06); box-shadow: 0 8px 24px -6px rgba(37, 99, 235, 0.5); }
+    .pp-btn-amber:hover { filter: brightness(1.06); box-shadow: 0 8px 24px -6px rgba(212, 162, 78, 0.5); }
 
     .pp-card {
         border-radius: var(--pp-radius-md) !important;
@@ -105,7 +105,7 @@
         align-items: center;
         gap: 8px;
     }
-    .pp-card-header h4 i { color: var(--pp-blue); }
+    .pp-card-header h4 i { color: var(--pp-amber); }
 
     #subcategory-table_wrapper {
         padding: 4px 0 0;
@@ -169,8 +169,8 @@
         margin-bottom: 0 !important;
     }
     #subcategory-table thead th {
-        background: linear-gradient(135deg, #fafbfc, #f4f5f8);
-        color: var(--pp-ink-soft) !important;
+        background: #2563eb !important;
+        color: #ffffff !important;
         font-weight: 700;
         font-size: 11px;
         text-transform: uppercase;
@@ -181,6 +181,15 @@
         vertical-align: middle;
         white-space: nowrap;
     }
+    #subcategory-table thead th *,
+    #subcategory-table thead .sorting:before,
+    #subcategory-table thead .sorting_asc:before,
+    #subcategory-table thead .sorting_desc:before,
+    #subcategory-table thead .sorting:after,
+    #subcategory-table thead .sorting_asc:after,
+    #subcategory-table thead .sorting_desc:after {
+        color: #ffffff !important;
+    }
     #subcategory-table tbody td {
         padding: 11px 14px !important;
         vertical-align: middle;
@@ -190,13 +199,13 @@
         transition: background 0.15s;
     }
     #subcategory-table tbody tr:hover td {
-        background: var(--pp-blue-soft) !important;
+        background: var(--pp-amber-soft) !important;
     }
     #subcategory-table tbody tr:nth-child(even) td {
         background: var(--pp-surface);
     }
     #subcategory-table tbody tr:nth-child(even):hover td {
-        background: var(--pp-blue-soft) !important;
+        background: var(--pp-amber-soft) !important;
     }
 
     #subcategory-table .btn {
@@ -328,7 +337,7 @@
                 Sub Category
             </h1>
             <div>
-                <a href="{{ route('admin.sub-category.create') }}" class="btn pp-btn pp-btn-blue shadow-sm">
+                <a href="{{ route('admin.sub-category.create') }}" class="btn pp-btn pp-btn-amber shadow-sm">
                     <i class="fas fa-plus mr-1"></i> Create New
                 </a>
             </div>

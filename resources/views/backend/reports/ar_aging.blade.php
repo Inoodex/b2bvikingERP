@@ -42,7 +42,7 @@
         <!-- Executive KPI Metric Cards (Spacious 3-Column Grid) -->
         <div class="row mb-3">
             <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                <div class="card border-0 shadow-sm h-100 p-3 ar-card" style="border-left: 5px solid #4f46e5 !important;">
+                <div class="card border-0 shadow-sm h-100 p-3 ar-card">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <span class="text-uppercase text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">Total Outstanding Dues</span>
@@ -56,7 +56,7 @@
             </div>
 
             <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                <div class="card border-0 shadow-sm h-100 p-3 ar-card" style="border-left: 5px solid #15803d !important;">
+                <div class="card border-0 shadow-sm h-100 p-3 ar-card">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <span class="text-uppercase text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">Current (0-30 Days Dues)</span>
@@ -70,7 +70,7 @@
             </div>
 
             <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                <div class="card border-0 shadow-sm h-100 p-3 ar-card" style="border-left: 5px solid #E11835 !important;">
+                <div class="card border-0 shadow-sm h-100 p-3 ar-card">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <span class="text-uppercase text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">31 - 60 Days Dues</span>
@@ -84,7 +84,7 @@
             </div>
 
             <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
-                <div class="card border-0 shadow-sm h-100 p-3 ar-card" style="border-left: 5px solid #06b6d4 !important;">
+                <div class="card border-0 shadow-sm h-100 p-3 ar-card">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <span class="text-uppercase text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">61 - 90 Days Dues</span>
@@ -98,7 +98,7 @@
             </div>
 
             <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
-                <div class="card border-0 shadow-sm h-100 p-3 ar-card" style="border-left: 5px solid #E11835 !important;">
+                <div class="card border-0 shadow-sm h-100 p-3 ar-card">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <span class="text-uppercase text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">90+ Days (Critical High Risk)</span>

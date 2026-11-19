@@ -421,10 +421,12 @@
         transform: translateY(-2px);
         box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08) !important;
     }
-    .border-indicator-primary { border-left: 4px solid #28549e !important; }
-    .border-indicator-info    { border-left: 4px solid #17a2b8 !important; }
-    .border-indicator-success { border-left: 4px solid #28a745 !important; }
-    .border-indicator-danger  { border-left: 4px solid #dc3545 !important; }
+    .border-indicator-primary,
+    .border-indicator-info,
+    .border-indicator-success,
+    .border-indicator-danger {
+        border-left: none !important;
+    }
 
     .stat-icon-circle {
         width: 36px;

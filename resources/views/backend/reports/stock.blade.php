@@ -610,9 +610,14 @@
        LARGE DESKTOPS (≥ 1400px)
        ============================ */
     @media (min-width: 1400px) {
-        .sr-stat-value { font-size: 20px; }
-        .sr-stat-icon { width: 48px; height: 48px; font-size: 18px; }
-        .sr-stat-card { padding: 22px 24px; gap: 18px; }
+        .sr-stat-value { font-size: 18px; margin: 4px 0; }
+        .sr-stat-icon { width: 36px; height: 36px; min-width: 36px; font-size: 14px; }
+        .sr-stat-card {
+            min-height: 124px;
+            padding: 12px 16px;
+            gap: 8px;
+            justify-content: flex-start;
+        }
         #table-stock { font-size: 13px; }
         #table-stock thead th { font-size: 11px; padding: 14px 18px; }
         #table-stock tbody td { padding: 14px 18px; }

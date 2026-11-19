@@ -84,7 +84,6 @@
         vertical-align: middle !important;
     }
     .cs-enterprise-card {
-        border-left: 4px solid #2563eb !important;
         background: #ffffff;
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.04);
