@@ -236,17 +236,17 @@
         {{-- KPI 1: Total Outstanding Payables --}}
         <div class="col-12 col-md-4 mb-3 mb-md-0">
             <div class="modern-kpi-card">
-                <div class="kpi-top-stripe" style="background: linear-gradient(90deg, #dc2626, #f87171);"></div>
+                <div class="kpi-top-stripe" style="background: linear-gradient(90deg, #E11835, #f87171);"></div>
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <span class="text-uppercase font-weight-bold" style="font-size: 11px; letter-spacing: 0.06em; color: #64748b;">
                             Total Outstanding Payables
                         </span>
-                        <div class="kpi-value" style="color: #dc2626;">
+                        <div class="kpi-value" style="color: #E11835;">
                             kr. {{ number_format($summary['total_payables'], 2) }}
                         </div>
                     </div>
-                    <div class="kpi-icon-circle" style="background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2;">
+                    <div class="kpi-icon-circle" style="background: #fef2f2; color: #E11835; border: 1px solid #fee2e2;">
                         <i class="fas fa-file-invoice-dollar"></i>
                     </div>
                 </div>
@@ -259,7 +259,7 @@
         {{-- KPI 2: Suppliers with Dues --}}
         <div class="col-12 col-md-4 mb-3 mb-md-0">
             <div class="modern-kpi-card">
-                <div class="kpi-top-stripe" style="background: linear-gradient(90deg, #f97316, #fbbf24);"></div>
+                <div class="kpi-top-stripe" style="background: linear-gradient(90deg, #E11835, #fbbf24);"></div>
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <span class="text-uppercase font-weight-bold" style="font-size: 11px; letter-spacing: 0.06em; color: #64748b;">
@@ -323,7 +323,7 @@
                 {{-- Sleek Segmented Switcher (Zero-Reload Live Filter) --}}
                 <div class="segmented-filter-nav">
                     <button type="button" class="segmented-btn active" data-filter="has_due">
-                        <span class="filter-status-dot" style="background: #dc2626;"></span>
+                        <span class="filter-status-dot" style="background: #E11835;"></span>
                         Has Dues
                         <span class="filter-count-badge bg-danger text-white">{{ $summary['active_dues'] }}</span>
                     </button>

@@ -138,7 +138,7 @@
     }
 
     .badge-danger {
-        background: #dc2626 !important;
+        background: #E11835 !important;
         color: #ffffff !important;
     }
 
@@ -148,7 +148,7 @@
     }
 
     .badge-warning {
-        background: #f97316 !important;
+        background: #E11835 !important;
         color: #1a1a2e !important;
     }
 
@@ -281,16 +281,16 @@
     }
 
     .btn-action-delete {
-        background: #dc2626 !important;
+        background: #E11835 !important;
         color: #fff !important;
     }
 
     .btn-action-delete:hover {
-        background: #c0392b !important;
+        background: #E11835 !important;
     }
 
     .btn-action-default {
-        background: #f97316 !important;
+        background: #E11835 !important;
         color: #1a1a2e !important;
     }
 
@@ -615,9 +615,9 @@
     }
 
     @keyframes pulse-red {
-        0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
-        70% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        0% { box-shadow: 0 0 0 0 rgba(225, 24, 53, 0.4); }
+        70% { box-shadow: 0 0 0 6px rgba(225, 24, 53, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(225, 24, 53, 0); }
     }
 </style>
 @endpush

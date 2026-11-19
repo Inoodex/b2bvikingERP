@@ -82,7 +82,7 @@
 
     /* Red-styled Reset Button ("reset ta red ar moto") */
     .btn-filter-reset {
-        color: #dc2626 !important;
+        color: #E11835 !important;
         background-color: #fef2f2 !important;
         border: 1.5px solid #fecaca !important;
         border-radius: 8px !important;
@@ -94,15 +94,15 @@
         gap: 6px !important;
         transition: all 0.2s ease !important;
         outline: none !important;
-        box-shadow: 0 1px 2px rgba(239, 68, 68, 0.05) !important;
+        box-shadow: 0 1px 2px rgba(225, 24, 53, 0.05) !important;
     }
     .btn-filter-reset:hover,
     .btn-filter-reset:focus,
     .btn-filter-reset:active {
         color: #ffffff !important;
-        background-color: #dc2626 !important;
-        border-color: #dc2626 !important;
-        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25) !important;
+        background-color: #E11835 !important;
+        border-color: #E11835 !important;
+        box-shadow: 0 4px 12px rgba(225, 24, 53, 0.25) !important;
         transform: translateY(-1px) !important;
     }
     .btn-filter-reset i {
@@ -268,9 +268,9 @@
         box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35) !important;
     }
     .matrix-seg-btn.seg-oos.active {
-        background: #dc2626 !important;
+        background: #E11835 !important;
         color: #ffffff !important;
-        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.35) !important;
+        box-shadow: 0 2px 6px rgba(225, 24, 53, 0.35) !important;
     }
     .matrix-seg-btn.seg-auto.active {
         background: #475569 !important;
@@ -371,9 +371,9 @@
         border: 1px solid rgba(16, 185, 129, 0.35);
     }
     .matrix-status-red {
-        background: rgba(239, 68, 68, 0.12);
-        color: #dc2626;
-        border: 1px solid rgba(239, 68, 68, 0.35);
+        background: rgba(225, 24, 53, 0.12);
+        color: #E11835;
+        border: 1px solid rgba(225, 24, 53, 0.35);
     }
     .matrix-status-slate {
         background: rgba(100, 116, 139, 0.15);
@@ -494,7 +494,7 @@
     }
     .audit-drawer .drawer-close-btn:hover {
         background: #fee2e2 !important;
-        color: #dc2626 !important;
+        color: #E11835 !important;
         border-color: #fca5a5 !important;
     }
 
@@ -611,9 +611,9 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0 b2b-metric-column">
-            <div class="card border-0 shadow-sm mb-0" style="border-radius: 14px; background: #ffffff; border-left: 4px solid #dc2626 !important;">
+            <div class="card border-0 shadow-sm mb-0" style="border-radius: 14px; background: #ffffff; border-left: 4px solid #E11835 !important;">
                 <div class="card-body p-3 d-flex align-items-center">
-                    <div class="mr-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(239, 68, 68, 0.12); display: flex; align-items: center; justify-content: center; color: #dc2626;">
+                    <div class="mr-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(225, 24, 53, 0.12); display: flex; align-items: center; justify-content: center; color: #E11835;">
                         <i class="fas fa-ban" style="font-size: 20px;"></i>
                     </div>
                     <div>
@@ -1406,7 +1406,7 @@
                 text: "This customer or outlet will immediately revert to standard warehouse inventory.",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "#dc2626",
+                confirmButtonColor: "#E11835",
                 cancelButtonColor: "#64748b",
                 confirmButtonText: "<i class='fas fa-trash-alt mr-1'></i> Yes, remove it!",
                 cancelButtonText: "Cancel",

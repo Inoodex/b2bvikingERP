@@ -168,7 +168,7 @@
   height: 30px;
   border-radius: 8px;
   background: #fee2e2;
-  color: #dc2626;
+  color: #E11835;
   border: none;
   display: flex;
   align-items: center;
@@ -178,7 +178,7 @@
   flex-shrink: 0;
 }
 .cart-item-remove-btn:hover {
-  background: #dc2626;
+  background: #E11835;
   color: #ffffff;
 }
 
@@ -437,7 +437,7 @@ function renderDrawerItems() {
     $list.html(`
       <div class="cart-drawer-empty">
         <div class="empty-icon-circle">
-          <i class="fas ${emptyIcon} fa-2x" style="color: ${isBooking ? '#f97316' : '#2563eb'};"></i>
+          <i class="fas ${emptyIcon} fa-2x" style="color: ${isBooking ? '#E11835' : '#2563eb'};"></i>
         </div>
         <h6 class="font-weight-bold text-dark">Your ${isBooking ? 'Procurement' : 'Sales Quotation'} Cart is Empty</h6>
         <p class="text-muted small">Select products from the catalog to add them to this list.</p>

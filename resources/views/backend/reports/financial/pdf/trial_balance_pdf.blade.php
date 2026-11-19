@@ -25,7 +25,7 @@
         .text-center { text-align: center; }
         .text-success { color: #276749; font-weight: bold; }
         .text-info { color: #2b6cb0; font-weight: bold; }
-        .text-danger { color: #c53030; font-weight: bold; }
+        .text-danger { color: #E11835; font-weight: bold; }
         .font-bold { font-weight: bold; }
 
         .badge-type { font-size: 7pt; text-transform: uppercase; padding: 2px 5px; background: #edf2f7; border: 1px solid #cbd5e0; border-radius: 3px; color: #4a5568; }

@@ -2,6 +2,71 @@
 
 @section('title', 'COD Collections & Handover Management')
 
+@push('css')
+<style>
+  .cod-ledger-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .cod-ledger-title {
+    flex: 1 1 340px;
+    min-width: 0;
+    line-height: 1.4;
+  }
+
+  .cod-ledger-filters {
+    display: flex;
+    flex: 1 1 480px;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .cod-ledger-filters select {
+    flex: 0 1 220px;
+    width: 220px;
+    min-width: 180px;
+    margin-right: 0 !important;
+  }
+
+  .cod-ledger-filters input {
+    flex: 1 1 220px;
+    width: auto;
+    min-width: 0;
+    margin-right: 0 !important;
+  }
+
+  .cod-ledger-filters button {
+    flex: 0 0 44px;
+  }
+
+  @media (max-width: 479.98px) {
+    .cod-ledger-filters {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 44px;
+      width: 100%;
+    }
+
+    .cod-ledger-filters select {
+      grid-column: 1 / -1;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .cod-ledger-filters input {
+      grid-column: 1;
+      width: 100%;
+    }
+
+    .cod-ledger-filters button {
+      grid-column: 2;
+    }
+  }
+</style>
+@endpush
+
 @section('content')
 <section class="section">
   <div class="section-header d-flex justify-content-between align-items-center">
@@ -91,9 +156,9 @@
 
     {{-- Collections Table Card --}}
     <div class="card shadow-sm border-0">
-      <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
-        <h5 class="mb-0 font-weight-bold text-dark"><i class="fas fa-list mr-2 text-primary"></i> COD Delivery Runs & Cash Handover Ledger</h5>
-        <form method="GET" action="{{ route('admin.payments.cod.index') }}" class="form-inline">
+      <div class="card-header cod-ledger-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+        <h5 class="cod-ledger-title mb-0 font-weight-bold text-dark"><i class="fas fa-list mr-2 text-primary"></i> COD Delivery Runs & Cash Handover Ledger</h5>
+        <form method="GET" action="{{ route('admin.payments.cod.index') }}" class="form-inline cod-ledger-filters">
           <select name="status" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
             <option value="">-- All Statuses --</option>
             <option value="pending_dispatch" {{ request('status') === 'pending_dispatch' ? 'selected' : '' }}>Pending Dispatch</option>

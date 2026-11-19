@@ -27,7 +27,7 @@
         .text-center { text-align: center; }
         .text-success { color: #276749; font-weight: bold; }
         .text-primary { color: #2b4c7e; font-weight: bold; }
-        .text-danger { color: #c53030; font-weight: bold; }
+        .text-danger { color: #E11835; font-weight: bold; }
         .font-bold { font-weight: bold; }
 
         .subtotal-row td { background-color: #edf2f7; font-size: 9pt; font-weight: bold; border-top: 1px solid #cbd5e0; border-bottom: 1px solid #cbd5e0; padding: 6px 8px; }

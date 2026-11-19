@@ -101,8 +101,8 @@ var myChart = new Chart(ctx, {
       backgroundColor: [
         '#191d21',
         '#15803d',
-        '#f97316',
-        '#dc2626',
+        '#E11835',
+        '#E11835',
         '#2563eb',
       ],
       label: 'Dataset 1'
@@ -138,8 +138,8 @@ var myChart = new Chart(ctx, {
       backgroundColor: [
         '#191d21',
         '#15803d',
-        '#f97316',
-        '#dc2626',
+        '#E11835',
+        '#E11835',
         '#2563eb',
       ],
       label: 'Dataset 1'

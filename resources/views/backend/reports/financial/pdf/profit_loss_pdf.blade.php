@@ -31,7 +31,7 @@
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .text-success { color: #276749; font-weight: bold; }
-        .text-danger { color: #c53030; font-weight: bold; }
+        .text-danger { color: #E11835; font-weight: bold; }
         .text-primary { color: #2b4c7e; font-weight: bold; }
         .font-bold { font-weight: bold; }
 

@@ -79,8 +79,8 @@
                         <div class="timeline-dot position-absolute d-flex align-items-center justify-content-center shadow-sm"
                              style="left: -30px; top: 4px; width: 24px; height: 24px; border-radius: 50%; font-size: 11px; z-index: 2;
                              @if($isApproved) background: #15803d; color: #fff;
-                             @elseif($isStepRejected) background: #dc2626; color: #fff;
-                             @elseif($isPending) background: #f97316; color: #1f2937; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
+                             @elseif($isStepRejected) background: #E11835; color: #fff;
+                             @elseif($isPending) background: #E11835; color: #1f2937; box-shadow: 0 0 0 3px rgba(225, 24, 53, 0.25) !important;
                              @else background: #cbd5e1; color: #64748b; @endif">
                             @if($isApproved)
                                 <i class="fas fa-check"></i>
@@ -140,7 +140,7 @@
                                     @endif
                                 </div>
                             @elseif($isPending)
-                                <div class="p-2 rounded mb-2 small text-dark" style="background: #fef9c3; border-left: 3px solid #f97316; font-size: 11px;">
+                                <div class="p-2 rounded mb-2 small text-dark" style="background: #fef9c3; border-left: 3px solid #E11835; font-size: 11px;">
                                     <i class="fas fa-info-circle text-warning mr-1"></i> Currently under review by assigned <strong>{{ $roleName }}</strong>.
                                 </div>
 

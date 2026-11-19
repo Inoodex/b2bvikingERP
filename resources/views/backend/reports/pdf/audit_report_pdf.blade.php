@@ -18,7 +18,7 @@
         .summary-cell .val { font-size: 13px; font-weight: bold; margin-top: 2px; color: #0f172a; }
         .val-primary { color: #2563eb; }
         .val-success { color: #15803d; }
-        .val-danger { color: #dc2626; }
+        .val-danger { color: #E11835; }
         .val-warning { color: #c2410c; }
 
         .section-title { font-size: 10px; font-weight: bold; margin: 10px 0 5px; padding: 3px 0; border-bottom: 1px solid #cbd5e1; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; }

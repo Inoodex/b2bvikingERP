@@ -65,7 +65,7 @@
                     <td><strong>{{ $item->product?->name }}</strong></td>
                     <td>{{ $item->variant?->name ?? '-' }}</td>
                     <td class="text-right" style="color: #15803d; font-weight: bold;">{{ number_format($item->accepted_qty, 2) }}</td>
-                    <td class="text-right" style="color: #b91c1c; font-weight: bold;">{{ number_format($item->rejected_qty, 2) }}</td>
+                    <td class="text-right" style="color: #E11835; font-weight: bold;">{{ number_format($item->rejected_qty, 2) }}</td>
                 </tr>
             @endforeach
         </tbody>

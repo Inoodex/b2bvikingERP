@@ -441,7 +441,7 @@
                 text: "Are you sure you want to cancel this draft stock transfer?",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "#dc2626",
+                confirmButtonColor: "#E11835",
                 cancelButtonColor: "#6c757d",
                 confirmButtonText: "Yes, Cancel Transfer!",
                 cancelButtonText: "Keep Draft"
@@ -537,7 +537,7 @@
                 text: 'Are you sure you want to remove this product from this draft transfer?',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#dc2626',
+                confirmButtonColor: '#E11835',
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Yes, Remove It!',
                 cancelButtonText: 'Cancel'

@@ -213,7 +213,7 @@
     .link-card.blue .lc-bar { background: #06b6d4; }
     .link-card.blue .lc-bar { background: var(--pp-blue); }
     .link-card.dark .lc-bar { background: #475569; }
-    .link-card.rose .lc-bar { background: #dc2626; }
+    .link-card.rose .lc-bar { background: #E11835; }
 
     .link-card .lc-body {
         flex: 1;
@@ -239,7 +239,7 @@
     .link-card.blue .lc-body .lc-icon { background: #06b6d4; }
     .link-card.blue .lc-body .lc-icon { background: var(--pp-blue); }
     .link-card.dark .lc-body .lc-icon { background: #475569; }
-    .link-card.rose .lc-body .lc-icon { background: #dc2626; }
+    .link-card.rose .lc-body .lc-icon { background: #E11835; }
     .link-card .lc-body .lc-text { flex: 1; min-width: 0; }
     .link-card .lc-body .lc-text .lc-title {
         font-size: 13px;
@@ -273,7 +273,7 @@
     .link-card.blue:hover .lc-body .lc-arrow { background: #06b6d4; color: #fff; }
     .link-card.blue:hover .lc-body .lc-arrow { background: var(--pp-blue); color: #ffffff; }
     .link-card.dark:hover .lc-body .lc-arrow { background: #475569; color: #fff; }
-    .link-card.rose:hover .lc-body .lc-arrow { background: #dc2626; color: #fff; }
+    .link-card.rose:hover .lc-body .lc-arrow { background: #E11835; color: #fff; }
 
     .link-card .lc-ripple {
         position: absolute;

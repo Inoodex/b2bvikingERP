@@ -19,7 +19,7 @@
 
         .summary-mini-table { width: 100%; border-collapse: collapse; }
         .summary-mini-table td { padding: 2px 0; font-size: 8pt; }
-        .summary-mini-table .total-line { border-top: 1px solid #cbd5e0; font-weight: bold; font-size: 8.5pt; color: #c53030; padding-top: 4px; }
+        .summary-mini-table .total-line { border-top: 1px solid #cbd5e0; font-weight: bold; font-size: 8.5pt; color: #E11835; padding-top: 4px; }
 
         .data-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
         .data-table th { background-color: #2b4c7e; color: #ffffff; font-size: 8pt; font-weight: bold; padding: 6px 7px; text-align: left; border: 1px solid #2b4c7e; }
@@ -30,7 +30,7 @@
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .font-bold { font-weight: bold; }
-        .text-danger { color: #c53030; font-weight: bold; }
+        .text-danger { color: #E11835; font-weight: bold; }
 
         .signature-table { width: 100%; margin-top: 40px; border-collapse: collapse; page-break-inside: avoid; }
         .signature-table td { width: 50%; text-align: center; vertical-align: bottom; }

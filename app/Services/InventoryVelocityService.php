@@ -151,7 +151,7 @@ class InventoryVelocityService
         } else {
             return [
                 'badge' => 'badge-danger',
-                'bg_color' => '#ef4444',
+                'bg_color' => '#E11835',
                 'icon' => 'fas fa-skull-crossbones text-danger',
                 'label' => 'Dead Stock Risk',
                 'advice' => 'Critical: Freeze Orders & Plan Clearance',

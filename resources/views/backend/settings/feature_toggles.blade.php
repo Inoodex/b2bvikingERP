@@ -88,9 +88,9 @@
       $categoryMeta = [
         'Procurement & Inventory' => ['icon' => 'fas fa-boxes', 'color' => '#2563eb', 'bg' => 'rgba(37, 99, 235, 0.12)'],
         'Communications'          => ['icon' => 'fas fa-envelope-open-text', 'color' => '#2563eb', 'bg' => 'rgba(37, 99, 235, 0.12)'],
-        'Sales & Credit Control'  => ['icon' => 'fas fa-hand-holding-usd', 'color' => '#f97316', 'bg' => 'rgba(249, 115, 22, 0.12)'],
+        'Sales & Credit Control'  => ['icon' => 'fas fa-hand-holding-usd', 'color' => '#E11835', 'bg' => 'rgba(225, 24, 53, 0.12)'],
         'Finance & Accounting'    => ['icon' => 'fas fa-book', 'color' => '#47c363', 'bg' => 'rgba(71, 195, 99, 0.12)'],
-        'Payment Gateways'        => ['icon' => 'fas fa-credit-card', 'color' => '#dc2626', 'bg' => 'rgba(252, 84, 75, 0.12)'],
+        'Payment Gateways'        => ['icon' => 'fas fa-credit-card', 'color' => '#E11835', 'bg' => 'rgba(252, 84, 75, 0.12)'],
       ];
     @endphp
 

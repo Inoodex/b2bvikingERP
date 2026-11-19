@@ -140,7 +140,7 @@
     }
 
     .badge-danger {
-        background: linear-gradient(135deg, #dc2626, #c0392b) !important;
+        background: linear-gradient(135deg, #E11835, #E11835) !important;
         color: #ffffff !important;
     }
 
@@ -150,7 +150,7 @@
     }
 
     .badge-warning {
-        background: linear-gradient(135deg, #f97316, #dda20a) !important;
+        background: linear-gradient(135deg, #E11835, #dda20a) !important;
         color: #1a1a2e !important;
     }
 
@@ -253,16 +253,16 @@
     }
 
     .btn-action-delete {
-        background: #dc2626 !important;
+        background: #E11835 !important;
         color: #fff !important;
     }
 
     .btn-action-delete:hover {
-        background: #c0392b !important;
+        background: #E11835 !important;
     }
 
     .btn-action-default {
-        background: #f97316 !important;
+        background: #E11835 !important;
         color: #1a1a2e !important;
     }
 

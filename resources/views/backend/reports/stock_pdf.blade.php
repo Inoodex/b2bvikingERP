@@ -163,7 +163,7 @@
         }
 
         .badge-ok { background: #dcfce7; color: #15803d; }
-        .badge-low { background: #fee2e2; color: #b91c1c; }
+        .badge-low { background: #fee2e2; color: #E11835; }
 
         /* Grand Total Row */
         table.stock-table tfoot tr td {

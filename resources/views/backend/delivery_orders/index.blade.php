@@ -16,6 +16,32 @@
         #delivery-order-table td:last-child {
             min-width: 150px;
         }
+
+        #delivery-order-table_wrapper > .row:nth-child(2) {
+            display: block !important;
+            width: 100% !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            margin-bottom: 8px !important;
+            scrollbar-width: auto;
+            scrollbar-color: #2563eb #e2e8f0;
+        }
+
+        #delivery-order-table_wrapper > .row:nth-child(2)::-webkit-scrollbar {
+            display: block;
+            height: 12px;
+        }
+
+        #delivery-order-table_wrapper > .row:nth-child(2)::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 6px;
+        }
+
+        #delivery-order-table_wrapper > .row:nth-child(2)::-webkit-scrollbar-thumb {
+            background: #2563eb;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+        }
     </style>
 @endpush
 

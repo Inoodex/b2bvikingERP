@@ -377,7 +377,7 @@
 
             {{-- KPI 5: Accounts Payable (AP) --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: #dc2626;"></div>
+                <div class="kpi-accent-stripe" style="background: #E11835;"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold"
@@ -385,7 +385,7 @@
                             Accounts Payable
                         </span>
                         <div class="d-flex align-items-center justify-content-center"
-                            style="width: 32px; height: 32px; border-radius: 7px; background: #fef2f2; color: #dc2626;">
+                            style="width: 32px; height: 32px; border-radius: 7px; background: #fef2f2; color: #E11835;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -474,7 +474,7 @@
                     style="border-color: #f1f5f9 !important;">
                     <div class="d-flex align-items-center" style="gap: 12px;">
                         <div class="d-flex align-items-center justify-content-center flex-shrink-0"
-                            style="width: 36px; height: 36px; border-radius: 8px; background: #fef2f2; color: #dc2626;">
+                            style="width: 36px; height: 36px; border-radius: 8px; background: #fef2f2; color: #E11835;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
@@ -659,7 +659,7 @@
                         style="border-bottom: 1px solid #f1f5f9;">
                         <div class="d-flex align-items-center" style="gap: 8px;">
                             <span class="d-flex align-items-center justify-content-center"
-                                style="width: 28px; height: 28px; border-radius: 6px; background: #fef2f2; color: #dc2626;">
+                                style="width: 28px; height: 28px; border-radius: 6px; background: #fef2f2; color: #E11835;">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -686,7 +686,7 @@
                                 @php
                                     $rank = $index + 1;
                                     $rankBg = match ($rank) {
-                                        1 => 'background: #fef3c7; color: #b45309; border: 1px solid #f97316;',
+                                        1 => 'background: #fef3c7; color: #b45309; border: 1px solid #E11835;',
                                         2 => 'background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;',
                                         3 => 'background: #ffedd5; color: #c2410c; border: 1px solid #fb923c;',
                                         default => 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;',
@@ -732,7 +732,7 @@
                                                     </span>
                                                 @else
                                                     <span class="badge badge-danger font-weight-bold px-2 py-0.5"
-                                                        style="font-size: 9.5px; background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;">
+                                                        style="font-size: 9.5px; background: #fee2e2; color: #E11835; border: 1px solid #fca5a5;">
                                                         <i class="fas fa-exclamation-circle mr-1"></i>Only
                                                         {{ number_format($product->current_stock ?? 0) }} left
                                                     </span>
@@ -852,7 +852,7 @@
                                         <div class="mt-1">
                                             @if ($hasDue)
                                                 <span class="badge font-weight-bold px-2 py-0.5"
-                                                    style="font-size: 9.5px; background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5;">
+                                                    style="font-size: 9.5px; background: #fee2e2; color: #E11835; border: 1px solid #fca5a5;">
                                                     kr. {{ number_format($customer->due_amount, 2) }} due
                                                 </span>
                                             @else
@@ -971,7 +971,7 @@
                                                     </span>
                                                 @else
                                                     <span class="badge px-2 py-0.5 font-weight-bold"
-                                                        style="font-size: 10px; background: #fef2f2; color: #7f1d1d; border: 1px solid #fca5a5; border-radius: 4px;">
+                                                        style="font-size: 10px; background: #fef2f2; color: #E11835; border: 1px solid #fca5a5; border-radius: 4px;">
                                                         DUE
                                                     </span>
                                                 @endif
@@ -1171,7 +1171,7 @@
                             backgroundColor: [
                                 '#4f46e5',
                                 '#06b6d4',
-                                '#f97316',
+                                '#E11835',
                                 '#15803d',
                                 '#ec4899'
                             ],

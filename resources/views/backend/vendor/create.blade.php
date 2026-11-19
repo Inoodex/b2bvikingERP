@@ -279,8 +279,8 @@
     }
 
     .form-control.is-invalid:focus {
-        border-color: #dc2626;
-        box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.15);
+        border-color: #E11835;
+        box-shadow: 0 0 0 0.2rem rgba(225, 24, 53, 0.15);
     }
 
     .form-control:hover {
@@ -724,7 +724,7 @@
 
     .was-validated .form-control:invalid,
     .form-control.is-invalid {
-        border-color: #dc2626 !important;
+        border-color: #E11835 !important;
     }
 
     .text-danger {

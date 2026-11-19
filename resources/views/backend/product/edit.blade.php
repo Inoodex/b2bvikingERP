@@ -733,7 +733,7 @@
                         text: "This customer/outlet override will be removed. The entity will revert to seeing actual warehouse stock.",
                         icon: "warning",
                         showCancelButton: true,
-                        confirmButtonColor: "#dc2626",
+                        confirmButtonColor: "#E11835",
                         cancelButtonColor: "#64748b",
                         confirmButtonText: "<i class='fas fa-trash-alt mr-1'></i> Yes, remove it!",
                         cancelButtonText: "Cancel",

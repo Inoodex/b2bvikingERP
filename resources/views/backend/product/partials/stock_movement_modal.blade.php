@@ -36,7 +36,7 @@
             </div>
         </div>
         <div class="col-6 col-md-3 mb-2 mb-md-0">
-            <div class="p-3 bg-white rounded shadow-sm text-center" style="border-left: 4px solid #dc2626; border: 1px solid #e5e7eb; border-left-width: 4px;">
+            <div class="p-3 bg-white rounded shadow-sm text-center" style="border-left: 4px solid #E11835; border: 1px solid #e5e7eb; border-left-width: 4px;">
                 <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 10px;">Lifetime Outflow</div>
                 <div class="h5 mb-0 font-weight-bold text-danger mt-1" id="kpi-lifetime-outflow">
                     -{{ number_format($lifetimeOutflow) }}
@@ -54,7 +54,7 @@
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="p-3 bg-white rounded shadow-sm text-center" style="border-left: 4px solid #f97316; border: 1px solid #e5e7eb; border-left-width: 4px;">
+            <div class="p-3 bg-white rounded shadow-sm text-center" style="border-left: 4px solid #E11835; border: 1px solid #e5e7eb; border-left-width: 4px;">
                 <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 10px;">Period Sold</div>
                 <div class="h5 mb-0 font-weight-bold text-warning mt-1" id="kpi-period-sold">
                     {{ number_format($velocity['sold_qty']) }}
@@ -493,7 +493,7 @@
                                                 <i class="fas fa-check-circle mr-1"></i> Priority In-Stock
                                             </span>
                                         @elseif($rule->visibility_mode == 'force_out_of_stock')
-                                            <span class="badge px-2 py-1 font-weight-bold" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 6px; font-size: 11px;">
+                                            <span class="badge px-2 py-1 font-weight-bold" style="background: rgba(225, 24, 53, 0.12); color: #E11835; border: 1px solid rgba(225, 24, 53, 0.25); border-radius: 6px; font-size: 11px;">
                                                 <i class="fas fa-ban mr-1"></i> Restricted (OOS)
                                             </span>
                                         @else

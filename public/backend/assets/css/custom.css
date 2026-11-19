@@ -2,8 +2,8 @@
    CUSTOM CSS - Complete Mobile Responsive
    ============================================= */
 :root {
-    --theme-orange: #f97316;
-    --theme-red: #dc2626;
+    --theme-orange: #E11835;
+    --theme-red: #E11835;
     --theme-green: #15803d;
     --theme-blue: #2563eb;
 }
@@ -18,8 +18,8 @@
 .btn:not(.btn-social):not(.btn-social-icon):not(.btn-link):has(.fa-trash),
 .btn:not(.btn-social):not(.btn-social-icon):not(.btn-link):has(.fa-trash-alt),
 .btn:not(.btn-social):not(.btn-social-icon):not(.btn-link):has(.fa-trash-can) {
-    background-color: #7f1d1d !important;
-    border-color: #7f1d1d !important;
+    background-color: #E11835 !important;
+    border-color: #E11835 !important;
     color: #fff !important;
 }
 
@@ -814,7 +814,7 @@ input[type="number"]::-webkit-outer-spin-button {
         top: -5px !important;
         right: -5px !important;
         border: 2px solid #fff !important;
-        background: #dc2626 !important;
+        background: #E11835 !important;
         color: #fff !important;
         font-weight: 700 !important;
         border-radius: 50% !important;
@@ -998,7 +998,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .badge-warning {
-    background-color: #f97316 !important;
+    background-color: #E11835 !important;
     color: #1a1a1a !important;
 }
 
@@ -1008,7 +1008,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .badge-danger {
-    background-color: #dc2626 !important;
+    background-color: #E11835 !important;
     color: #ffffff !important;
 }
 
@@ -1192,9 +1192,9 @@ input[type="number"]::-webkit-outer-spin-button {
    GLOBAL FORM FIELDS FOCUS HIGHLIGHT (THEME COLORED BORDER)
    ======================================================== */
 :root {
-    --form-focus-border: #328A9A;
-    --form-focus-glow: rgba(50, 138, 154, 0.22);
-    --form-focus-hover: rgba(50, 138, 154, 0.45);
+    --form-focus-border: #E11835;
+    --form-focus-glow: rgba(225, 24, 53, 0.22);
+    --form-focus-hover: #E11835;
     --form-focus-bg: #ffffff;
 }
 
@@ -1209,7 +1209,9 @@ select,
 textarea,
 select.form-control,
 textarea.form-control,
-input.form-control {
+input.form-control,
+input[type="file"] {
+    border-color: var(--form-focus-border) !important;
     transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease !important;
 }
 
@@ -1260,7 +1262,12 @@ input.form-control:focus {
 .select2-container--default .select2-selection--multiple,
 .select2-container .select2-selection--single,
 .select2-container .select2-selection--multiple {
+    border-color: var(--form-focus-border) !important;
     transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.selectric {
+    border-color: var(--form-focus-border) !important;
 }
 
 .select2-container--default:hover .select2-selection--single:not(:focus),
@@ -1321,6 +1328,6 @@ input.form-control:focus {
 /* Keep Invalid / Validation State Intact */
 .form-control.is-invalid:focus,
 .was-validated .form-control:invalid:focus {
-    border-color: #dc2626 !important;
-    box-shadow: 0 0 0 3.5px rgba(220, 38, 38, 0.20) !important;
+    border-color: #E11835 !important;
+    box-shadow: 0 0 0 3.5px rgba(225, 24, 53, 0.20) !important;
 }

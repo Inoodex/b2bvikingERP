@@ -104,7 +104,7 @@
     .sr-stat-stripe.indigo { background: linear-gradient(90deg, #6366f1, #818cf8); }
     .sr-stat-stripe.emerald { background: linear-gradient(90deg, #15803d, #34d399); }
     .sr-stat-stripe.sky { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
-    .sr-stat-stripe.blue { background: linear-gradient(90deg, #f97316, #fbbf24); }
+    .sr-stat-stripe.blue { background: linear-gradient(90deg, #E11835, #fbbf24); }
 
     .sr-stat-header {
         display: flex;
@@ -163,7 +163,7 @@
     .text-indigo { color: #6366f1 !important; }
     .text-emerald { color: #15803d !important; }
     .text-sky { color: #0ea5e9 !important; }
-    .text-blue { color: #f97316 !important; }
+    .text-blue { color: #E11835 !important; }
 
     /* ============================
        FILTER CARD
@@ -376,11 +376,11 @@
         font-weight: 700;
     }
     .sr-stock-badge.ok { background: rgba(21, 128, 61,0.1); color: #15803d; }
-    .sr-stock-badge.low { background: rgba(220,38,38,0.1); color: #dc2626; animation: sr-pulse 2s infinite; }
+    .sr-stock-badge.low { background: rgba(225, 24, 53,0.1); color: #E11835; animation: sr-pulse 2s infinite; }
 
     @keyframes sr-pulse {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.15); }
-        50% { box-shadow: 0 0 0 6px rgba(220,38,38,0); }
+        0%, 100% { box-shadow: 0 0 0 0 rgba(225, 24, 53,0.15); }
+        50% { box-shadow: 0 0 0 6px rgba(225, 24, 53,0); }
     }
 
     /* Money cells */

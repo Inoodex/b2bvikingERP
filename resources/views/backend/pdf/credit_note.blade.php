@@ -98,8 +98,8 @@
             <td style="color: #15803d; font-weight: bold;">kr. {{ number_format((float)$creditNote->settled_amount, 2) }}</td>
         </tr>
         <tr>
-            <td style="color: #dc2626; font-weight: bold;">Remaining Unsettled:</td>
-            <td style="color: #dc2626; font-weight: bold;">kr. {{ number_format((float)$creditNote->remaining_amount, 2) }}</td>
+            <td style="color: #E11835; font-weight: bold;">Remaining Unsettled:</td>
+            <td style="color: #E11835; font-weight: bold;">kr. {{ number_format((float)$creditNote->remaining_amount, 2) }}</td>
         </tr>
     </table>
 

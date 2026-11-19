@@ -461,7 +461,7 @@
 
         .pp-star-rating .rating-star:hover {
             transform: scale(1.2) rotate(-5deg);
-            color: #f97316 !important;
+            color: #E11835 !important;
         }
 
         /* ===== Product Card ===== */
@@ -1062,10 +1062,10 @@
 
         .audit-drawer .drawer-close-btn:hover {
             background: #fee2e2 !important;
-            color: #dc2626 !important;
+            color: #E11835 !important;
             border-color: #fca5a5 !important;
             transform: scale(1.08);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+            box-shadow: 0 4px 12px rgba(225, 24, 53, 0.2);
         }
 
         .audit-drawer .drawer-close-btn:hover i,
@@ -1800,7 +1800,7 @@
                         html: `<strong>${productName}</strong><br><span class="text-warning font-weight-bold">${poInfo}</span><br><br><span style="font-size: 13px; color: #4b5563;">An active procurement order already exists for this product. Do you want to add it to Procurement Basket again?</span>`,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonColor: '#f97316',
+                        confirmButtonColor: '#E11835',
                         cancelButtonColor: '#6b7280',
                         confirmButtonText: '<i class="fas fa-plus-circle mr-1"></i> Yes, Order Again',
                         cancelButtonText: 'Cancel'
@@ -2775,7 +2775,7 @@
                         text: "This customer/outlet override will be removed. The entity will revert to seeing actual warehouse stock.",
                         icon: "warning",
                         showCancelButton: true,
-                        confirmButtonColor: "#dc2626",
+                        confirmButtonColor: "#E11835",
                         cancelButtonColor: "#64748b",
                         confirmButtonText: "<i class='fas fa-trash-alt mr-1'></i> Yes, remove it!",
                         cancelButtonText: "Cancel",

@@ -279,7 +279,7 @@
         flex-shrink: 0;
         border-radius: 8px;
         background: #fef2f2;
-        color: #dc2626;
+        color: #E11835;
         border: 1px solid #fee2e2;
         display: inline-flex;
         align-items: center;
@@ -288,10 +288,10 @@
         cursor: pointer;
     }
     .btn-card-trash:hover {
-        background: #dc2626;
+        background: #E11835;
         color: #ffffff;
-        border-color: #dc2626;
-        box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+        border-color: #E11835;
+        box-shadow: 0 2px 6px rgba(225, 24, 53, 0.3);
     }
 
     .modern-qty-input {
@@ -423,7 +423,7 @@
                     const stock = parseFloat(v.stock) || 0;
                     const stockBadgeHtml = stock > 0 
                         ? `<span class="badge font-weight-bold px-3 py-1 variant-stock-badge" data-stock="${stock}" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; border-radius: 20px; font-size: 11.5px;"><i class="fas fa-check-circle mr-1"></i>${stock.toFixed(2)} ${p.unit}</span>`
-                        : `<span class="badge font-weight-bold px-3 py-1 variant-stock-badge" data-stock="${stock}" style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 20px; font-size: 11.5px;"><i class="fas fa-times-circle mr-1"></i>0.00 (Out of Stock)</span>`;
+                        : `<span class="badge font-weight-bold px-3 py-1 variant-stock-badge" data-stock="${stock}" style="background: #fef2f2; color: #E11835; border: 1px solid #fecaca; border-radius: 20px; font-size: 11.5px;"><i class="fas fa-times-circle mr-1"></i>0.00 (Out of Stock)</span>`;
 
                     variantRowsHtml += `
                         <tr class="variant-row" data-variant-id="${v.id}" data-product-id="${p.product_id}">
@@ -518,7 +518,7 @@
                 const stock = parseFloat(p.simple_stock) || 0;
                 const stockBadgeHtml = stock > 0 
                     ? `<span class="badge font-weight-bold px-3 py-1 simple-stock-badge" data-stock="${stock}" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; border-radius: 20px; font-size: 11.5px;"><i class="fas fa-check-circle mr-1"></i>${stock.toFixed(2)} ${p.unit}</span>`
-                    : `<span class="badge font-weight-bold px-3 py-1 simple-stock-badge" data-stock="${stock}" style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 20px; font-size: 11.5px;"><i class="fas fa-times-circle mr-1"></i>0.00 (Out of Stock)</span>`;
+                    : `<span class="badge font-weight-bold px-3 py-1 simple-stock-badge" data-stock="${stock}" style="background: #fef2f2; color: #E11835; border: 1px solid #fecaca; border-radius: 20px; font-size: 11.5px;"><i class="fas fa-times-circle mr-1"></i>0.00 (Out of Stock)</span>`;
 
                 const cardHtml = `
                     <div class="product-master-card p-3" id="${cardId}" data-product-id="${p.product_id}">
@@ -631,7 +631,7 @@
                                     const $cell = $row.find('.variant-stock-badge').parent();
                                     const newBadge = stockVal > 0 
                                         ? `<span class="badge font-weight-bold px-3 py-1 variant-stock-badge" data-stock="${stockVal}" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; border-radius: 20px; font-size: 11.5px;"><i class="fas fa-check-circle mr-1"></i>${stockVal.toFixed(2)} ${res.unit}</span>`
-                                        : `<span class="badge font-weight-bold px-3 py-1 variant-stock-badge" data-stock="${stockVal}" style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 20px; font-size: 11.5px;"><i class="fas fa-times-circle mr-1"></i>0.00 (Out of Stock)</span>`;
+                                        : `<span class="badge font-weight-bold px-3 py-1 variant-stock-badge" data-stock="${stockVal}" style="background: #fef2f2; color: #E11835; border: 1px solid #fecaca; border-radius: 20px; font-size: 11.5px;"><i class="fas fa-times-circle mr-1"></i>0.00 (Out of Stock)</span>`;
                                     $cell.html(newBadge);
                                 });
                                 $card.find('.master-total-source-stock').text(totalMasterStock.toFixed(2));
@@ -640,7 +640,7 @@
                                 const $cell = $card.find('.simple-stock-badge').parent();
                                 const newBadge = stockVal > 0 
                                     ? `<span class="badge font-weight-bold px-3 py-1 simple-stock-badge" data-stock="${stockVal}" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; border-radius: 20px; font-size: 11.5px;"><i class="fas fa-check-circle mr-1"></i>${stockVal.toFixed(2)} ${res.unit}</span>`
-                                    : `<span class="badge font-weight-bold px-3 py-1 simple-stock-badge" data-stock="${stockVal}" style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 20px; font-size: 11.5px;"><i class="fas fa-times-circle mr-1"></i>0.00 (Out of Stock)</span>`;
+                                    : `<span class="badge font-weight-bold px-3 py-1 simple-stock-badge" data-stock="${stockVal}" style="background: #fef2f2; color: #E11835; border: 1px solid #fecaca; border-radius: 20px; font-size: 11.5px;"><i class="fas fa-times-circle mr-1"></i>0.00 (Out of Stock)</span>`;
                                 $cell.html(newBadge);
                             }
                         }

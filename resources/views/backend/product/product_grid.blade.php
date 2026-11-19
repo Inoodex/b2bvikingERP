@@ -132,7 +132,7 @@
                             title="{{ $reviewCount > 0 ? 'View ' . $reviewCount . ' review(s) for this product' : 'Inspect reviews' }}">
                             @for ($i = 1; $i <= 5; $i++)
                                 <i class="fas fa-star"
-                                    style="color: {{ $i <= round($avgRating) ? '#f97316' : '#d1d5db' }}; font-size: 9px;"></i>
+                                    style="color: {{ $i <= round($avgRating) ? '#E11835' : '#d1d5db' }}; font-size: 9px;"></i>
                             @endfor
                             @if ($reviewCount > 0)
                                 <span

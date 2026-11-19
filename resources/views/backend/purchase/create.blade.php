@@ -450,13 +450,13 @@
     }
 
     .btn-outline-danger {
-        color: #dc2626 !important;
-        border-color: #dc2626 !important;
+        color: #E11835 !important;
+        border-color: #E11835 !important;
         background: transparent !important;
     }
 
     .btn-outline-danger:hover {
-        background: #dc2626 !important;
+        background: #E11835 !important;
         color: #fff !important;
     }
 
@@ -811,7 +811,7 @@
 
     .was-validated .form-control:invalid,
     .form-control.is-invalid {
-        border-color: #dc2626 !important;
+        border-color: #E11835 !important;
     }
 
     .text-danger {

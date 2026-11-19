@@ -300,7 +300,7 @@
 
                     {{-- Reset to Default Button --}}
                     @if($isCustomFilter ?? false)
-                        <a href="{{ route('admin.purchase-reports.vs-last-year') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #ffffff; color: #dc2626; border-radius: 8px; font-size: 12px; padding: 7px 12px; gap: 5px; border: 1px solid #fca5a5; text-decoration: none; transition: all 0.2s ease;" title="Reset to Default (Year {{ now()->year }} vs {{ now()->year - 1 }})">
+                        <a href="{{ route('admin.purchase-reports.vs-last-year') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #ffffff; color: #E11835; border-radius: 8px; font-size: 12px; padding: 7px 12px; gap: 5px; border: 1px solid #fca5a5; text-decoration: none; transition: all 0.2s ease;" title="Reset to Default (Year {{ now()->year }} vs {{ now()->year - 1 }})">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline></svg>
                             Reset
                         </a>
@@ -402,13 +402,13 @@
 
             {{-- KPI 3: Net Annual Variance --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: {{ $isExpansion ? '#dc2626' : '#15803d' }};"></div>
+                <div class="kpi-accent-stripe" style="background: {{ $isExpansion ? '#E11835' : '#15803d' }};"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold" style="font-size: 10.5px; letter-spacing: 0.06em; color: #64748b;">
                             Net Annual Variance
                         </span>
-                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: {{ $isExpansion ? '#fef2f2; color: #dc2626;' : '#ecfdf5; color: #15803d;' }}">
+                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: {{ $isExpansion ? '#fef2f2; color: #E11835;' : '#ecfdf5; color: #15803d;' }}">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="{{ $isExpansion ? '23 6 13.5 15.5 8.5 10.5 1 18' : '23 18 13.5 8.5 8.5 13.5 1 6' }}"></polyline><polyline points="{{ $isExpansion ? '17 6 23 6 23 12' : '17 18 23 18 23 12' }}"></polyline></svg>
                         </div>
                     </div>
@@ -419,7 +419,7 @@
                 <div class="pt-2 mt-2" style="border-top: 1px solid #f1f5f9;">
                     <div class="d-flex justify-content-between align-items-center" style="font-size: 11px;">
                         <span class="text-muted" style="font-size: 10.5px;">{{ $isExpansion ? 'Spend Expansion' : 'Spend Reduction' }}</span>
-                        <span class="badge font-weight-bold px-1.5 py-0.5" style="font-size: 9.5px; {{ $isExpansion ? 'background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;' : 'background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;' }} border-radius: 4px;">
+                        <span class="badge font-weight-bold px-1.5 py-0.5" style="font-size: 9.5px; {{ $isExpansion ? 'background: #fee2e2; color: #E11835; border: 1px solid #fca5a5;' : 'background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;' }} border-radius: 4px;">
                             {{ $isExpansion ? '+Increase' : '-Savings' }}
                         </span>
                     </div>
@@ -511,7 +511,7 @@
                             <small class="text-muted" style="font-size: 11px;">{{ $isExpansion ? 'Procurement Expansion' : 'Procurement Contraction' }}</small>
                         </div>
                     </div>
-                    <span class="badge font-weight-bold px-2 py-1" style="font-size: 10px; {{ $isExpansion ? 'background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;' : 'background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;' }} border-radius: 6px;">
+                    <span class="badge font-weight-bold px-2 py-1" style="font-size: 10px; {{ $isExpansion ? 'background: #fee2e2; color: #E11835; border: 1px solid #fca5a5;' : 'background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;' }} border-radius: 6px;">
                         {{ $isExpansion ? 'Surging' : 'Controlled' }}
                     </span>
                 </div>
@@ -723,12 +723,12 @@
                                     <td class="text-right" style="font-size: 13px; font-weight: 700; color: #0f172a;">
                                         {!! formatConverted($cSpend) !!}
                                     </td>
-                                    <td class="text-right" style="font-size: 13px; font-weight: 700; color: {{ $rowVar > 0 ? '#dc2626' : ($rowVar < 0 ? '#15803d' : '#64748b') }};">
+                                    <td class="text-right" style="font-size: 13px; font-weight: 700; color: {{ $rowVar > 0 ? '#E11835' : ($rowVar < 0 ? '#15803d' : '#64748b') }};">
                                         {{ $rowVar > 0 ? '+' : ($rowVar < 0 ? '-' : '') }}{!! formatConverted(abs($rowVar)) !!}
                                     </td>
                                     <td class="text-center">
                                         @if($rowGrowth > 0)
-                                            <span class="badge font-weight-bold px-2 py-0.5" style="font-size: 10px; background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px;">
+                                            <span class="badge font-weight-bold px-2 py-0.5" style="font-size: 10px; background: #fee2e2; color: #E11835; border: 1px solid #fca5a5; border-radius: 4px;">
                                                 +{{ number_format($rowGrowth, 1) }}%
                                             </span>
                                         @elseif($rowGrowth < 0)
@@ -751,7 +751,7 @@
                                     </td>
                                     <td class="text-center">
                                         @if($rowVar > 0)
-                                            <span style="color: #dc2626;" title="Spend Surge (+{{ number_format($rowGrowth, 1) }}%)">
+                                            <span style="color: #E11835;" title="Spend Surge (+{{ number_format($rowGrowth, 1) }}%)">
                                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
                                             </span>
                                         @elseif($rowVar < 0)
@@ -788,11 +788,11 @@
                                 <td class="text-right" style="padding: 14px 18px; font-weight: 800; color: #0f172a; font-size: 14.5px;">
                                     {!! formatConverted($currentVal) !!}
                                 </td>
-                                <td class="text-right" style="padding: 14px 18px; font-weight: 800; font-size: 14px; color: {{ $variance > 0 ? '#dc2626' : ($variance < 0 ? '#15803d' : '#0f172a') }};">
+                                <td class="text-right" style="padding: 14px 18px; font-weight: 800; font-size: 14px; color: {{ $variance > 0 ? '#E11835' : ($variance < 0 ? '#15803d' : '#0f172a') }};">
                                     {{ $variance > 0 ? '+' : ($variance < 0 ? '-' : '') }}{!! formatConverted(abs($variance)) !!}
                                 </td>
                                 <td class="text-center" style="padding: 14px 18px;">
-                                    <span class="badge font-weight-bold px-2 py-1" style="font-size: 11px; {{ $isExpansion ? 'background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;' : 'background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;' }} border-radius: 4px;">
+                                    <span class="badge font-weight-bold px-2 py-1" style="font-size: 11px; {{ $isExpansion ? 'background: #fee2e2; color: #E11835; border: 1px solid #fca5a5;' : 'background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;' }} border-radius: 4px;">
                                         {{ $growth >= 0 ? '+' : '' }}{{ number_format($growth, 2) }}%
                                     </span>
                                 </td>
@@ -800,7 +800,7 @@
                                     <span class="badge font-weight-bold px-2 py-0.5 text-dark border" style="font-size: 10px; background: #ffffff; border-radius: 4px;">100.0%</span>
                                 </td>
                                 <td class="text-center" style="padding: 14px 18px;">
-                                    <span style="color: {{ $isExpansion ? '#dc2626' : '#15803d' }};">
+                                    <span style="color: {{ $isExpansion ? '#E11835' : '#15803d' }};">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="{{ $isExpansion ? '23 6 13.5 15.5 8.5 10.5 1 18' : '23 18 13.5 8.5 8.5 13.5 1 6' }}"></polyline><polyline points="{{ $isExpansion ? '17 6 23 6 23 12' : '17 18 23 18 23 12' }}"></polyline></svg>
                                     </span>
                                 </td>

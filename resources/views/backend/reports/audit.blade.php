@@ -68,7 +68,7 @@
     }
     .executive-kpi-card.stripe-blue::before { background: #2563eb; }
     .executive-kpi-card.stripe-emerald::before { background: #15803d; }
-    .executive-kpi-card.stripe-red::before { background: #dc2626; }
+    .executive-kpi-card.stripe-red::before { background: #E11835; }
     .executive-kpi-card.stripe-slate::before { background: #64748b; }
 
     .kpi-head {
@@ -95,7 +95,7 @@
     }
     .kpi-icon-medallion.icon-blue { background: #eff6ff; color: #2563eb; }
     .kpi-icon-medallion.icon-emerald { background: #ecfdf5; color: #15803d; }
-    .kpi-icon-medallion.icon-red { background: #fff1f2; color: #dc2626; }
+    .kpi-icon-medallion.icon-red { background: #fff1f2; color: #E11835; }
     .kpi-icon-medallion.icon-slate { background: #f1f5f9; color: #475569; }
 
     .kpi-number {
@@ -157,9 +157,9 @@
         border-color: #0f172a;
     }
     .preset-pill.critical-pill.active {
-        background: #dc2626;
+        background: #E11835;
         color: #ffffff;
-        border-color: #dc2626;
+        border-color: #E11835;
     }
 
     /* Filter Form Elements */
@@ -226,7 +226,7 @@
         justify-content: center;
     }
     .search-clear-btn:hover {
-        color: #dc2626;
+        color: #E11835;
         background: #fee2e2;
     }
 
@@ -247,12 +247,12 @@
     }
     .btn-filter-reset-active {
         background: #fff1f2 !important;
-        color: #dc2626 !important;
+        color: #E11835 !important;
         border: 1px solid #fecdd3 !important;
     }
     .btn-filter-reset-active:hover {
         background: #fee2e2 !important;
-        color: #b91c1c !important;
+        color: #E11835 !important;
         border-color: #fca5a5 !important;
     }
     .btn-filter-reset-idle {
@@ -268,7 +268,7 @@
 
     .preset-reset-active {
         background: #fff1f2 !important;
-        color: #dc2626 !important;
+        color: #E11835 !important;
         border: 1px solid #fecdd3 !important;
         border-radius: 8px;
         font-size: 11.5px;
@@ -278,7 +278,7 @@
     }
     .preset-reset-active:hover {
         background: #fee2e2 !important;
-        color: #b91c1c !important;
+        color: #E11835 !important;
     }
     .preset-reset-idle {
         background: #ffffff !important;
@@ -611,7 +611,7 @@
     }
     .drawer-close-btn:hover {
         background: #fee2e2;
-        color: #dc2626;
+        color: #E11835;
         border-color: #fca5a5;
     }
 
@@ -865,7 +865,7 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                 </div>
             </div>
-            <div class="kpi-number" style="color: {{ ($summary['critical_count'] ?? 0) > 0 ? '#dc2626' : '#0f172a' }};">
+            <div class="kpi-number" style="color: {{ ($summary['critical_count'] ?? 0) > 0 ? '#E11835' : '#0f172a' }};">
                 {{ number_format($summary['critical_count'] ?? 0) }}
             </div>
             <div class="kpi-footer-note">
@@ -920,7 +920,7 @@
                 <a href="{{ route('admin.reports.audit', array_merge(request()->except(['critical_only']), ['start_date' => today()->subDays(29)->format('Y-m-d'), 'end_date' => today()->format('Y-m-d')])) }}" class="preset-pill {{ $is30Days ? 'active' : '' }}">
                     Last 30 Days
                 </a>
-                <a href="{{ route('admin.reports.audit', array_merge(request()->all(), ['critical_only' => $isCritical ? 0 : 1])) }}" class="preset-pill critical-pill {{ $isCritical ? 'active' : '' }}" style="{{ $isCritical ? '' : 'color: #dc2626; border-color: #fecdd3;' }}">
+                <a href="{{ route('admin.reports.audit', array_merge(request()->all(), ['critical_only' => $isCritical ? 0 : 1])) }}" class="preset-pill critical-pill {{ $isCritical ? 'active' : '' }}" style="{{ $isCritical ? '' : 'color: #E11835; border-color: #fecdd3;' }}">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
                     Critical Mutations
                 </a>

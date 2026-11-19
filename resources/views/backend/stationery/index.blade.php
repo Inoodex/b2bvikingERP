@@ -132,7 +132,7 @@
 
             {{-- KPI 3: Reorder Alerts --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: #f97316;"></div>
+                <div class="kpi-accent-stripe" style="background: #E11835;"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold" style="font-size: 10.5px; letter-spacing: 0.06em; color: #64748b;">
@@ -153,13 +153,13 @@
 
             {{-- KPI 4: Month Consumption Expense --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: #dc2626;"></div>
+                <div class="kpi-accent-stripe" style="background: #E11835;"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold" style="font-size: 10.5px; letter-spacing: 0.06em; color: #64748b;">
                             This Month's Consumption
                         </span>
-                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: #fef2f2; color: #dc2626;">
+                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: #fef2f2; color: #E11835;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                         </div>
                     </div>

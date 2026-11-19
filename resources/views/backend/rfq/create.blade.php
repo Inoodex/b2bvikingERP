@@ -321,7 +321,7 @@
             text: "This will remove all items from this RFQ and empty your procurement cart!",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#dc2626",
+            confirmButtonColor: "#E11835",
             cancelButtonColor: "#6c757d",
             confirmButtonText: "Yes, clear all!",
             cancelButtonText: "Cancel"

@@ -189,7 +189,7 @@
                 text: "Are you sure you want to cancel this draft stock adjustment?",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "#dc2626",
+                confirmButtonColor: "#E11835",
                 cancelButtonColor: "#6c757d",
                 confirmButtonText: "Yes, Cancel Adjustment!",
                 cancelButtonText: "Keep Draft"

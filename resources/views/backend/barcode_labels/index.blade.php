@@ -1433,7 +1433,7 @@
                         $('#previewContainer').html(`
                 <div class="py-4 text-center px-3" id="previewPendingPrompt">
                     <div class="mb-2.5">
-                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 56px; height: 56px; background: rgba(249, 115, 22, 0.1);">
+                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 56px; height: 56px; background: rgba(225, 24, 53, 0.1);">
                             <i class="fas fa-barcode fa-lg text-warning"></i>
                         </span>
                     </div>

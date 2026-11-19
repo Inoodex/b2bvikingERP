@@ -227,8 +227,8 @@
     }
 
     .form-control.is-invalid:focus {
-        border-color: #dc2626;
-        box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.15);
+        border-color: #E11835;
+        box-shadow: 0 0 0 0.2rem rgba(225, 24, 53, 0.15);
     }
 
     /* Input Group */
@@ -292,7 +292,7 @@
     }
 
     .badge-warning {
-        background: #f97316 !important;
+        background: #E11835 !important;
         color: #1a1a2e !important;
     }
 

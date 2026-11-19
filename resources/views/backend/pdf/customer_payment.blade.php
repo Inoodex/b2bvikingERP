@@ -71,7 +71,7 @@
                     <td>Sales Invoice #{{ $customerPayment->invoice->invoice_no }}</td>
                     <td style="text-align: right;">kr. {{ number_format((float)$customerPayment->invoice->total_amount, 2) }}</td>
                     <td style="text-align: right; font-weight: bold; color: #15803d;">kr. {{ number_format((float)$customerPayment->amount, 2) }}</td>
-                    <td style="text-align: right; color: #dc2626;">kr. {{ number_format((float)$customerPayment->invoice->due_amount, 2) }}</td>
+                    <td style="text-align: right; color: #E11835;">kr. {{ number_format((float)$customerPayment->invoice->due_amount, 2) }}</td>
                 </tr>
             @else
                 <tr>

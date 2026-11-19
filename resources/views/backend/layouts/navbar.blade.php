@@ -101,15 +101,15 @@
         --theme-green-soft: rgba(21, 128, 61, 0.16);
         --theme-green-glow: rgba(21, 128, 61, 0.45);
 
-        --theme-orange: #f97316;
+        --theme-orange: #E11835;
         --theme-orange-bright: #fb923c;
-        --theme-orange-soft: rgba(249, 115, 22, 0.16);
-        --theme-orange-glow: rgba(249, 115, 22, 0.45);
+        --theme-orange-soft: rgba(225, 24, 53, 0.16);
+        --theme-orange-glow: rgba(225, 24, 53, 0.45);
 
-        --theme-red: #7f1d1d;
-        --theme-red-bright: #b91c1c;
-        --theme-red-soft: rgba(127, 29, 29, 0.18);
-        --theme-red-glow: rgba(127, 29, 29, 0.45);
+        --theme-red: #E11835;
+        --theme-red-bright: #E11835;
+        --theme-red-soft: rgba(225, 24, 53, 0.18);
+        --theme-red-glow: rgba(225, 24, 53, 0.45);
 
         --theme-blue: #2563eb;
         --theme-blue-bright: #60a5fa;
@@ -117,9 +117,9 @@
         --theme-blue-glow: rgba(37, 99, 235, 0.45);
 
         /* Combined Four-Color Gradients */
-        --theme-gradient: linear-gradient(135deg, #15803d 0%, #2563eb 33%, #f97316 66%, #7f1d1d 100%);
-        --theme-gradient-h: linear-gradient(90deg, #15803d 0%, #2563eb 33%, #f97316 66%, #7f1d1d 100%);
-        --theme-gradient-v: linear-gradient(180deg, #15803d 0%, #2563eb 33%, #f97316 66%, #7f1d1d 100%);
+        --theme-gradient: linear-gradient(135deg, #15803d 0%, #2563eb 33%, #E11835 66%, #E11835 100%);
+        --theme-gradient-h: linear-gradient(90deg, #15803d 0%, #2563eb 33%, #E11835 66%, #E11835 100%);
+        --theme-gradient-v: linear-gradient(180deg, #15803d 0%, #2563eb 33%, #E11835 66%, #E11835 100%);
 
         /* ---- Deep Glass Surface ---- */
         --nb-bg: #0a0e1a;
@@ -127,19 +127,19 @@
         --nb-surface: #131a2b;
         --nb-surface-2: #161e33;
         --nb-border: rgba(37, 99, 235, 0.16);
-        --nb-border-strong: rgba(127, 29, 29, 0.32);
+        --nb-border-strong: rgba(225, 24, 53, 0.32);
 
         --nb-brand: #2563eb;
         --nb-brand-bright: #60a5fa;
         --nb-brand-soft: rgba(37, 99, 235, 0.15);
-        --nb-brand-glow: rgba(127, 29, 29, 0.45);
+        --nb-brand-glow: rgba(225, 24, 53, 0.45);
 
         --nb-text: rgba(248, 246, 240, 0.96);
         --nb-muted: rgba(226, 220, 205, 0.40);
         --nb-muted-2: rgba(226, 220, 205, 0.60);
 
-        --nb-danger: #dc2626;
-        --nb-danger-soft: rgba(220, 38, 38, 0.12);
+        --nb-danger: #E11835;
+        --nb-danger-soft: rgba(225, 24, 53, 0.12);
 
         --nb-font-display: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
         --nb-font-body: 'Inter', 'Segoe UI', sans-serif;
@@ -180,9 +180,9 @@
         pointer-events: none;
         background:
             radial-gradient(560px 420px at -6% -8%, rgba(21, 128, 61, 0.28), transparent 60%),
-            radial-gradient(480px 480px at 18% 55%, rgba(249, 115, 22, 0.18), transparent 65%),
+            radial-gradient(480px 480px at 18% 55%, rgba(225, 24, 53, 0.18), transparent 65%),
             radial-gradient(520px 420px at 4% 96%, rgba(37, 99, 235, 0.26), transparent 60%),
-            radial-gradient(480px 440px at 12% 78%, rgba(127, 29, 29, 0.2), transparent 64%),
+            radial-gradient(480px 440px at 12% 78%, rgba(225, 24, 53, 0.2), transparent 64%),
             #0a0e1a;
         opacity: 0.95;
     }
@@ -241,7 +241,7 @@
         left: 0;
         right: 0;
         height: 1.5px;
-        background: linear-gradient(90deg, transparent 5%, #15803d 20%, #2563eb 40%, #f97316 60%, #7f1d1d 80%, transparent 95%);
+        background: linear-gradient(90deg, transparent 5%, #15803d 20%, #2563eb 40%, #E11835 60%, #E11835 80%, transparent 95%);
     }
 
     .main-footer a {
@@ -253,7 +253,7 @@
     }
 
     .main-footer a:hover {
-        color: #b91c1c;
+        color: #E11835;
     }
 
     .main-footer .footer-left {
@@ -393,7 +393,7 @@
         right: 0;
         bottom: -1px;
         height: 2px;
-        background: linear-gradient(90deg, transparent, #15803d 15%, #2563eb 35%, #f97316 60%, #7f1d1d 85%, transparent 100%);
+        background: linear-gradient(90deg, transparent, #15803d 15%, #2563eb 35%, #E11835 60%, #E11835 85%, transparent 100%);
         opacity: 0.8;
     }
 
@@ -450,8 +450,8 @@
 
     .topbar-search-toggle:hover kbd {
         background: rgba(37, 99, 235, 0.22);
-        border-color: rgba(127, 29, 29, 0.45);
-        color: #b91c1c;
+        border-color: rgba(225, 24, 53, 0.45);
+        color: #E11835;
     }
 
     @media (max-width: 767.98px) {
@@ -467,8 +467,8 @@
     .hamburger-toggle:hover,
     .topbar-search-toggle:hover {
         background: linear-gradient(135deg, rgba(21, 128, 61, 0.15), rgba(37, 99, 235, 0.20));
-        border-color: rgba(127, 29, 29, 0.45);
-        color: #b91c1c !important;
+        border-color: rgba(225, 24, 53, 0.45);
+        color: #E11835 !important;
         transform: translateY(-1px);
         box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 20px rgba(37, 99, 235, 0.25);
     }
@@ -646,7 +646,7 @@
         border-radius: 11px;
         font-size: 14px;
         color: #ffffff;
-        background: linear-gradient(135deg, #15803d 0%, #2563eb 33%, #f97316 66%, #7f1d1d 100%);
+        background: linear-gradient(135deg, #15803d 0%, #2563eb 33%, #E11835 66%, #E11835 100%);
     }
 
     .notif-dropdown .notif-item .notif-content {
@@ -826,8 +826,8 @@
     }
 
     .navbar-right .nav-link-user:hover {
-        border-color: #7f1d1d;
-        box-shadow: inset 0 1px 0 var(--glass-highlight), 0 0 0 5px rgba(127, 29, 29, 0.18);
+        border-color: #E11835;
+        box-shadow: inset 0 1px 0 var(--glass-highlight), 0 0 0 5px rgba(225, 24, 53, 0.18);
         transform: translateY(-2px);
     }
 
@@ -982,7 +982,7 @@
         right: -1px;
         bottom: 0;
         width: 1.5px;
-        background: linear-gradient(180deg, transparent, #15803d 10%, #2563eb 35%, #f97316 65%, #7f1d1d 90%, transparent 100%);
+        background: linear-gradient(180deg, transparent, #15803d 10%, #2563eb 35%, #E11835 65%, #E11835 90%, transparent 100%);
         opacity: 0.7;
     }
 
@@ -1001,7 +1001,7 @@
         flex-shrink: 0;
         overflow: hidden;
         white-space: nowrap;
-        background: radial-gradient(180px 70px at 10% 0%, rgba(37, 99, 235, 0.24), rgba(127, 29, 29, 0.14) 60%, transparent 100%);
+        background: radial-gradient(180px 70px at 10% 0%, rgba(37, 99, 235, 0.24), rgba(225, 24, 53, 0.14) 60%, transparent 100%);
     }
 
     .sidebar-header i {
@@ -1013,10 +1013,10 @@
         align-items: center;
         justify-content: center;
         border-radius: 12px;
-        background: linear-gradient(135deg, #15803d 0%, #2563eb 33%, #f97316 66%, #7f1d1d 100%);
+        background: linear-gradient(135deg, #15803d 0%, #2563eb 33%, #E11835 66%, #E11835 100%);
         color: #ffffff;
         font-size: 16px;
-        box-shadow: 0 4px 18px rgba(37, 99, 235, 0.40), 0 2px 10px rgba(127, 29, 29, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        box-shadow: 0 4px 18px rgba(37, 99, 235, 0.40), 0 2px 10px rgba(225, 24, 53, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.5);
         overflow: hidden;
     }
 
@@ -1047,7 +1047,7 @@
 
     .sidebar-header span {
         font-family: var(--nb-font-display);
-        background: linear-gradient(135deg, #ffffff 40%, #b91c1c 75%, #60a5fa 100%);
+        background: linear-gradient(135deg, #ffffff 40%, #E11835 75%, #60a5fa 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 800;
@@ -1103,12 +1103,12 @@
     }
 
     .sidebar-body::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #15803d, #2563eb, #f97316, #7f1d1d);
+        background: linear-gradient(180deg, #15803d, #2563eb, #E11835, #E11835);
         border-radius: 10px;
     }
 
     .sidebar-body::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #4ade80, #60a5fa, #fb923c, #b91c1c);
+        background: linear-gradient(180deg, #4ade80, #60a5fa, #fb923c, #E11835);
     }
 
     .sb-nav {
@@ -1182,14 +1182,14 @@
     }
 
     .sb-item.active>.sb-link {
-        background: linear-gradient(90deg, rgba(37, 99, 235, 0.20), rgba(127, 29, 29, 0.10) 65%, rgba(21, 128, 61, 0.04) 100%);
+        background: linear-gradient(90deg, rgba(37, 99, 235, 0.20), rgba(225, 24, 53, 0.10) 65%, rgba(21, 128, 61, 0.04) 100%);
         backdrop-filter: blur(6px);
         color: var(--nb-text) !important;
         box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 14px -6px rgba(37, 99, 235, 0.30);
     }
 
     .sb-item.active>.sb-link>i:first-child {
-        color: #b91c1c;
+        color: #E11835;
     }
 
     .sb-item.active>.sb-link::before {
@@ -1201,8 +1201,8 @@
         width: 3.5px;
         height: 24px;
         border-radius: 3px;
-        background: linear-gradient(180deg, #15803d 0%, #2563eb 33%, #f97316 66%, #7f1d1d 100%);
-        box-shadow: 0 0 12px rgba(127, 29, 29, 0.65), 0 0 6px rgba(37, 99, 235, 0.55);
+        background: linear-gradient(180deg, #15803d 0%, #2563eb 33%, #E11835 66%, #E11835 100%);
+        box-shadow: 0 0 12px rgba(225, 24, 53, 0.65), 0 0 6px rgba(37, 99, 235, 0.55);
     }
 
     .sb-link span.sb-label {
@@ -1245,7 +1245,7 @@
         top: 2px;
         bottom: 10px;
         width: 1px;
-        background: linear-gradient(180deg, #15803d, #2563eb 35%, #f97316 65%, #7f1d1d 85%, transparent);
+        background: linear-gradient(180deg, #15803d, #2563eb 35%, #E11835 65%, #E11835 85%, transparent);
     }
 
     .sb-submenu li a {
@@ -1810,8 +1810,8 @@
 
     .form-control.is-invalid:focus,
     .was-validated .form-control:invalid:focus {
-        border-color: #dc2626 !important;
-        box-shadow: 0 0 0 3.5px rgba(220, 38, 38, 0.20) !important;
+        border-color: #E11835 !important;
+        box-shadow: 0 0 0 3.5px rgba(225, 24, 53, 0.20) !important;
     }
 </style>
 
@@ -1839,7 +1839,7 @@
                 class="notification-toggle" title="Procurement Cart (RFQ / PO)">
                 <i class="fas fa-shopping-basket"></i>
                 <span id="topbar-booking-cart-badge" class="badge"
-                    style="display: none; background: #f97316; color: #1a1408; font-weight: 700; font-size: 10px; border-radius: 999px;">0</span>
+                    style="display: none; background: #E11835; color: #1a1408; font-weight: 700; font-size: 10px; border-radius: 999px;">0</span>
             </a>
         </li>
 

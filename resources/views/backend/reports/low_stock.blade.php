@@ -50,7 +50,7 @@
         border-radius: 11px;
         font-size: 14px;
         color: #fff;
-        background: linear-gradient(145deg, #f97316, #c2410c);
+        background: linear-gradient(145deg, #E11835, #c2410c);
         box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35);
     }
     .sr-breadcrumb {
@@ -174,7 +174,7 @@
         color: var(--sr-ink); margin: 0;
         display: flex; align-items: center; gap: 8px;
     }
-    .sr-table-head h4 i { color: #f97316; font-size: 13px; }
+    .sr-table-head h4 i { color: #E11835; font-size: 13px; }
     .sr-table-actions {
         display: flex;
         align-items: center;
