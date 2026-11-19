@@ -43,7 +43,7 @@
   @stack('css')
   @stack('styles')
   <style>
-  @media (min-width: 1200px) {
+  @media (min-width: 768px) {
     .main-wrapper.container {
       max-width: 100% !important;
       width: 100% !important;

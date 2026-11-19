@@ -64,6 +64,12 @@
                 min-width: 0;
             }
 
+            .dashboard-customer-avatar {
+                background: #E11835;
+                border: 1px solid #E11835;
+                color: #fff !important;
+            }
+
             .kpi-accent-stripe {
                 position: absolute;
                 top: 0;
@@ -814,8 +820,8 @@
                                         </div>
 
                                         {{-- Customer Initials Avatar --}}
-                                        <div class="d-flex align-items-center justify-content-center font-weight-bold text-white flex-shrink-0"
-                                            style="width: 42px; height: 42px; border-radius: 10px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); font-size: 12.5px; letter-spacing: 0.5px; border: 1px solid #cbd5e1;">
+                                        <div class="dashboard-customer-avatar d-flex align-items-center justify-content-center font-weight-bold flex-shrink-0"
+                                            style="width: 42px; height: 42px; border-radius: 10px; font-size: 12.5px; letter-spacing: 0.5px;">
                                             {{ $initials }}
                                         </div>
 

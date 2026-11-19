@@ -108,10 +108,11 @@ input[type="number"]::-webkit-outer-spin-button {
     border-collapse: collapse !important;
 }
 
-.table th,
+.table thead th,
 .dataTable thead th {
-    background: linear-gradient(135deg, #fafbfc, #f4f5f8) !important;
-    color: #1e293b !important;
+    background: #2563EB !important;
+    background-image: none !important;
+    color: #fff !important;
     font-weight: 700 !important;
     font-size: 11px !important;
     text-transform: uppercase !important;

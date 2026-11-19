@@ -60,7 +60,14 @@
             min-height: 400px;
         }
 
-        @media (min-width: 992px) and (max-width: 1399.98px) {
+        @media (min-width: 992px) and (max-width: 1199.98px) {
+            .col-lg-5th {
+                flex: 0 0 33.333333% !important;
+                max-width: 33.333333% !important;
+            }
+        }
+
+        @media (min-width: 1200px) and (max-width: 1399.98px) {
             .col-lg-5th {
                 flex: 0 0 25% !important;
                 max-width: 25% !important;
@@ -170,18 +177,19 @@
         /* ===== Filter Card ===== */
         .pp-filter-card {
             position: relative;
+            z-index: 20;
             border-radius: var(--pp-radius-md) !important;
             border: 1px solid var(--pp-border) !important;
             background: rgba(255, 255, 255, 0.75) !important;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             box-shadow: var(--pp-shadow-card) !important;
-            overflow: hidden;
+            overflow: visible;
             transition: box-shadow 0.3s ease;
         }
 
         .pp-filter-card:hover {
-            box-shadow: var(--pp-shadow-card-hover) !important;
+            box-shadow: 0 12px 32px -12px rgba(11, 17, 32, 0.16), 0 0 0 1px rgba(225, 24, 53, 0.06) !important;
         }
 
         .pp-filter-card::before {
@@ -191,24 +199,79 @@
             left: 0;
             right: 0;
             height: 2.5px;
-            background: linear-gradient(90deg, var(--pp-blue-bright), var(--pp-blue) 50%, transparent 96%);
+            border-radius: var(--pp-radius-md) var(--pp-radius-md) 0 0;
+            background: linear-gradient(90deg, #E11835, #E11835 50%, transparent 96%);
         }
 
         .pp-filter-card .card-body {
             padding: 18px 20px 16px !important;
         }
 
-        .pp-search-wrap {
+        .pp-filter-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .pp-filter-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            color: var(--pp-ink);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .pp-filter-title i {
+            color: #E11835;
+        }
+
+        .pp-filter-description {
+            margin: 4px 0 0;
+            color: var(--pp-muted);
+            font-size: 11px;
+        }
+
+        .pp-filter-actions {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pp-filter-actions .pp-btn {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            min-height: 36px;
+            margin: 0 !important;
+            white-space: nowrap;
+            background: #E11835 !important;
+            color: #fff !important;
+            box-shadow: 0 4px 14px -4px rgba(225, 24, 53, 0.32) !important;
+        }
+
+        .pp-filter-actions .pp-btn:hover {
+            background: #E11835 !important;
+            color: #fff !important;
+            filter: none !important;
+            box-shadow: 0 6px 18px -5px rgba(225, 24, 53, 0.38) !important;
+        }
+
+        #filter-form .pp-search-wrap {
             border-radius: var(--pp-radius-lg) !important;
             background: #fff !important;
-            border: 1.5px solid var(--pp-border) !important;
+            border: 1.5px solid #E11835 !important;
             transition: all 0.25s ease;
             overflow: hidden;
         }
 
-        .pp-search-wrap:focus-within {
-            border-color: var(--pp-blue) !important;
-            box-shadow: 0 0 0 3px var(--pp-blue-soft), 0 4px 12px -8px rgba(37, 99, 235, 0.15) !important;
+        #filter-form .pp-search-wrap:focus-within {
+            border-color: #E11835 !important;
+            box-shadow: 0 0 0 3px rgba(225, 24, 53, 0.12), 0 4px 12px -8px rgba(225, 24, 53, 0.2) !important;
             background: #fff !important;
         }
 
@@ -226,20 +289,20 @@
 
         .pp-search-wrap .input-group-text {
             font-size: 12px;
-            color: #aab2c0;
+            color: #E11835;
         }
 
-        .pp-select2 .select2-selection--single {
+        #filter-form .select2-container .select2-selection--single {
             height: 36px !important;
             border-radius: var(--pp-radius-lg) !important;
-            border: 1.5px solid var(--pp-border) !important;
+            border: 1.5px solid #E11835 !important;
             background: #fff !important;
             display: flex !important;
             align-items: center;
             transition: all 0.25s ease;
         }
 
-        .pp-select2 .select2-selection--single .select2-selection__rendered {
+        #filter-form .select2-container .select2-selection--single .select2-selection__rendered {
             color: var(--pp-ink);
             font-size: 12px;
             font-weight: 500;
@@ -247,52 +310,59 @@
             line-height: 34px;
         }
 
-        .pp-select2 .select2-selection--single .select2-selection__arrow {
+        #filter-form .select2-container .select2-selection--single .select2-selection__arrow {
             height: 34px;
             right: 10px;
         }
 
-        .pp-select2 .select2-selection--single .select2-selection__arrow b {
-            border-color: var(--pp-blue) transparent transparent transparent !important;
+        #filter-form .select2-container .select2-selection--single .select2-selection__arrow b {
+            border-color: #E11835 transparent transparent transparent !important;
             border-width: 4px 4px 0 !important;
         }
 
-        .pp-select2.select2-container--open .select2-selection--single,
-        .pp-select2.select2-container--focus .select2-selection--single {
-            border-color: var(--pp-blue) !important;
-            box-shadow: 0 0 0 3px var(--pp-blue-soft) !important;
+        #filter-form .select2-container--default:hover .select2-selection--single,
+        #filter-form .select2-container--default.select2-container--open .select2-selection--single,
+        #filter-form .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #E11835 !important;
+            box-shadow: 0 0 0 3px rgba(225, 24, 53, 0.12) !important;
             background: #fff !important;
         }
 
-        .pp-select2 .select2-dropdown {
+        #filter-form .select2-container--open .select2-dropdown {
             border-radius: var(--pp-radius-sm) !important;
-            border: 1px solid var(--pp-border) !important;
+            border: 1px solid #E11835 !important;
             box-shadow: var(--pp-shadow-lift) !important;
             overflow: hidden;
             margin-top: 4px;
         }
 
-        .pp-select2 .select2-results__option {
+        #filter-form .select2-results__option {
             font-size: 12px !important;
             padding: 8px 12px !important;
             transition: background 0.15s;
         }
 
-        .pp-select2 .select2-results__option--highlighted[aria-selected] {
-            background: linear-gradient(135deg, var(--pp-blue-bright), var(--pp-blue)) !important;
+        #filter-form .select2-results__option--highlighted[aria-selected] {
+            background: #E11835 !important;
             color: #ffffff !important;
         }
 
-        .pp-select2 .select2-results__option[aria-selected=true] {
-            background: var(--pp-blue-soft) !important;
-            color: var(--pp-ink) !important;
+        #filter-form .select2-results__option[aria-selected=true] {
+            background: #E11835 !important;
+            color: #ffffff !important;
         }
 
-        .pp-select2 .select2-search--dropdown .select2-search__field {
+        #filter-form .select2-search--dropdown .select2-search__field {
             border-radius: 8px !important;
-            border: 1px solid var(--pp-border) !important;
+            border: 1px solid #E11835 !important;
             padding: 6px 10px !important;
             font-size: 12px !important;
+        }
+
+        #filter-form .select2-search--dropdown .select2-search__field:focus {
+            border-color: #E11835 !important;
+            box-shadow: 0 0 0 2px rgba(225, 24, 53, 0.12) !important;
+            outline: 0;
         }
 
         .pp-btn {
@@ -338,22 +408,23 @@
         }
 
         .pp-btn-reset {
-            background: #fff !important;
-            color: var(--pp-blue-deep) !important;
-            border: 1.5px solid rgba(37, 99, 235, 0.25) !important;
+            background: #E11835 !important;
+            color: #fff !important;
+            border: 1.5px solid #E11835 !important;
             border-radius: 10px !important;
             font-weight: 700 !important;
             font-size: 11.5px !important;
             padding: 7px 14px !important;
             letter-spacing: 0.2px;
             transition: all 0.2s ease !important;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
+            box-shadow: 0 2px 8px rgba(225, 24, 53, 0.16);
         }
 
         .pp-btn-reset:hover {
-            background: rgba(37, 99, 235, 0.07) !important;
-            border-color: var(--pp-blue) !important;
-            box-shadow: 0 4px 16px -6px rgba(37, 99, 235, 0.2);
+            background: #E11835 !important;
+            border-color: #E11835 !important;
+            color: #fff !important;
+            box-shadow: 0 4px 16px -6px rgba(225, 24, 53, 0.28);
             transform: translateY(-1px);
         }
 
@@ -805,6 +876,20 @@
             .pp-header {
                 margin-top: 4px;
                 margin-bottom: 14px;
+            }
+
+            .pp-filter-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .pp-filter-actions {
+                width: 100%;
+            }
+
+            .pp-filter-actions .pp-btn {
+                flex: 1;
             }
 
             .pp-header h1 {
@@ -1393,13 +1478,31 @@
                 <div class="col-12">
                     <div class="card border-0 pp-filter-card">
                         <div class="card-body">
+                            <div class="pp-filter-toolbar">
+                                <div>
+                                    <h2 class="pp-filter-title"><i class="fas fa-filter"></i> Find products</h2>
+                                    <p class="pp-filter-description">Search and filter the catalog</p>
+                                </div>
+                                @can('Manage Products')
+                                    <div class="pp-filter-actions">
+                                        <a href="{{ route('admin.products.import.view') }}"
+                                            class="btn pp-btn pp-btn-emerald shadow-sm">
+                                            <i class="fas fa-file-import mr-1"></i> Import
+                                        </a>
+                                        <a href="{{ route('admin.products.create') }}"
+                                            class="btn pp-btn pp-btn-blue shadow-sm">
+                                            <i class="fas fa-plus mr-1"></i> Create Product
+                                        </a>
+                                    </div>
+                                @endcan
+                            </div>
                             <form id="filter-form">
                                 <div class="row g-4 align-items-end">
                                     <div class="col-12 col-md-3">
                                         <div class="input-group pp-search-wrap shadow-sm">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text border-0 pl-3 pr-1 bg-transparent">
-                                                    <i class="fas fa-search" style="color: #aab2c0;"></i>
+                                                    <i class="fas fa-search" style="color: #E11835;"></i>
                                                 </span>
                                             </div>
                                             <input type="text" class="form-control search-input border-0 pl-1"
@@ -1417,34 +1520,22 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-2">
-                                        <select name="sub_category" id="sub_category"
+                                    <div class="col-12 col-md-3">
+                                        <select name="sub_category" id="sub_category" data-placeholder="Sub Category"
                                             class="form-control select2 pp-select2">
                                             <option value="">Sub Category</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-2">
-                                        <select name="child_category" id="child_category"
+                                    <div class="col-12 col-md-3">
+                                        <select name="child_category" id="child_category" data-placeholder="Child Category"
                                             class="form-control select2 pp-select2">
                                             <option value="">Child Category</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-2">
-                                        @can('Manage Products')
-                                            <a href="{{ route('admin.products.import.view') }}"
-                                                class="btn pp-btn pp-btn-emerald shadow-sm d-block mb-1">
-                                                <i class="fas fa-file-import mr-1"></i> Import
-                                            </a>
-                                            <a href="{{ route('admin.products.create') }}"
-                                                class="btn pp-btn pp-btn-blue shadow-sm d-block">
-                                                <i class="fas fa-plus mr-1"></i> Create
-                                            </a>
-                                        @endcan
-                                    </div>
                                 </div>
                                 <hr style="border-top: 1px solid var(--pp-border); margin: 6px 0 10px;">
                                 <div class="row g-4 align-items-end">
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-2">
                                         <select name="sort" id="sort" class="form-control select2 pp-select2">
                                             <option value="">Sort by</option>
                                             <option value="latest"
@@ -1696,6 +1787,22 @@
                 toastr.options.showDuration = 150;
                 toastr.options.hideDuration = 150;
             }
+
+            $('#filter-form select.select2').each(function() {
+                const $field = $(this);
+                if ($field.hasClass('select2-hidden-accessible')) {
+                    $field.select2('destroy');
+                }
+                const options = {
+                    dropdownParent: $('#filter-form'),
+                    width: '100%'
+                };
+                if ($field.is('#sub_category, #child_category')) {
+                    options.placeholder = $field.data('placeholder');
+                    options.minimumResultsForSearch = 10;
+                }
+                $field.select2(options);
+            });
 
             // Ensure grid is visible on page load - initial state should be opacity 1
             if ($('#product-grid-container').data('loaded')) {

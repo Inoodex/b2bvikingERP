@@ -65,7 +65,7 @@
 
         {{-- Column 4: Linear Segmented Override Pill + Inline Virtual Quota Input --}}
         <td style="padding: 12px 14px; vertical-align: middle; text-align: right;">
-            <div class="d-inline-flex align-items-center justify-content-end" style="gap: 8px;">
+            <div class="d-inline-flex align-items-center justify-content-end matrix-row-actions" style="gap: 8px;">
                 {{-- Linear-style 3-Way Segmented Control --}}
                 <div class="matrix-segmented-control" data-product-id="{{ $product->id }}">
                     <button type="button" 
