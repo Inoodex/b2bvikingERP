@@ -57,9 +57,19 @@
                             </li>
                             @endif
                             <li class="list-group-item d-flex justify-content-between bg-light">
-                                <strong class="h6 mb-0">Paid Amount:</strong>
-                                <strong class="h5 mb-0 text-success">{{ $payment->currency?->symbol ?? ($settings->currency_icon ?? 'Kr.') }}{{ number_format($payment->amount, 2) }}</strong>
+                                <strong class="h6 mb-0">Paid Amount (Foreign):</strong>
+                                <strong class="h5 mb-0 text-success">{{ $payment->currency?->symbol ?? ($settings->currency_icon ?? 'Kr.') }}{{ number_format($payment->amount, 2) }} {{ $payment->currency?->code }}</strong>
                             </li>
+                            @if($payment->exchange_rate && (float)$payment->exchange_rate != 1.0)
+                            <li class="list-group-item d-flex justify-content-between">
+                                <strong>Exchange Rate Applied:</strong>
+                                <span>1 {{ $payment->currency?->code ?? 'Foreign' }} = <strong>{{ number_format($payment->exchange_rate, 4) }} DKK</strong></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between bg-light">
+                                <strong class="h6 mb-0">Base Amount in DKK:</strong>
+                                <strong class="h5 mb-0 text-primary">kr. {{ number_format($payment->base_amount, 2) }}</strong>
+                            </li>
+                            @endif
                         </ul>
                     </div>
                 </div>

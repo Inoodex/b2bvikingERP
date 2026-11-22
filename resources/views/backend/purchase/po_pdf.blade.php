@@ -40,6 +40,16 @@
         </tr>
     </table>
 
+    @php
+        $poCurrency = $po->currency ?: $po->vendor?->currency;
+        $currSymbol = $poCurrency?->symbol ?? 'kr.';
+        $currCode = $poCurrency?->code ?? 'DKK';
+        $isForeign = ($currCode !== 'DKK') || ($po->purchase_type === 'foreign');
+        $exchangeRate = (float)($po->exchange_rate_used ?: ($po->vendor?->effective_exchange_rate ?: 1.0));
+        $foreignValue = (float)($po->foreign_amount ?: $po->total_amount);
+        $baseValue = $isForeign ? ($po->base_amount ?: round($foreignValue * $exchangeRate, 2)) : $foreignValue;
+    @endphp
+
     <table class="info-table">
         <tr>
             <td style="width: 50%;">
@@ -54,9 +64,11 @@
             <td style="width: 50%;">
                 <div class="box">
                     <strong style="color: #2563eb;">ORDER METADATA:</strong><br>
-                    <strong>Purchase Type:</strong> {{ strtoupper($po->purchase_type ?? 'LOCAL') }}<br>
-                    <strong>Currency:</strong> {{ $po->currency ? $po->currency->code : 'DKK' }} ({{ $po->currency ? $po->currency->symbol : 'kr.' }})<br>
-                    <strong>Exchange Rate:</strong> 1 {{ $po->currency ? $po->currency->code : 'DKK' }} = {{ $po->exchange_rate_used ?? 1.0 }} Base<br>
+                    <strong>Purchase Type:</strong> {{ strtoupper($isForeign ? 'FOREIGN' : 'LOCAL') }}<br>
+                    <strong>Currency:</strong> {{ $currCode }} ({{ $currSymbol }})<br>
+                    @if($isForeign)
+                        <strong>Exchange Rate:</strong> 1 {{ $currCode }} = {{ number_format($exchangeRate, 4) }} Base<br>
+                    @endif
                     <strong>Status:</strong> Approved
                 </div>
             </td>
@@ -70,35 +82,47 @@
                 <th style="width: 45%;">Item Description</th>
                 <th style="width: 20%;">Variant / Spec</th>
                 <th class="text-center" style="width: 10%;">Qty</th>
-                <th class="text-right" style="width: 10%;">Unit Price</th>
-                <th class="text-right" style="width: 10%;">Total</th>
+                <th class="text-right" style="width: 15%;">Unit Price ({{ $currSymbol }})</th>
+                <th class="text-right" style="width: 15%;">Total ({{ $currSymbol }})</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($po->items as $index => $item)
+            @forelse($po->items as $index => $item)
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td><strong>{{ $item->product ? $item->product->name : 'Item #' . $item->product_id }}</strong></td>
                     <td>{{ $item->variant ? $item->variant->name : 'Default' }}</td>
                     <td class="text-center">{{ number_format($item->qty ?? $item->quantity ?? 0, 2) }}</td>
-                    <td class="text-right">{{ number_format($item->unit_cost ?? $item->unit_price ?? 0, 2) }}</td>
-                    <td class="text-right">{{ number_format($item->total ?? $item->total_price ?? 0, 2) }}</td>
+                    <td class="text-right">{{ $currSymbol }} {{ number_format($item->unit_cost ?? $item->unit_price ?? 0, 2) }}</td>
+                    <td class="text-right">{{ $currSymbol }} {{ number_format($item->total ?? $item->total_price ?? 0, 2) }}</td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="6" class="text-center" style="padding: 15px;">Total Order: <strong>{{ $currSymbol }} {{ number_format($foreignValue, 2) }} {{ $currCode }}</strong></td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 
     <table class="totals-table">
         <tr>
             <td><strong>Subtotal:</strong></td>
-            <td class="text-right">{{ $po->currency ? $po->currency->symbol : 'kr.' }} {{ number_format($po->foreign_amount ?? $po->total_amount, 2) }}</td>
+            <td class="text-right">{{ $currSymbol }} {{ number_format($foreignValue, 2) }}</td>
         </tr>
         <tr style="font-size: 14px; background: #edf2f7; font-weight: bold;">
             <td style="padding: 8px;">Grand Total:</td>
             <td class="text-right" style="padding: 8px; color: #2b6cb0;">
-                {{ $po->currency ? $po->currency->symbol : 'kr.' }} {{ number_format($po->foreign_amount ?? $po->total_amount, 2) }}
+                {{ $currSymbol }} {{ number_format($foreignValue, 2) }} {{ $currCode }}
             </td>
         </tr>
+        @if($isForeign)
+        <tr>
+            <td style="font-size: 11px; color: #4a5568;">Base Equivalent:</td>
+            <td class="text-right" style="font-size: 11px; color: #2b6cb0; font-weight: bold;">
+                kr. {{ number_format($baseValue, 2) }} DKK
+            </td>
+        </tr>
+        @endif
     </table>
 
     <div class="clear"></div>

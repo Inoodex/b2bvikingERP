@@ -53,7 +53,13 @@ class PurchasePaymentController extends Controller
             $purchase = Purchase::with(['vendor', 'currency'])->findOrFail($poId);
         }
 
-        $purchases = Purchase::where('status', 1)->whereIn('payment_status', ['unpaid', 'partial'])->get();
+        $purchases = Purchase::where('status', 1)
+            ->where(function ($q) {
+                $q->whereIn('payment_status', ['unpaid', 'partial', 'pending'])
+                  ->orWhere('due_amount', '>', 0);
+            })
+            ->latest()
+            ->get();
         $vendors = Vendor::where('status', 1)->get();
         $currencies = Currency::all();
 

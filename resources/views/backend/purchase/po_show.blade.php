@@ -143,6 +143,7 @@
 
                             <a href="{{ route('admin.landed-cost.show', $po->id) }}" class="btn btn-warning btn-sm font-weight-bold text-white"><i class="fas fa-calculator mr-1"></i> Landed Cost</a>
                             <a href="{{ route('admin.vendor-bills.create', ['purchase_id' => $po->id]) }}" class="btn btn-dark btn-sm font-weight-bold"><i class="fas fa-file-invoice-dollar mr-1"></i> Vendor Bill</a>
+                            <a href="{{ route('admin.purchase-payments.create', ['purchase_id' => $po->id]) }}" class="btn btn-primary btn-sm font-weight-bold"><i class="fas fa-money-bill-wave mr-1"></i> Record Payment</a>
                         </div>
                     @endif
 
@@ -287,23 +288,69 @@
                     </div>
                 </div>
 
+                @php
+                    $poCurrency = $po->currency ?: $po->vendor?->currency;
+                    $currSymbol = $poCurrency?->symbol ?? 'kr.';
+                    $currCode = $poCurrency?->code ?? 'DKK';
+                    $isForeign = ($currCode !== 'DKK') || ($po->purchase_type === 'foreign');
+                    $exchangeRate = (float)($po->exchange_rate_used ?: ($po->vendor?->effective_exchange_rate ?: 1.0));
+                    $foreignValue = (float)($po->foreign_amount ?: $po->total_amount);
+                    $baseValue = $isForeign ? ($po->base_amount ?: round($foreignValue * $exchangeRate, 2)) : $foreignValue;
+                    $foreignDue = (float)($po->due_amount ?: $foreignValue);
+                    $foreignPaid = (float)($po->paid_amount ?: 0);
+                    $basePaid = $isForeign ? round($foreignPaid * $exchangeRate, 2) : $foreignPaid;
+                    $baseDue = $isForeign ? round($foreignDue * $exchangeRate, 2) : $foreignDue;
+                @endphp
                 <div class="col-md-6">
                     <div class="card border shadow-sm h-100">
-                        <div class="card-header bg-white border-bottom py-3">
+                        <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                             <h6 class="mb-0 text-dark font-weight-bold"><i class="fas fa-coins text-warning mr-2"></i> Financial & Currency Valuation</h6>
+                            @if($foreignDue > 0)
+                                <span class="badge badge-danger">Due: {{ $currSymbol }}{{ number_format($foreignDue, 2) }} {{ $currCode }} @if($isForeign) (≈ kr. {{ number_format($baseDue, 2) }}) @endif</span>
+                            @else
+                                <span class="badge badge-success"><i class="fas fa-check-circle mr-1"></i> Fully Paid</span>
+                            @endif
                         </div>
                         <div class="card-body">
                             <div class="row">
+                                <!-- Left Column: Foreign Currency (Vendor Perspective) -->
                                 <div class="col-6">
-                                    <small class="text-muted d-block font-weight-bold">FOREIGN VALUE</small>
-                                    <h4 class="font-weight-bold text-primary mb-0">{{ $po->currency->symbol ?? $po->vendor->currency->symbol ?? getSettings()->currency_icon }} {{ number_format($po->foreign_amount ?? $po->total_amount, 2) }}</h4>
+                                    <small class="text-muted d-block font-weight-bold text-uppercase" style="font-size: 11px;">
+                                        @if($isForeign) FOREIGN VALUE ({{ $currCode }}) @else ORDER VALUE (DKK) @endif
+                                    </small>
+                                    <h4 class="font-weight-bold text-primary mb-1">
+                                        {{ $currSymbol }} {{ number_format($foreignValue, 2) }} 
+                                        @if($isForeign)<small class="text-muted font-weight-normal" style="font-size: 13px;">{{ $currCode }}</small>@endif
+                                    </h4>
+                                    <div class="small text-muted mt-1">
+                                        <span>Paid: <strong class="text-success">{{ $currSymbol }}{{ number_format($foreignPaid, 2) }}</strong></span>
+                                        <span class="mx-1">|</span>
+                                        <span>Due: <strong class="text-danger">{{ $currSymbol }}{{ number_format($foreignDue, 2) }}</strong></span>
+                                    </div>
                                 </div>
+
+                                <!-- Right Column: Base Converted (Company / Admin DKK Perspective) -->
                                 <div class="col-6 border-left">
-                                    <small class="text-muted d-block font-weight-bold">BASE CONVERTED VALUE</small>
-                                    <h4 class="font-weight-bold text-success mb-0">{{ formatConverted($po->base_amount ?? ($po->total_amount * ($po->exchange_rate_used ?? $po->vendor->effective_exchange_rate))) }}</h4>
+                                    <small class="text-muted d-block font-weight-bold text-uppercase" style="font-size: 11px;">
+                                        @if($isForeign) BASE CONVERTED (DKK) @else SETTLEMENT (DKK) @endif
+                                    </small>
+                                    <h4 class="font-weight-bold text-success mb-1">
+                                        kr. {{ number_format($baseValue, 2) }}
+                                    </h4>
+                                    <div class="small text-muted mt-1">
+                                        <span>Paid: <strong class="text-success">kr. {{ number_format($basePaid, 2) }}</strong></span>
+                                        <span class="mx-1">|</span>
+                                        <span>Due: <strong class="text-danger">kr. {{ number_format($baseDue, 2) }}</strong></span>
+                                    </div>
                                 </div>
                             </div>
-                            <small class="text-muted mt-2 d-block"><i class="fas fa-exchange-alt mr-1"></i> Exchange Rate Used: 1 {{ $po->currency->code ?? $po->vendor->currency->code ?? getSettings()->currency_name }} = {{ $po->exchange_rate_used ?? $po->vendor->effective_exchange_rate }} {{ getSettings()->currency_name }}</small>
+
+                            @if($isForeign)
+                            <div class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center text-muted small">
+                                <span><i class="fas fa-exchange-alt mr-1 text-primary"></i> Rate Locked: 1 {{ $currCode }} = <strong>{{ number_format($exchangeRate, 4) }} DKK</strong></span>
+                                <span class="badge badge-light border">Foreign Purchase</span>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -323,24 +370,112 @@
                                     <th>Product Description</th>
                                     <th>Variant</th>
                                     <th class="text-center">Quantity</th>
-                                    <th class="text-right">Unit Price</th>
-                                    <th class="text-right">Total Price</th>
+                                    <th class="text-right">Unit Price ({{ $currSymbol }})</th>
+                                    <th class="text-right">Total Price ({{ $currSymbol }})</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($po->items as $index => $item)
+                                @forelse($po->items as $index => $item)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td class="font-weight-bold">{{ $item->product ? $item->product->name : 'N/A' }}</td>
-                                        <td>{{ $item->variant ? $item->variant->name : 'N/A' }}</td>
+                                        <td>{{ $item->variant ? $item->variant->name : 'Default' }}</td>
                                         <td class="text-center font-weight-bold">{{ number_format($item->qty ?? $item->quantity ?? 0, 2) }}</td>
-                                        <td class="text-right">{{ $po->currency ? $po->currency->symbol : 'kr.' }} {{ number_format($item->unit_cost ?? $item->unit_price ?? 0, 2) }}</td>
-                                        <td class="text-right font-weight-bold">{{ $po->currency ? $po->currency->symbol : 'kr.' }} {{ number_format($item->total ?? $item->total_price ?? 0, 2) }}</td>
+                                        <td class="text-right">{{ $currSymbol }} {{ number_format($item->unit_cost ?? $item->unit_price ?? 0, 2) }}</td>
+                                        <td class="text-right font-weight-bold">{{ $currSymbol }} {{ number_format($item->total ?? $item->total_price ?? 0, 2) }}</td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-muted">
+                                            <i class="fas fa-boxes fa-2x mb-2 text-warning d-block"></i>
+                                            <span>Order Total Value: <strong>{{ $currSymbol }} {{ number_format($foreignValue, 2) }} {{ $currCode }}</strong> @if($isForeign) (≈ kr. {{ number_format($baseValue, 2) }} DKK) @endif</span>
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+
+            <!-- Procurement Multi-Currency Payment History & Settlement -->
+            <div class="card border shadow-sm mb-4">
+                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 text-dark font-weight-bold">
+                        <i class="fas fa-receipt text-success mr-2"></i> Procurement Payments & Currency Settlement History
+                    </h6>
+                    @if($isPoApproved && $po->due_amount > 0)
+                        <a href="{{ route('admin.purchase-payments.create', ['purchase_id' => $po->id]) }}" class="btn btn-sm btn-primary font-weight-bold">
+                            <i class="fas fa-plus-circle mr-1"></i> Record Payment Voucher
+                        </a>
+                    @endif
+                </div>
+                <div class="card-body p-0">
+                    @if($po->payments && $po->payments->count() > 0)
+                        <div class="table-responsive p-3">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Voucher #</th>
+                                        <th>Date</th>
+                                        <th>Payment Method</th>
+                                        <th>Bank / TRX Ref</th>
+                                        <th class="text-right">Paid (Foreign)</th>
+                                        <th class="text-center">Exchange Rate</th>
+                                        <th class="text-right">Base Amount (DKK)</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($po->payments as $pmt)
+                                        <tr>
+                                            <td>
+                                                <a href="{{ route('admin.purchase-payments.show', $pmt->id) }}" class="font-weight-bold text-primary">
+                                                    <code>{{ $pmt->payment_no ?? ('PAY-' . $pmt->id) }}</code>
+                                                </a>
+                                            </td>
+                                            <td>{{ $pmt->payment_date ? \Carbon\Carbon::parse($pmt->payment_date)->format('d M, Y') : $pmt->created_at->format('d M, Y') }}</td>
+                                            <td><span class="badge badge-light border">{{ ucfirst(str_replace('_', ' ', $pmt->payment_method)) }}</span></td>
+                                            <td>
+                                                <small class="text-muted d-block">{{ $pmt->bank_name ?: 'N/A' }}</small>
+                                                @if($pmt->transaction_id)
+                                                    <code class="small">{{ $pmt->transaction_id }}</code>
+                                                @endif
+                                            </td>
+                                            <td class="text-right font-weight-bold text-success">
+                                                {{ $pmt->currency?->symbol ?? ($po->currency?->symbol ?? 'kr.') }}{{ number_format($pmt->amount, 2) }} {{ $pmt->currency?->code ?? $po->currency?->code }}
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge badge-info font-weight-normal">
+                                                    {{ number_format($pmt->exchange_rate ?? 1.0, 4) }}
+                                                </span>
+                                            </td>
+                                            <td class="text-right font-weight-bold text-dark">
+                                                kr. {{ number_format($pmt->base_amount, 2) }}
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ route('admin.purchase-payments.show', $pmt->id) }}" class="btn btn-outline-primary" title="View Voucher"><i class="fas fa-eye"></i></a>
+                                                    <a href="{{ route('admin.purchase-payments.pdf', $pmt->id) }}" target="_blank" class="btn btn-outline-danger" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-coins fa-2x mb-2 text-warning d-block"></i>
+                            <strong>No payment vouchers issued for this Procurement PO yet.</strong>
+                            <p class="small mb-2">When payments are made in multiple currencies, foreign and Danish kroner conversions will be recorded here.</p>
+                            @if($isPoApproved && $po->due_amount > 0)
+                                <a href="{{ route('admin.purchase-payments.create', ['purchase_id' => $po->id]) }}" class="btn btn-sm btn-outline-primary mt-1 font-weight-bold">
+                                    <i class="fas fa-money-bill-wave mr-1"></i> Issue First Payment Voucher
+                                </a>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
 

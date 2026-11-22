@@ -28,7 +28,8 @@ class PoDataTable extends \Yajra\DataTables\Services\DataTable
             ->editColumn('total_amount', function ($query) {
                 if ($query->purchase_type === 'foreign' && $query->foreign_amount > 0) {
                     $symbol = $query->currency ? $query->currency->symbol : '$';
-                    return '<span title="Base: kr. ' . number_format($query->total_amount, 2) . '">' . $symbol . ' ' . number_format($query->foreign_amount, 2) . '</span>';
+                    $baseVal = $query->base_amount ?: ($query->foreign_amount * ($query->exchange_rate_used ?: 1.0));
+                    return '<span title="Base: kr. ' . number_format($baseVal, 2) . ' DKK">' . $symbol . ' ' . number_format($query->foreign_amount, 2) . '</span>';
                 }
                 $symbol = $query->currency ? $query->currency->symbol : 'kr.';
                 return $symbol . ' ' . number_format($query->total_amount, 2);

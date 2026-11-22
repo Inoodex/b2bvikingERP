@@ -87,7 +87,8 @@ class PurchaseOrderController extends Controller
             'emailLogs',
             'shipments',
             'goodsReceipts',
-            'vendorBills'
+            'vendorBills',
+            'payments.currency'
         ])->findOrFail($id);
         return view('backend.purchase.po_show', compact('po'));
     }
