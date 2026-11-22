@@ -26,19 +26,38 @@ class VendorBillController extends Controller
      */
     public function index(VendorBillDataTable $dataTable)
     {
-        // 4 Live Executive AP KPI Metrics
-        $totalApPayable = (float) VendorBill::where('due_amount', '>', 0)->sum('due_amount');
-        if ($totalApPayable <= 0) {
-            $totalApPayable = (float) Purchase::where('due_amount', '>', 0)->sum('due_amount');
+        // 4 Live Executive AP KPI Metrics (Normalized to Base DKK)
+        $bills = VendorBill::with(['purchase', 'vendor.currency', 'currency'])->where('due_amount', '>', 0)->get();
+
+        $totalApPayable = 0;
+        $dueInNext7Days = 0;
+        $criticalOverdueAp = 0;
+        $today = now()->toDateString();
+        $next7Days = now()->addDays(7)->toDateString();
+
+        foreach ($bills as $bill) {
+            $rate = (float)($bill->purchase?->exchange_rate_used ?: ($bill->currency?->exchange_rate ?: ($bill->vendor?->effective_exchange_rate ?: 1.0)));
+            $baseDue = round((float)$bill->due_amount * $rate, 2);
+            $totalApPayable += $baseDue;
+
+            if ($bill->due_date) {
+                $dueDate = $bill->due_date->toDateString();
+                if ($dueDate >= $today && $dueDate <= $next7Days) {
+                    $dueInNext7Days += $baseDue;
+                }
+                if ($dueDate < $today) {
+                    $criticalOverdueAp += $baseDue;
+                }
+            }
         }
 
-        $dueInNext7Days = (float) VendorBill::where('due_amount', '>', 0)
-            ->whereBetween('due_date', [now()->toDateString(), now()->addDays(7)->toDateString()])
-            ->sum('due_amount');
-
-        $criticalOverdueAp = (float) VendorBill::where('due_amount', '>', 0)
-            ->where('due_date', '<', now()->toDateString())
-            ->sum('due_amount');
+        if ($totalApPayable <= 0) {
+            $purchases = Purchase::with(['vendor.currency', 'currency'])->where('due_amount', '>', 0)->get();
+            foreach ($purchases as $p) {
+                $rate = (float)($p->exchange_rate_used ?: ($p->currency?->exchange_rate ?: 1.0));
+                $totalApPayable += round((float)$p->due_amount * $rate, 2);
+            }
+        }
 
         $totalBillsCount = VendorBill::count();
 

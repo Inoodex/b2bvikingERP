@@ -115,43 +115,72 @@
                         </ul>
 
                         @php
-                            $exchangeRate = $bill->purchase?->exchange_rate_used ?? $bill->currency?->exchange_rate ?? $bill->exchange_rate ?? 1;
+                            $billCurr = $bill->currency ?: ($bill->purchase?->currency ?: $bill->vendor?->currency);
+                            $billCurrSymbol = $billCurr?->symbol ?? 'kr.';
+                            $billCurrCode = $billCurr?->code ?? 'DKK';
+                            $exchangeRate = (float)($bill->purchase?->exchange_rate_used ?: ($billCurr?->exchange_rate ?: 1.0));
                             $baseCurrencySymbol = $settings->currency_icon ?? 'kr.';
-                            $isForeignCurrency = $bill->currency_id && ($bill->currency?->code !== 'DKK');
+                            $isForeignCurrency = $billCurrCode !== 'DKK';
+                            $baseGrandTotal = round($bill->grand_total * $exchangeRate, 2);
+                            $basePaidAmount = round($bill->paid_amount * $exchangeRate, 2);
+                            $baseDueAmount = round($bill->due_amount * $exchangeRate, 2);
                         @endphp
-                        <div class="card card-secondary mt-3 mb-0">
+                        <div class="card card-secondary mt-3 mb-0 shadow-sm border">
                             <div class="card-body p-3">
                                 <div class="d-flex justify-content-between mb-1">
-                                    <span>Subtotal:</span>
-                                    <strong>{{ $bill->currency?->symbol ?? ($settings->currency_icon ?? 'kr.') }}{{ number_format($bill->subtotal, 2) }}</strong>
+                                    <span class="text-muted">Subtotal:</span>
+                                    <strong>{{ $billCurrSymbol }} {{ number_format($bill->subtotal, 2) }}</strong>
                                 </div>
                                 @if($bill->debit_note_adjustment > 0)
                                 <div class="d-flex justify-content-between text-danger mb-1">
                                     <span>Debit Note Adjustment:</span>
-                                    <strong>-{{ $bill->currency?->symbol ?? ($settings->currency_icon ?? 'kr.') }}{{ number_format($bill->debit_note_adjustment, 2) }}</strong>
+                                    <strong>-{{ $billCurrSymbol }} {{ number_format($bill->debit_note_adjustment, 2) }}</strong>
                                 </div>
                                 @endif
-                                <div class="d-flex justify-content-between border-top pt-2">
-                                    <span class="h6 mb-0">Grand Total:</span>
-                                    <div class="text-right">
-                                        <strong class="h6 mb-0 text-primary">{{ $bill->currency?->symbol ?? ($settings->currency_icon ?? 'kr.') }}{{ number_format($bill->grand_total, 2) }}</strong>
-                                        @if($isForeignCurrency && $exchangeRate > 0)
-                                            <div class="text-muted small font-weight-bold" style="font-size: 11px;">(≈ {{ $baseCurrencySymbol }}{{ number_format($bill->grand_total * $exchangeRate, 2) }} Base)</div>
-                                        @endif
+
+                                <!-- Grand Total Section -->
+                                <div class="border-top pt-2 mt-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="h6 mb-0 font-weight-bold">Grand Total:</span>
+                                        <strong class="h5 mb-0 text-primary">{{ $billCurrSymbol }} {{ number_format($bill->grand_total, 2) }} @if($isForeignCurrency)<small class="text-muted font-weight-normal">{{ $billCurrCode }}</small>@endif</strong>
                                     </div>
-                                </div>
-                                <div class="d-flex justify-content-between text-success mt-1">
-                                    <span>Total Paid:</span>
-                                    <strong>{{ $bill->currency?->symbol ?? ($settings->currency_icon ?? 'kr.') }}{{ number_format($bill->paid_amount, 2) }}</strong>
-                                </div>
-                                <div class="d-flex justify-content-between text-danger mt-1 border-top pt-1">
-                                    <span class="font-weight-bold">Balance Due:</span>
-                                    <div class="text-right">
-                                        <strong class="font-weight-bold">{{ $bill->currency?->symbol ?? ($settings->currency_icon ?? 'kr.') }}{{ number_format($bill->due_amount, 2) }}</strong>
-                                        @if($isForeignCurrency && $exchangeRate > 0)
-                                            <div class="text-muted small font-weight-bold" style="font-size: 11px;">(≈ {{ $baseCurrencySymbol }}{{ number_format($bill->due_amount * $exchangeRate, 2) }} Base)</div>
-                                        @endif
+                                    @if($isForeignCurrency && $exchangeRate > 0)
+                                    <div class="d-flex justify-content-between align-items-center mt-1 py-1.5 px-2 rounded" style="background: #eff6ff; border: 1px solid #bfdbfe;">
+                                        <span class="small font-weight-bold text-primary"><i class="fas fa-coins mr-1"></i> Base Total (DKK):</span>
+                                        <strong class="text-primary font-weight-bold">kr. {{ number_format($baseGrandTotal, 2) }}</strong>
                                     </div>
+                                    @endif
+                                </div>
+
+                                <!-- Paid Section -->
+                                <div class="mt-2 pt-2 border-top">
+                                    <div class="d-flex justify-content-between text-success">
+                                        <span>Total Paid:</span>
+                                        <strong>{{ $billCurrSymbol }} {{ number_format($bill->paid_amount, 2) }}</strong>
+                                    </div>
+                                    @if($isForeignCurrency && $bill->paid_amount > 0)
+                                    <div class="d-flex justify-content-between text-muted small mt-1">
+                                        <span>Paid in Base (DKK):</span>
+                                        <span class="font-weight-bold text-success">kr. {{ number_format($basePaidAmount, 2) }}</span>
+                                    </div>
+                                    @endif
+                                </div>
+
+                                <!-- Balance Due Section -->
+                                <div class="mt-2 pt-2 border-top">
+                                    <div class="d-flex justify-content-between align-items-center text-danger">
+                                        <span class="font-weight-bold h6 mb-0">Balance Due:</span>
+                                        <strong class="h5 mb-0 text-danger">{{ $billCurrSymbol }} {{ number_format($bill->due_amount, 2) }} @if($isForeignCurrency)<small class="font-weight-normal text-danger">{{ $billCurrCode }}</small>@endif</strong>
+                                    </div>
+                                    @if($isForeignCurrency && $exchangeRate > 0)
+                                    <div class="d-flex justify-content-between align-items-center mt-1 py-1.5 px-2 rounded" style="background: #fef2f2; border: 1px solid #fecaca;">
+                                        <span class="small font-weight-bold text-danger"><i class="fas fa-file-invoice mr-1"></i> Base Payable (DKK):</span>
+                                        <strong class="text-danger font-weight-bold h6 mb-0">kr. {{ number_format($baseDueAmount, 2) }}</strong>
+                                    </div>
+                                    <div class="text-right mt-1">
+                                        <small class="text-muted" style="font-size: 11px;"><i class="fas fa-exchange-alt mr-1"></i> Rate: 1 {{ $billCurrCode }} = {{ number_format($exchangeRate, 4) }} DKK</small>
+                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
