@@ -42,7 +42,7 @@
                             </div>
 
                             <div class="col-md-3 col-sm-12 form-group d-flex align-items-end">
-                                <button type="button" class="btn btn-warning px-4 w-100" id="reset-filters" style="height: 42px;">
+                                <button type="button" class="btn btn-warning px-4 w-100 reset-arrow-button" id="reset-filters" style="height: 42px;">
                                     <i class="fas fa-undo mr-1"></i> Reset Filters
                                 </button>
                             </div>

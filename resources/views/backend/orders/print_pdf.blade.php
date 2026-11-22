@@ -162,7 +162,7 @@
     @endif --}}
 
     @if($order->ship_different)
-        <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-left: 3px solid #6777ef;">
+        <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-left: 3px solid #2563eb;">
             <div style="font-weight: bold; font-size: 11px;">Shipping Info:</div>
             <div style="font-size: 11px;">
                 {{ $order->shipping_name ?: 'N/A' }},

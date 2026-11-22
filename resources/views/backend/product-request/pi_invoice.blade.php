@@ -46,8 +46,8 @@
                 border: none;
             }
             .btn-print { background: #ffc107; color: #000; }
-            .btn-download { background: #3abaf4; color: #fff; }
-            .btn-back { background: #6777ef; color: #fff; }
+            .btn-download { background: #2563eb; color: #fff; }
+            .btn-back { background: #2563eb; color: #fff; }
             .btn-close { background: #6c757d; color: #fff; }
         }
         @media print {
@@ -122,7 +122,7 @@
             text-transform: uppercase;
             color: #fff;
         }
-        .badge-warning { background-color: #ffc107; color: #000; }
+        .badge-warning { background-color: #dc2626; color: #fff; }
         .badge-info { background-color: #17a2b8; }
         .badge-success { background-color: #28a745; }
         .badge-danger { background-color: #dc3545; }
@@ -338,7 +338,7 @@
         ])
 
         @if($productRequest->note)
-            <div style="margin-top: 15px; background: #f8f9fa; padding: 15px; border-left: 4px solid #6777ef;">
+            <div style="margin-top: 15px; background: #f8f9fa; padding: 15px; border-left: 4px solid #2563eb;">
                 <strong>Requester Note:</strong><br>
                 {{ $productRequest->note }}
             </div>

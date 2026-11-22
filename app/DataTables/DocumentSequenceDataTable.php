@@ -38,7 +38,7 @@ class DocumentSequenceDataTable extends DataTable
                 return '<span class="badge badge-success px-3 py-1 font-weight-bold" style="border-radius: 6px; font-size: 0.85rem;">#' . $query->next_number . '</span>';
             })
             ->addColumn('reset_policy_badge', function ($query) {
-                return '<span class="badge badge-warning px-3 py-1 text-capitalize font-weight-bold" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a;">' . e($query->reset_policy) . '</span>';
+                return '<span class="badge badge-warning px-3 py-1 text-capitalize font-weight-bold" style="background: #dc2626; color: #ffffff; border: 1px solid #b91c1c;">' . e($query->reset_policy) . '</span>';
             })
             ->addColumn('sample_preview', function ($query) {
                 $numberStr = str_pad((string) $query->next_number, $query->padding, '0', STR_PAD_LEFT);

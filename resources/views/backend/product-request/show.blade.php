@@ -314,7 +314,7 @@
                                 </div>
                             @elseif($productRequest->order->due_amount > 0)
                                 <div class="text-center mt-3">
-                                    <span class="badge badge-warning">Partial Payment Pending</span>
+                                    <span class="badge badge-success">Partial Payment Pending</span>
                                 </div>
                             @endif
                         </div>

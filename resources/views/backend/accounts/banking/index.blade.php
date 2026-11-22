@@ -1,13 +1,465 @@
 @extends('backend.layouts.master')
 @section('title', 'Bank & Cash Accounts — Treasury Management')
 
+@push('styles')
+<style>
+    .bank-accounts-page {
+        --bank-accent: #E11835;
+        --bank-ink: #172033;
+        --bank-muted: #748094;
+        --bank-line: #e8edf4;
+        padding-bottom: 24px;
+    }
+
+    .bank-page-header,
+    .bank-section-panel,
+    .bank-metric-card,
+    .bank-account-card {
+        background: #fff;
+        border: 1px solid var(--bank-line);
+        box-shadow: 0 8px 24px rgba(23, 32, 51, 0.045);
+    }
+
+    .bank-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 20px;
+        padding: 24px 28px;
+        margin-bottom: 22px;
+        border-radius: 18px;
+        background: linear-gradient(120deg, #fff 0%, #fff 68%, #fff7f8 100%);
+    }
+
+    .bank-page-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 8px;
+        color: var(--bank-accent);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.15px;
+        text-transform: uppercase;
+    }
+
+    .bank-page-title {
+        margin: 0;
+        color: var(--bank-ink);
+        font-size: 25px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .bank-page-description {
+        margin: 7px 0 0;
+        color: var(--bank-muted);
+        font-size: 12px;
+    }
+
+    .bank-page-header .section-header-breadcrumb {
+        flex: 0 0 auto;
+        margin-bottom: 2px;
+    }
+
+    .bank-metric-card {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-height: 126px;
+        padding: 22px 24px;
+        overflow: hidden;
+        border-radius: 16px;
+    }
+
+    .bank-metric-card::after {
+        position: absolute;
+        right: -24px;
+        bottom: -48px;
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        background: currentColor;
+        content: "";
+        opacity: 0.035;
+    }
+
+    .bank-metric-icon {
+        display: inline-flex;
+        flex: 0 0 54px;
+        align-items: center;
+        justify-content: center;
+        width: 54px;
+        height: 54px;
+        border-radius: 15px;
+        font-size: 20px;
+    }
+
+    .bank-metric-liquidity .bank-metric-icon {
+        background: #eaf7ef;
+        color: #15803d;
+    }
+
+    .bank-metric-accounts .bank-metric-icon {
+        background: #fff0f2;
+        color: var(--bank-accent);
+    }
+
+    .bank-metric-label {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--bank-muted);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+    }
+
+    .bank-metric-value {
+        margin: 0;
+        color: var(--bank-ink);
+        font-size: 23px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .bank-metric-note {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 7px;
+        color: var(--bank-muted);
+        font-size: 10px;
+        font-weight: 600;
+    }
+
+    .bank-section-panel {
+        overflow: hidden;
+        border-radius: 18px;
+    }
+
+    .bank-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--bank-line);
+    }
+
+    .bank-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+        color: var(--bank-ink);
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .bank-section-title-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: #fff0f2;
+        color: var(--bank-accent);
+    }
+
+    .bank-count {
+        padding: 4px 9px;
+        border-radius: 20px;
+        background: #f1f4f8;
+        color: #667085;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .bank-section-actions {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .bank-section-actions .btn {
+        min-height: 36px;
+        padding: 8px 13px;
+        border-radius: 9px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .bank-accounts-page .bank-section-actions .btn:not(.btn-social):not(.btn-social-icon):not(.btn-link) {
+        background: var(--bank-accent) !important;
+        border-color: var(--bank-accent) !important;
+        color: #fff !important;
+        box-shadow: 0 5px 12px rgba(225, 24, 53, 0.16) !important;
+    }
+
+    .bank-accounts-page .bank-section-actions .btn.bank-reconcile-button:not(.btn-social):not(.btn-social-icon):not(.btn-link) {
+        background: #fff !important;
+        border: 1px solid #dfe5ed !important;
+        color: #344054 !important;
+    }
+
+    .bank-grid {
+        padding: 22px;
+    }
+
+    .bank-account-card {
+        height: 100%;
+        border-radius: 15px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .bank-account-card:hover {
+        transform: translateY(-3px);
+        border-color: #f1b6c0;
+        box-shadow: 0 14px 28px rgba(23, 32, 51, 0.09);
+    }
+
+    .bank-account-card .card-body {
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .bank-account-topline {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .bank-institution {
+        max-width: 65%;
+        overflow: hidden;
+        padding: 6px 10px;
+        border-radius: 7px;
+        background: #f2f5f9;
+        color: #475467;
+        font-size: 10px;
+        font-weight: 800;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .bank-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 9px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .bank-status-active {
+        background: #eaf7ef;
+        color: #16834b;
+    }
+
+    .bank-status-inactive {
+        background: #f1f3f6;
+        color: #667085;
+    }
+
+    .bank-account-name {
+        margin: 0 0 7px;
+        color: var(--bank-ink);
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 1.4;
+    }
+
+    .bank-account-number {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 17px;
+        color: var(--bank-muted);
+        font-size: 11px;
+        overflow-wrap: anywhere;
+    }
+
+    .bank-balance-box {
+        margin-bottom: 17px;
+        padding: 14px 15px;
+        border: 1px solid #e8edf4;
+        border-radius: 11px;
+        background: #f7f9fc;
+    }
+
+    .bank-balance-label {
+        display: block;
+        margin-bottom: 4px;
+        color: #8a94a6;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+    }
+
+    .bank-balance-value {
+        margin: 0;
+        color: #16834b;
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.25;
+    }
+
+    .bank-gl-reference {
+        display: block;
+        margin-top: 8px;
+        color: var(--bank-muted);
+        font-size: 10px;
+        line-height: 1.45;
+    }
+
+    .bank-account-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-top: auto;
+        padding-top: 14px;
+        border-top: 1px solid #edf0f4;
+    }
+
+    .bank-account-utility-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .bank-account-actions .btn {
+        min-height: 31px;
+        padding: 6px 9px;
+        border-radius: 7px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .bank-accounts-page .bank-account-actions .btn:not(.btn-social):not(.btn-social-icon):not(.btn-link) {
+        background: #f1f5f9 !important;
+        border-color: #e4e9f0 !important;
+        color: #475467 !important;
+    }
+
+    .bank-accounts-page .bank-account-actions .btn.bank-reconcile-link:not(.btn-social):not(.btn-social-icon):not(.btn-link) {
+        background: #fff0f2 !important;
+        border-color: #f6c4cd !important;
+        color: var(--bank-accent) !important;
+    }
+
+    .bank-accounts-page .bank-account-actions .btn.bank-toggle-button:not(.btn-social):not(.btn-social-icon):not(.btn-link) {
+        border-color: #e2e7ee !important;
+        background: #fff !important;
+        color: #667085 !important;
+    }
+
+    .bank-accounts-page .bank-account-actions .btn.btn-edit-account:not(.btn-social):not(.btn-social-icon):not(.btn-link) {
+        background: #f1f5f9 !important;
+        border-color: #e4e9f0 !important;
+        color: #475467 !important;
+    }
+
+    .bank-accounts-page .bank-account-actions .btn.delete-item:not(.btn-social):not(.btn-social-icon):not(.btn-link) {
+        background: var(--bank-accent) !important;
+        border-color: var(--bank-accent) !important;
+    }
+
+    .bank-accounts-page .bank-empty-state .btn.bank-add-button:not(.btn-social):not(.btn-social-icon):not(.btn-link) {
+        background: var(--bank-accent) !important;
+        border-color: var(--bank-accent) !important;
+        color: #fff !important;
+    }
+
+    .bank-empty-state {
+        padding: 54px 20px;
+        text-align: center;
+    }
+
+    .bank-empty-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 70px;
+        height: 70px;
+        margin-bottom: 16px;
+        border-radius: 22px;
+        background: #fff0f2;
+        color: var(--bank-accent);
+        font-size: 27px;
+    }
+
+    .bank-pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 22px;
+        border-top: 1px solid var(--bank-line);
+        color: var(--bank-muted);
+        font-size: 11px;
+    }
+
+    @media (max-width: 767.98px) {
+        .bank-page-header {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .bank-page-title {
+            font-size: 21px;
+        }
+
+        .bank-page-header .section-header-breadcrumb {
+            display: none;
+        }
+
+        .bank-section-header {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 17px;
+        }
+
+        .bank-section-actions {
+            width: 100%;
+        }
+
+        .bank-section-actions .btn {
+            flex: 1;
+            padding-right: 8px;
+            padding-left: 8px;
+        }
+
+        .bank-grid {
+            padding: 15px;
+        }
+
+        .bank-pagination {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 15px;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
-<section class="section">
-    <!-- Header Section -->
-    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+<section class="section bank-accounts-page">
+    <div class="bank-page-header">
         <div>
-            <h1 class="text-dark font-weight-bold mb-1"><i class="fas fa-university text-primary mr-2"></i> Bank & Treasury Accounts</h1>
-            <p class="text-muted mb-0 small">Multi-Currency Bank Vaults, Live Liquidity, and GL Account Integrations</p>
+            <span class="bank-page-kicker"><i class="fas fa-chart-line"></i> Treasury management</span>
+            <h1 class="bank-page-title">Bank & Treasury Accounts</h1>
+            <p class="bank-page-description">Manage bank balances, linked ledger accounts, and reconciliation in one place.</p>
         </div>
         <div class="section-header-breadcrumb">
             <div class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
@@ -16,92 +468,89 @@
         </div>
     </div>
 
-    <!-- 2 Top KPI Cards -->
     <div class="row mb-4">
         <div class="col-lg-6 col-md-6 col-12 mb-3">
-            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px; border-left: 4px solid #28a745 !important;">
-                <div class="card-icon bg-success text-white">
-                    <i class="fas fa-wallet fa-2x"></i>
-                </div>
-                <div class="card-wrap">
-                    <div class="card-header"><h4 class="text-muted small text-uppercase font-weight-bold">Total Liquid Bank Balance</h4></div>
-                    <div class="card-body font-weight-bold text-dark h4 mb-0">
-                        kr. {{ number_format($totalBankLiquidity, 2) }}
-                    </div>
-                    <small class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i> Across All Active Accounts</small>
+            <div class="bank-metric-card bank-metric-liquidity">
+                <span class="bank-metric-icon"><i class="fas fa-wallet"></i></span>
+                <div>
+                    <span class="bank-metric-label">Total liquid bank balance</span>
+                    <p class="bank-metric-value">kr. {{ number_format($totalBankLiquidity, 2) }}</p>
+                    <span class="bank-metric-note"><i class="fas fa-check-circle text-success"></i> Across all active accounts</span>
                 </div>
             </div>
         </div>
         <div class="col-lg-6 col-md-6 col-12 mb-3">
-            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px; border-left: 4px solid #17a2b8 !important;">
-                <div class="card-icon bg-info text-white">
-                    <i class="fas fa-landmark fa-2x"></i>
-                </div>
-                <div class="card-wrap">
-                    <div class="card-header"><h4 class="text-muted small text-uppercase font-weight-bold">Registered Bank Accounts</h4></div>
-                    <div class="card-body font-weight-bold text-dark h4 mb-0">
-                        {{ $activeBanksCount }} Active Vaults
-                    </div>
-                    <small class="text-info font-weight-bold"><i class="fas fa-exchange-alt mr-1"></i> Ready for Reconciliation</small>
+            <div class="bank-metric-card bank-metric-accounts">
+                <span class="bank-metric-icon"><i class="fas fa-landmark"></i></span>
+                <div>
+                    <span class="bank-metric-label">Registered bank accounts</span>
+                    <p class="bank-metric-value">{{ $activeBanksCount }} <span class="font-weight-normal">active</span></p>
+                    <span class="bank-metric-note"><i class="fas fa-sync-alt"></i> Ready for reconciliation</span>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="section-body">
-        <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
-            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-                <h5 class="font-weight-bold text-dark mb-0"><i class="fas fa-list text-primary mr-2"></i> Corporate Bank Accounts <span class="badge badge-light border ml-1 font-weight-normal text-muted" style="font-size: 13px;">({{ $bankAccounts->total() }})</span></h5>
+        <div class="bank-section-panel mb-4">
+            <div class="bank-section-header">
                 <div>
-                    <a href="{{ route('admin.bank-reconciliation.index') }}" class="btn btn-outline-info font-weight-bold mr-2">
-                        <i class="fas fa-sync mr-1"></i> Bank Reconciliation
+                    <h2 class="bank-section-title">
+                        <span class="bank-section-title-icon"><i class="fas fa-university"></i></span>
+                        Corporate bank accounts
+                        <span class="bank-count">{{ $bankAccounts->total() }}</span>
+                    </h2>
+                </div>
+                <div class="bank-section-actions">
+                    <a href="{{ route('admin.bank-reconciliation.index') }}" class="btn bank-reconcile-button">
+                        <i class="fas fa-sync-alt mr-1"></i> Reconciliation
                     </a>
-                    <button type="button" class="btn btn-primary font-weight-bold shadow-sm" data-toggle="modal" data-target="#modalCreateBankAccount">
+                    <button type="button" class="btn btn-primary bank-add-button" data-toggle="modal" data-target="#modalCreateBankAccount">
                         <i class="fas fa-plus-circle mr-1"></i> Add Bank Account
                     </button>
                 </div>
             </div>
-            <div class="card-body p-4">
+            <div class="bank-grid">
                 <div class="row">
                     @forelse($bankAccounts as $bank)
                         <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card border shadow-none h-100" style="border-radius: 10px;">
-                                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                            <article class="bank-account-card">
+                                <div class="card-body">
                                     <div>
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <span class="badge badge-primary font-weight-bold">{{ $bank->bank_name }}</span>
+                                        <div class="bank-account-topline">
+                                            <span class="bank-institution">{{ $bank->bank_name }}</span>
                                             @if($bank->status)
-                                                <span class="badge badge-success"><i class="fas fa-check-circle"></i> Active</span>
+                                                <span class="bank-status bank-status-active"><i class="fas fa-check-circle"></i> Active</span>
                                             @else
-                                                <span class="badge badge-secondary">Inactive</span>
+                                                <span class="bank-status bank-status-inactive"><i class="fas fa-pause-circle"></i> Inactive</span>
                                             @endif
                                         </div>
-                                        <h5 class="font-weight-bold text-dark mb-1">{{ $bank->account_name }}</h5>
-                                        <p class="text-muted small font-monospace mb-3"><i class="fas fa-credit-card mr-1"></i> A/C: {{ $bank->account_number }}</p>
+                                        <h3 class="bank-account-name">{{ $bank->account_name }}</h3>
+                                        <div class="bank-account-number"><i class="fas fa-credit-card"></i> A/C: {{ $bank->account_number }}</div>
                                         
-                                        <div class="border rounded p-3 bg-light mb-3">
-                                            <small class="text-muted text-uppercase font-weight-bold d-block">Live Balance</small>
-                                            <h4 class="font-weight-bold text-success mb-0">kr. {{ number_format($bank->current_balance, 2) }}</h4>
+                                        <div class="bank-balance-box">
+                                            <span class="bank-balance-label">Live balance</span>
+                                            <p class="bank-balance-value">kr. {{ number_format($bank->current_balance, 2) }}</p>
                                             @if($bank->glAccount)
-                                                <small class="text-muted d-block mt-1"><i class="fas fa-link text-info mr-1"></i> GL: {{ $bank->glAccount->account_code }} - {{ $bank->glAccount->account_name }}</small>
+                                                <span class="bank-gl-reference"><i class="fas fa-link mr-1"></i> GL {{ $bank->glAccount->account_code }} · {{ $bank->glAccount->account_name }}</span>
                                             @endif
                                         </div>
                                     </div>
-                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top flex-wrap" style="gap: 5px;">
-                                        <div class="d-flex align-items-center" style="gap: 5px;">
-                                            <a href="{{ route('admin.bank-reconciliation.index', ['bank_account_id' => $bank->id]) }}" class="btn btn-sm btn-outline-primary font-weight-bold" title="Reconcile Statement">
+                                    <div class="bank-account-actions">
+                                        <div class="d-flex align-items-center flex-wrap" style="gap: 6px;">
+                                            <a href="{{ route('admin.bank-reconciliation.index', ['bank_account_id' => $bank->id]) }}" class="btn btn-sm bank-reconcile-link" title="Reconcile Statement">
                                                 <i class="fas fa-sync-alt mr-1"></i> Reconcile
                                             </a>
                                             <form action="{{ route('admin.bank-accounts.toggle-status', $bank->id) }}" method="POST" class="d-inline">
                                                 @csrf
-                                                <button type="submit" class="btn btn-sm btn-light border text-muted" title="{{ $bank->status ? 'Deactivate' : 'Activate' }}">
+                                                <button type="submit" class="btn btn-sm bank-toggle-button" title="{{ $bank->status ? 'Deactivate' : 'Activate' }}">
                                                     {{ $bank->status ? 'Deactivate' : 'Activate' }}
                                                 </button>
                                             </form>
                                         </div>
-                                        <div class="btn-group" role="group">
+                                        <div class="bank-account-utility-actions" role="group" aria-label="Account actions">
                                             <button type="button" 
-                                                    class="btn btn-sm btn-primary btn-edit-account"
+                                                    class="btn btn-sm btn-edit-account"
                                                     data-id="{{ $bank->id }}"
                                                     data-bank="{{ $bank->bank_name }}"
                                                     data-name="{{ $bank->account_name }}"
@@ -120,30 +569,32 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </article>
                         </div>
                     @empty
-                        <div class="col-12 text-center py-5">
-                            <i class="fas fa-university fa-3x text-muted mb-3 d-block"></i>
-                            <h6 class="font-weight-bold text-dark">No Bank Accounts Created Yet</h6>
-                            <p class="text-muted small">Add your primary company bank accounts (e.g. Danske Bank, Nordea, Jyske Bank) to track liquidity and automated reconciliations.</p>
-                            <button type="button" class="btn btn-primary font-weight-bold shadow-sm" data-toggle="modal" data-target="#modalCreateBankAccount">
-                                <i class="fas fa-plus-circle mr-1"></i> Add Bank Account
-                            </button>
+                        <div class="col-12">
+                            <div class="bank-empty-state">
+                                <span class="bank-empty-icon"><i class="fas fa-university"></i></span>
+                                <h3 class="bank-account-name">No bank accounts yet</h3>
+                                <p class="text-muted small mb-3">Add a company bank account to track balances and reconcile transactions.</p>
+                                <button type="button" class="btn btn-primary bank-add-button" data-toggle="modal" data-target="#modalCreateBankAccount">
+                                    <i class="fas fa-plus-circle mr-1"></i> Add your first account
+                                </button>
+                            </div>
                         </div>
                     @endforelse
                 </div>
 
                 @if($bankAccounts->total() > 0)
-                    <div class="d-flex flex-wrap justify-content-between align-items-center pt-3 mt-2 border-top">
-                        <div class="text-muted small mb-2 mb-md-0">
+                    <div class="bank-pagination">
+                        <div>
                             Showing <strong>{{ $bankAccounts->firstItem() ?? 0 }}</strong> to <strong>{{ $bankAccounts->lastItem() ?? 0 }}</strong> of <strong>{{ $bankAccounts->total() }}</strong> accounts
                             @if($bankAccounts->hasPages())
-                                <span class="badge badge-light border ml-1">Page {{ $bankAccounts->currentPage() }} of {{ $bankAccounts->lastPage() }}</span>
+                                <span class="bank-count ml-1">Page {{ $bankAccounts->currentPage() }} of {{ $bankAccounts->lastPage() }}</span>
                             @endif
                         </div>
                         @if($bankAccounts->hasPages())
-                            <div class="pagination-sm mb-0">
+                            <div class="pagination-sm mb-0 ml-auto">
                                 {{ $bankAccounts->links() }}
                             </div>
                         @endif

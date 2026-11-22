@@ -126,7 +126,7 @@
 
                             <div class="col-md-3 col-sm-12 form-group">
                                 <label class="d-none d-md-block">&nbsp;</label>
-                                <button type="button" class="btn btn-outline-danger btn-block font-weight-bold shadow-sm" id="reset-ledger-filters" style="height: 38px;">
+                                <button type="button" class="btn btn-outline-danger btn-block font-weight-bold shadow-sm reset-arrow-button" id="reset-ledger-filters" style="height: 38px;">
                                     <i class="fas fa-undo mr-1"></i> Reset Filters
                                 </button>
                             </div>

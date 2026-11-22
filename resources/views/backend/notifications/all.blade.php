@@ -29,7 +29,7 @@
                         @endphp
                         
                         @forelse($notifications as $item)
-                            <li class="media" style="padding: 20px; border-bottom: 1px solid #eee; {{ $item['is_unread'] ? 'background-color: #fcfcfc; border-left: 4px solid #6777ef;' : '' }}">
+                            <li class="media" style="padding: 20px; border-bottom: 1px solid #eee; {{ $item['is_unread'] ? 'background-color: #fcfcfc; border-left: 4px solid #2563eb;' : '' }}">
                                 <div class="mr-3 {{ $item['class'] }} text-white d-flex align-items-center justify-content-center rounded" style="width: 50px; height: 50px; font-size: 20px;">
                                     <i class="{{ $item['icon'] }}"></i>
                                 </div>

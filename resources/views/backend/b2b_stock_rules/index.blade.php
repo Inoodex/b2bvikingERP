@@ -61,16 +61,16 @@
         transform: none !important;
     }
     .b2b-tab-btn.active {
-        background-color: #6777ef !important;
-        border-color: #6777ef !important;
+        background-color: #2563eb !important;
+        border-color: #2563eb !important;
         color: #ffffff !important;
         font-weight: 600;
-        box-shadow: 0 2px 6px #acb5f6 !important;
+        box-shadow: 0 2px 6px #bfdbfe !important;
         transform: none !important;
     }
     .b2b-tab-btn.active:focus,
     .b2b-tab-btn.active:active {
-        box-shadow: 0 2px 6px #acb5f6 !important;
+        box-shadow: 0 2px 6px #bfdbfe !important;
         transform: none !important;
     }
     .b2b-tab-btn.active i {
@@ -82,7 +82,7 @@
 
     /* Red-styled Reset Button ("reset ta red ar moto") */
     .btn-filter-reset {
-        color: #ef4444 !important;
+        color: #E11835 !important;
         background-color: #fef2f2 !important;
         border: 1.5px solid #fecaca !important;
         border-radius: 8px !important;
@@ -94,15 +94,15 @@
         gap: 6px !important;
         transition: all 0.2s ease !important;
         outline: none !important;
-        box-shadow: 0 1px 2px rgba(239, 68, 68, 0.05) !important;
+        box-shadow: 0 1px 2px rgba(225, 24, 53, 0.05) !important;
     }
     .btn-filter-reset:hover,
     .btn-filter-reset:focus,
     .btn-filter-reset:active {
         color: #ffffff !important;
-        background-color: #dc2626 !important;
-        border-color: #dc2626 !important;
-        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25) !important;
+        background-color: #E11835 !important;
+        border-color: #E11835 !important;
+        box-shadow: 0 4px 12px rgba(225, 24, 53, 0.25) !important;
         transform: translateY(-1px) !important;
     }
     .btn-filter-reset i {
@@ -159,11 +159,11 @@
     }
     #matrix-scope-group label.btn.active,
     #modal-scope-pills label.btn.active {
-        background-color: #6777ef !important;
-        border-color: #6777ef !important;
+        background-color: #2563eb !important;
+        border-color: #2563eb !important;
         color: #ffffff !important;
         font-weight: 600 !important;
-        box-shadow: 0 2px 6px rgba(103, 119, 239, 0.35) !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35) !important;
     }
     #matrix-scope-group label.btn.active i,
     #modal-scope-pills label.btn.active i {
@@ -176,10 +176,10 @@
 
     /* Enterprise Load Matrix Button */
     #btn-load-matrix {
-        background-color: #6777ef !important;
-        border-color: #6777ef !important;
+        background-color: #2563eb !important;
+        border-color: #2563eb !important;
         color: #ffffff !important;
-        box-shadow: 0 2px 6px #acb5f6 !important;
+        box-shadow: 0 2px 6px #bfdbfe !important;
         border-radius: 8px !important;
         height: 38px !important;
         font-weight: 600 !important;
@@ -195,12 +195,12 @@
         background-color: #5a67d8 !important;
         border-color: #5a67d8 !important;
         color: #ffffff !important;
-        box-shadow: 0 4px 12px rgba(103, 119, 239, 0.35) !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
         transform: translateY(-1px) !important;
     }
     #btn-load-matrix:active,
     #btn-load-matrix:focus {
-        box-shadow: 0 2px 6px #acb5f6 !important;
+        box-shadow: 0 2px 6px #bfdbfe !important;
         transform: translateY(0) !important;
         outline: none !important;
     }
@@ -218,7 +218,7 @@
     .select2-container .select2-selection--single {
         height: 38px !important;
         border-radius: 8px !important;
-        border: 1px solid #cbd5e1 !important;
+        border: 1px solid #dc2626 !important;
         display: flex !important;
         align-items: center !important;
     }
@@ -263,14 +263,14 @@
         color: #1e293b;
     }
     .matrix-seg-btn.seg-in-stock.active {
-        background: #059669 !important;
+        background: #15803d !important;
         color: #ffffff !important;
         box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35) !important;
     }
     .matrix-seg-btn.seg-oos.active {
-        background: #dc2626 !important;
+        background: #E11835 !important;
         color: #ffffff !important;
-        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.35) !important;
+        box-shadow: 0 2px 6px rgba(225, 24, 53, 0.35) !important;
     }
     .matrix-seg-btn.seg-auto.active {
         background: #475569 !important;
@@ -301,7 +301,7 @@
         box-shadow: 0 1px 3px rgba(16, 185, 129, 0.15);
     }
     .matrix-quota-wrapper.active .matrix-quota-box:focus-within {
-        border-color: #059669;
+        border-color: #15803d;
         box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
     }
     .matrix-quota-wrapper.disabled {
@@ -321,7 +321,7 @@
         background: transparent;
     }
     .matrix-quota-wrapper.active .matrix-quota-input {
-        color: #059669;
+        color: #15803d;
     }
     .matrix-quota-unit {
         font-size: 10px;
@@ -336,7 +336,7 @@
     }
     .matrix-quota-wrapper.active .matrix-quota-unit {
         background: #ecfdf5;
-        color: #059669;
+        color: #15803d;
         border-left-color: #a7f3d0;
     }
     .matrix-quota-feedback {
@@ -367,13 +367,13 @@
     }
     .matrix-status-green {
         background: rgba(16, 185, 129, 0.12);
-        color: #059669;
+        color: #15803d;
         border: 1px solid rgba(16, 185, 129, 0.35);
     }
     .matrix-status-red {
-        background: rgba(239, 68, 68, 0.12);
-        color: #dc2626;
-        border: 1px solid rgba(239, 68, 68, 0.35);
+        background: rgba(225, 24, 53, 0.12);
+        color: #E11835;
+        border: 1px solid rgba(225, 24, 53, 0.35);
     }
     .matrix-status-slate {
         background: rgba(100, 116, 139, 0.15);
@@ -421,9 +421,9 @@
         color: #1e293b;
     }
     .matrix-catalog-pill-btn.active {
-        background-color: #6777ef !important;
+        background-color: #2563eb !important;
         color: #ffffff !important;
-        box-shadow: 0 2px 6px rgba(103, 119, 239, 0.4) !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4) !important;
     }
 
     /* Enterprise Slide-Over Drawer Styling (ZERO FLASH ON REFRESH) */
@@ -494,7 +494,7 @@
     }
     .audit-drawer .drawer-close-btn:hover {
         background: #fee2e2 !important;
-        color: #ef4444 !important;
+        color: #E11835 !important;
         border-color: #fca5a5 !important;
     }
 
@@ -506,24 +506,177 @@
         scrollbar-width: thin;
         scrollbar-color: #cbd5e1 transparent;
     }
-    .b2b-datatable-wrapper::-webkit-scrollbar {
+    .b2b-datatable-wrapper::-webkit-scrollbar,
+    .table-responsive::-webkit-scrollbar {
         height: 6px;
     }
-    .b2b-datatable-wrapper::-webkit-scrollbar-track {
+    .b2b-datatable-wrapper::-webkit-scrollbar-track,
+    .table-responsive::-webkit-scrollbar-track {
         background: transparent;
     }
-    .b2b-datatable-wrapper::-webkit-scrollbar-thumb {
+    .b2b-datatable-wrapper::-webkit-scrollbar-thumb,
+    .table-responsive::-webkit-scrollbar-thumb {
         background: #cbd5e1;
         border-radius: 4px;
     }
-    .b2b-datatable-wrapper::-webkit-scrollbar-thumb:hover {
+    .b2b-datatable-wrapper::-webkit-scrollbar-thumb:hover,
+    .table-responsive::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
     }
-    #view-mode-table-wrapper .table-responsive {
+    #view-mode-table-wrapper .table-responsive,
+    #view-mode-matrix-wrapper .table-responsive {
         border: none !important;
         overflow-x: auto !important;
         scrollbar-width: thin !important;
         scrollbar-color: #cbd5e1 transparent !important;
+    }
+
+    /* Modern Card & Header Elevation */
+    .b2b-card-modern {
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    }
+    .b2b-card-modern .card-header {
+        background: #ffffff !important;
+        padding: 14px 20px !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+    }
+    .b2b-card-modern .card-body {
+        padding: 18px 20px !important;
+    }
+
+    /* Metric Cards Styling for Laptops & Desktops */
+    .b2b-metric-card {
+        border-radius: 12px !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+        height: 100%;
+    }
+    .b2b-metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06) !important;
+    }
+    .b2b-metric-icon {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    .b2b-metric-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: #64748b;
+        line-height: 1.2;
+    }
+    .b2b-metric-value {
+        font-size: 1.3rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-top: 3px;
+        letter-spacing: -0.02em;
+    }
+    .b2b-metric-sub {
+        font-size: 10.5px;
+        color: #94a3b8;
+        line-height: 1.2;
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Action wrapper in Matrix Table rows */
+    .matrix-row-actions {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+    }
+
+    /* Min-width safety to ensure tables never cramp or overlap */
+    #matrix-table {
+        min-width: 820px;
+    }
+    #b2b-visibility-table {
+        min-width: 860px;
+    }
+
+    /* Tablet Only: 768px to 991.98px */
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .b2b-metrics-grid > .b2b-metric-column,
+        .b2b-filter-grid > .b2b-filter-column {
+            flex: 0 0 50% !important;
+            max-width: 50% !important;
+        }
+    }
+
+    /* Mobile Only: Below 768px */
+    @media (max-width: 767.98px) {
+        .b2b-metrics-grid > .b2b-metric-column,
+        .b2b-filter-grid > .b2b-filter-column {
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+    }
+
+    /* Laptop & Desktop: 992px and up */
+    @media (min-width: 992px) {
+        .section-header {
+            margin-top: 8px !important;
+            margin-bottom: 18px !important;
+            padding: 14px 20px !important;
+            border-radius: 12px !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        .b2b-metrics-grid > .b2b-metric-column {
+            flex: 0 0 25% !important;
+            max-width: 25% !important;
+        }
+        .b2b-filter-grid > .b2b-filter-column {
+            flex: 0 0 33.333333% !important;
+            max-width: 33.333333% !important;
+        }
+    }
+
+    /* Specific refinements for laptop viewports (1280px - 1440px / 1366x768 screens) */
+    @media (min-width: 992px) and (max-width: 1366px) {
+        .b2b-metric-value {
+            font-size: 1.18rem !important;
+        }
+        .b2b-metric-card .card-body {
+            padding: 11px 13px !important;
+        }
+        .b2b-metric-icon {
+            width: 38px !important;
+            height: 38px !important;
+            min-width: 38px !important;
+            font-size: 16px !important;
+            margin-right: 10px !important;
+        }
+        #matrix-scope-group label.btn {
+            font-size: 11px !important;
+            padding: 0 5px !important;
+            gap: 3px !important;
+        }
+        #matrix-scope-group label.btn i {
+            font-size: 10.5px !important;
+        }
+        .b2b-tab-btn {
+            padding: 6px 14px !important;
+            font-size: 12.5px !important;
+        }
     }
 </style>
 @endpush
@@ -531,18 +684,18 @@
 @section('content')
 <section class="section">
     {{-- Section Header --}}
-    <div class="section-header border-0 shadow-sm mb-4" style="background: #ffffff; border-radius: 16px; padding: 20px 24px; margin-top: 25px !important;">
-        <div class="d-flex align-items-center flex-wrap w-100 justify-content-between" style="gap: 16px;">
-            <div class="d-flex align-items-center mb-2 mb-md-0">
-                <div class="mr-3 p-3 rounded-circle text-white shadow-sm" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(212, 162, 78, 0.3);">
-                    <i class="fas fa-users-cog text-warning" style="font-size: 1.35rem;"></i>
+    <div class="section-header border-0 shadow-sm mb-3" style="background: #ffffff; border-radius: 14px; padding: 14px 20px; margin-top: 8px !important; border: 1px solid #e2e8f0 !important;">
+        <div class="d-flex align-items-center flex-wrap w-100 justify-content-between" style="gap: 14px;">
+            <div class="d-flex align-items-center mb-2 mb-lg-0">
+                <div class="mr-3 rounded-circle text-white shadow-sm d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; min-width: 42px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(37, 99, 235, 0.3);">
+                    <i class="fas fa-users-cog text-warning" style="font-size: 1.2rem;"></i>
                 </div>
                 <div>
-                    <h4 class="mb-1 font-weight-bold text-dark" style="font-family: 'Plus Jakarta Sans', sans-serif;">Customer Stock Rules</h4>
-                    <p class="text-muted mb-0 small">B2B client and outlet-specific product stock visibility overrides & VIP allocation matrix</p>
+                    <h4 class="mb-0 font-weight-bold text-dark" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.25rem;">Customer Stock Rules</h4>
+                    <p class="text-muted mb-0 small" style="font-size: 11.5px;">B2B client and outlet-specific product stock visibility overrides & VIP allocation matrix</p>
                 </div>
             </div>
-            <div class="d-flex align-items-center flex-wrap" style="gap: 12px;">
+            <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
                 {{-- Segmented Tab Switcher ("tab ar moto") --}}
                 <div class="b2b-header-tabs" id="view-mode-toggle">
                     <button type="button" class="b2b-tab-btn active" id="btn-mode-table" data-mode="table">
@@ -556,7 +709,7 @@
                 </div>
 
                 {{-- Create Rule Action Button: Opens Slide-Over Drawer --}}
-                <button type="button" class="btn btn-primary font-weight-bold px-3 py-2 shadow-sm" id="btn-open-create-drawer" style="border-radius: 8px;">
+                <button type="button" class="btn btn-primary font-weight-bold px-3 shadow-sm d-inline-flex align-items-center" id="btn-open-create-drawer" style="border-radius: 8px; height: 38px; font-size: 13px;">
                     <i class="fas fa-plus mr-1"></i>
                     <span>Create Stock Rule</span>
                 </button>
@@ -565,59 +718,61 @@
     </div>
 
     {{-- Metrics Ribbon --}}
-    <div class="row mb-4">
-        <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0">
-            <div class="card border-0 shadow-sm mb-0" style="border-radius: 14px; background: #ffffff; border-left: 4px solid #3b82f6 !important;">
+    <div class="row mb-3 b2b-metrics-grid">
+        <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0 b2b-metric-column">
+            <div class="card b2b-metric-card border-0 shadow-sm mb-0">
                 <div class="card-body p-3 d-flex align-items-center">
-                    <div class="mr-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(59, 130, 246, 0.12); display: flex; align-items: center; justify-content: center; color: #3b82f6;">
-                        <i class="fas fa-shield-alt" style="font-size: 20px;"></i>
+                    <div class="b2b-metric-icon mr-3" style="background: rgba(59, 130, 246, 0.12); color: #2563eb;">
+                        <i class="fas fa-shield-alt"></i>
                     </div>
-                    <div>
-                        <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 11px;">Total Active Rules</div>
-                        <div class="h4 mb-0 font-weight-bold text-dark mt-1">{{ number_format($stats['total_rules'] ?? 0) }}</div>
-                        <small class="text-muted" style="font-size: 10px;">Across all catalog items</small>
+                    <div style="min-width: 0;">
+                        <div class="b2b-metric-label">Total Active Rules</div>
+                        <div class="b2b-metric-value text-dark">{{ number_format($stats['total_rules'] ?? 0) }}</div>
+                        <div class="b2b-metric-sub" title="Across all catalog items">Across all catalog items</div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0">
-            <div class="card border-0 shadow-sm mb-0" style="border-radius: 14px; background: #ffffff; border-left: 4px solid #10b981 !important;">
+        <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0 b2b-metric-column">
+            <div class="card b2b-metric-card border-0 shadow-sm mb-0">
                 <div class="card-body p-3 d-flex align-items-center">
-                    <div class="mr-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.12); display: flex; align-items: center; justify-content: center; color: #10b981;">
-                        <i class="fas fa-check-circle" style="font-size: 20px;"></i>
+                    <div class="b2b-metric-icon mr-3" style="background: rgba(16, 185, 129, 0.12); color: #15803d;">
+                        <i class="fas fa-check-circle"></i>
                     </div>
-                    <div>
-                        <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 11px;">Priority In-Stock</div>
-                        <div class="h4 mb-0 font-weight-bold text-success mt-1">{{ number_format($stats['priority_in_stock'] ?? 0) }}</div>
-                        <small class="text-muted" style="font-size: 10px;">Guaranteed VIP availability</small>
+                    <div style="min-width: 0;">
+                        <div class="b2b-metric-label">Priority In-Stock</div>
+                        <div class="b2b-metric-value text-success">{{ number_format($stats['priority_in_stock'] ?? 0) }}</div>
+                        <div class="b2b-metric-sub" title="Guaranteed VIP availability">Guaranteed VIP availability</div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0">
-            <div class="card border-0 shadow-sm mb-0" style="border-radius: 14px; background: #ffffff; border-left: 4px solid #ef4444 !important;">
+        <div class="col-lg-3 col-md-6 col-12 mb-3 mb-lg-0 b2b-metric-column">
+            <div class="card b2b-metric-card border-0 shadow-sm mb-0">
                 <div class="card-body p-3 d-flex align-items-center">
-                    <div class="mr-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(239, 68, 68, 0.12); display: flex; align-items: center; justify-content: center; color: #ef4444;">
-                        <i class="fas fa-ban" style="font-size: 20px;"></i>
+                    <div class="b2b-metric-icon mr-3" style="background: rgba(225, 24, 53, 0.12); color: #E11835;">
+                        <i class="fas fa-ban"></i>
                     </div>
-                    <div>
-                        <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 11px;">Restricted (Out of Stock)</div>
-                        <div class="h4 mb-0 font-weight-bold text-danger mt-1">{{ number_format($stats['force_out_of_stock'] ?? 0) }}</div>
-                        <small class="text-muted" style="font-size: 10px;">Blocked booking policies</small>
+                    <div style="min-width: 0;">
+                        <div class="b2b-metric-label">Restricted (OOS)</div>
+                        <div class="b2b-metric-value text-danger">{{ number_format($stats['force_out_of_stock'] ?? 0) }}</div>
+                        <div class="b2b-metric-sub" title="Blocked booking policies">Blocked booking policies</div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6 col-12">
-            <div class="card border-0 shadow-sm mb-0" style="border-radius: 14px; background: #ffffff; border-left: 4px solid #64748b !important;">
+        <div class="col-lg-3 col-md-6 col-12 b2b-metric-column">
+            <div class="card b2b-metric-card border-0 shadow-sm mb-0">
                 <div class="card-body p-3 d-flex align-items-center">
-                    <div class="mr-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(100, 116, 139, 0.12); display: flex; align-items: center; justify-content: center; color: #64748b;">
-                        <i class="fas fa-building" style="font-size: 20px;"></i>
+                    <div class="b2b-metric-icon mr-3" style="background: rgba(100, 116, 139, 0.12); color: #64748b;">
+                        <i class="fas fa-building"></i>
                     </div>
-                    <div>
-                        <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 11px;">Configured Accounts</div>
-                        <div class="h5 mb-0 font-weight-bold text-dark mt-1">{{ $stats['companies_count'] }} Co / {{ $stats['outlets_count'] }} Outlets</div>
-                        <small class="text-muted" style="font-size: 10px;">Distinct entities with rules</small>
+                    <div style="min-width: 0;">
+                        <div class="b2b-metric-label">Configured Accounts</div>
+                        <div class="b2b-metric-value text-dark" style="font-size: 1.12rem; white-space: nowrap;" title="{{ $stats['companies_count'] }} Co / {{ $stats['outlets_count'] }} Outlets">
+                            {{ $stats['companies_count'] }} Co / {{ $stats['outlets_count'] }} Outlets
+                        </div>
+                        <div class="b2b-metric-sub" title="Distinct entities with rules">Distinct entities with rules</div>
                     </div>
                 </div>
             </div>
@@ -629,10 +784,10 @@
     {{-- ========================================== --}}
     <div id="view-mode-table-wrapper">
         {{-- Fast Server-Side Multi-Filter Card --}}
-        <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px; background: #ffffff;">
+        <div class="card b2b-card-modern border-0 shadow-sm mb-4">
             <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap" style="gap: 12px;">
                 <div class="d-flex align-items-center">
-                    <div class="mr-2 p-2 rounded text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(103, 119, 239, 0.1);">
+                    <div class="mr-2 p-2 rounded text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(37, 99, 235, 0.1);">
                         <i class="fas fa-filter" style="font-size: 13px;"></i>
                     </div>
                     <div>
@@ -640,16 +795,16 @@
                         <div class="text-muted" style="font-size: 11px;">Filter rules across scopes, accounts and policies</div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-filter-reset" id="btn-reset-filters" title="Reset all filters to default">
+                <button type="button" class="btn btn-filter-reset reset-arrow-button" id="btn-reset-filters" title="Reset all filters to default">
                     <i class="fas fa-undo"></i>
                     <span>Reset Filters</span>
                 </button>
             </div>
-            <div class="card-body p-4">
+            <div class="card-body p-3 p-lg-4">
                 <form id="filter-form">
-                    <div class="row">
+                    <div class="row b2b-filter-grid">
                         {{-- Row 1: Target Scope, Company, and Outlet --}}
-                        <div class="col-lg-4 col-md-6 col-12 mb-3">
+                        <div class="col-lg-4 col-md-6 col-12 mb-3 b2b-filter-column">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-layer-group text-primary mr-1"></i> Target Scope
                             </label>
@@ -661,7 +816,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-4 col-md-6 col-12 mb-3">
+                        <div class="col-lg-4 col-md-6 col-12 mb-3 b2b-filter-column">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-building text-info mr-1"></i> Target Company
                             </label>
@@ -673,7 +828,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-4 col-md-12 col-12 mb-3">
+                        <div class="col-lg-4 col-md-6 col-12 mb-3 b2b-filter-column">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-store text-warning mr-1"></i> Retail Outlet Branch
                             </label>
@@ -686,7 +841,7 @@
                         </div>
 
                         {{-- Row 2: Target Buyer, Product Category & Availability Policy --}}
-                        <div class="col-lg-4 col-md-6 col-12 mb-2">
+                        <div class="col-lg-4 col-md-6 col-12 mb-3 mb-lg-0 b2b-filter-column">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-user-check text-dark mr-1"></i> Target Buyer / Customer
                             </label>
@@ -698,7 +853,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-4 col-md-6 col-12 mb-2">
+                        <div class="col-lg-4 col-md-6 col-12 mb-3 mb-lg-0 b2b-filter-column">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-tags text-success mr-1"></i> Product Category
                             </label>
@@ -710,7 +865,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-4 col-md-12 col-12 mb-2">
+                        <div class="col-lg-4 col-md-6 col-12 mb-0 b2b-filter-column">
                             <label class="small text-muted font-weight-bold mb-1 d-block">
                                 <i class="fas fa-shield-alt text-danger mr-1"></i> Availability Policy
                             </label>
@@ -727,14 +882,14 @@
         </div>
 
         {{-- Master DataTable Card --}}
-        <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden; background: #ffffff;">
+        <div class="card b2b-card-modern border-0 shadow-sm" style="overflow: hidden;">
             <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
                     <i class="fas fa-list-alt text-primary mr-2"></i>
-                    <strong class="text-dark" style="font-size: 15px;">Customer Stock Rules</strong>
+                    <strong class="text-dark" style="font-size: 14.5px;">Customer Stock Rules</strong>
                 </div>
             </div>
-            <div class="card-body">
+            <div class="card-body p-3">
                 <div class="table-responsive">
                     {{ $dataTable->table(['class' => 'table table-striped table-hover align-middle w-100 mb-0', 'id' => 'b2b-visibility-table']) }}
                 </div>
@@ -747,10 +902,10 @@
     {{-- ==================================================== --}}
     <div id="view-mode-matrix-wrapper" style="display: none;">
         {{-- Card 1: Customer Matrix Filters --}}
-        <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px; background: #ffffff;">
+        <div class="card b2b-card-modern border-0 shadow-sm mb-4">
             <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap" style="gap: 12px;">
                 <div class="d-flex align-items-center">
-                    <div class="mr-2 p-2 rounded text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(103, 119, 239, 0.1);">
+                    <div class="mr-2 p-2 rounded text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(37, 99, 235, 0.1);">
                         <i class="fas fa-sliders-h" style="font-size: 13px;"></i>
                     </div>
                     <div>
@@ -758,12 +913,12 @@
                         <div class="text-muted" style="font-size: 11px;">Select target customer account and filter catalog products</div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-filter-reset" id="btn-matrix-reset-filter" title="Reset all matrix filters">
+                <button type="button" class="btn btn-filter-reset reset-arrow-button" id="btn-matrix-reset-filter" title="Reset all matrix filters">
                     <i class="fas fa-undo"></i>
                     <span>Reset Filters</span>
                 </button>
             </div>
-            <div class="card-body p-4">
+            <div class="card-body p-3 p-lg-4">
                 {{-- Row 1: Target Account Selection (Scope, Account, Load Button) --}}
                 <div class="row align-items-end mb-3">
                     <div class="col-lg-5 col-md-12 col-12 mb-3 mb-lg-0">
@@ -842,7 +997,7 @@
 
                     <div class="col-lg-3 col-md-4 col-12">
                         <label class="small font-weight-bold mb-1 d-none d-lg-block" style="visibility: hidden;">Action</label>
-                        <button type="button" class="btn btn-primary btn-block font-weight-bold shadow-sm" id="btn-load-matrix" style="height: 38px; border-radius: 8px;">
+                        <button type="button" class="btn btn-primary btn-block font-weight-bold shadow-sm" id="btn-load-matrix" style="height: 38px; border-radius: 8px; font-size: 13px;">
                             <i class="fas fa-sync-alt mr-2"></i>
                             <span>Load Matrix Grid</span>
                         </button>
@@ -895,11 +1050,11 @@
         </div>
 
         {{-- Card 2: Interactive Matrix Table --}}
-        <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden; background: #ffffff;">
+        <div class="card b2b-card-modern border-0 shadow-sm" style="overflow: hidden;">
             <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap" style="gap: 12px;">
                 <div class="d-flex align-items-center">
                     <i class="fas fa-th text-primary mr-2" style="font-size: 15px;"></i>
-                    <strong class="text-dark" style="font-size: 15px;">Customer Stock Availability Matrix</strong>
+                    <strong class="text-dark" style="font-size: 14.5px;">Customer Stock Availability Matrix</strong>
                 </div>
                 <div id="matrix-selected-account-label">
                     <span class="badge badge-light border text-muted px-3 py-1 font-weight-normal" style="font-size: 12px;">
@@ -959,10 +1114,10 @@
 {{-- (Hidden with inline display: none to guarantee ZERO flash on page refresh) --}}
 {{-- ==================================================== --}}
 <div class="audit-drawer-backdrop" id="b2bRuleDrawerBackdrop" style="display: none;"></div>
-<div class="audit-drawer" id="b2bRuleDrawer" style="display: none; width: min(680px, 95vw);">
+<div class="audit-drawer" id="b2bRuleDrawer" style="display: none; width: min(620px, 92vw);">
     <div class="drawer-header bg-white py-3 px-4 border-bottom d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center">
-            <div class="mr-3 p-2 rounded-circle" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+            <div class="mr-3 p-2 rounded-circle" style="background: rgba(59, 130, 246, 0.1); color: #2563eb;">
                 <i class="fas fa-shield-alt font-size-18"></i>
             </div>
             <div>
@@ -1390,7 +1545,7 @@
                 text: "This customer or outlet will immediately revert to standard warehouse inventory.",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "#ef4444",
+                confirmButtonColor: "#E11835",
                 cancelButtonColor: "#64748b",
                 confirmButtonText: "<i class='fas fa-trash-alt mr-1'></i> Yes, remove it!",
                 cancelButtonText: "Cancel",
@@ -1518,7 +1673,7 @@
                 icon = '<i class="fas fa-phone-alt text-warning mr-1"></i>';
             }
             $('#matrix-selected-account-label').html(`
-                <span class="badge px-3 py-1 font-weight-bold" style="background: rgba(103, 119, 239, 0.12); color: #6777ef; border: 1px solid rgba(103, 119, 239, 0.3); border-radius: 20px; font-size: 12px;">
+                <span class="badge px-3 py-1 font-weight-bold" style="background: rgba(37, 99, 235, 0.12); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 20px; font-size: 12px;">
                     ${icon} Active Target: ${label}
                 </span>
             `);

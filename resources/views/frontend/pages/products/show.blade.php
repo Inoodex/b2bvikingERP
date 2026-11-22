@@ -165,8 +165,8 @@
                                 @endif
                             </div>
                         @else
-                            <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
-                                <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-700">Pricing Access</p>
+                            <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+                                <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-700">Pricing Access</p>
                                 <p class="mt-1.5 text-sm text-slate-700">Login as customer account to see wholesale rate and place an order.</p>
                                 <a href="{{ route('login') }}"
                                     class="mt-3 inline-flex h-9 items-center justify-center rounded-md bg-slate-900 px-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition hover:bg-slate-800">
@@ -180,7 +180,7 @@
                                 <div class="mb-2.5 flex items-center justify-between gap-2">
                                     <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">Select Variant</p>
                                     <template x-if="hasVariants && !selectedVariant">
-                                        <span class="text-[11px] font-semibold text-amber-700">Required</span>
+                                        <span class="text-[11px] font-semibold text-blue-700">Required</span>
                                     </template>
                                 </div>
                                 <div class="flex flex-wrap gap-1.5">
@@ -211,8 +211,8 @@
                                     </p>
                                 </div>
 
-                                <div class="grid gap-2.5 sm:grid-cols-[160px_1fr_auto]">
-                                    <div class="flex h-10 items-center rounded-md border border-slate-200 bg-white">
+                                <div class="grid grid-cols-[1fr_auto] gap-2.5 sm:grid-cols-[160px_1fr_auto]">
+                                    <div class="col-span-2 flex h-10 items-center rounded-md border border-slate-200 bg-white sm:col-span-1">
                                         <button type="button"
                                             @click="lastRawQty = null; qty = Math.max(minimumOrderQty, (parseInt(qty) || minimumOrderQty) - minimumOrderQty); normalizeQty()"
                                             class="h-full w-9 text-slate-500 transition hover:text-slate-800">
@@ -238,14 +238,14 @@
                                         :class="canAdd
                                             ? 'bg-slate-900 text-white hover:bg-black'
                                             : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
-                                        class="h-10 rounded-md px-4 text-[11px] font-bold uppercase tracking-[0.14em] transition">
+                                        class="col-span-1 h-10 rounded-md px-4 text-[11px] font-bold uppercase tracking-[0.14em] transition">
                                         <span x-show="!adding">Add To Cart</span>
                                         <span x-show="adding">Adding...</span>
                                     </button>
 
                                     <button @click="toggleWishlist()"
                                         :disabled="wishlistBusy"
-                                        class="h-10 w-10 rounded-md border-2 transition"
+                                        class="col-span-1 h-10 w-10 rounded-md border-2 transition"
                                         :class="isInWishlist
                                             ? 'border-rose-300 bg-rose-50 text-rose-500 hover:bg-rose-100'
                                             : 'border-slate-200 bg-white text-slate-400 hover:border-rose-300 hover:text-rose-500'"
@@ -297,7 +297,7 @@
                             <div class="mt-3 flex items-center gap-1">
                                 <template x-for="star in starRange" :key="`average-star-${star}`">
                                     <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"
-                                        :class="star <= Math.round(averageRating) ? 'text-amber-400' : 'text-slate-200'">
+                                        :class="star <= Math.round(averageRating) ? 'text-blue-400' : 'text-slate-200'">
                                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81H7.03a1 1 0 00.951-.69l1.069-3.292z" />
                                     </svg>
                                 </template>
@@ -316,7 +316,7 @@
                                         <span class="w-8 text-left font-semibold" x-text="`${item} ★`"></span>
                                         <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
                                             <div class="h-full rounded-full transition-all duration-300"
-                                                :class="activeRatingFilter === item ? 'bg-blue-600' : 'bg-amber-400'"
+                                                :class="activeRatingFilter === item ? 'bg-blue-600' : 'bg-blue-400'"
                                                 :style="`width: ${breakdown[item]?.percentage || 0}%`"></div>
                                         </div>
                                         <span class="w-10 text-right font-medium text-slate-400" x-text="`${breakdown[item]?.count || 0}`"></span>
@@ -353,7 +353,7 @@
                                             @click="setRating(star)"
                                             :disabled="submitting || deleting"
                                             class="rounded-md p-1 transition"
-                                            :class="star <= form.rating ? 'text-amber-400' : 'text-slate-300'">
+                                            :class="star <= form.rating ? 'text-blue-400' : 'text-slate-300'">
                                             <svg class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
                                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81H7.03a1 1 0 00.951-.69l1.069-3.292z" />
                                             </svg>
@@ -400,8 +400,8 @@
                                 <p class="mt-1 text-sm text-slate-500">Only customer accounts with outlet access can add or update product reviews.</p>
                             </div>
                         @else
-                            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                                <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-700">Login Required</p>
+                            <div class="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+                                <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-700">Login Required</p>
                                 <h3 class="mt-1 text-lg font-bold text-slate-900">Sign in to leave a review</h3>
                                 <p class="mt-1 text-sm text-slate-600">Customer feedback can be submitted after login with an outlet or user account.</p>
                                 <a href="{{ route('login') }}"
@@ -462,7 +462,7 @@
                                                 <div class="mt-2 flex items-center gap-1">
                                                     <template x-for="star in starRange" :key="`review-${review.id}-star-${star}`">
                                                         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"
-                                                            :class="star <= review.rating ? 'text-amber-400' : 'text-slate-200'">
+                                                            :class="star <= review.rating ? 'text-blue-400' : 'text-slate-200'">
                                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81H7.03a1 1 0 00.951-.69l1.069-3.292z" />
                                                         </svg>
                                                     </template>
@@ -1039,7 +1039,7 @@
                     }
 
                     if (this.currentStock <= 5) {
-                        return 'border-amber-200 bg-amber-50 text-amber-700';
+                        return 'border-blue-200 bg-blue-50 text-blue-700';
                     }
 
                     return 'border-emerald-200 bg-emerald-50 text-emerald-700';

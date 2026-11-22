@@ -531,7 +531,7 @@
             if (resultsBody && (!MENU_INDEX || MENU_INDEX.length === 0)) {
                 resultsBody.innerHTML = 
                     '<div class="ms-empty-state">' +
-                        '<i class="fas fa-exclamation-triangle ms-empty-icon" style="color: #ef4444;"></i>' +
+                        '<i class="fas fa-exclamation-triangle ms-empty-icon" style="color: #E11835;"></i>' +
                         '<div class="ms-empty-title">Failed to load menus</div>' +
                         '<div class="ms-empty-sub">Please refresh the page and try again.</div>' +
                     '</div>';

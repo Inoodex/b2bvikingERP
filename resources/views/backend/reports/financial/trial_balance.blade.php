@@ -75,7 +75,7 @@
                                     <span class="badge badge-light border text-dark font-weight-bold">{{ $row['account_code'] }}</span>
                                 </td>
                                 <td><strong class="text-dark">{{ $row['account_name'] }}</strong></td>
-                                <td><span class="badge badge-secondary text-uppercase">{{ $row['account_type'] }}</span></td>
+                                <td><span class="badge badge-danger text-uppercase">{{ $row['account_type'] }}</span></td>
                                 <td class="text-right font-weight-bold text-success">
                                     {{ $row['debit'] > 0 ? 'kr. '.number_format($row['debit'], 2) : '—' }}
                                 </td>

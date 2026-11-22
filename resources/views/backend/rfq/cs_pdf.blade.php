@@ -14,7 +14,7 @@
         .cs-table th { background-color: #f2f2f2; font-weight: bold; }
         .badge { padding: 3px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; color: #fff; display: inline-block; }
         .badge-success { background-color: #28a745; }
-        .badge-warning { background-color: #ffc107; color: #212529; }
+        .badge-warning { background-color: #dc2626; color: #fff; }
         .badge-info { background-color: #17a2b8; }
         .badge-danger { background-color: #dc3545; }
         .highlight-l1 { background-color: #d4edda; font-weight: bold; }

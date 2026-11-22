@@ -17,11 +17,11 @@
         transition: all 0.3s;
     }
     .drop-zone:hover {
-        border-color: #6777ef;
+        border-color: #2563eb;
         background-color: #f8f9ff;
     }
     .drop-zone.dragover {
-        border-color: #6777ef;
+        border-color: #2563eb;
         background-color: #f0f4ff;
     }
     .file-info {

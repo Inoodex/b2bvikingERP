@@ -60,7 +60,7 @@ class OrderDataTable extends DataTable
                 if ($status === 'credit_hold') {
                     return '<span class="badge badge-danger font-weight-bold"><i class="fas fa-lock mr-1"></i> CREDIT HOLD</span>';
                 } elseif ($status === 'pending') {
-                    $class = 'badge-warning';
+                    $class = 'badge-danger';
                 } elseif ($status === 'approved') {
                     $class = 'badge-info';
                 } elseif ($status === 'processing') {
@@ -186,7 +186,7 @@ class OrderDataTable extends DataTable
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)
-                ->width(200)
+                ->width(160)
                 ->addClass('text-center'),
         ];
     }

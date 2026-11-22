@@ -84,7 +84,7 @@
         .val-indigo { color: #4338ca !important; }
         .val-emerald { color: #047857 !important; }
         .val-sky { color: #0369a1 !important; }
-        .val-amber { color: #b45309 !important; }
+        .val-blue { color: #b45309 !important; }
 
         /* Data Table */
         table.stock-table {
@@ -163,7 +163,7 @@
         }
 
         .badge-ok { background: #dcfce7; color: #15803d; }
-        .badge-low { background: #fee2e2; color: #b91c1c; }
+        .badge-low { background: #fee2e2; color: #E11835; }
 
         /* Grand Total Row */
         table.stock-table tfoot tr td {
@@ -222,7 +222,7 @@
             </td>
             <td class="summary-box">
                 <div class="lbl">Projected Gross Margin</div>
-                <div class="val val-amber">{{ $settings->currency_icon }}{{ number_format($potentialProfit, 2) }}</div>
+                <div class="val val-blue">{{ $settings->currency_icon }}{{ number_format($potentialProfit, 2) }}</div>
             </td>
         </tr>
     </table>

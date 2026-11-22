@@ -26,7 +26,7 @@
         .text-success { color: #276749; font-weight: bold; }
         .text-info { color: #2b6cb0; font-weight: bold; }
         .text-warning { color: #c05621; font-weight: bold; }
-        .text-danger { color: #c53030; font-weight: bold; }
+        .text-danger { color: #E11835; font-weight: bold; }
         .font-bold { font-weight: bold; }
 
         .total-row td { background-color: #edf2f7; font-size: 9pt; font-weight: bold; border-top: 2px solid #cbd5e0; border-bottom: 2px solid #a0aec0; padding: 7px 8px; }

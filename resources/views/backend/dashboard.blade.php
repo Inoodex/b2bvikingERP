@@ -8,7 +8,7 @@
         <style>
             .executive-header-bar {
                 border-bottom: 1px solid #e2e8f0;
-                padding-top: 28px;
+                padding-top: 6px;
                 padding-bottom: 20px;
                 margin-bottom: 24px;
             }
@@ -58,6 +58,18 @@
                 border-color: #cbd5e1;
             }
 
+            .dashboard-leaderboard-row,
+            .dashboard-leaderboard-info,
+            .dashboard-leaderboard-value {
+                min-width: 0;
+            }
+
+            .dashboard-customer-avatar {
+                background: #E11835;
+                border: 1px solid #E11835;
+                color: #fff !important;
+            }
+
             .kpi-accent-stripe {
                 position: absolute;
                 top: 0;
@@ -75,6 +87,13 @@
                 transition: all 0.15s ease;
             }
 
+            @media (max-width: 575.98px) {
+                .period-tab-btn {
+                    padding: 4px 9px;
+                    font-size: 11px;
+                }
+            }
+
             .period-tab-btn.active {
                 background: #ffffff;
                 color: #0f172a !important;
@@ -87,6 +106,68 @@
 
             .period-tab-btn:not(.active):hover {
                 color: #0f172a !important;
+            }
+
+            .dashboard-chart-toggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 4px;
+                background: #f1f5f9;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+            }
+
+            .dashboard-chart-toggle > .btn {
+                margin: 0 !important;
+                border-radius: 6px !important;
+            }
+
+            .dashboard-ribbon-action {
+                min-width: 76px;
+                min-height: 36px;
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                padding: 6px 12px !important;
+                border-radius: 7px !important;
+                font-size: 12px !important;
+                line-height: 1.2;
+                white-space: nowrap;
+                flex: 0 0 auto;
+            }
+
+            @media (max-width: 575.98px) {
+                .dashboard-leaderboard-row {
+                    flex-wrap: wrap;
+                    align-items: flex-start !important;
+                }
+
+                .dashboard-leaderboard-info,
+                .dashboard-leaderboard-value {
+                    flex: 1 1 100% !important;
+                    width: 100%;
+                    max-width: 100%;
+                }
+
+                .dashboard-leaderboard-info {
+                    align-items: flex-start !important;
+                }
+
+                .dashboard-leaderboard-value {
+                    text-align: right !important;
+                    padding-left: 0 !important;
+                    overflow-wrap: anywhere;
+                }
+
+                .dashboard-leaderboard-value .badge {
+                    white-space: normal;
+                }
+
+                .dashboard-leaderboard-meta {
+                    flex-wrap: wrap;
+                    overflow-wrap: anywhere;
+                }
             }
         </style>
 
@@ -147,7 +228,7 @@
         <div class="executive-kpi-grid">
             {{-- KPI 1: Total Sales Revenue --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: #10b981;"></div>
+                <div class="kpi-accent-stripe" style="background: #15803d;"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold"
@@ -155,7 +236,7 @@
                             Total Sales Revenue
                         </span>
                         <div class="d-flex align-items-center justify-content-center"
-                            style="width: 32px; height: 32px; border-radius: 7px; background: #ecfdf5; color: #059669;">
+                            style="width: 32px; height: 32px; border-radius: 7px; background: #ecfdf5; color: #15803d;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
@@ -267,7 +348,7 @@
 
             {{-- KPI 4: Accounts Receivable (AR) --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: #d97706;"></div>
+                <div class="kpi-accent-stripe" style="background: #c2410c;"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold"
@@ -275,7 +356,7 @@
                             Accounts Receivable
                         </span>
                         <div class="d-flex align-items-center justify-content-center"
-                            style="width: 32px; height: 32px; border-radius: 7px; background: #fffbeb; color: #d97706;">
+                            style="width: 32px; height: 32px; border-radius: 7px; background: #fffbeb; color: #c2410c;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
@@ -302,7 +383,7 @@
 
             {{-- KPI 5: Accounts Payable (AP) --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: #dc2626;"></div>
+                <div class="kpi-accent-stripe" style="background: #E11835;"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold"
@@ -310,7 +391,7 @@
                             Accounts Payable
                         </span>
                         <div class="d-flex align-items-center justify-content-center"
-                            style="width: 32px; height: 32px; border-radius: 7px; background: #fef2f2; color: #dc2626;">
+                            style="width: 32px; height: 32px; border-radius: 7px; background: #fef2f2; color: #E11835;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -364,8 +445,7 @@
                         </div>
                     </div>
                     <a href="{{ route('admin.orders.index') }}"
-                        class="btn btn-sm btn-light border py-1 px-2.5 font-weight-bold text-primary"
-                        style="font-size: 11px; border-radius: 6px;">
+                        class="btn btn-primary dashboard-ribbon-action font-weight-bold">
                         View
                     </a>
                 </div>
@@ -375,7 +455,7 @@
                     style="border-color: #f1f5f9 !important;">
                     <div class="d-flex align-items-center" style="gap: 12px;">
                         <div class="d-flex align-items-center justify-content-center flex-shrink-0"
-                            style="width: 36px; height: 36px; border-radius: 8px; background: #fffbeb; color: #d97706;">
+                            style="width: 36px; height: 36px; border-radius: 8px; background: #fffbeb; color: #c2410c;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
@@ -390,8 +470,7 @@
                         </div>
                     </div>
                     <a href="{{ route('admin.approvals.index') }}"
-                        class="btn btn-sm btn-light border py-1 px-2.5 font-weight-bold text-warning"
-                        style="font-size: 11px; border-radius: 6px;">
+                        class="btn btn-primary dashboard-ribbon-action font-weight-bold">
                         Approve
                     </a>
                 </div>
@@ -401,7 +480,7 @@
                     style="border-color: #f1f5f9 !important;">
                     <div class="d-flex align-items-center" style="gap: 12px;">
                         <div class="d-flex align-items-center justify-content-center flex-shrink-0"
-                            style="width: 36px; height: 36px; border-radius: 8px; background: #fef2f2; color: #dc2626;">
+                            style="width: 36px; height: 36px; border-radius: 8px; background: #fef2f2; color: #E11835;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
@@ -416,8 +495,7 @@
                         </div>
                     </div>
                     <a href="{{ route('admin.products.index') }}"
-                        class="btn btn-sm btn-light border py-1 px-2.5 font-weight-bold text-danger"
-                        style="font-size: 11px; border-radius: 6px;">
+                        class="btn btn-primary dashboard-ribbon-action font-weight-bold">
                         Restock
                     </a>
                 </div>
@@ -427,7 +505,7 @@
                     style="border-color: #f1f5f9 !important;">
                     <div class="d-flex align-items-center" style="gap: 12px;">
                         <div class="d-flex align-items-center justify-content-center flex-shrink-0"
-                            style="width: 36px; height: 36px; border-radius: 8px; background: #ecfdf5; color: #059669;">
+                            style="width: 36px; height: 36px; border-radius: 8px; background: #ecfdf5; color: #15803d;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"></path>
@@ -481,8 +559,7 @@
                         </div>
                         <div class="d-flex align-items-center" style="gap: 8px;">
                             {{-- Interactive Metric Switcher --}}
-                            <div class="btn-group btn-group-sm p-0.5 bg-light border"
-                                style="border-radius: 8px; border-color: #e2e8f0 !important;">
+                            <div class="dashboard-chart-toggle">
                                 <button type="button" class="btn btn-sm font-weight-bold shadow-none"
                                     id="btnChartRevenue" onclick="switchExecutiveChart('revenue')"
                                     style="font-size: 11px; border-radius: 6px; padding: 3px 10px; background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1;">
@@ -588,7 +665,7 @@
                         style="border-bottom: 1px solid #f1f5f9;">
                         <div class="d-flex align-items-center" style="gap: 8px;">
                             <span class="d-flex align-items-center justify-content-center"
-                                style="width: 28px; height: 28px; border-radius: 6px; background: #fef2f2; color: #ef4444;">
+                                style="width: 28px; height: 28px; border-radius: 6px; background: #fef2f2; color: #E11835;">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -615,7 +692,7 @@
                                 @php
                                     $rank = $index + 1;
                                     $rankBg = match ($rank) {
-                                        1 => 'background: #fef3c7; color: #b45309; border: 1px solid #f59e0b;',
+                                        1 => 'background: #fef3c7; color: #b45309; border: 1px solid #E11835;',
                                         2 => 'background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;',
                                         3 => 'background: #ffedd5; color: #c2410c; border: 1px solid #fb923c;',
                                         default => 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;',
@@ -624,10 +701,10 @@
                                         ? asset($product->image)
                                         : asset('uploads/no-image.svg');
                                 @endphp
-                                <div class="list-group-item d-flex align-items-center justify-content-between p-3 border-bottom"
+                                <div class="list-group-item d-flex align-items-center justify-content-between p-3 border-bottom dashboard-leaderboard-row"
                                     style="transition: all 0.2s ease; gap: 12px; border-color: #f1f5f9 !important;">
                                     {{-- Rank Badge & Product Info --}}
-                                    <div class="d-flex align-items-center min-w-0" style="gap: 12px; flex: 1;">
+                                    <div class="d-flex align-items-center min-w-0 dashboard-leaderboard-info" style="gap: 12px; flex: 1;">
                                         {{-- Rank Badge --}}
                                         <div class="font-weight-bold d-flex align-items-center justify-content-center shadow-none flex-shrink-0"
                                             style="width: 26px; height: 26px; border-radius: 50%; font-size: 11.5px; {{ $rankBg }}">
@@ -661,7 +738,7 @@
                                                     </span>
                                                 @else
                                                     <span class="badge badge-danger font-weight-bold px-2 py-0.5"
-                                                        style="font-size: 9.5px; background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;">
+                                                        style="font-size: 9.5px; background: #fee2e2; color: #E11835; border: 1px solid #fca5a5;">
                                                         <i class="fas fa-exclamation-circle mr-1"></i>Only
                                                         {{ number_format($product->current_stock ?? 0) }} left
                                                     </span>
@@ -671,7 +748,7 @@
                                     </div>
 
                                     {{-- Revenue & Times Ordered --}}
-                                    <div class="text-right flex-shrink-0 pl-2">
+                                    <div class="text-right flex-shrink-0 pl-2 dashboard-leaderboard-value">
                                         <div class="font-weight-bold text-dark"
                                             style="font-size: 14.5px; letter-spacing: -0.01em;">
                                             {!! formatWithCurrency($product->total_revenue) !!}
@@ -699,7 +776,7 @@
                         style="border-bottom: 1px solid #f1f5f9;">
                         <div class="d-flex align-items-center" style="gap: 8px;">
                             <span class="d-flex align-items-center justify-content-center"
-                                style="width: 28px; height: 28px; border-radius: 6px; background: #fffbeb; color: #d97706;">
+                                style="width: 28px; height: 28px; border-radius: 6px; background: #fffbeb; color: #c2410c;">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -732,10 +809,10 @@
                                         strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $displayName), 0, 2)) ?: 'CL';
                                     $hasDue = ($customer->due_amount ?? 0) > 0.01;
                                 @endphp
-                                <div class="list-group-item d-flex align-items-center justify-content-between p-3 border-bottom"
+                                <div class="list-group-item d-flex align-items-center justify-content-between p-3 border-bottom dashboard-leaderboard-row"
                                     style="transition: all 0.2s ease; gap: 12px; border-color: #f1f5f9 !important;">
                                     {{-- Rank Badge & Customer Info --}}
-                                    <div class="d-flex align-items-center min-w-0" style="gap: 12px; flex: 1;">
+                                    <div class="d-flex align-items-center min-w-0 dashboard-leaderboard-info" style="gap: 12px; flex: 1;">
                                         {{-- Rank Number --}}
                                         <div class="font-weight-bold text-muted flex-shrink-0"
                                             style="width: 20px; font-size: 12.5px;">
@@ -743,8 +820,8 @@
                                         </div>
 
                                         {{-- Customer Initials Avatar --}}
-                                        <div class="d-flex align-items-center justify-content-center font-weight-bold text-white flex-shrink-0"
-                                            style="width: 42px; height: 42px; border-radius: 10px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); font-size: 12.5px; letter-spacing: 0.5px; border: 1px solid #cbd5e1;">
+                                        <div class="dashboard-customer-avatar d-flex align-items-center justify-content-center font-weight-bold flex-shrink-0"
+                                            style="width: 42px; height: 42px; border-radius: 10px; font-size: 12.5px; letter-spacing: 0.5px;">
                                             {{ $initials }}
                                         </div>
 
@@ -757,7 +834,7 @@
                                                     {{ $displayName }}
                                                 </a>
                                             </div>
-                                            <div class="d-flex align-items-center text-muted small mt-0.5"
+                                            <div class="d-flex align-items-center text-muted small mt-0.5 dashboard-leaderboard-meta"
                                                 style="font-size: 11px; gap: 6px;">
                                                 @if (optional($customer->user)->phone)
                                                     <span><i
@@ -773,7 +850,7 @@
                                     </div>
 
                                     {{-- Spend Value & Outstanding Due Status --}}
-                                    <div class="text-right flex-shrink-0 pl-2">
+                                    <div class="text-right flex-shrink-0 pl-2 dashboard-leaderboard-value">
                                         <div class="font-weight-bold text-dark"
                                             style="font-size: 14.5px; letter-spacing: -0.01em;">
                                             {!! formatWithCurrency($customer->total_value) !!}
@@ -781,7 +858,7 @@
                                         <div class="mt-1">
                                             @if ($hasDue)
                                                 <span class="badge font-weight-bold px-2 py-0.5"
-                                                    style="font-size: 9.5px; background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;">
+                                                    style="font-size: 9.5px; background: #fee2e2; color: #E11835; border: 1px solid #fca5a5;">
                                                     kr. {{ number_format($customer->due_amount, 2) }} due
                                                 </span>
                                             @else
@@ -860,6 +937,7 @@
                                                 'processing' => 'badge-primary',
                                                 'credit_hold' => 'badge-danger',
                                                 'cancelled', 'rejected' => 'badge-secondary',
+                                                'pending' => 'badge-danger',
                                                 default => 'badge-warning',
                                             };
                                             $clientName =
@@ -900,7 +978,7 @@
                                                     </span>
                                                 @else
                                                     <span class="badge px-2 py-0.5 font-weight-bold"
-                                                        style="font-size: 10px; background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px;">
+                                                        style="font-size: 10px; background: #fef2f2; color: #E11835; border: 1px solid #fca5a5; border-radius: 4px;">
                                                         DUE
                                                     </span>
                                                 @endif
@@ -1100,8 +1178,8 @@
                             backgroundColor: [
                                 '#4f46e5',
                                 '#06b6d4',
-                                '#f59e0b',
-                                '#10b981',
+                                '#E11835',
+                                '#15803d',
                                 '#ec4899'
                             ],
                             borderWidth: 2,

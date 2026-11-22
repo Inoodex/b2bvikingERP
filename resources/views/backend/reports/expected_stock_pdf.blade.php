@@ -84,7 +84,7 @@
         .val-indigo { color: #4338ca !important; }
         .val-emerald { color: #047857 !important; }
         .val-sky { color: #0284c7 !important; }
-        .val-amber { color: #b45309 !important; }
+        .val-blue { color: #b45309 !important; }
 
         /* Table */
         table.stock-table {
@@ -217,7 +217,7 @@
             </td>
             <td class="summary-box">
                 <div class="lbl">Expected Profit Margin</div>
-                <div class="val val-amber">{{ $settings->currency_icon }}{{ number_format($totalMargin, 2) }}</div>
+                <div class="val val-blue">{{ $settings->currency_icon }}{{ number_format($totalMargin, 2) }}</div>
             </td>
         </tr>
     </table>

@@ -160,7 +160,7 @@
 
                                 {{-- Submit Buttons --}}
                                 <div class="text-right mt-4 pt-3 border-top">
-                                    <button type="reset" class="btn btn-outline-secondary px-4 mr-2">
+                                    <button type="reset" class="btn btn-outline-secondary px-4 mr-2 reset-arrow-button">
                                         <i class="fas fa-undo mr-1"></i> Reset
                                     </button>
                                     <button type="submit" class="btn btn-primary px-5 shadow-sm">
@@ -204,8 +204,8 @@
     }
 
     .form-control:focus {
-        border-color: #4e73df;
-        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.15);
+        border-color: #2563eb;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
         background: #ffffff;
     }
 
@@ -215,8 +215,8 @@
     }
 
     .form-control.is-invalid:focus {
-        border-color: #e74a3b;
-        box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.15);
+        border-color: #E11835;
+        box-shadow: 0 0 0 0.2rem rgba(225, 24, 53, 0.15);
     }
 
     /* Input Group */
@@ -227,7 +227,7 @@
         background: #f8f9fc;
         padding: 0 1.2rem;
         font-weight: 600;
-        color: #4e73df;
+        color: #2563eb;
     }
 
     .input-group .form-control {
@@ -235,7 +235,7 @@
     }
 
     .input-group .form-control:focus + .input-group-append .input-group-text {
-        border-color: #4e73df;
+        border-color: #2563eb;
     }
 
     /* Buttons */
@@ -262,14 +262,14 @@
     }
 
     .btn-primary {
-        background: #4e73df !important;
+        background: #2563eb !important;
         border: none !important;
         color: #ffffff !important;
     }
 
     .btn-primary:hover {
-        background: #224abe !important;
-        box-shadow: 0 8px 25px rgba(78, 115, 223, 0.35) !important;
+        background: #1d4ed8 !important;
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35) !important;
     }
 
     .btn-outline-secondary {
@@ -414,12 +414,12 @@
     }
 
     ::-webkit-scrollbar-thumb {
-        background: #4e73df;
+        background: #2563eb;
         border-radius: 10px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background: #224abe;
+        background: #1d4ed8;
     }
 
     /* Validation */
@@ -431,12 +431,12 @@
 
     .was-validated .form-control:valid,
     .form-control.is-valid {
-        border-color: #1cc88a !important;
+        border-color: #15803d !important;
     }
 
     .was-validated .form-control:invalid,
     .form-control.is-invalid {
-        border-color: #e74a3b !important;
+        border-color: #E11835 !important;
     }
 
     .text-danger {
@@ -445,12 +445,12 @@
     }
 
     .form-control:hover {
-        border-color: #4e73df;
+        border-color: #2563eb;
         background: #ffffff;
     }
 
     .form-control:focus {
-        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.15) !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
     }
 
     select.form-control {

@@ -1,8 +1,57 @@
 @extends('backend.layouts.master')
 @section('title', 'Bank Reconciliation — Match Statement with GL')
 
+@push('styles')
+<style>
+    .bank-reconciliation-page #bankAccountFilter + .select2-container .select2-selection--single {
+        height: 42px;
+        padding-right: 40px;
+        border-radius: 12px;
+        position: relative;
+    }
+
+    .bank-reconciliation-page #bankAccountFilter + .select2-container .select2-selection__rendered {
+        padding-left: 14px;
+        line-height: 40px;
+    }
+
+    .bank-reconciliation-page #bankAccountFilter + .select2-container .select2-selection__arrow {
+        top: 50%;
+        right: 5px;
+        width: 30px;
+        height: 30px;
+        transform: translateY(-50%);
+        border-radius: 9px;
+        background: transparent;
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .bank-reconciliation-page #bankAccountFilter + .select2-container .select2-selection__arrow b {
+        display: none;
+    }
+
+    .bank-reconciliation-page #bankAccountFilter + .select2-container .select2-selection__arrow::after {
+        position: absolute;
+        top: 10px;
+        left: 11px;
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid #667085;
+        border-bottom: 2px solid #667085;
+        content: "";
+        transform: rotate(45deg);
+        transition: transform 0.2s ease;
+    }
+
+    .bank-reconciliation-page #bankAccountFilter + .select2-container--open .select2-selection__arrow::after {
+        top: 13px;
+        transform: rotate(225deg);
+    }
+</style>
+@endpush
+
 @section('content')
-<section class="section">
+<section class="section bank-reconciliation-page">
     <!-- Header Section -->
     <div class="section-header d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -24,7 +73,7 @@
                     <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                         <h5 class="font-weight-bold text-dark mb-0"><i class="fas fa-search text-primary mr-2"></i> Select Bank Account</h5>
                         <form method="GET" action="{{ route('admin.bank-reconciliation.index') }}" class="form-inline">
-                            <select name="bank_account_id" class="form-control select2 mr-2" onchange="this.form.submit()" style="min-width: 320px;">
+                            <select id="bankAccountFilter" name="bank_account_id" class="form-control select2 mr-2" onchange="this.form.submit()" style="min-width: 320px;">
                                 @foreach($bankAccounts as $bank)
                                     <option value="{{ $bank->id }}" {{ $selectedBank && $selectedBank->id == $bank->id ? 'selected' : '' }}>
                                         {{ $bank->account_name }}

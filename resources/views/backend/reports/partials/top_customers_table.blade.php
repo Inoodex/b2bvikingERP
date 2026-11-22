@@ -21,7 +21,7 @@
                     <tr>
                         <td class="pl-4">
                             @if($rank == 1)
-                                <span class="badge badge-warning" style="font-size:12px; font-weight:700; background-color:#ffc107; color:#000;"><i class="fas fa-trophy mr-1"></i> #1</span>
+                                <span class="badge badge-warning" style="font-size:12px; font-weight:700; background-color:#dc2626; color:#fff;"><i class="fas fa-trophy mr-1"></i> #1</span>
                             @elseif($rank == 2)
                                 <span class="badge badge-secondary" style="font-size:12px; font-weight:700; background-color:#6c757d; color:#fff;"><i class="fas fa-medal mr-1"></i> #2</span>
                             @elseif($rank == 3)

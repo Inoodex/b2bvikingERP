@@ -448,13 +448,13 @@
 
         .search-result-item.in-queue {
             background: #f0fdf4;
-            border-left: 3px solid #10b981 !important;
+            border-left: 3px solid #15803d !important;
         }
 
         .variant-sub-item {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-left: 3px solid #3b82f6 !important;
+            border-left: 3px solid #2563eb !important;
             transition: background 0.15s ease, border-color 0.15s ease;
         }
 
@@ -684,7 +684,7 @@
         }
 
         .btn-print-main:not(:disabled) {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            background: linear-gradient(135deg, #15803d 0%, #15803d 100%) !important;
             border: none !important;
             box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
         }
@@ -1433,7 +1433,7 @@
                         $('#previewContainer').html(`
                 <div class="py-4 text-center px-3" id="previewPendingPrompt">
                     <div class="mb-2.5">
-                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 56px; height: 56px; background: rgba(245, 158, 11, 0.1);">
+                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 56px; height: 56px; background: rgba(225, 24, 53, 0.1);">
                             <i class="fas fa-barcode fa-lg text-warning"></i>
                         </span>
                     </div>

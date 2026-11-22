@@ -19,7 +19,7 @@
     <!-- 4 Live Executive AR KPI Cards -->
     <div class="row mb-4">
         <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-3">
-            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px; border-left: 4px solid #ffc107 !important;">
+            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px;">
                 <div class="card-icon bg-warning text-white">
                     <i class="fas fa-hand-holding-usd fa-2x"></i>
                 </div>
@@ -33,7 +33,7 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-3">
-            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px; border-left: 4px solid #28a745 !important;">
+            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px;">
                 <div class="card-icon bg-success text-white">
                     <i class="fas fa-check-circle fa-2x"></i>
                 </div>
@@ -47,7 +47,7 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-3">
-            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px; border-left: 4px solid #dc3545 !important;">
+            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px;">
                 <div class="card-icon bg-danger text-white">
                     <i class="fas fa-exclamation-triangle fa-2x"></i>
                 </div>
@@ -61,7 +61,7 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-3">
-            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px; border-left: 4px solid #6777ef !important;">
+            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px;">
                 <div class="card-icon bg-primary text-white">
                     <i class="fas fa-file-invoice fa-2x"></i>
                 </div>
@@ -87,8 +87,10 @@
                     </a>
                 </div>
             </div>
-            <div class="card-body p-4 table-responsive">
-                {{ $dataTable->table(['class' => 'table table-striped table-bordered align-middle w-100']) }}
+            <div class="card-body p-2 p-md-3">
+                <div class="table-responsive">
+                    {{ $dataTable->table(['class' => 'table table-striped table-bordered align-middle w-100']) }}
+                </div>
             </div>
         </div>
     </div>

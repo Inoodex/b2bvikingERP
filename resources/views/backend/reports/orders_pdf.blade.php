@@ -33,7 +33,7 @@
 
         .badge { display: inline-block; padding: 2px 5px; font-size: 9px; font-weight: bold; border-radius: 3px; color: #fff; }
         .badge-success { background-color: #28a745; }
-        .badge-warning { background-color: #ffc107; color: #212529; }
+        .badge-warning { background-color: #dc2626; color: #fff; }
         .badge-danger { background-color: #dc3545; }
         .badge-primary { background-color: #007bff; }
         .badge-info { background-color: #17a2b8; }

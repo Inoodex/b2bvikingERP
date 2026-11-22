@@ -49,7 +49,7 @@
                 @php
                     $productTypeLower = strtolower($productType);
                     if (str_contains($productTypeLower, 'upcoming')) {
-                        $badgeClass = 'border-amber-200 bg-amber-50 text-amber-600';
+                        $badgeClass = 'border-blue-200 bg-blue-50 text-blue-600';
                     } elseif (str_contains($productTypeLower, 'new') || str_contains($productTypeLower, 'arrival')) {
                         $badgeClass = 'border-emerald-200 bg-emerald-50 text-emerald-600';
                     } else {
@@ -191,7 +191,7 @@
                                 <p class="mt-1 break-words text-[9px] font-semibold leading-tight text-slate-400" x-text="`Max add: ${maxAddableQty}`"></p>
                             </template> --}}
                             <template x-if="(!hasVariants || selectedVariant) && currentStock > 0 && maxAddableQty === 0">
-                                <p class="mt-1 break-words text-[9px] font-semibold leading-tight text-amber-600" x-text="`MIM ${minimumOrderQty}, stock ${currentStock}`"></p>
+                                <p class="mt-1 break-words text-[9px] font-semibold leading-tight text-blue-600" x-text="`MIM ${minimumOrderQty}, stock ${currentStock}`"></p>
                             </template>
                         </div>
                     </div>
@@ -265,7 +265,7 @@
 <div class="rounded-md border border-slate-200 bg-black/3 p-3 text-[9.5px] font-semibold uppercase tracking-wide text-slate-600 mb-1">
 
     <!-- লাইন ১: MIM + TOTAL IN CART (যদি থাকে) -->
-    <div class="flex justify-between items-center mb-1">
+    <div class="flex flex-wrap justify-between items-center gap-1 mb-1">
         <span>MIM: <span class="text-slate-800" x-text="minimumOrderQty"></span></span>
 
         {{-- <template x-if="inCartQty >= 0">
@@ -277,7 +277,7 @@
     </div>
 
     <!-- লাইন ২: THIS VARIANT + IN STOCK -->
-    <div class="flex justify-between items-center">
+    <div class="flex flex-wrap justify-between items-center gap-1">
 
         <!-- বাম দিক: variant specific qty — selected থাকলে সবসময় দেখাবে (0 হলেও) -->
         <template x-if="hasVariants">

@@ -2,13 +2,13 @@
 @section('title', 'Order Details')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="mb-8 flex items-center justify-between">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+    <div class="mb-6 sm:mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-            <h1 class="text-3xl font-black text-slate-900">Order Details</h1>
-            <p class="text-sm text-slate-500 mt-2">Order No: {{ $order->order_no }}</p>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900">Order Details</h1>
+            <p class="text-sm text-slate-500 mt-1 sm:mt-2">Order No: {{ $order->order_no }}</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
             @php
                 $hasPi = \App\Support\PiInfoSupport::hasContent($order->pi_info);
                 $invoice = \App\Models\SalesInvoice::where('order_id', $order->id)->latest()->first();
@@ -47,9 +47,9 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         <div class="lg:col-span-2 space-y-6">
-            <section class="bg-white border border-slate-100 rounded-2xl p-6">
+            <section class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6">
                 <h2 class="text-lg font-bold text-slate-900 mb-4">Items</h2>
                 <div class="space-y-4">
                     @foreach($order->items as $item)
@@ -74,7 +74,7 @@
                 </div>
             </section>
 
-            <section class="bg-white border border-slate-100 rounded-2xl p-6">
+            <section class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6">
                 <h2 class="text-lg font-bold text-slate-900 mb-4">Shipping & Billing Info</h2>
                 <div class="text-sm text-slate-600 space-y-1">
                     <p><span class="font-semibold text-slate-900">Name:</span> {{ $order->billing_name }}</p>
@@ -88,7 +88,7 @@
             </section>
 
             @if($order->ship_different)
-                <section class="bg-white border border-slate-100 rounded-2xl p-6">
+                <section class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6">
                     <h2 class="text-lg font-bold text-slate-900 mb-4">Shipping Info</h2>
                     <div class="text-sm text-slate-600 space-y-1">
                         <p><span class="font-semibold text-slate-900">Name:</span> {{ $order->shipping_name }}</p>
@@ -108,7 +108,7 @@
         </div>
 
         <aside class="lg:col-span-1">
-            <div class="bg-white border border-slate-100 rounded-2xl p-6 sticky top-24">
+            <div class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-6 sticky top-24">
                 <h3 class="text-lg font-bold text-slate-900 mb-4">Summary</h3>
                 @php $status = strtolower($order->status); @endphp
                 <p class="mb-3">
@@ -119,7 +119,7 @@
                         {{ $status === 'shipped' ? 'bg-blue-100 text-blue-700' : '' }}
                         {{ $status === 'rejected' ? 'bg-rose-100 text-rose-700' : '' }}
                         {{ $status === 'cancelled' ? 'bg-rose-100 text-rose-700' : '' }}
-                        {{ $status === 'pending' ? 'bg-amber-100 text-amber-700' : '' }}">
+                        {{ $status === 'pending' ? 'bg-blue-100 text-blue-700' : '' }}">
                         {{ ucfirst($order->status) }}
                     </span>
                 </p>
@@ -162,8 +162,8 @@
                                     <i class="fas fa-adjust text-sky-600"></i> Partial
                                 </span>
                             @else
-                                <span class="inline-flex items-center gap-1 text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full text-xs font-bold border border-amber-200">
-                                    <i class="fas fa-clock text-amber-600"></i> Pending
+                                <span class="inline-flex items-center gap-1 text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full text-xs font-bold border border-blue-200">
+                                    <i class="fas fa-clock text-blue-600"></i> Pending
                                 </span>
                             @endif
                         </span>
@@ -183,9 +183,9 @@
                 </div>
 
                 @if($order->payment_method === 'paypal' && $order->payment_status !== 'paid')
-                    <div class="mt-5 p-4 rounded-xl bg-amber-50 border border-amber-200 text-center shadow-sm">
-                        <p class="text-xs font-semibold text-amber-800 mb-3 flex items-center justify-center gap-1.5">
-                            <i class="fas fa-exclamation-circle text-amber-600"></i> Payment is pending. Complete checkout now:
+                    <div class="mt-5 p-4 rounded-xl bg-blue-50 border border-blue-200 text-center shadow-sm">
+                        <p class="text-xs font-semibold text-blue-800 mb-3 flex items-center justify-center gap-1.5">
+                            <i class="fas fa-exclamation-circle text-blue-600"></i> Payment is pending. Complete checkout now:
                         </p>
                         <form method="POST" action="{{ route('orders.retry-paypal', $order->id) }}">
                             @csrf

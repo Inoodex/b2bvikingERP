@@ -96,7 +96,7 @@
         border-radius: 8px !important;
         border: 1px solid #fecaca !important;
         background-color: #fef2f2 !important;
-        color: #dc2626 !important;
+        color: #E11835 !important;
         font-size: 14px !important;
         display: inline-flex !important;
         align-items: center !important;
@@ -109,7 +109,7 @@
     }
     .btn-modern-reset-icon i,
     button#btn-reset-filters.btn-modern-reset-icon i {
-        color: #dc2626 !important;
+        color: #E11835 !important;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease !important;
         display: inline-block !important;
     }
@@ -117,10 +117,10 @@
     button#btn-reset-filters.btn-modern-reset-icon:hover,
     .btn-modern-reset-icon:focus,
     button#btn-reset-filters.btn-modern-reset-icon:focus {
-        background-color: #dc2626 !important;
-        border-color: #b91c1c !important;
+        background-color: #E11835 !important;
+        border-color: #E11835 !important;
         color: #ffffff !important;
-        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35) !important;
+        box-shadow: 0 4px 12px rgba(225, 24, 53, 0.35) !important;
     }
     .btn-modern-reset-icon:hover i,
     button#btn-reset-filters.btn-modern-reset-icon:hover i,
@@ -131,8 +131,8 @@
     }
     .btn-modern-reset-icon:active,
     button#btn-reset-filters.btn-modern-reset-icon:active {
-        background-color: #991b1b !important;
-        border-color: #7f1d1d !important;
+        background-color: #E11835 !important;
+        border-color: #E11835 !important;
         transform: scale(0.94) !important;
     }
 
@@ -214,21 +214,12 @@
     }
     .dataTables_length select {
         height: 36px;
-        border: 1px solid #cbd5e1;
+        border: 1px solid #dc2626;
         border-radius: 6px;
         padding: 4px 8px;
         font-size: 13px;
         margin: 0 4px;
     }
-    .dataTables_filter input {
-        height: 36px;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        padding: 4px 12px;
-        font-size: 13px;
-        margin-left: 6px;
-    }
-
     /* Modal Inspection Card Styles */
     .modal-card-box {
         background: #ffffff;
@@ -248,7 +239,7 @@
     .modal-quote-box {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
-        border-left: 3px solid #3b82f6;
+        border-left: 3px solid #2563eb;
         border-radius: 0 8px 8px 0;
         padding: 12px 14px;
         font-size: 13.5px;
@@ -305,11 +296,11 @@
                     <div>
                         <div class="text-muted small font-weight-bold text-uppercase">Average Rating</div>
                         <div class="h3 font-weight-bold text-dark mb-0 mt-1">
-                            {{ $averageRating }} <span style="font-size: 16px; color: #f59e0b;">★</span>
+                            {{ $averageRating }} <span style="font-size: 16px; color: #E11835;">★</span>
                         </div>
                         <div class="text-muted small mt-1">Across published reviews</div>
                     </div>
-                    <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.15); color: #d97706;">
+                    <div class="kpi-icon" style="background: rgba(225, 24, 53, 0.15); color: #c2410c;">
                         <i class="fas fa-star"></i>
                     </div>
                 </div>
@@ -328,7 +319,7 @@
                             @endif
                         </div>
                     </div>
-                    <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: #059669;">
+                    <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: #15803d;">
                         <i class="fas fa-award"></i>
                     </div>
                 </div>
@@ -343,7 +334,7 @@
                             <i class="fas fa-eye-slash mr-1"></i> Moderated reviews
                         </div>
                     </div>
-                    <div class="kpi-icon" style="background: rgba(239, 68, 68, 0.15); color: #dc2626;">
+                    <div class="kpi-icon" style="background: rgba(225, 24, 53, 0.15); color: #E11835;">
                         <i class="fas fa-shield-alt"></i>
                     </div>
                 </div>
@@ -620,13 +611,13 @@ $(document).ready(function() {
                     let r = res.review;
                     let stars = '';
                     for (let i = 1; i <= 5; i++) {
-                        let color = i <= r.rating ? '#f59e0b' : '#cbd5e1';
+                        let color = i <= r.rating ? '#E11835' : '#cbd5e1';
                         stars += `<i class="fas fa-star" style="color: ${color}; font-size: 15px; margin-right: 2px;"></i>`;
                     }
 
                     let statusBadge = r.status 
-                        ? '<span class="badge px-2.5 py-1 font-weight-bold" style="font-size: 11px; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 20px;"><i class="fas fa-check-circle mr-1"></i>Published (Visible)</span>'
-                        : '<span class="badge px-2.5 py-1 font-weight-bold" style="font-size: 11px; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 20px;"><i class="fas fa-eye-slash mr-1"></i>Hidden (Unapproved)</span>';
+                        ? '<span class="badge px-2.5 py-1 font-weight-bold" style="font-size: 11px; background: #ecfdf5; color: #15803d; border: 1px solid #a7f3d0; border-radius: 20px;"><i class="fas fa-check-circle mr-1"></i>Published (Visible)</span>'
+                        : '<span class="badge px-2.5 py-1 font-weight-bold" style="font-size: 11px; background: #fef2f2; color: #E11835; border: 1px solid #fecaca; border-radius: 20px;"><i class="fas fa-eye-slash mr-1"></i>Hidden (Unapproved)</span>';
 
                     $('#modalReviewHeaderBadge').html(statusBadge);
 
@@ -634,13 +625,13 @@ $(document).ready(function() {
 
                     let ratingSentiment = '';
                     if (r.rating >= 5) {
-                        ratingSentiment = '<span class="badge font-weight-bold ml-2" style="font-size: 10px; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 4px;">Excellent</span>';
+                        ratingSentiment = '<span class="badge font-weight-bold ml-2" style="font-size: 10px; background: #ecfdf5; color: #15803d; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 4px;">Excellent</span>';
                     } else if (r.rating >= 4) {
                         ratingSentiment = '<span class="badge font-weight-bold ml-2" style="font-size: 10px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 2px 7px; border-radius: 4px;">Good</span>';
                     } else if (r.rating >= 3) {
-                        ratingSentiment = '<span class="badge font-weight-bold ml-2" style="font-size: 10px; background: #fffbeb; color: #d97706; border: 1px solid #fde68a; padding: 2px 7px; border-radius: 4px;">Average</span>';
+                        ratingSentiment = '<span class="badge font-weight-bold ml-2" style="font-size: 10px; background: #fffbeb; color: #c2410c; border: 1px solid #fde68a; padding: 2px 7px; border-radius: 4px;">Average</span>';
                     } else {
-                        ratingSentiment = '<span class="badge font-weight-bold ml-2" style="font-size: 10px; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 2px 7px; border-radius: 4px;">Poor</span>';
+                        ratingSentiment = '<span class="badge font-weight-bold ml-2" style="font-size: 10px; background: #fef2f2; color: #E11835; border: 1px solid #fecaca; padding: 2px 7px; border-radius: 4px;">Poor</span>';
                     }
 
                     function escapeHtml(str) {

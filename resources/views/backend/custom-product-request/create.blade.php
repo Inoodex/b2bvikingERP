@@ -18,7 +18,7 @@
     }
     .custom-product-info {
         background: #f8f9fa;
-        border-left: 4px solid #6777ef;
+        border-left: 4px solid #2563eb;
         padding: 15px;
         margin-bottom: 20px;
     }

@@ -132,7 +132,7 @@
                             title="{{ $reviewCount > 0 ? 'View ' . $reviewCount . ' review(s) for this product' : 'Inspect reviews' }}">
                             @for ($i = 1; $i <= 5; $i++)
                                 <i class="fas fa-star"
-                                    style="color: {{ $i <= round($avgRating) ? '#f59e0b' : '#d1d5db' }}; font-size: 9px;"></i>
+                                    style="color: {{ $i <= round($avgRating) ? '#E11835' : '#d1d5db' }}; font-size: 9px;"></i>
                             @endfor
                             @if ($reviewCount > 0)
                                 <span
@@ -196,7 +196,7 @@
                                     style="border-color: var(--pp-border) !important;">
                                     <span class="pp-price-label">Wholesale</span>
                                     <span class="pp-price-value"
-                                        style="color: #16a34a; font-size: 11px;">{{ formatConverted($product->outlet_price) }}</span>
+                                        style="color: #15803d; font-size: 11px;">{{ formatConverted($product->outlet_price) }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center pt-1">
                                     <span class="pp-price-label">Retail</span>
@@ -214,7 +214,7 @@
 
                         <div class="mt-2 d-flex" style="gap: 6px;">
                             @can('Manage Order Place')
-                                <button type="button" class="btn btn-sm pp-btn-card pp-btn-amber flex-fill add-to-basket"
+                                <button type="button" class="btn btn-sm pp-btn-card pp-btn-blue flex-fill add-to-basket"
                                     data-id="{{ $product->id }}" data-has-variants="{{ $hasVariants ? 1 : 0 }}"
                                     data-has-active-po="{{ $hasActiveOrder ? 1 : 0 }}"
                                     data-po-info="{{ $hasActiveOrder ? 'Already on order (' . number_format($pipeline['total_ordered_qty']) . ' pcs on ' . $pipeline['po_no'] . ' - ' . ($pipeline['status_key'] ?? 'PO') . ')' : '' }}"

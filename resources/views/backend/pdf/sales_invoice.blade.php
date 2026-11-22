@@ -232,8 +232,8 @@
         </tr>
         @if ($invoice->discount_amount > 0)
             <tr>
-                <td style="color: #dc2626;">Discount:</td>
-                <td style="text-align: right; color: #dc2626;">- kr. {{ number_format((float)$invoice->discount_amount, 2) }}</td>
+                <td style="color: #E11835;">Discount:</td>
+                <td style="text-align: right; color: #E11835;">- kr. {{ number_format((float)$invoice->discount_amount, 2) }}</td>
             </tr>
         @endif
         @if ($invoice->tax_amount > 0)

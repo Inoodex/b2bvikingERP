@@ -246,7 +246,7 @@
             @if((float)($salesQuotation->discount_amount ?? 0) > 0)
                 <tr>
                     <td style="color: #64748b;">Special Discount:</td>
-                    <td style="text-align: right; font-weight: bold; color: #dc2626;">- {{ $salesQuotation->currency?->symbol ?? 'kr.' }} {{ number_format((float)$salesQuotation->discount_amount, 2) }}</td>
+                    <td style="text-align: right; font-weight: bold; color: #E11835;">- {{ $salesQuotation->currency?->symbol ?? 'kr.' }} {{ number_format((float)$salesQuotation->discount_amount, 2) }}</td>
                 </tr>
             @endif
             <tr class="total-row">

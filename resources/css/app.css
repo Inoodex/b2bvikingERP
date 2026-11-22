@@ -199,6 +199,17 @@
     }
   }
 
+  input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="hidden"]):not([type="range"]),
+  select,
+  textarea {
+    border-color: #E11835 !important;
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: #E11835;
+  }
+
   @media (max-width: 63.999rem) {
     .shop-desktop-sidebar {
       display: none !important;

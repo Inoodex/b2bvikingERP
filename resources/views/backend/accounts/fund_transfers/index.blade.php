@@ -19,7 +19,7 @@
     <!-- KPI Metric Card -->
     <div class="row mb-4">
         <div class="col-lg-6 col-12 mb-3">
-            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px; border-left: 4px solid #17a2b8 !important;">
+            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px;">
                 <div class="card-icon bg-info text-white">
                     <i class="fas fa-exchange-alt fa-2x"></i>
                 </div>

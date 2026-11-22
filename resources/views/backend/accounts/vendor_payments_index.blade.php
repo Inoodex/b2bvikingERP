@@ -19,7 +19,7 @@
     <!-- 3 KPI Cards -->
     <div class="row mb-4">
         <div class="col-lg-4 col-md-6 col-12 mb-3">
-            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px; border-left: 4px solid #6777ef !important;">
+            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px;">
                 <div class="card-icon bg-primary text-white">
                     <i class="fas fa-receipt fa-2x"></i>
                 </div>
@@ -31,7 +31,7 @@
             </div>
         </div>
         <div class="col-lg-4 col-md-6 col-12 mb-3">
-            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px; border-left: 4px solid #28a745 !important;">
+            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px;">
                 <div class="card-icon bg-success text-white">
                     <i class="fas fa-hand-holding-usd fa-2x"></i>
                 </div>
@@ -43,7 +43,7 @@
             </div>
         </div>
         <div class="col-lg-4 col-md-6 col-12 mb-3">
-            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px; border-left: 4px solid #17a2b8 !important;">
+            <div class="card card-statistic-1 shadow-sm border-0" style="border-radius: 12px;">
                 <div class="card-icon bg-info text-white">
                     <i class="fas fa-calculator fa-2x"></i>
                 </div>
@@ -120,7 +120,7 @@
                             </select>
                         </div>
                         <div class="col-lg-3 col-md-6 col-6 form-group mb-lg-0 mb-3 d-flex align-items-center">
-                            <button type="button" id="btn-reset" class="btn btn-sm d-inline-flex align-items-center font-weight-bold mr-2" style="background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px; height: 35px; padding: 0 16px; transition: all 0.2s;" title="Reset Filters">
+                            <button type="button" id="btn-reset" class="btn reset-arrow-button btn-sm d-inline-flex align-items-center font-weight-bold mr-2" style="background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px; height: 35px; padding: 0 16px; transition: all 0.2s;" title="Reset Filters">
                                 <i class="fas fa-undo mr-1.5"></i> Reset
                             </button>
                         </div>

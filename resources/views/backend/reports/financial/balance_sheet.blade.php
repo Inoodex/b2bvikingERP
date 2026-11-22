@@ -156,7 +156,7 @@
                 @php
                     $isBalanced = abs($totalAssets - ($totalLiabilities + $totalEquity)) < 0.01;
                 @endphp
-                <div class="card border-0 shadow-sm" style="border-radius: 14px; background: {{ $isBalanced ? '#e6fffa' : '#fff5f5' }}; border-left: 6px solid {{ $isBalanced ? '#38ef7d' : '#ff4b2b' }};">
+                <div class="card border-0 shadow-sm" style="border-radius: 14px; background: {{ $isBalanced ? '#e6fffa' : '#fff5f5' }};">
                     <div class="card-body py-3 text-center">
                         <h5 class="mb-0 font-weight-bold {{ $isBalanced ? 'text-success' : 'text-danger' }}">
                             {{ $isBalanced ? '🟢 Balance Sheet Balanced: Assets (kr. '.number_format($totalAssets, 2).') = Liabilities & Equity (kr. '.number_format($totalLiabilities + $totalEquity, 2).')' : '⚠️ Balance Variance Notice' }}

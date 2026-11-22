@@ -10,14 +10,14 @@
         </div>
     </section>
 
-    <section class="py-12">
+    <section class="py-8 sm:py-12">
         <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-xl sm:text-2xl font-semibold text-center uppercase tracking-[0.3em] text-slate-900">Register</h2>
             <p class="text-center text-sm text-slate-500 mt-3">
                 Create your account. Registration requires admin approval.
             </p>
 
-            <div class="mt-8 border border-dashed border-slate-300 bg-white/80 p-8 sm:p-10">
+            <div class="mt-8 border border-dashed border-slate-300 bg-white/80 p-5 sm:p-8 md:p-10">
                 @if(session('status'))
                     <div class="mb-6 border border-emerald-200 bg-emerald-50 text-emerald-700 px-4 py-3 text-sm">
                         {{ session('status') }}

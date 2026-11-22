@@ -91,7 +91,7 @@ class VendorBill extends Model
     {
         return match ($this->payment_status) {
             'paid'     => '<span class="badge badge-success">Paid</span>',
-            'partial'  => '<span class="badge badge-warning">Partial</span>',
+            'partial'  => '<span class="badge badge-success">Partial</span>',
             'overpaid' => '<span class="badge badge-info">Overpaid</span>',
             default    => '<span class="badge badge-danger">Unpaid</span>',
         };

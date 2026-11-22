@@ -113,7 +113,7 @@ class B2bVisibilityDataTable extends DataTable
                         </span>';
                 } elseif ($row->visibility_mode === 'force_out_of_stock') {
                     return '
-                        <span class="badge px-3 py-1 font-weight-bold" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 20px; font-size: 11.5px;">
+                        <span class="badge px-3 py-1 font-weight-bold" style="background: rgba(225, 24, 53, 0.12); color: #E11835; border: 1px solid rgba(225, 24, 53, 0.3); border-radius: 20px; font-size: 11.5px;">
                             <i class="fas fa-ban mr-1"></i> Restricted (Out of Stock)
                         </span>';
                 } elseif ($row->visibility_mode === 'hide_product') {

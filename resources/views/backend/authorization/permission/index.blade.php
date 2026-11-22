@@ -4,12 +4,12 @@
 @push('css')
 <style>
     :root {
-        --pp-amber: #d4a24e;
-        --pp-amber-bright: #ecc78b;
-        --pp-amber-deep: #b8852a;
-        --pp-amber-soft: rgba(212, 162, 78, 0.08);
+        --pp-blue: #2563eb;
+        --pp-blue-bright: #60a5fa;
+        --pp-blue-deep: #1d4ed8;
+        --pp-blue-soft: rgba(37, 99, 235, 0.08);
         --pp-border: rgba(11, 17, 32, 0.07);
-        --pp-border-hover: rgba(212, 162, 78, 0.15);
+        --pp-border-hover: rgba(37, 99, 235, 0.15);
         --pp-ink: #161e2e;
         --pp-ink-soft: #2d3748;
         --pp-muted: #6b788e;
@@ -17,7 +17,7 @@
         --pp-radius-md: 14px;
         --pp-radius-lg: 20px;
         --pp-shadow-card: 0 1px 3px rgba(11,17,32,0.04), 0 8px 20px -12px rgba(11,17,32,0.12);
-        --pp-shadow-card-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(212,162,78,0.06);
+        --pp-shadow-card-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(37, 99, 235,0.06);
     }
 
     .pp-header {
@@ -49,9 +49,9 @@
         justify-content: center;
         border-radius: 10px;
         font-size: 14px;
-        color: #1a1306;
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber));
-        box-shadow: 0 4px 14px rgba(212, 162, 78, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+        color: #ffffff;
+        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue));
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
     }
     .pp-btn {
         border: none !important;
@@ -66,21 +66,21 @@
     }
     .pp-btn:hover { transform: translateY(-2px); }
     .pp-btn:active { transform: translateY(0) scale(0.97); }
-    .pp-btn-amber {
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep)) !important;
-        color: #1a1306 !important;
-        box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.45), inset 0 1px 0 rgba(255,255,255,0.25);
+    .pp-btn-blue {
+        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue-deep)) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 14px -4px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255,255,255,0.25);
     }
-    .pp-btn-amber:hover { filter: brightness(1.06); box-shadow: 0 8px 24px -6px rgba(212, 162, 78, 0.5); }
+    .pp-btn-blue:hover { filter: brightness(1.06); box-shadow: 0 8px 24px -6px rgba(37, 99, 235, 0.5); }
     .pp-btn-outline {
-        border: 1.5px solid var(--pp-border) !important;
+        border: 1.5px solid #dc2626 !important;
         color: var(--pp-ink-soft) !important;
         background: transparent !important;
     }
     .pp-btn-outline:hover {
-        border-color: var(--pp-amber) !important;
-        background: var(--pp-amber-soft) !important;
-        color: var(--pp-amber-deep) !important;
+        border-color: var(--pp-blue) !important;
+        background: var(--pp-blue-soft) !important;
+        color: var(--pp-blue-deep) !important;
     }
 
     .pp-card {
@@ -112,7 +112,7 @@
         align-items: center;
         gap: 8px;
     }
-    .pp-card-header h4 i { color: var(--pp-amber); }
+    .pp-card-header h4 i { color: var(--pp-blue); }
 
     /* DataTable styling */
     #permission-table_wrapper .dataTables_length label,
@@ -121,19 +121,19 @@
         font-weight: 600;
         color: var(--pp-muted);
     }
-    #permission-table_wrapper .dataTables_length select,
-    #permission-table_wrapper .dataTables_filter input {
+    #permission-table_wrapper .dataTables_length select {
         border-radius: 10px !important;
-        border: 1.5px solid var(--pp-border) !important;
         padding: 4px 10px !important;
         font-size: 12px !important;
         background: #fff !important;
         transition: all 0.2s ease;
     }
-    #permission-table_wrapper .dataTables_length select:focus,
-    #permission-table_wrapper .dataTables_filter input:focus {
-        border-color: var(--pp-amber) !important;
-        box-shadow: 0 0 0 3px var(--pp-amber-soft) !important;
+    #permission-table_wrapper .dataTables_length select {
+        border: 1.5px solid var(--pp-border) !important;
+    }
+    #permission-table_wrapper .dataTables_length select:focus {
+        border-color: var(--pp-blue) !important;
+        box-shadow: 0 0 0 3px var(--pp-blue-soft) !important;
         outline: none;
     }
     #permission-table {
@@ -143,8 +143,8 @@
         width: 100%;
     }
     #permission-table thead th {
-        background: linear-gradient(135deg, #fafbfc, #f4f5f8);
-        color: var(--pp-ink-soft) !important;
+        background: #2563eb !important;
+        color: #ffffff !important;
         font-weight: 700;
         font-size: 11px;
         text-transform: uppercase;
@@ -152,6 +152,15 @@
         padding: 12px 14px !important;
         border: none !important;
         border-bottom: 2px solid var(--pp-border) !important;
+    }
+    #permission-table thead th *,
+    #permission-table thead .sorting:before,
+    #permission-table thead .sorting_asc:before,
+    #permission-table thead .sorting_desc:before,
+    #permission-table thead .sorting:after,
+    #permission-table thead .sorting_asc:after,
+    #permission-table thead .sorting_desc:after {
+        color: #ffffff !important;
     }
     #permission-table tbody td {
         padding: 11px 14px !important;
@@ -162,13 +171,13 @@
         transition: background 0.15s;
     }
     #permission-table tbody tr:hover td {
-        background: var(--pp-amber-soft);
+        background: var(--pp-blue-soft);
     }
     #permission-table tbody tr:nth-child(even) td {
         background: var(--pp-surface);
     }
     #permission-table tbody tr:nth-child(even):hover td {
-        background: var(--pp-amber-soft);
+        background: var(--pp-blue-soft);
     }
     #permission-table_wrapper .dataTables_info {
         font-size: 11.5px;
@@ -191,15 +200,15 @@
         background: #fff !important;
     }
     #permission-table_wrapper .paginate_button:hover {
-        border-color: var(--pp-amber) !important;
-        background: var(--pp-amber-soft) !important;
-        color: var(--pp-amber-deep) !important;
+        border-color: var(--pp-blue) !important;
+        background: var(--pp-blue-soft) !important;
+        color: var(--pp-blue-deep) !important;
     }
     #permission-table_wrapper .paginate_button.current {
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber)) !important;
-        border-color: var(--pp-amber) !important;
-        color: #1a1306 !important;
-        box-shadow: 0 4px 14px -3px rgba(212, 162, 78, 0.35);
+        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue)) !important;
+        border-color: var(--pp-blue) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 14px -3px rgba(37, 99, 235, 0.35);
     }
     #permission-table_wrapper .paginate_button.disabled {
         opacity: 0.4;
@@ -216,7 +225,6 @@
         #permission-table_wrapper .dataTables_length,
         #permission-table_wrapper .dataTables_filter { float: none !important; text-align: left !important; padding: 0 10px; }
         #permission-table_wrapper .dataTables_length { margin-bottom: 6px; }
-        #permission-table_wrapper .dataTables_filter input { max-width: 160px; }
         #permission-table_wrapper .dataTables_info { font-size: 10px; padding: 8px 10px 0; text-align: left; }
         #permission-table_wrapper .dataTables_paginate { padding: 8px 10px 0; text-align: left; }
         #permission-table_wrapper .paginate_button { font-size: 10px !important; padding: 4px 8px !important; margin: 0 1px; }
@@ -232,7 +240,7 @@
                 Permissions
             </h1>
             <div>
-                <a href="{{ route('admin.permission.create') }}" class="btn pp-btn pp-btn-amber shadow-sm">
+                <a href="{{ route('admin.permission.create') }}" class="btn pp-btn pp-btn-blue shadow-sm">
                     <i class="fas fa-plus mr-1"></i> Create New
                 </a>
             </div>

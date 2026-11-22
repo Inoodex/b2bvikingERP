@@ -133,7 +133,7 @@
         text: "CAUTION: This will permanently purge this record from the database. This action CANNOT be undone!",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#ef4444",
+        confirmButtonColor: "#E11835",
         cancelButtonColor: "#64748b",
         confirmButtonText: "Yes, purge permanently!",
         reverseButtons: true,

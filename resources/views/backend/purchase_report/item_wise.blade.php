@@ -64,7 +64,7 @@
         background: #eef2ff;
         border: 2px solid #6366f1;
     }
-    #modalPcBreakdown .kpi-card.kpi-amber {
+    #modalPcBreakdown .kpi-card.kpi-blue {
         background: #fffbeb;
         border: 1px solid #fde68a;
     }
@@ -162,7 +162,7 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <button type="button" id="btn-reset-filter" class="btn btn-outline-danger btn-block shadow-sm">
+                            <button type="button" id="btn-reset-filter" class="btn btn-outline-danger btn-block shadow-sm reset-arrow-button">
                                 <i class="fas fa-undo-alt mr-1"></i> Reset Filters
                             </button>
                         </div>
@@ -259,7 +259,7 @@
 
                         <!-- 4. Weighted Landed Cost -->
                         <div class="col-md-3 col-sm-6 mb-3">
-                            <div class="kpi-card kpi-amber d-flex flex-column justify-content-between h-100">
+                            <div class="kpi-card kpi-blue d-flex flex-column justify-content-between h-100">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <span class="kpi-label text-warning"><i class="fas fa-truck mr-1"></i> Weighted Landed</span>
                                     <div class="kpi-icon-badge bg-white shadow-xs text-warning"><i class="fas fa-shipping-fast"></i></div>

@@ -90,7 +90,7 @@ class SalesOrderDataTable extends DataTable
                 if ($query->payment_status === 'paid') {
                     $class = 'badge-success';
                 } elseif ($query->payment_status === 'partial') {
-                    $class = 'badge-warning';
+                    $class = 'badge-success';
                 } elseif ($query->payment_status === 'unpaid') {
                     $class = 'badge-danger';
                 }

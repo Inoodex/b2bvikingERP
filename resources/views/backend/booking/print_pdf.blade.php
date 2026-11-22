@@ -53,8 +53,8 @@
         }
 
         .badge-warning {
-            background-color: #ffc107;
-            color: #000;
+            background-color: #dc2626;
+            color: #fff;
         }
 
         .badge-success {

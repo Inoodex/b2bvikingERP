@@ -37,7 +37,7 @@ class PoStatusDataTable extends DataTable
                 };
                 return '<span class="badge badge-' . $badge . '">' . ucfirst(str_replace('_', ' ', $status)) . '</span>';
             })
-            ->addColumn('payment_badge', fn($row) => '<span class="badge badge-' . ($row->payment_status == 'paid' ? 'success' : ($row->payment_status == 'partial' ? 'warning' : 'danger')) . '">' . ucfirst($row->payment_status ?? 'unpaid') . '</span>')
+            ->addColumn('payment_badge', fn($row) => '<span class="badge ' . ($row->payment_status == 'paid' ? 'badge-success' : ($row->payment_status == 'partial' ? 'badge-success' : 'badge-danger')) . '">' . ucfirst($row->payment_status ?? 'unpaid') . '</span>')
             ->addColumn('action', fn($row) => '<a href="' . route('admin.purchase-orders.show', $row->id) . '" class="btn btn-sm btn-info shadow-sm" target="_blank" title="View Procurement PO Details"><i class="fas fa-eye"></i> View PO</a>')
             ->rawColumns(['po_no', 'vendor_name', 'type_badge', 'milestone_badge', 'payment_badge', 'action'])
             ->setRowId('id');

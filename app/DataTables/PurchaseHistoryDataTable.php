@@ -63,7 +63,7 @@ class PurchaseHistoryDataTable extends DataTable
                 $payStatus = $row->payment_status ?? 'unpaid';
                 $badge = match ($payStatus) {
                     'paid'    => 'success',
-                    'partial' => 'warning',
+                    'partial' => 'success',
                     default   => 'danger',
                 };
                 return '<span class="badge badge-' . $badge . '">' . ucfirst($payStatus) . '</span>';

@@ -19,7 +19,7 @@
                                         alt="{{ $slider->title }}"
                                         class="h-full w-full object-cover lg:group-hover:brightness-50 brightness-50 transition duration-300" />
                                 </div>
-                                <div class="w-full absolute z-10 top-[50%] lg:left-20 xl:left-40 2xl:left-80 translate-y-[-50%] text-center text-white lg:text-left">
+                                <div class="w-full absolute z-10 top-[50%] px-4 sm:px-8 lg:px-0 lg:left-20 xl:left-40 2xl:left-80 translate-y-[-50%] text-center text-white lg:text-left">
                                     <div class=''>
                                             <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-indigo-200">Featured</p>
                                         <h2 class="mt-3 text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">

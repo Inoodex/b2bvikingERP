@@ -56,13 +56,13 @@
             font-size: 10px;
             font-weight: 700;
             color: #ffffff;
-            background-color: #059669;
+            background-color: #15803d;
             border-radius: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .badge-pending {
-            background-color: #d97706;
+            background-color: #c2410c;
         }
 
         /* 2-Column Info Grid */
@@ -284,7 +284,7 @@
                 <th colspan="3" class="text-right font-bold" style="letter-spacing: 0.5px;">SHIPMENT TOTALS:</th>
                 <th class="text-center font-bold" style="color: #2563eb; font-size: 11px;">{{ number_format($totalDeliveredQty, 2) }} {{ $mainUnitName }}</th>
                 <th class="text-right" style="color: #64748b;">-</th>
-                <th class="text-right font-bold" style="color: #059669; font-size: 12px;">kr. {{ number_format($grandShipmentTotal, 2) }}</th>
+                <th class="text-right font-bold" style="color: #15803d; font-size: 12px;">kr. {{ number_format($grandShipmentTotal, 2) }}</th>
             </tr>
         </tfoot>
     </table>

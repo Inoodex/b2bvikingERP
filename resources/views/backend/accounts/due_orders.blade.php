@@ -33,7 +33,7 @@
                         <div class="form-group mr-2">
                             <input type="text" id="customer" class="form-control form-control-sm" placeholder="Search Customer/Order..." style="border-radius: 6px; min-width: 200px;">
                         </div>
-                        <button type="button" id="btn-reset" class="btn btn-light btn-sm font-weight-bold text-danger border" title="Reset Filters" style="border-radius: 6px;">
+                        <button type="button" id="btn-reset" class="btn btn-light btn-sm font-weight-bold text-danger border reset-arrow-button" title="Reset Filters" style="border-radius: 6px;">
                             <i class="fas fa-undo mr-1"></i> Reset
                         </button>
                     </form>

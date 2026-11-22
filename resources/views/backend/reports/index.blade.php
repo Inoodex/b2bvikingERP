@@ -4,19 +4,19 @@
 @push('css')
 <style>
     :root {
-        --pp-amber: #d4a24e;
-        --pp-amber-bright: #ecc78b;
-        --pp-amber-deep: #b8852a;
-        --pp-amber-soft: rgba(212, 162, 78, 0.08);
+        --pp-blue: #2563eb;
+        --pp-blue-bright: #60a5fa;
+        --pp-blue-deep: #1d4ed8;
+        --pp-blue-soft: rgba(37, 99, 235, 0.08);
         --pp-border: rgba(11, 17, 32, 0.07);
-        --pp-border-hover: rgba(212, 162, 78, 0.15);
+        --pp-border-hover: rgba(37, 99, 235, 0.15);
         --pp-ink: #161e2e;
         --pp-ink-soft: #2d3748;
         --pp-muted: #6b788e;
         --pp-radius-md: 14px;
         --pp-radius-lg: 20px;
         --pp-shadow-card: 0 1px 3px rgba(11,17,32,0.04), 0 8px 20px -12px rgba(11,17,32,0.12);
-        --pp-shadow-card-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(212,162,78,0.06);
+        --pp-shadow-card-hover: 0 12px 32px -12px rgba(11,17,32,0.16), 0 0 0 1px rgba(37, 99, 235,0.06);
     }
 
     .pp-header {
@@ -48,9 +48,9 @@
         justify-content: center;
         border-radius: 10px;
         font-size: 14px;
-        color: #1a1306;
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber));
-        box-shadow: 0 4px 14px rgba(212, 162, 78, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+        color: #ffffff;
+        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue));
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
     }
     .pp-breadcrumb {
         display: flex;
@@ -72,12 +72,12 @@
         color: rgba(11, 17, 32, 0.15);
     }
     .pp-breadcrumb-item a {
-        color: var(--pp-amber);
+        color: var(--pp-blue);
         text-decoration: none;
         transition: color 0.2s;
     }
-    .pp-breadcrumb-item a:hover { color: var(--pp-amber-deep); }
-    .pp-breadcrumb-item.active { color: var(--pp-amber-deep); }
+    .pp-breadcrumb-item a:hover { color: var(--pp-blue-deep); }
+    .pp-breadcrumb-item.active { color: var(--pp-blue-deep); }
 
     /* Stat Cards */
     .pp-stat-card {
@@ -136,8 +136,8 @@
         padding: 2px 0 0 0 !important;
     }
     .pp-stat-card .card-statistic-1 .card-icon.bg-primary { background: linear-gradient(145deg, #6366f1, #4f46e5) !important; }
-    .pp-stat-card .card-statistic-1 .card-icon.bg-success { background: linear-gradient(145deg, #34d399, #16a34a) !important; }
-    .pp-stat-card .card-statistic-1 .card-icon.bg-warning { background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep)) !important; }
+    .pp-stat-card .card-statistic-1 .card-icon.bg-success { background: linear-gradient(145deg, #34d399, #15803d) !important; }
+    .pp-stat-card .card-statistic-1 .card-icon.bg-warning { background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue-deep)) !important; }
     .pp-stat-card .card-statistic-1 .card-icon.bg-danger { background: linear-gradient(145deg, #fb7185, #e11d48) !important; }
     .pp-stat-card .card-statistic-1 .card-icon.bg-info { background: linear-gradient(145deg, #38bdf8, #0284c7) !important; }
 
@@ -163,15 +163,15 @@
         align-items: center;
         gap: 8px;
     }
-    .link-section .ls-header h3 i { color: var(--pp-amber); }
+    .link-section .ls-header h3 i { color: var(--pp-blue); }
     .link-section .ls-header .ls-badge {
-        background: linear-gradient(135deg, var(--pp-amber-bright), var(--pp-amber));
-        color: #1a1306;
+        background: linear-gradient(135deg, var(--pp-blue-bright), var(--pp-blue));
+        color: #ffffff;
         font-size: 10px;
         font-weight: 700;
         padding: 5px 16px;
         border-radius: 50px;
-        box-shadow: 0 3px 12px rgba(212, 162, 78, 0.2);
+        box-shadow: 0 3px 12px rgba(37, 99, 235, 0.2);
     }
     .link-section .ls-header .ls-badge i { margin-right: 4px; }
 
@@ -203,18 +203,6 @@
     .link-card:active {
         transform: translateY(-1px);
     }
-    .link-card .lc-bar {
-        width: 4px;
-        flex-shrink: 0;
-        align-self: stretch;
-    }
-    .link-card.purple .lc-bar { background: #6366f1; }
-    .link-card.green .lc-bar { background: #10b981; }
-    .link-card.blue .lc-bar { background: #06b6d4; }
-    .link-card.amber .lc-bar { background: var(--pp-amber); }
-    .link-card.dark .lc-bar { background: #475569; }
-    .link-card.rose .lc-bar { background: #ef4444; }
-
     .link-card .lc-body {
         flex: 1;
         display: flex;
@@ -235,11 +223,11 @@
         flex-shrink: 0;
     }
     .link-card.purple .lc-body .lc-icon { background: #6366f1; }
-    .link-card.green .lc-body .lc-icon { background: #10b981; }
+    .link-card.green .lc-body .lc-icon { background: #15803d; }
     .link-card.blue .lc-body .lc-icon { background: #06b6d4; }
-    .link-card.amber .lc-body .lc-icon { background: var(--pp-amber); }
+    .link-card.blue .lc-body .lc-icon { background: var(--pp-blue); }
     .link-card.dark .lc-body .lc-icon { background: #475569; }
-    .link-card.rose .lc-body .lc-icon { background: #ef4444; }
+    .link-card.rose .lc-body .lc-icon { background: #E11835; }
     .link-card .lc-body .lc-text { flex: 1; min-width: 0; }
     .link-card .lc-body .lc-text .lc-title {
         font-size: 13px;
@@ -269,11 +257,11 @@
         transform: translateX(3px);
     }
     .link-card.purple:hover .lc-body .lc-arrow { background: #6366f1; color: #fff; }
-    .link-card.green:hover .lc-body .lc-arrow { background: #10b981; color: #fff; }
+    .link-card.green:hover .lc-body .lc-arrow { background: #15803d; color: #fff; }
     .link-card.blue:hover .lc-body .lc-arrow { background: #06b6d4; color: #fff; }
-    .link-card.amber:hover .lc-body .lc-arrow { background: var(--pp-amber); color: #1a1306; }
+    .link-card.blue:hover .lc-body .lc-arrow { background: var(--pp-blue); color: #ffffff; }
     .link-card.dark:hover .lc-body .lc-arrow { background: #475569; color: #fff; }
-    .link-card.rose:hover .lc-body .lc-arrow { background: #ef4444; color: #fff; }
+    .link-card.rose:hover .lc-body .lc-arrow { background: #E11835; color: #fff; }
 
     .link-card .lc-ripple {
         position: absolute;
@@ -452,7 +440,6 @@
                 </div>
                 <div class="link-grid">
                     <a href="{{ route('admin.reports.stock') }}" class="link-card purple">
-                        <div class="lc-bar"></div>
                         <div class="lc-body">
                             <div class="lc-icon"><i class="fas fa-warehouse"></i></div>
                             <div class="lc-text">
@@ -463,7 +450,6 @@
                         </div>
                     </a>
                     <a href="{{ route('admin.reports.purchase') }}" class="link-card green">
-                        <div class="lc-bar"></div>
                         <div class="lc-body">
                             <div class="lc-icon"><i class="fas fa-file-invoice"></i></div>
                             <div class="lc-text">
@@ -474,7 +460,6 @@
                         </div>
                     </a>
                     <a href="{{ route('admin.reports.product-purchase-history') }}" class="link-card blue">
-                        <div class="lc-bar"></div>
                         <div class="lc-body">
                             <div class="lc-icon"><i class="fas fa-history"></i></div>
                             <div class="lc-text">
@@ -484,8 +469,7 @@
                             <div class="lc-arrow"><i class="fas fa-arrow-right"></i></div>
                         </div>
                     </a>
-                    <a href="{{ route('admin.reports.low-stock') }}" class="link-card amber">
-                        <div class="lc-bar"></div>
+                    <a href="{{ route('admin.reports.low-stock') }}" class="link-card blue">
                         <div class="lc-body">
                             <div class="lc-icon"><i class="fas fa-exclamation-circle"></i></div>
                             <div class="lc-text">
@@ -496,7 +480,6 @@
                         </div>
                     </a>
                     <a href="{{ route('admin.reports.audit') }}" class="link-card dark">
-                        <div class="lc-bar"></div>
                         <div class="lc-body">
                             <div class="lc-icon"><i class="fas fa-user-shield"></i></div>
                             <div class="lc-text">
@@ -507,7 +490,6 @@
                         </div>
                     </a>
                     <a href="{{ route('admin.reports.orders') }}" class="link-card rose">
-                        <div class="lc-bar"></div>
                         <div class="lc-body">
                             <div class="lc-icon"><i class="fas fa-shopping-cart"></i></div>
                             <div class="lc-text">
@@ -531,7 +513,7 @@
                     var y = e.clientY - rect.top;
                     var ripple = document.createElement('span');
                     ripple.className = 'lc-ripple';
-                    ripple.style.cssText = 'left: ' + x + 'px; top: ' + y + 'px; width: 20px; height: 20px; background: rgba(212, 162, 78, 0.12);';
+                    ripple.style.cssText = 'left: ' + x + 'px; top: ' + y + 'px; width: 20px; height: 20px; background: rgba(37, 99, 235, 0.12);';
                     this.appendChild(ripple);
                     setTimeout(function() { ripple.remove(); }, 600);
                 });

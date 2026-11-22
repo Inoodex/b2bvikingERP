@@ -72,11 +72,11 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 Add Supply Item
             </button>
-            <a href="{{ route('admin.stationery-supplies.purchases.create') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #059669; color: #ffffff; border-radius: 8px; font-size: 12px; padding: 8px 16px; gap: 6px; border: 1px solid #059669; transition: all 0.2s ease;">
+            <a href="{{ route('admin.stationery-supplies.purchases.create') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #15803d; color: #ffffff; border-radius: 8px; font-size: 12px; padding: 8px 16px; gap: 6px; border: 1px solid #15803d; transition: all 0.2s ease;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                 Stock In (Purchase)
             </a>
-            <a href="{{ route('admin.stationery-supplies.consumptions.create') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #d97706; color: #ffffff; border-radius: 8px; font-size: 12px; padding: 8px 16px; gap: 6px; border: 1px solid #d97706; transition: all 0.2s ease;">
+            <a href="{{ route('admin.stationery-supplies.consumptions.create') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #c2410c; color: #ffffff; border-radius: 8px; font-size: 12px; padding: 8px 16px; gap: 6px; border: 1px solid #c2410c; transition: all 0.2s ease;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                 Stock Out (Issue)
             </a>
@@ -111,13 +111,13 @@
 
             {{-- KPI 2: Live Stock Valuation --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: #10b981;"></div>
+                <div class="kpi-accent-stripe" style="background: #15803d;"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold" style="font-size: 10.5px; letter-spacing: 0.06em; color: #64748b;">
                             Live Stock Valuation
                         </span>
-                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: #ecfdf5; color: #059669;">
+                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: #ecfdf5; color: #15803d;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
                         </div>
                     </div>
@@ -132,13 +132,13 @@
 
             {{-- KPI 3: Reorder Alerts --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: #f59e0b;"></div>
+                <div class="kpi-accent-stripe" style="background: #E11835;"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold" style="font-size: 10.5px; letter-spacing: 0.06em; color: #64748b;">
                             Reorder Alerts
                         </span>
-                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: #fffbeb; color: #d97706;">
+                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: #fffbeb; color: #c2410c;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                         </div>
                     </div>
@@ -153,13 +153,13 @@
 
             {{-- KPI 4: Month Consumption Expense --}}
             <div class="executive-kpi-card">
-                <div class="kpi-accent-stripe" style="background: #ef4444;"></div>
+                <div class="kpi-accent-stripe" style="background: #E11835;"></div>
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase font-weight-bold" style="font-size: 10.5px; letter-spacing: 0.06em; color: #64748b;">
                             This Month's Consumption
                         </span>
-                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: #fef2f2; color: #dc2626;">
+                        <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 7px; background: #fef2f2; color: #E11835;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                         </div>
                     </div>
@@ -208,7 +208,7 @@
                         <button type="submit" class="btn font-weight-bold flex-fill shadow-sm" style="background: #0f172a; color: #fff; border-radius: 8px;">
                             <i class="fas fa-filter mr-1"></i> Filter
                         </button>
-                        <a href="{{ route('admin.stationery-supplies.index') }}" class="btn btn-light border" title="Reset Filters" style="border-radius: 8px;">
+                        <a href="{{ route('admin.stationery-supplies.index') }}" class="btn btn-light border reset-arrow-button" title="Reset Filters" style="border-radius: 8px;">
                             <i class="fas fa-undo text-muted"></i>
                         </a>
                     </div>

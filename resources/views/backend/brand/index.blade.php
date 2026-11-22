@@ -25,7 +25,8 @@
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 12px;
+        margin-top: 4px;
         margin-bottom: 20px;
         padding: 0;
         position: relative;
@@ -105,35 +106,42 @@
     .pp-card-header h4 i { color: var(--pp-amber); }
 
     #category-table_wrapper .dataTables_length label,
-    #category-table_wrapper .dataTables_filter label {
+    #category-table_wrapper .dataTables_filter label,
+    #brand-table_wrapper .dataTables_length label,
+    #brand-table_wrapper .dataTables_filter label {
         font-size: 12px;
         font-weight: 600;
         color: var(--pp-muted);
     }
     #category-table_wrapper .dataTables_length select,
-    #category-table_wrapper .dataTables_filter input {
+    #brand-table_wrapper .dataTables_length select {
         border-radius: 10px !important;
-        border: 1.5px solid var(--pp-border) !important;
         padding: 4px 10px !important;
         font-size: 12px !important;
         background: #fff !important;
         transition: all 0.2s ease;
     }
+    #category-table_wrapper .dataTables_length select,
+    #brand-table_wrapper .dataTables_length select {
+        border: 1.5px solid var(--pp-border) !important;
+    }
     #category-table_wrapper .dataTables_length select:focus,
-    #category-table_wrapper .dataTables_filter input:focus {
+    #brand-table_wrapper .dataTables_length select:focus {
         border-color: var(--pp-amber) !important;
         box-shadow: 0 0 0 3px var(--pp-amber-soft) !important;
         outline: none;
     }
-    #category-table {
+    #category-table,
+    #brand-table {
         font-size: 12px !important;
         border-collapse: separate;
         border-spacing: 0;
-        width: 100%;
+        width: 100% !important;
     }
-    #category-table thead th {
-        background: linear-gradient(135deg, #fafbfc, #f4f5f8);
-        color: var(--pp-ink-soft) !important;
+    #category-table thead th,
+    #brand-table thead th {
+        background: #2563eb !important;
+        color: #ffffff !important;
         font-weight: 700;
         font-size: 11px;
         text-transform: uppercase;
@@ -142,7 +150,18 @@
         border: none !important;
         border-bottom: 2px solid var(--pp-border) !important;
     }
-    #category-table tbody td {
+    #category-table thead th *,
+    #brand-table thead th *,
+    #brand-table thead .sorting:before,
+    #brand-table thead .sorting_asc:before,
+    #brand-table thead .sorting_desc:before,
+    #brand-table thead .sorting:after,
+    #brand-table thead .sorting_asc:after,
+    #brand-table thead .sorting_desc:after {
+        color: #ffffff !important;
+    }
+    #category-table tbody td,
+    #brand-table tbody td {
         padding: 11px 14px !important;
         vertical-align: middle;
         color: var(--pp-ink);
@@ -150,25 +169,31 @@
         background: #fff;
         transition: background 0.15s;
     }
-    #category-table tbody tr:hover td {
+    #category-table tbody tr:hover td,
+    #brand-table tbody tr:hover td {
         background: var(--pp-amber-soft);
     }
-    #category-table tbody tr:nth-child(even) td {
+    #category-table tbody tr:nth-child(even) td,
+    #brand-table tbody tr:nth-child(even) td {
         background: var(--pp-surface);
     }
-    #category-table tbody tr:nth-child(even):hover td {
+    #category-table tbody tr:nth-child(even):hover td,
+    #brand-table tbody tr:nth-child(even):hover td {
         background: var(--pp-amber-soft);
     }
-    #category-table_wrapper .dataTables_info {
+    #category-table_wrapper .dataTables_info,
+    #brand-table_wrapper .dataTables_info {
         font-size: 11.5px;
         color: var(--pp-muted);
         font-weight: 500;
         padding-top: 12px;
     }
-    #category-table_wrapper .dataTables_paginate {
+    #category-table_wrapper .dataTables_paginate,
+    #brand-table_wrapper .dataTables_paginate {
         padding-top: 12px;
     }
-    #category-table_wrapper .paginate_button {
+    #category-table_wrapper .paginate_button,
+    #brand-table_wrapper .paginate_button {
         border-radius: 10px !important;
         border: 1px solid var(--pp-border) !important;
         margin: 0 2px;
@@ -179,18 +204,21 @@
         transition: all 0.2s cubic-bezier(.2,.8,.2,1);
         background: #fff !important;
     }
-    #category-table_wrapper .paginate_button:hover {
+    #category-table_wrapper .paginate_button:hover,
+    #brand-table_wrapper .paginate_button:hover {
         border-color: var(--pp-amber) !important;
         background: var(--pp-amber-soft) !important;
         color: var(--pp-amber-deep) !important;
     }
-    #category-table_wrapper .paginate_button.current {
+    #category-table_wrapper .paginate_button.current,
+    #brand-table_wrapper .paginate_button.current {
         background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber)) !important;
         border-color: var(--pp-amber) !important;
         color: #1a1306 !important;
         box-shadow: 0 4px 14px -3px rgba(212, 162, 78, 0.35);
     }
-    #category-table_wrapper .paginate_button.disabled {
+    #category-table_wrapper .paginate_button.disabled,
+    #brand-table_wrapper .paginate_button.disabled {
         opacity: 0.4;
         cursor: not-allowed;
     }
@@ -215,20 +243,35 @@
         box-shadow: 0 2px 8px -2px rgba(212, 162, 78, 0.3);
     }
 
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .pp-header { margin-top: 4px; margin-bottom: 16px; }
+        .pp-header h1 { font-size: 18px; gap: 10px; }
+        .pp-header h1 .pp-icon { width: 30px; height: 30px; min-width: 30px; font-size: 13px; }
+        .pp-card-header { padding: 12px 16px !important; }
+        #category-table, #brand-table { width: 100% !important; min-width: 100% !important; }
+        #category-table thead th, #brand-table thead th { font-size: 10.5px !important; padding: 10px 8px !important; }
+        #category-table tbody td, #brand-table tbody td { font-size: 11px !important; padding: 9px 8px !important; }
+        #category-table_wrapper .dataTables_length, #brand-table_wrapper .dataTables_length,
+        #category-table_wrapper .dataTables_filter, #brand-table_wrapper .dataTables_filter { padding: 0 4px; margin-bottom: 10px; }
+        #category-table_wrapper .dataTables_info, #brand-table_wrapper .dataTables_info,
+        #category-table_wrapper .dataTables_paginate, #brand-table_wrapper .dataTables_paginate { padding: 8px 4px 0; font-size: 11px !important; }
+        #category-table_wrapper .paginate_button, #brand-table_wrapper .paginate_button { font-size: 10.5px !important; padding: 4px 8px !important; }
+    }
+
     @media (max-width: 767.98px) {
-        .pp-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .pp-header { flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 4px; }
         .pp-header h1 { font-size: 16px; gap: 8px; }
         .pp-header h1 .pp-icon { width: 28px; height: 28px; min-width: 28px; font-size: 12px; }
         .pp-card-header { flex-direction: column; align-items: flex-start; gap: 8px; }
-        #category-table thead th { font-size: 9px; padding: 8px 8px !important; white-space: nowrap; }
-        #category-table tbody td { font-size: 10px; padding: 7px 8px !important; }
-        #category-table_wrapper .dataTables_length,
-        #category-table_wrapper .dataTables_filter { float: none !important; text-align: left !important; padding: 0 10px; }
-        #category-table_wrapper .dataTables_length { margin-bottom: 6px; }
-        #category-table_wrapper .dataTables_filter input { max-width: 160px; }
-        #category-table_wrapper .dataTables_info { font-size: 10px; padding: 8px 10px 0; text-align: left; }
-        #category-table_wrapper .dataTables_paginate { padding: 8px 10px 0; text-align: left; }
-        #category-table_wrapper .paginate_button { font-size: 10px !important; padding: 4px 8px !important; margin: 0 1px; }
+        #category-table, #brand-table { width: 100% !important; min-width: 540px !important; table-layout: auto !important; }
+        #category-table thead th, #brand-table thead th { font-size: 9px; padding: 8px 8px !important; white-space: nowrap; }
+        #category-table tbody td, #brand-table tbody td { font-size: 10px; padding: 7px 8px !important; }
+        #category-table_wrapper .dataTables_length, #brand-table_wrapper .dataTables_length,
+        #category-table_wrapper .dataTables_filter, #brand-table_wrapper .dataTables_filter { float: none !important; text-align: left !important; padding: 0 4px; }
+        #category-table_wrapper .dataTables_length, #brand-table_wrapper .dataTables_length { margin-bottom: 6px; }
+        #category-table_wrapper .dataTables_info, #brand-table_wrapper .dataTables_info { font-size: 10px; padding: 8px 10px 0; text-align: left; }
+        #category-table_wrapper .dataTables_paginate, #brand-table_wrapper .dataTables_paginate { padding: 8px 10px 0; text-align: left; }
+        #category-table_wrapper .paginate_button, #brand-table_wrapper .paginate_button { font-size: 10px !important; padding: 4px 8px !important; margin: 0 1px; }
     }
 </style>
 @endpush

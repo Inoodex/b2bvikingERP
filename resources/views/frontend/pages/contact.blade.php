@@ -5,7 +5,7 @@
     <div class="bg-slate-50 py-10 sm:py-12">
         <div class="mx-auto flex max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
             <!-- Header Section -->
-            <section class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
+            <section class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 md:p-10">
                 <div class="pointer-events-none absolute -right-16 -top-24 h-56 w-56 rounded-full bg-slate-100 blur-3xl"></div>
                 <div class="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-[#efe7d9] blur-3xl"></div>
 
@@ -22,7 +22,7 @@
             <!-- Contact Info & Form Section -->
             <section class="grid gap-8 lg:grid-cols-2">
                 <!-- Contact Information -->
-                <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 md:p-10">
                     <h2 class="text-xl font-bold text-slate-900">Get In Touch</h2>
                     <p class="mt-2 text-sm text-slate-600">
                         Fill out the form and our team will get back to you within 24 hours.
@@ -71,7 +71,7 @@
 
                         <!-- Working Hours -->
                         <div class="flex items-start gap-4">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-500">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-500">
                                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                                     <path fill-rule="evenodd" d="M12 2a1 1 0 011 1v1h3a1 1 0 010 2h-1v9a2 2 0 01-2 2H7a2 2 0 01-2-2V6H4a1 1 0 010-2h3V3a1 1 0 011-1zm0 10a1 1 0 011 1v3h1a1 1 0 110 2H7a1 1 0 110-2h1v-3a1 1 0 011-1z" clip-rule="evenodd"/>
                                 </svg>
@@ -112,7 +112,7 @@
                 </div>
 
                 <!-- Contact Form -->
-                <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 md:p-10">
                     <h2 class="text-xl font-bold text-slate-900">Send Us a Message</h2>
                     <p class="mt-2 text-sm text-slate-600">
                         Have a question? Fill out the form below and we'll get back to you.

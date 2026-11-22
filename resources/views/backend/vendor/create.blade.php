@@ -229,7 +229,7 @@
                                 <div class="row mt-4 pt-3 border-top">
                                     <div class="col-12">
                                         <div class="d-flex flex-column flex-sm-row justify-content-sm-end" style="gap: 12px;">
-                                            <button type="reset" class="btn btn-secondary px-4 order-2 order-sm-1" 
+                                            <button type="reset" class="btn btn-secondary px-4 order-2 order-sm-1 reset-arrow-button"
                                                     style="border-radius: 10px; min-height: 44px; font-weight: 600; transition: all 0.3s ease; color: #ffffff; background: #6c757d; border: none;" id="resetBtn">
                                                 <i class="fas fa-undo mr-1"></i> Reset
                                             </button>
@@ -279,8 +279,8 @@
     }
 
     .form-control.is-invalid:focus {
-        border-color: #e74a3b;
-        box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.15);
+        border-color: #E11835;
+        box-shadow: 0 0 0 0.2rem rgba(225, 24, 53, 0.15);
     }
 
     .form-control:hover {
@@ -719,12 +719,12 @@
 
     .was-validated .form-control:valid,
     .form-control.is-valid {
-        border-color: #1cc88a !important;
+        border-color: #15803d !important;
     }
 
     .was-validated .form-control:invalid,
     .form-control.is-invalid {
-        border-color: #e74a3b !important;
+        border-color: #E11835 !important;
     }
 
     .text-danger {

@@ -120,7 +120,7 @@
                         </div>
                         <div class="row">
                             <div class="col-12 text-right">
-                                <a href="{{ route('admin.reports.best-sellers') }}" class="btn btn-danger btn-sm" id="btn-reset"><i class="fas fa-undo"></i> Reset Filters</a>
+                                <a href="{{ route('admin.reports.best-sellers') }}" class="btn btn-danger btn-sm reset-arrow-button" id="btn-reset"><i class="fas fa-undo"></i> Reset Filters</a>
                             </div>
                         </div>
                     </form>
@@ -181,7 +181,7 @@
 
                 {{-- TAB 2: Calculator --}}
                 <div class="tab-pane fade" id="tab-calculator" role="tabpanel">
-                    <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-left: 5px solid #2563eb !important;">
+                    <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
                         <div class="card-header bg-transparent py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap" style="gap: 10px;">
                             <div>
                                 <h5 class="mb-0 font-weight-bold text-dark">
@@ -220,7 +220,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-5 text-md-right mt-3 mt-md-0">
-                                    <button type="button" class="btn btn-warning font-weight-bold px-4 py-2.5 shadow-sm text-dark" id="btn_add_scope_to_basket" style="border-radius: 8px; font-size: 0.95rem; background: #f59e0b; border: none;">
+                                    <button type="button" class="btn btn-warning font-weight-bold px-4 py-2.5 shadow-sm text-dark" id="btn_add_scope_to_basket" style="border-radius: 8px; font-size: 0.95rem; background: #E11835; border: none;">
                                         <i class="fas fa-shopping-basket mr-1.5"></i> Add Scope to Procurement Cart
                                     </button>
                                 </div>
@@ -360,7 +360,7 @@
                 totalAssigned += recommendedQty;
 
                 var medal = idx === 0 
-                    ? '<span class="badge badge-warning text-dark font-weight-bold px-2 py-0.5" style="font-size: 11px; background: #fbbf24;"><i class="fas fa-crown mr-0.5"></i>#1</span>'
+                    ? '<span class="badge badge-warning font-weight-bold px-2 py-0.5" style="font-size: 11px; background: #dc2626;"><i class="fas fa-crown mr-0.5"></i>#1</span>'
                     : (idx === 1 
                         ? '<span class="badge badge-secondary font-weight-bold px-2 py-0.5" style="font-size: 11px;"><i class="fas fa-medal mr-0.5"></i>#2</span>'
                         : (idx === 2 

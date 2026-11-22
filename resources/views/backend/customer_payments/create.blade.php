@@ -146,7 +146,7 @@
                                 <button type="button" class="btn btn-sm btn-primary font-weight-bold shadow-sm mr-1" id="btn-auto-allocate">
                                     <i class="fas fa-bolt mr-1"></i> ⚡ Auto-Allocate (FIFO)
                                 </button>
-                                <button type="button" class="btn btn-sm btn-light border font-weight-bold" id="btn-clear-allocations">
+                                <button type="button" class="btn btn-sm btn-light border font-weight-bold reset-arrow-button" id="btn-clear-allocations">
                                     <i class="fas fa-undo mr-1"></i> Clear
                                 </button>
                             </div>
@@ -411,7 +411,7 @@ $(document).ready(function() {
                     let advanceCardHtml = '';
                     if (advanceBal > 0) {
                         advanceCardHtml = `
-                            <div class="alert p-3 mb-3 border-0 shadow-sm" style="border-radius: 8px; background-color: #ecfdf5; border-left: 4px solid #10b981 !important;">
+                            <div class="alert p-3 mb-3 border-0 shadow-sm" style="border-radius: 8px; background-color: #ecfdf5; border-left: 4px solid #15803d !important;">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <span class="small font-weight-bold text-success"><i class="fas fa-coins mr-1"></i> Available Advance:</span>
                                     <strong class="text-success font-weight-bold" style="font-size: 15px;">${formatMoney(advanceBal)}</strong>

@@ -26,11 +26,11 @@
             <a href="{{ route('admin.stationery-supplies.index') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #ffffff; color: #0f172a; border-radius: 8px; font-size: 12px; padding: 8px 16px; border: 1px solid #e2e8f0;">
                 <i class="fas fa-boxes mr-1 text-muted"></i> Items Master
             </a>
-            <a href="{{ route('admin.stationery-supplies.purchases.create') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #059669; color: #ffffff; border-radius: 8px; font-size: 12px; padding: 8px 16px; gap: 6px; border: 1px solid #059669;">
+            <a href="{{ route('admin.stationery-supplies.purchases.create') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #15803d; color: #ffffff; border-radius: 8px; font-size: 12px; padding: 8px 16px; gap: 6px; border: 1px solid #15803d;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 Stock In
             </a>
-            <a href="{{ route('admin.stationery-supplies.consumptions.create') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #d97706; color: #ffffff; border-radius: 8px; font-size: 12px; padding: 8px 16px; gap: 6px; border: 1px solid #d97706;">
+            <a href="{{ route('admin.stationery-supplies.consumptions.create') }}" class="btn font-weight-bold d-inline-flex align-items-center shadow-sm" style="background: #c2410c; color: #ffffff; border-radius: 8px; font-size: 12px; padding: 8px 16px; gap: 6px; border: 1px solid #c2410c;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                 Issue to Dept
             </a>
@@ -75,7 +75,7 @@
                         <button type="submit" class="btn font-weight-bold flex-fill shadow-sm" style="background: #0f172a; color: #fff; border-radius: 8px;">
                             <i class="fas fa-filter mr-1"></i> Filter
                         </button>
-                        <a href="{{ route('admin.stationery-supplies.ledger') }}" class="btn btn-light border" title="Reset Filters" style="border-radius: 8px;">
+                        <a href="{{ route('admin.stationery-supplies.ledger') }}" class="btn btn-light border reset-arrow-button" title="Reset Filters" style="border-radius: 8px;">
                             <i class="fas fa-undo text-muted"></i>
                         </a>
                     </div>

@@ -11,7 +11,7 @@
                 {{ $status === 'completed' ? 'bg-emerald-100 text-emerald-700' : '' }}
                 {{ $status === 'approved' ? 'bg-sky-100 text-sky-700' : '' }}
                 {{ $status === 'cancelled' ? 'bg-rose-100 text-rose-700' : '' }}
-                {{ $status === 'pending' ? 'bg-amber-100 text-amber-700' : '' }}">
+                {{ $status === 'pending' ? 'bg-blue-100 text-blue-700' : '' }}">
                 {{ ucfirst($order->status) }}
             </span>
         </td>
@@ -27,8 +27,8 @@
                         <i class="fas fa-adjust text-sky-600"></i> Partial
                     </span>
                 @else
-                    <span class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full w-fit">
-                        <i class="fas fa-clock text-amber-600"></i> Pending
+                    <span class="inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full w-fit">
+                        <i class="fas fa-clock text-blue-600"></i> Pending
                     </span>
                 @endif
 

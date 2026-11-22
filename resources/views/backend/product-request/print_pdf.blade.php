@@ -132,7 +132,7 @@
     @endif
 
     @if($productRequest->admin_note)
-    <div style="margin-top: 15px; padding: 10px; background: #eef2ff; border-left: 3px solid #6777ef;">
+    <div style="margin-top: 15px; padding: 10px; background: #eef2ff; border-left: 3px solid #2563eb;">
         <div class="font-weight-bold" style="font-size: 11px;">Admin Remarks:</div>
         <div style="font-size: 11px; color: #555;">{{ $productRequest->admin_note }}</div>
     </div>

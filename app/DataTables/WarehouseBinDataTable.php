@@ -96,7 +96,7 @@ class WarehouseBinDataTable extends DataTable
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)
-                  ->width(240)
+                  ->width(120)
                   ->addClass('text-center'),
         ];
     }

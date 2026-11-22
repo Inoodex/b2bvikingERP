@@ -55,6 +55,7 @@ class SubCategoryDataTable extends DataTable
             ->setTableId('subcategory-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
+            ->autoWidth(false)
             ->orderBy(1)
             ->stateSave(true)
             ->selectStyleSingle()

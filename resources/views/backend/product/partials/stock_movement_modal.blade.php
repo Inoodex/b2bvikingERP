@@ -27,7 +27,7 @@
     {{-- Lifetime & Real-time KPI Ribbon --}}
     <div class="row mb-3">
         <div class="col-6 col-md-3 mb-2 mb-md-0">
-            <div class="p-3 bg-white rounded shadow-sm text-center" style="border-left: 4px solid #10b981; border: 1px solid #e5e7eb; border-left-width: 4px;">
+            <div class="p-3 bg-white rounded shadow-sm text-center" style="border: 1px solid #e5e7eb;">
                 <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 10px;">Lifetime Inflow</div>
                 <div class="h5 mb-0 font-weight-bold text-success mt-1" id="kpi-lifetime-inflow">
                     +{{ number_format($lifetimeInflow) }}
@@ -36,7 +36,7 @@
             </div>
         </div>
         <div class="col-6 col-md-3 mb-2 mb-md-0">
-            <div class="p-3 bg-white rounded shadow-sm text-center" style="border-left: 4px solid #ef4444; border: 1px solid #e5e7eb; border-left-width: 4px;">
+            <div class="p-3 bg-white rounded shadow-sm text-center" style="border: 1px solid #e5e7eb;">
                 <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 10px;">Lifetime Outflow</div>
                 <div class="h5 mb-0 font-weight-bold text-danger mt-1" id="kpi-lifetime-outflow">
                     -{{ number_format($lifetimeOutflow) }}
@@ -45,7 +45,7 @@
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="p-3 bg-white rounded shadow-sm text-center" style="border-left: 4px solid #3b82f6; border: 1px solid #e5e7eb; border-left-width: 4px;">
+            <div class="p-3 bg-white rounded shadow-sm text-center" style="border: 1px solid #e5e7eb;">
                 <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 10px;">Period Inflow</div>
                 <div class="h5 mb-0 font-weight-bold text-primary mt-1" id="kpi-period-inflow">
                     {{ number_format($velocity['inflow_qty']) }}
@@ -54,7 +54,7 @@
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="p-3 bg-white rounded shadow-sm text-center" style="border-left: 4px solid #f59e0b; border: 1px solid #e5e7eb; border-left-width: 4px;">
+            <div class="p-3 bg-white rounded shadow-sm text-center" style="border: 1px solid #e5e7eb;">
                 <div class="text-muted small font-weight-bold text-uppercase" style="font-size: 10px;">Period Sold</div>
                 <div class="h5 mb-0 font-weight-bold text-warning mt-1" id="kpi-period-sold">
                     {{ number_format($velocity['sold_qty']) }}
@@ -489,11 +489,11 @@
                                     </td>
                                     <td style="padding: 10px 12px; vertical-align: middle;">
                                         @if($rule->visibility_mode == 'force_in_stock')
-                                            <span class="badge px-2 py-1 font-weight-bold" style="background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; font-size: 11px;">
+                                            <span class="badge px-2 py-1 font-weight-bold" style="background: rgba(16, 185, 129, 0.12); color: #15803d; border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; font-size: 11px;">
                                                 <i class="fas fa-check-circle mr-1"></i> Priority In-Stock
                                             </span>
                                         @elseif($rule->visibility_mode == 'force_out_of_stock')
-                                            <span class="badge px-2 py-1 font-weight-bold" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 6px; font-size: 11px;">
+                                            <span class="badge px-2 py-1 font-weight-bold" style="background: rgba(225, 24, 53, 0.12); color: #E11835; border: 1px solid rgba(225, 24, 53, 0.25); border-radius: 6px; font-size: 11px;">
                                                 <i class="fas fa-ban mr-1"></i> Restricted (OOS)
                                             </span>
                                         @else
@@ -599,7 +599,7 @@
         width: 100%;
     }
     .b2b-phone-input-wrap:focus-within {
-        border-color: #3b82f6 !important;
+        border-color: #2563eb !important;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
     }
     .b2b-phone-input-wrap i {

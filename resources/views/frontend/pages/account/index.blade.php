@@ -104,7 +104,7 @@
                 </div>
 
                 @if($recentOrders->isNotEmpty())
-                    <div class="bg-white border border-slate-200 rounded-sm p-3">
+                    <div class="bg-white border border-slate-200 rounded-sm p-3 hidden lg:block">
                         <p class="text-[11px] uppercase tracking-[0.14em] font-black text-slate-400 mb-2">Recent Orders</p>
                         <div class="space-y-2 max-h-64 overflow-auto pr-1">
                             @foreach($recentOrders as $rOrder)
@@ -192,7 +192,7 @@
                                                 <span class="px-2 py-1 text-xs font-bold rounded-sm
                                                     {{ $pRequest->status === 'completed' ? 'bg-emerald-100 text-emerald-700' : '' }}
                                                     {{ $pRequest->status === 'cancelled' ? 'bg-rose-100 text-rose-700' : '' }}
-                                                    {{ $pRequest->status === 'pending' ? 'bg-amber-100 text-amber-700' : '' }}">
+                                                    {{ $pRequest->status === 'pending' ? 'bg-blue-100 text-blue-700' : '' }}">
                                                     {{ ucfirst($pRequest->status) }}
                                                 </span>
                                             </td>
@@ -222,70 +222,72 @@
 
                             <div class="border border-slate-300 rounded-sm overflow-hidden">
                                 <div class="bg-slate-500 text-white text-sm px-3 py-2 font-bold">Order form</div>
-                                <div class="p-3 bg-slate-100/70">
-                                    <div class="grid grid-cols-12 gap-3 text-xs uppercase tracking-[0.12em] font-black text-slate-600 mb-2">
-                                        <div class="col-span-5">Search/Product</div>
-                                        <div class="col-span-3">Variant</div>
-                                        <div class="col-span-2 text-center">Number</div>
-                                        <div class="col-span-2 text-right">Total</div>
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <template x-for="(row, idx) in rows" :key="idx">
-                                            <div class="grid grid-cols-12 gap-3 items-center" :data-order-row="idx">
-                                                <div class="col-span-5">
-                                                    <select x-model.number="row.product_id"
-                                                            @change="onProductChange(idx)"
-                                                            class="order-form-select2 order-form-product-select w-full border border-slate-300 rounded-sm bg-white px-3 py-2 text-sm text-slate-800"
-                                                            :data-row-index="idx"
-                                                            data-placeholder="Search product">
-                                                        <option value="">Select product</option>
-                                                        <template x-for="p in products" :key="p.id">
-                                                            <option :value="p.id" x-text="p.name"></option>
-                                                        </template>
-                                                    </select>
-                                                </div>
-                                                <div class="col-span-3">
-                                                    <select x-model.number="row.variant_id"
-                                                            @change="syncRow(idx)"
-                                                            :disabled="!row.product_id || rowVariantOptions(idx).length === 0"
-                                                            class="order-form-select2 order-form-variant-select w-full border border-slate-300 rounded-sm bg-white px-2 py-2 text-xs text-slate-800 disabled:bg-slate-100 disabled:text-slate-400"
-                                                            :data-row-index="idx"
-                                                            data-placeholder="Select variant">
-                                                        <option value="" x-text="rowVariantOptions(idx).length ? 'Select variant' : 'No variant available'"></option>
-                                                        <template x-for="v in rowVariantOptions(idx)" :key="v.id">
-                                                            <option :value="v.id" x-text="variantLabel(v)"></option>
-                                                        </template>
-                                                    </select>
-                                                </div>
-                                                <div class="col-span-2">
-                                                    <input type="number" min="0" x-model.number="row.qty" @input="syncRow(idx)" class="w-full border border-slate-300 rounded-sm bg-white px-2 py-2 text-sm text-center text-slate-800">
-                                                </div>
-                                                <div class="col-span-2 text-right text-sm font-semibold text-slate-700" x-text="formatMoney(row.line_total)"></div>
-                                            </div>
-                                        </template>
-                                    </div>
-
-                                    <button type="button" @click="addRow()" class="mt-3 px-3 py-1.5 bg-slate-500 text-white text-xs uppercase tracking-[0.12em] font-bold rounded-sm hover:bg-slate-600">+Add Product</button>
-
-                                    <div class="mt-4 pt-3 border-t border-slate-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                        <div class="flex items-center gap-2">
-                                            <button type="button"
-                                                    @click="addAllToCart()"
-                                                    :disabled="isAddingToCart"
-                                                    :class="isAddingToCart ? 'bg-rose-400 cursor-wait' : 'bg-rose-700 hover:bg-rose-800'"
-                                                    class="px-4 py-2 text-white text-sm font-black uppercase tracking-[0.12em] rounded-sm transition-colors">
-                                                <span x-text="isAddingToCart ? 'Adding...' : 'Add To Cart'"></span>
-                                            </button>
-                                            <button type="button"
-                                                    @click="savePurchaseForm()"
-                                                    :disabled="isSavingForm"
-                                                    :class="isSavingForm ? 'bg-slate-400 cursor-wait' : 'bg-slate-700 hover:bg-slate-800'"
-                                                    class="px-4 py-2 text-white text-sm font-black uppercase tracking-[0.12em] rounded-sm transition-colors">
-                                                <span x-text="isSavingForm ? 'Saving...' : 'Save Purchase Form'"></span>
-                                            </button>
+                                <div class="p-3 bg-slate-100/70 overflow-x-auto">
+                                    <div class="min-w-[620px]">
+                                        <div class="grid grid-cols-12 gap-3 text-xs uppercase tracking-[0.12em] font-black text-slate-600 mb-2">
+                                            <div class="col-span-5">Search/Product</div>
+                                            <div class="col-span-3">Variant</div>
+                                            <div class="col-span-2 text-center">Number</div>
+                                            <div class="col-span-2 text-right">Total</div>
                                         </div>
-                                        <p class="text-2xl font-light text-slate-900">Total: <span class="font-black" x-text="formatMoney(grandTotal)"></span></p>
+
+                                        <div class="space-y-2">
+                                            <template x-for="(row, idx) in rows" :key="idx">
+                                                <div class="grid grid-cols-12 gap-3 items-center" :data-order-row="idx">
+                                                    <div class="col-span-5">
+                                                        <select x-model.number="row.product_id"
+                                                                @change="onProductChange(idx)"
+                                                                class="order-form-select2 order-form-product-select w-full border border-slate-300 rounded-sm bg-white px-3 py-2 text-sm text-slate-800"
+                                                                :data-row-index="idx"
+                                                                data-placeholder="Search product">
+                                                            <option value="">Select product</option>
+                                                            <template x-for="p in products" :key="p.id">
+                                                                <option :value="p.id" x-text="p.name"></option>
+                                                            </template>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-span-3">
+                                                        <select x-model.number="row.variant_id"
+                                                                @change="syncRow(idx)"
+                                                                :disabled="!row.product_id || rowVariantOptions(idx).length === 0"
+                                                                class="order-form-select2 order-form-variant-select w-full border border-slate-300 rounded-sm bg-white px-2 py-2 text-xs text-slate-800 disabled:bg-slate-100 disabled:text-slate-400"
+                                                                :data-row-index="idx"
+                                                                data-placeholder="Select variant">
+                                                            <option value="" x-text="rowVariantOptions(idx).length ? 'Select variant' : 'No variant available'"></option>
+                                                            <template x-for="v in rowVariantOptions(idx)" :key="v.id">
+                                                                <option :value="v.id" x-text="variantLabel(v)"></option>
+                                                            </template>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-span-2">
+                                                        <input type="number" min="0" x-model.number="row.qty" @input="syncRow(idx)" class="w-full border border-slate-300 rounded-sm bg-white px-2 py-2 text-sm text-center text-slate-800">
+                                                    </div>
+                                                    <div class="col-span-2 text-right text-sm font-semibold text-slate-700" x-text="formatMoney(row.line_total)"></div>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <button type="button" @click="addRow()" class="mt-3 px-3 py-1.5 bg-slate-500 text-white text-xs uppercase tracking-[0.12em] font-bold rounded-sm hover:bg-slate-600">+Add Product</button>
+
+                                        <div class="mt-4 pt-3 border-t border-slate-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                            <div class="flex items-center gap-2">
+                                                <button type="button"
+                                                        @click="addAllToCart()"
+                                                        :disabled="isAddingToCart"
+                                                        :class="isAddingToCart ? 'bg-rose-400 cursor-wait' : 'bg-rose-700 hover:bg-rose-800'"
+                                                        class="px-4 py-2 text-white text-sm font-black uppercase tracking-[0.12em] rounded-sm transition-colors">
+                                                    <span x-text="isAddingToCart ? 'Adding...' : 'Add To Cart'"></span>
+                                                </button>
+                                                <button type="button"
+                                                        @click="savePurchaseForm()"
+                                                        :disabled="isSavingForm"
+                                                        :class="isSavingForm ? 'bg-slate-400 cursor-wait' : 'bg-slate-700 hover:bg-slate-800'"
+                                                        class="px-4 py-2 text-white text-sm font-black uppercase tracking-[0.12em] rounded-sm transition-colors">
+                                                    <span x-text="isSavingForm ? 'Saving...' : 'Save Purchase Form'"></span>
+                                                </button>
+                                            </div>
+                                            <p class="text-2xl font-light text-slate-900">Total: <span class="font-black" x-text="formatMoney(grandTotal)"></span></p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -350,7 +352,7 @@
                                                     <span class="px-2 py-1 text-xs font-bold rounded-sm
                                                         {{ $request->status === 'approved' ? 'bg-emerald-100 text-emerald-700' : '' }}
                                                         {{ $request->status === 'rejected' ? 'bg-rose-100 text-rose-700' : '' }}
-                                                        {{ $request->status === 'pending' ? 'bg-amber-100 text-amber-700' : '' }}">
+                                                        {{ $request->status === 'pending' ? 'bg-blue-100 text-blue-700' : '' }}">
                                                         {{ ucfirst($request->status) }}
                                                     </span>
                                                 </td>
@@ -420,7 +422,7 @@
                                                 <span class="text-[11px] font-black px-2 py-1 rounded
                                                     {{ $savedStatus === 'approved' ? 'bg-sky-100 text-sky-700' : '' }}
                                                     {{ $savedStatus === 'cancelled' ? 'bg-rose-100 text-rose-700' : '' }}
-                                                    {{ $savedStatus === 'pending' ? 'bg-amber-100 text-amber-700' : '' }}
+                                                    {{ $savedStatus === 'pending' ? 'bg-blue-100 text-blue-700' : '' }}
                                                     {{ $savedStatus === 'saved' ? 'bg-slate-200 text-slate-700' : '' }}">
                                                     {{ ucfirst((string) $savedForm->status) }}
                                                 </span>

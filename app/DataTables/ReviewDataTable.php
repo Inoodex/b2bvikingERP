@@ -90,7 +90,7 @@ class ReviewDataTable extends DataTable
                 return '
                     <div class="text-center" style="min-width: 100px;">
                         <div class="d-inline-block mb-1">
-                            <span class="badge badge-warning text-dark font-weight-bold px-2 py-0.5" style="font-size: 11px; background-color: #fef3c7; color: #92400e !important; border: 1px solid #fde68a;">' . $row->rating . '.0 ★</span>
+                            <span class="badge badge-warning text-dark font-weight-bold px-2 py-0.5" style="font-size: 11px; background-color: #dc2626; color: #ffffff !important; border: 1px solid #b91c1c;">' . $row->rating . '.0 ★</span>
                         </div>
                         <div>' . $stars . '</div>
                     </div>
@@ -202,12 +202,12 @@ class ReviewDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::computed('product')->title('Product')->width(230),
-            Column::computed('customer')->title('Customer / Outlet')->width(180),
-            Column::computed('rating_display')->title('Rating')->width(100)->addClass('text-center'),
-            Column::make('comment')->title('Review Comment')->width(210),
+            Column::computed('product')->title('Product'),
+            Column::computed('customer')->title('Customer / Outlet'),
+            Column::computed('rating_display')->title('Rating')->width(90)->addClass('text-center'),
+            Column::make('comment')->title('Review Comment'),
             Column::computed('status')->title('Published')->width(80)->addClass('text-center'),
-            Column::make('created_at')->title('Date')->width(105)->addClass('text-center'),
+            Column::make('created_at')->title('Date')->width(100)->addClass('text-center'),
             Column::computed('action')->title('Action')
                 ->exportable(false)
                 ->printable(false)

@@ -450,13 +450,13 @@
     }
 
     .btn-outline-danger {
-        color: #e74a3b !important;
-        border-color: #e74a3b !important;
+        color: #E11835 !important;
+        border-color: #E11835 !important;
         background: transparent !important;
     }
 
     .btn-outline-danger:hover {
-        background: #e74a3b !important;
+        background: #E11835 !important;
         color: #fff !important;
     }
 
@@ -806,12 +806,12 @@
 
     .was-validated .form-control:valid,
     .form-control.is-valid {
-        border-color: #1cc88a !important;
+        border-color: #15803d !important;
     }
 
     .was-validated .form-control:invalid,
     .form-control.is-invalid {
-        border-color: #e74a3b !important;
+        border-color: #E11835 !important;
     }
 
     .text-danger {

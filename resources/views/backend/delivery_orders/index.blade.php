@@ -1,6 +1,50 @@
 @extends('backend.layouts.master')
 @section('title', 'Delivery Orders (Challans)')
 
+@push('css')
+    <style>
+        #delivery-order-table {
+            min-width: 900px !important;
+        }
+
+        #delivery-order-table th,
+        #delivery-order-table td {
+            white-space: nowrap;
+        }
+
+        #delivery-order-table th:last-child,
+        #delivery-order-table td:last-child {
+            min-width: 150px;
+        }
+
+        #delivery-order-table_wrapper > .row:nth-child(2) {
+            display: block !important;
+            width: 100% !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            margin-bottom: 8px !important;
+            scrollbar-width: auto;
+            scrollbar-color: #2563eb #e2e8f0;
+        }
+
+        #delivery-order-table_wrapper > .row:nth-child(2)::-webkit-scrollbar {
+            display: block;
+            height: 12px;
+        }
+
+        #delivery-order-table_wrapper > .row:nth-child(2)::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 6px;
+        }
+
+        #delivery-order-table_wrapper > .row:nth-child(2)::-webkit-scrollbar-thumb {
+            background: #2563eb;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+        }
+    </style>
+@endpush
+
 @section('content')
     <section class="section">
         <div class="section-header">

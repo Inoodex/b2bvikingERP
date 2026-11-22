@@ -107,7 +107,7 @@
                                 <div class="d-flex align-items-center justify-content-between flex-wrap mb-3" style="gap: 12px;">
                                     <div class="d-flex align-items-center" style="gap: 12px;">
                                         <h5 class="mb-0 font-weight-bold" style="color: #1e293b;">RFQ Items</h5>
-                                        <span class="badge badge-primary px-3 py-1 font-weight-bold" id="rfq_items_count_badge" style="font-size: 13px; border-radius: 20px; background-color: #3b82f6;">
+                                        <span class="badge badge-primary px-3 py-1 font-weight-bold" id="rfq_items_count_badge" style="font-size: 13px; border-radius: 20px; background-color: #2563eb;">
                                             Total: <span id="rfq_items_count_num">{{ (isset($cartItems) && $cartItems->count() > 0) ? $cartItems->count() : 0 }}</span> items
                                         </span>
                                     </div>
@@ -321,7 +321,7 @@
             text: "This will remove all items from this RFQ and empty your procurement cart!",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#fc544b",
+            confirmButtonColor: "#E11835",
             cancelButtonColor: "#6c757d",
             confirmButtonText: "Yes, clear all!",
             cancelButtonText: "Cancel"

@@ -181,7 +181,7 @@
                                 @endphp
 
                                 @if($customerAdvanceBal > 0)
-                                    <a href="{{ route('admin.customer-payments.create', ['sales_invoice_id' => $invoice->id, 'use_advance' => 1]) }}" class="btn btn-warning btn-block font-weight-bold shadow-sm mb-2 text-white" style="border-radius: 6px; background-color: #d97706; border-color: #d97706;">
+                                    <a href="{{ route('admin.customer-payments.create', ['sales_invoice_id' => $invoice->id, 'use_advance' => 1]) }}" class="btn btn-warning btn-block font-weight-bold shadow-sm mb-2 text-white" style="border-radius: 6px; background-color: #c2410c; border-color: #c2410c;">
                                         <i class="fas fa-gem mr-1"></i> Settle via Advance (kr. {{ number_format($customerAdvanceBal, 2) }} Avail)
                                     </a>
                                 @endif

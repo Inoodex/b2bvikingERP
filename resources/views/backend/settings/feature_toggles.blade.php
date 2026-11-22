@@ -15,7 +15,7 @@
     cursor: pointer;
     width: 2.35rem !important;
     height: 1.35rem !important;
-    background: #e4e6fc !important;
+    background: #dbeafe !important;
     border: 1px solid rgba(0, 40, 100, 0.08) !important;
     border-radius: 50px !important;
     transition: background-color 0.25s ease, border-color 0.25s ease !important;
@@ -31,14 +31,14 @@
     transition: left 0.22s cubic-bezier(.4, 0, .2, 1) !important;
   }
   .custom-switch-input:checked ~ .custom-switch-indicator {
-    background-color: #6777ef !important;
-    border-color: #6777ef !important;
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
   }
   .custom-switch-input:checked ~ .custom-switch-indicator:before {
     left: calc(1rem + 3px) !important;
   }
   .custom-switch-input:focus ~ .custom-switch-indicator {
-    box-shadow: 0 0 0 2px rgba(103, 119, 239, 0.25) !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25) !important;
   }
 
   .feature-row {
@@ -86,11 +86,11 @@
       $disabledFeatures = $totalFeatures - $activeFeatures;
 
       $categoryMeta = [
-        'Procurement & Inventory' => ['icon' => 'fas fa-boxes', 'color' => '#6777ef', 'bg' => 'rgba(103, 119, 239, 0.12)'],
-        'Communications'          => ['icon' => 'fas fa-envelope-open-text', 'color' => '#3abaf4', 'bg' => 'rgba(58, 186, 244, 0.12)'],
-        'Sales & Credit Control'  => ['icon' => 'fas fa-hand-holding-usd', 'color' => '#ffa426', 'bg' => 'rgba(255, 164, 38, 0.12)'],
+        'Procurement & Inventory' => ['icon' => 'fas fa-boxes', 'color' => '#2563eb', 'bg' => 'rgba(37, 99, 235, 0.12)'],
+        'Communications'          => ['icon' => 'fas fa-envelope-open-text', 'color' => '#2563eb', 'bg' => 'rgba(37, 99, 235, 0.12)'],
+        'Sales & Credit Control'  => ['icon' => 'fas fa-hand-holding-usd', 'color' => '#E11835', 'bg' => 'rgba(225, 24, 53, 0.12)'],
         'Finance & Accounting'    => ['icon' => 'fas fa-book', 'color' => '#47c363', 'bg' => 'rgba(71, 195, 99, 0.12)'],
-        'Payment Gateways'        => ['icon' => 'fas fa-credit-card', 'color' => '#fc544b', 'bg' => 'rgba(252, 84, 75, 0.12)'],
+        'Payment Gateways'        => ['icon' => 'fas fa-credit-card', 'color' => '#E11835', 'bg' => 'rgba(252, 84, 75, 0.12)'],
       ];
     @endphp
 
@@ -166,7 +166,7 @@
 
       @foreach($groupedToggles as $categoryName => $items)
         @php
-          $cat = $categoryMeta[$categoryName] ?? ['icon' => 'fas fa-layer-group', 'color' => '#6777ef', 'bg' => 'rgba(103, 119, 239, 0.12)'];
+          $cat = $categoryMeta[$categoryName] ?? ['icon' => 'fas fa-layer-group', 'color' => '#2563eb', 'bg' => 'rgba(37, 99, 235, 0.12)'];
         @endphp
         <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap" style="gap: 10px;">

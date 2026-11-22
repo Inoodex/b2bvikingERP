@@ -48,7 +48,7 @@
                     <i class="fas fa-times-circle mr-1"></i> Rejected
                 </span>
             @else
-                <span class="badge badge-warning text-dark font-weight-bold px-2 py-1" style="background: #fef08a;">
+                <span class="badge badge-warning text-white font-weight-bold px-2 py-1" style="background: #dc2626;">
                     <i class="fas fa-hourglass-half mr-1"></i> In Progress
                 </span>
             @endif
@@ -78,9 +78,9 @@
                         {{-- Dot Indicator --}}
                         <div class="timeline-dot position-absolute d-flex align-items-center justify-content-center shadow-sm"
                              style="left: -30px; top: 4px; width: 24px; height: 24px; border-radius: 50%; font-size: 11px; z-index: 2;
-                             @if($isApproved) background: #10b981; color: #fff;
-                             @elseif($isStepRejected) background: #ef4444; color: #fff;
-                             @elseif($isPending) background: #f59e0b; color: #fff; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25) !important;
+                             @if($isApproved) background: #15803d; color: #fff;
+                             @elseif($isStepRejected) background: #E11835; color: #fff;
+                             @elseif($isPending) background: #E11835; color: #1f2937; box-shadow: 0 0 0 3px rgba(225, 24, 53, 0.25) !important;
                              @else background: #cbd5e1; color: #64748b; @endif">
                             @if($isApproved)
                                 <i class="fas fa-check"></i>
@@ -105,7 +105,7 @@
                                     @elseif($isStepRejected)
                                         <span class="badge badge-danger px-2 py-1 font-weight-bold" style="font-size: 10px;">Rejected</span>
                                     @elseif($isPending)
-                                        <span class="badge badge-warning text-dark px-2 py-1 font-weight-bold" style="font-size: 10px; background: #fbbf24;">Waiting Authorization</span>
+                                        <span class="badge badge-warning text-white px-2 py-1 font-weight-bold" style="font-size: 10px; background: #dc2626;">Waiting Authorization</span>
                                     @else
                                         <span class="badge badge-secondary px-2 py-1" style="font-size: 10px;">Locked</span>
                                     @endif
@@ -140,7 +140,7 @@
                                     @endif
                                 </div>
                             @elseif($isPending)
-                                <div class="p-2 rounded mb-2 small text-dark" style="background: #fef9c3; border-left: 3px solid #f59e0b; font-size: 11px;">
+                                <div class="p-2 rounded mb-2 small text-dark" style="background: #fef9c3; border-left: 3px solid #E11835; font-size: 11px;">
                                     <i class="fas fa-info-circle text-warning mr-1"></i> Currently under review by assigned <strong>{{ $roleName }}</strong>.
                                 </div>
 

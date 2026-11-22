@@ -5,13 +5,13 @@
         :root {
             --pp-obsidian: #0b1120;
             --pp-obsidian-2: #060a14;
-            --pp-amber: #d4a24e;
-            --pp-amber-bright: #ecc78b;
-            --pp-amber-deep: #b8852a;
-            --pp-amber-soft: rgba(212, 162, 78, 0.08);
-            --pp-amber-glow: rgba(212, 162, 78, 0.30);
+            --pp-blue: #2563eb;
+            --pp-blue-bright: #60a5fa;
+            --pp-blue-deep: #1d4ed8;
+            --pp-blue-soft: rgba(37, 99, 235, 0.08);
+            --pp-blue-glow: rgba(37, 99, 235, 0.30);
             --pp-border: rgba(11, 17, 32, 0.07);
-            --pp-border-hover: rgba(212, 162, 78, 0.15);
+            --pp-border-hover: rgba(37, 99, 235, 0.15);
             --pp-ink: #161e2e;
             --pp-ink-soft: #2d3748;
             --pp-muted: #6b788e;
@@ -23,8 +23,8 @@
             --pp-radius-md: 14px;
             --pp-radius-lg: 20px;
             --pp-shadow-card: 0 1px 3px rgba(11, 17, 32, 0.04), 0 8px 20px -12px rgba(11, 17, 32, 0.12);
-            --pp-shadow-card-hover: 0 12px 32px -12px rgba(11, 17, 32, 0.16), 0 0 0 1px rgba(212, 162, 78, 0.06);
-            --pp-shadow-lift: 0 20px 50px -16px rgba(11, 17, 32, 0.2), 0 0 0 1px rgba(212, 162, 78, 0.1);
+            --pp-shadow-card-hover: 0 12px 32px -12px rgba(11, 17, 32, 0.16), 0 0 0 1px rgba(37, 99, 235, 0.06);
+            --pp-shadow-lift: 0 20px 50px -16px rgba(11, 17, 32, 0.2), 0 0 0 1px rgba(37, 99, 235, 0.1);
         }
 
         @keyframes ppFadeSlide {
@@ -60,7 +60,14 @@
             min-height: 400px;
         }
 
-        @media (min-width: 992px) and (max-width: 1399.98px) {
+        @media (min-width: 992px) and (max-width: 1199.98px) {
+            .col-lg-5th {
+                flex: 0 0 33.333333% !important;
+                max-width: 33.333333% !important;
+            }
+        }
+
+        @media (min-width: 1200px) and (max-width: 1399.98px) {
             .col-lg-5th {
                 flex: 0 0 25% !important;
                 max-width: 25% !important;
@@ -82,7 +89,7 @@
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 20px;
-            margin-top: 18px;
+            margin-top: 4px;
             padding: 18px 22px;
             background: #fff;
             border-radius: var(--pp-radius-md);
@@ -121,9 +128,9 @@
             justify-content: center;
             border-radius: 10px;
             font-size: 14px;
-            color: #1a1306;
-            background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber));
-            box-shadow: 0 4px 14px rgba(212, 162, 78, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue));
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .pp-breadcrumb {
@@ -154,13 +161,13 @@
         }
 
         .pp-breadcrumb-item a {
-            color: var(--pp-amber-deep);
+            color: var(--pp-blue-deep);
             text-decoration: none;
             transition: color 0.2s ease;
         }
 
         .pp-breadcrumb-item a:hover {
-            color: var(--pp-amber);
+            color: var(--pp-blue);
         }
 
         .pp-breadcrumb-item.active {
@@ -170,18 +177,19 @@
         /* ===== Filter Card ===== */
         .pp-filter-card {
             position: relative;
+            z-index: 20;
             border-radius: var(--pp-radius-md) !important;
             border: 1px solid var(--pp-border) !important;
             background: rgba(255, 255, 255, 0.75) !important;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             box-shadow: var(--pp-shadow-card) !important;
-            overflow: hidden;
+            overflow: visible;
             transition: box-shadow 0.3s ease;
         }
 
         .pp-filter-card:hover {
-            box-shadow: var(--pp-shadow-card-hover) !important;
+            box-shadow: 0 12px 32px -12px rgba(11, 17, 32, 0.16), 0 0 0 1px rgba(225, 24, 53, 0.06) !important;
         }
 
         .pp-filter-card::before {
@@ -191,24 +199,79 @@
             left: 0;
             right: 0;
             height: 2.5px;
-            background: linear-gradient(90deg, var(--pp-amber-bright), var(--pp-amber) 50%, transparent 96%);
+            border-radius: var(--pp-radius-md) var(--pp-radius-md) 0 0;
+            background: linear-gradient(90deg, #E11835, #E11835 50%, transparent 96%);
         }
 
         .pp-filter-card .card-body {
             padding: 18px 20px 16px !important;
         }
 
-        .pp-search-wrap {
+        .pp-filter-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .pp-filter-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            color: var(--pp-ink);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .pp-filter-title i {
+            color: #E11835;
+        }
+
+        .pp-filter-description {
+            margin: 4px 0 0;
+            color: var(--pp-muted);
+            font-size: 11px;
+        }
+
+        .pp-filter-actions {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pp-filter-actions .pp-btn {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            min-height: 36px;
+            margin: 0 !important;
+            white-space: nowrap;
+            background: #E11835 !important;
+            color: #fff !important;
+            box-shadow: 0 4px 14px -4px rgba(225, 24, 53, 0.32) !important;
+        }
+
+        .pp-filter-actions .pp-btn:hover {
+            background: #E11835 !important;
+            color: #fff !important;
+            filter: none !important;
+            box-shadow: 0 6px 18px -5px rgba(225, 24, 53, 0.38) !important;
+        }
+
+        #filter-form .pp-search-wrap {
             border-radius: var(--pp-radius-lg) !important;
             background: #fff !important;
-            border: 1.5px solid var(--pp-border) !important;
+            border: 1.5px solid #E11835 !important;
             transition: all 0.25s ease;
             overflow: hidden;
         }
 
-        .pp-search-wrap:focus-within {
-            border-color: var(--pp-amber) !important;
-            box-shadow: 0 0 0 3px var(--pp-amber-soft), 0 4px 12px -8px rgba(212, 162, 78, 0.15) !important;
+        #filter-form .pp-search-wrap:focus-within {
+            border-color: #E11835 !important;
+            box-shadow: 0 0 0 3px rgba(225, 24, 53, 0.12), 0 4px 12px -8px rgba(225, 24, 53, 0.2) !important;
             background: #fff !important;
         }
 
@@ -226,20 +289,20 @@
 
         .pp-search-wrap .input-group-text {
             font-size: 12px;
-            color: #aab2c0;
+            color: #E11835;
         }
 
-        .pp-select2 .select2-selection--single {
+        #filter-form .select2-container .select2-selection--single {
             height: 36px !important;
             border-radius: var(--pp-radius-lg) !important;
-            border: 1.5px solid var(--pp-border) !important;
+            border: 1.5px solid #E11835 !important;
             background: #fff !important;
             display: flex !important;
             align-items: center;
             transition: all 0.25s ease;
         }
 
-        .pp-select2 .select2-selection--single .select2-selection__rendered {
+        #filter-form .select2-container .select2-selection--single .select2-selection__rendered {
             color: var(--pp-ink);
             font-size: 12px;
             font-weight: 500;
@@ -247,52 +310,59 @@
             line-height: 34px;
         }
 
-        .pp-select2 .select2-selection--single .select2-selection__arrow {
+        #filter-form .select2-container .select2-selection--single .select2-selection__arrow {
             height: 34px;
             right: 10px;
         }
 
-        .pp-select2 .select2-selection--single .select2-selection__arrow b {
-            border-color: var(--pp-amber) transparent transparent transparent !important;
+        #filter-form .select2-container .select2-selection--single .select2-selection__arrow b {
+            border-color: #E11835 transparent transparent transparent !important;
             border-width: 4px 4px 0 !important;
         }
 
-        .pp-select2.select2-container--open .select2-selection--single,
-        .pp-select2.select2-container--focus .select2-selection--single {
-            border-color: var(--pp-amber) !important;
-            box-shadow: 0 0 0 3px var(--pp-amber-soft) !important;
+        #filter-form .select2-container--default:hover .select2-selection--single,
+        #filter-form .select2-container--default.select2-container--open .select2-selection--single,
+        #filter-form .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #E11835 !important;
+            box-shadow: 0 0 0 3px rgba(225, 24, 53, 0.12) !important;
             background: #fff !important;
         }
 
-        .pp-select2 .select2-dropdown {
+        #filter-form .select2-container--open .select2-dropdown {
             border-radius: var(--pp-radius-sm) !important;
-            border: 1px solid var(--pp-border) !important;
+            border: 1px solid #E11835 !important;
             box-shadow: var(--pp-shadow-lift) !important;
             overflow: hidden;
             margin-top: 4px;
         }
 
-        .pp-select2 .select2-results__option {
+        #filter-form .select2-results__option {
             font-size: 12px !important;
             padding: 8px 12px !important;
             transition: background 0.15s;
         }
 
-        .pp-select2 .select2-results__option--highlighted[aria-selected] {
-            background: linear-gradient(135deg, var(--pp-amber-bright), var(--pp-amber)) !important;
-            color: #1a1306 !important;
+        #filter-form .select2-results__option--highlighted[aria-selected] {
+            background: #E11835 !important;
+            color: #ffffff !important;
         }
 
-        .pp-select2 .select2-results__option[aria-selected=true] {
-            background: var(--pp-amber-soft) !important;
-            color: var(--pp-ink) !important;
+        #filter-form .select2-results__option[aria-selected=true] {
+            background: #E11835 !important;
+            color: #ffffff !important;
         }
 
-        .pp-select2 .select2-search--dropdown .select2-search__field {
+        #filter-form .select2-search--dropdown .select2-search__field {
             border-radius: 8px !important;
-            border: 1px solid var(--pp-border) !important;
+            border: 1px solid #E11835 !important;
             padding: 6px 10px !important;
             font-size: 12px !important;
+        }
+
+        #filter-form .select2-search--dropdown .select2-search__field:focus {
+            border-color: #E11835 !important;
+            box-shadow: 0 0 0 2px rgba(225, 24, 53, 0.12) !important;
+            outline: 0;
         }
 
         .pp-btn {
@@ -315,45 +385,46 @@
             transform: translateY(0) scale(0.97);
         }
 
-        .pp-btn-amber {
-            background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep)) !important;
-            color: #1a1306 !important;
-            box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        .pp-btn-blue {
+            background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue-deep)) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px -4px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
         }
 
-        .pp-btn-amber:hover {
+        .pp-btn-blue:hover {
             filter: brightness(1.06);
-            box-shadow: 0 8px 24px -6px rgba(212, 162, 78, 0.5);
+            box-shadow: 0 8px 24px -6px rgba(37, 99, 235, 0.5);
         }
 
         .pp-btn-emerald {
-            background: linear-gradient(145deg, #34d399, #16a34a) !important;
+            background: linear-gradient(145deg, #34d399, #15803d) !important;
             color: #fff !important;
-            box-shadow: 0 4px 14px -4px rgba(22, 163, 74, 0.34);
+            box-shadow: 0 4px 14px -4px rgba(21, 128, 61, 0.34);
         }
 
         .pp-btn-emerald:hover {
             filter: brightness(1.06);
-            box-shadow: 0 8px 24px -6px rgba(22, 163, 74, 0.4);
+            box-shadow: 0 8px 24px -6px rgba(21, 128, 61, 0.4);
         }
 
         .pp-btn-reset {
-            background: #fff !important;
-            color: var(--pp-amber-deep) !important;
-            border: 1.5px solid rgba(212, 162, 78, 0.25) !important;
+            background: #E11835 !important;
+            color: #fff !important;
+            border: 1.5px solid #E11835 !important;
             border-radius: 10px !important;
             font-weight: 700 !important;
             font-size: 11.5px !important;
             padding: 7px 14px !important;
             letter-spacing: 0.2px;
             transition: all 0.2s ease !important;
-            box-shadow: 0 2px 8px rgba(212, 162, 78, 0.06);
+            box-shadow: 0 2px 8px rgba(225, 24, 53, 0.16);
         }
 
         .pp-btn-reset:hover {
-            background: rgba(212, 162, 78, 0.07) !important;
-            border-color: var(--pp-amber) !important;
-            box-shadow: 0 4px 16px -6px rgba(212, 162, 78, 0.2);
+            background: #E11835 !important;
+            border-color: #E11835 !important;
+            color: #fff !important;
+            box-shadow: 0 4px 16px -6px rgba(225, 24, 53, 0.28);
             transform: translateY(-1px);
         }
 
@@ -383,7 +454,7 @@
             right: 0;
             bottom: -1px;
             height: 2px;
-            background: linear-gradient(90deg, transparent, var(--pp-amber-bright), transparent);
+            background: linear-gradient(90deg, transparent, var(--pp-blue-bright), transparent);
             opacity: 0.6;
         }
 
@@ -397,7 +468,7 @@
         }
 
         .pp-modal .modal-title i {
-            color: var(--pp-amber-bright) !important;
+            color: var(--pp-blue-bright) !important;
             font-size: 15px;
         }
 
@@ -410,7 +481,7 @@
 
         .pp-modal .close:hover {
             opacity: 1;
-            color: var(--pp-amber-bright);
+            color: var(--pp-blue-bright);
         }
 
         .pp-modal .modal-body {
@@ -432,14 +503,14 @@
             transition: all 0.2s ease;
         }
 
-        .pp-modal .btn-amber {
-            background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep));
+        .pp-modal .btn-blue {
+            background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue-deep));
             border: none;
-            color: #1a1306;
-            box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.4);
+            color: #ffffff;
+            box-shadow: 0 4px 14px -4px rgba(37, 99, 235, 0.4);
         }
 
-        .pp-modal .btn-amber:hover {
+        .pp-modal .btn-blue:hover {
             filter: brightness(1.06);
             transform: translateY(-1px);
         }
@@ -452,7 +523,7 @@
 
         .pp-modal .btn-secondary:hover {
             background: #dee2e9;
-            border-color: var(--pp-amber);
+            border-color: var(--pp-blue);
         }
 
         .pp-star-rating .rating-star {
@@ -461,7 +532,7 @@
 
         .pp-star-rating .rating-star:hover {
             transform: scale(1.2) rotate(-5deg);
-            color: #f59e0b !important;
+            color: #E11835 !important;
         }
 
         /* ===== Product Card ===== */
@@ -532,7 +603,7 @@
         }
 
         .pp-card:hover .pp-card-title {
-            color: var(--pp-amber-deep);
+            color: var(--pp-blue-deep);
         }
 
         .pp-badge-category {
@@ -547,9 +618,9 @@
         }
 
         .pp-card:hover .pp-badge-category {
-            background: var(--pp-amber-soft);
+            background: var(--pp-blue-soft);
             border-color: var(--pp-border-hover);
-            color: var(--pp-amber-deep);
+            color: var(--pp-blue-deep);
         }
 
         .pp-badge-stock {
@@ -561,9 +632,9 @@
         }
 
         .pp-badge-stock.in-stock {
-            background: rgba(22, 163, 74, 0.08);
-            color: #16a34a;
-            border: 1px solid rgba(22, 163, 74, 0.15);
+            background: rgba(21, 128, 61, 0.08);
+            color: #15803d;
+            border: 1px solid rgba(21, 128, 61, 0.15);
         }
 
         .pp-badge-stock.out-of-stock {
@@ -587,7 +658,7 @@
             max-height: 110px;
             overflow-y: auto;
             scrollbar-width: thin;
-            scrollbar-color: var(--pp-amber) transparent;
+            scrollbar-color: var(--pp-blue) transparent;
         }
 
         .pp-variant-scroll::-webkit-scrollbar {
@@ -595,7 +666,7 @@
         }
 
         .pp-variant-scroll::-webkit-scrollbar-thumb {
-            background: var(--pp-amber);
+            background: var(--pp-blue);
             border-radius: 10px;
         }
 
@@ -639,7 +710,7 @@
 
         .pp-btn-card:hover {
             transform: translateY(-1.5px);
-            box-shadow: 0 4px 12px -4px rgba(212, 162, 78, 0.2);
+            box-shadow: 0 4px 12px -4px rgba(37, 99, 235, 0.2);
         }
 
         .pp-btn-outline {
@@ -649,9 +720,9 @@
         }
 
         .pp-btn-outline:hover {
-            border-color: var(--pp-amber) !important;
-            background: var(--pp-amber-soft) !important;
-            color: var(--pp-amber-deep) !important;
+            border-color: var(--pp-blue) !important;
+            background: var(--pp-blue-soft) !important;
+            color: var(--pp-blue-deep) !important;
         }
 
         .pp-edit-btn {
@@ -684,9 +755,9 @@
         }
 
         .pp-status-switch .custom-switch-input:checked~.custom-switch-indicator {
-            background: linear-gradient(135deg, var(--pp-amber-bright), var(--pp-amber)) !important;
-            border-color: var(--pp-amber) !important;
-            box-shadow: 0 2px 8px -2px rgba(212, 162, 78, 0.3);
+            background: linear-gradient(135deg, var(--pp-blue-bright), var(--pp-blue)) !important;
+            border-color: var(--pp-blue) !important;
+            box-shadow: 0 2px 8px -2px rgba(37, 99, 235, 0.3);
         }
 
         .pp-count-badge {
@@ -701,7 +772,7 @@
         }
 
         .pp-count-badge strong {
-            color: var(--pp-amber-deep);
+            color: var(--pp-blue-deep);
         }
 
         .pp-pagination .pagination .page-link {
@@ -717,17 +788,17 @@
         }
 
         .pp-pagination .pagination .page-link:hover {
-            border-color: var(--pp-amber) !important;
-            background: var(--pp-amber-soft) !important;
-            color: var(--pp-amber-deep) !important;
+            border-color: var(--pp-blue) !important;
+            background: var(--pp-blue-soft) !important;
+            color: var(--pp-blue-deep) !important;
             transform: translateY(-1px);
         }
 
         .pp-pagination .pagination .page-item.active .page-link {
-            background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber)) !important;
-            border-color: var(--pp-amber) !important;
-            color: #1a1306 !important;
-            box-shadow: 0 4px 14px -3px rgba(212, 162, 78, 0.35);
+            background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue)) !important;
+            border-color: var(--pp-blue) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px -3px rgba(37, 99, 235, 0.35);
             transform: translateY(-1px);
         }
 
@@ -773,6 +844,7 @@
                 align-items: flex-start;
                 padding: 14px 16px;
                 gap: 8px;
+                margin-top: 4px;
             }
 
             .pp-header h1 {
@@ -802,7 +874,22 @@
 
         @media (max-width: 767.98px) {
             .pp-header {
+                margin-top: 4px;
                 margin-bottom: 14px;
+            }
+
+            .pp-filter-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .pp-filter-actions {
+                width: 100%;
+            }
+
+            .pp-filter-actions .pp-btn {
+                flex: 1;
             }
 
             .pp-header h1 {
@@ -1060,10 +1147,10 @@
 
         .audit-drawer .drawer-close-btn:hover {
             background: #fee2e2 !important;
-            color: #ef4444 !important;
+            color: #E11835 !important;
             border-color: #fca5a5 !important;
             transform: scale(1.08);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+            box-shadow: 0 4px 12px rgba(225, 24, 53, 0.2);
         }
 
         .audit-drawer .drawer-close-btn:hover i,
@@ -1140,7 +1227,7 @@
 
         #stockMovementDrawer .select2-container--open .select2-selection--single,
         #stockMovementDrawer .select2-container--focus .select2-selection--single {
-            border-color: #3b82f6 !important;
+            border-color: #2563eb !important;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
         }
 
@@ -1174,7 +1261,7 @@
         }
 
         #stockMovementDrawer .select2-results__option--highlighted[aria-selected] {
-            background: #3b82f6 !important;
+            background: #2563eb !important;
             color: #ffffff !important;
         }
 
@@ -1345,7 +1432,7 @@
             width: 100%;
         }
         .b2b-phone-input-wrap:focus-within {
-            border-color: #3b82f6 !important;
+            border-color: #2563eb !important;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
         }
         .b2b-phone-input-wrap i {
@@ -1391,13 +1478,31 @@
                 <div class="col-12">
                     <div class="card border-0 pp-filter-card">
                         <div class="card-body">
+                            <div class="pp-filter-toolbar">
+                                <div>
+                                    <h2 class="pp-filter-title"><i class="fas fa-filter"></i> Find products</h2>
+                                    <p class="pp-filter-description">Search and filter the catalog</p>
+                                </div>
+                                @can('Manage Products')
+                                    <div class="pp-filter-actions">
+                                        <a href="{{ route('admin.products.import.view') }}"
+                                            class="btn pp-btn pp-btn-emerald shadow-sm">
+                                            <i class="fas fa-file-import mr-1"></i> Import
+                                        </a>
+                                        <a href="{{ route('admin.products.create') }}"
+                                            class="btn pp-btn pp-btn-blue shadow-sm">
+                                            <i class="fas fa-plus mr-1"></i> Create Product
+                                        </a>
+                                    </div>
+                                @endcan
+                            </div>
                             <form id="filter-form">
                                 <div class="row g-4 align-items-end">
                                     <div class="col-12 col-md-3">
                                         <div class="input-group pp-search-wrap shadow-sm">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text border-0 pl-3 pr-1 bg-transparent">
-                                                    <i class="fas fa-search" style="color: #aab2c0;"></i>
+                                                    <i class="fas fa-search" style="color: #E11835;"></i>
                                                 </span>
                                             </div>
                                             <input type="text" class="form-control search-input border-0 pl-1"
@@ -1415,34 +1520,22 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-2">
-                                        <select name="sub_category" id="sub_category"
+                                    <div class="col-12 col-md-3">
+                                        <select name="sub_category" id="sub_category" data-placeholder="Sub Category"
                                             class="form-control select2 pp-select2">
                                             <option value="">Sub Category</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-2">
-                                        <select name="child_category" id="child_category"
+                                    <div class="col-12 col-md-3">
+                                        <select name="child_category" id="child_category" data-placeholder="Child Category"
                                             class="form-control select2 pp-select2">
                                             <option value="">Child Category</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-2">
-                                        @can('Manage Products')
-                                            <a href="{{ route('admin.products.import.view') }}"
-                                                class="btn pp-btn pp-btn-emerald shadow-sm d-block mb-1">
-                                                <i class="fas fa-file-import mr-1"></i> Import
-                                            </a>
-                                            <a href="{{ route('admin.products.create') }}"
-                                                class="btn pp-btn pp-btn-amber shadow-sm d-block">
-                                                <i class="fas fa-plus mr-1"></i> Create
-                                            </a>
-                                        @endcan
-                                    </div>
                                 </div>
                                 <hr style="border-top: 1px solid var(--pp-border); margin: 6px 0 10px;">
                                 <div class="row g-4 align-items-end">
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-2">
                                         <select name="sort" id="sort" class="form-control select2 pp-select2">
                                             <option value="">Sort by</option>
                                             <option value="latest"
@@ -1530,7 +1623,7 @@
                                     </div>
                                     <div class="col-12 col-md-2">
                                         <button type="button" id="reset-filters"
-                                            class="btn pp-btn pp-btn-reset btn-sm shadow-sm w-100 d-flex align-items-center justify-content-center"
+                                            class="btn pp-btn pp-btn-reset btn-sm shadow-sm w-100 d-flex align-items-center justify-content-center reset-arrow-button"
                                             style="height: 36px;">
                                             <i class="fas fa-undo mr-1"></i> Reset Filters
                                         </button>
@@ -1598,7 +1691,7 @@
                 <div class="modal-footer bg-light px-4 py-3 border-top d-flex justify-content-between">
                     <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-dismiss="modal"
                         style="border-radius: 6px;">Cancel</button>
-                    <button type="button" class="btn btn-amber btn-sm px-4 font-weight-bold shadow-sm"
+                    <button type="button" class="btn btn-blue btn-sm px-4 font-weight-bold shadow-sm"
                         id="btn_submit_quick_variants" style="border-radius: 6px;">
                         <i class="fas fa-check mr-1"></i> Add Selected to Cart
                     </button>
@@ -1615,7 +1708,7 @@
             <div>
                 <div class="d-flex align-items-center mb-1" style="gap: 6px;">
                     <span class="chip-severity"
-                        style="background: rgba(212, 162, 78, 0.15); color: #b8852a; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Inventory</span>
+                        style="background: rgba(37, 99, 235, 0.15); color: #1d4ed8; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Inventory</span>
                     <span class="chip-module"
                         style="background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase;">Movement Ledger</span>
                 </div>
@@ -1694,6 +1787,22 @@
                 toastr.options.showDuration = 150;
                 toastr.options.hideDuration = 150;
             }
+
+            $('#filter-form select.select2').each(function() {
+                const $field = $(this);
+                if ($field.hasClass('select2-hidden-accessible')) {
+                    $field.select2('destroy');
+                }
+                const options = {
+                    dropdownParent: $('#filter-form'),
+                    width: '100%'
+                };
+                if ($field.is('#sub_category, #child_category')) {
+                    options.placeholder = $field.data('placeholder');
+                    options.minimumResultsForSearch = 10;
+                }
+                $field.select2(options);
+            });
 
             // Ensure grid is visible on page load - initial state should be opacity 1
             if ($('#product-grid-container').data('loaded')) {
@@ -1798,7 +1907,7 @@
                         html: `<strong>${productName}</strong><br><span class="text-warning font-weight-bold">${poInfo}</span><br><br><span style="font-size: 13px; color: #4b5563;">An active procurement order already exists for this product. Do you want to add it to Procurement Basket again?</span>`,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonColor: '#f59e0b',
+                        confirmButtonColor: '#E11835',
                         cancelButtonColor: '#6b7280',
                         confirmButtonText: '<i class="fas fa-plus-circle mr-1"></i> Yes, Order Again',
                         cancelButtonText: 'Cancel'
@@ -2773,7 +2882,7 @@
                         text: "This customer/outlet override will be removed. The entity will revert to seeing actual warehouse stock.",
                         icon: "warning",
                         showCancelButton: true,
-                        confirmButtonColor: "#ef4444",
+                        confirmButtonColor: "#E11835",
                         cancelButtonColor: "#64748b",
                         confirmButtonText: "<i class='fas fa-trash-alt mr-1'></i> Yes, remove it!",
                         cancelButtonText: "Cancel",

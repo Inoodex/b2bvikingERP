@@ -70,11 +70,11 @@
         @endif
 
         @if(session('warning'))
-            <div class="rounded-xl bg-amber-50 border border-amber-200 p-4 mb-6 flex items-start gap-3 shadow-sm">
-                <i class="fas fa-info-circle text-amber-600 text-xl mt-0.5"></i>
+            <div class="rounded-xl bg-blue-50 border border-blue-200 p-4 mb-6 flex items-start gap-3 shadow-sm">
+                <i class="fas fa-info-circle text-blue-600 text-xl mt-0.5"></i>
                 <div>
-                    <h4 class="font-bold text-amber-900 text-sm">Notice</h4>
-                    <p class="text-amber-700 text-xs mt-0.5">{{ session('warning') }}</p>
+                    <h4 class="font-bold text-blue-900 text-sm">Notice</h4>
+                    <p class="text-blue-700 text-xs mt-0.5">{{ session('warning') }}</p>
                 </div>
             </div>
         @endif
@@ -89,10 +89,10 @@
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     
                     {{-- Invoice Header Bar --}}
-                    <div class="p-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4 bg-slate-50/50">
+                    <div class="p-4 sm:p-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4 bg-slate-50/50">
                         <div>
                             <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Commercial Invoice</span>
-                            <h1 class="text-2xl font-black text-slate-900 tracking-tight mt-0.5">#{{ $invoice->invoice_no }}</h1>
+                            <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-0.5">#{{ $invoice->invoice_no }}</h1>
                         </div>
                         <div>
                             @if($invoice->due_amount <= 0)
@@ -112,7 +112,7 @@
                     </div>
 
                     {{-- Dates & B2B Details Grid --}}
-                    <div class="p-6 grid grid-cols-2 sm:grid-cols-3 gap-6 border-b border-slate-100 text-xs">
+                    <div class="p-4 sm:p-6 grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 border-b border-slate-100 text-xs">
                         <div>
                             <span class="text-slate-400 font-semibold block">Invoice Date</span>
                             <span class="font-bold text-slate-900 text-sm mt-0.5 block">{{ \Carbon\Carbon::parse($invoice->date)->format('M d, Y') }}</span>
@@ -123,14 +123,14 @@
                                 {{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('M d, Y') : 'Due upon receipt' }}
                             </span>
                         </div>
-                        <div>
+                        <div class="col-span-2 sm:col-span-1">
                             <span class="text-slate-400 font-semibold block">Order Reference</span>
                             <span class="font-bold text-brand-700 text-sm mt-0.5 block">{{ $invoice->order?->order_no ?? 'Direct Invoice' }}</span>
                         </div>
                     </div>
 
                     {{-- Customer & Seller Info --}}
-                    <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50/30 text-xs border-b border-slate-100">
+                    <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50/30 text-xs border-b border-slate-100">
                         <div>
                             <span class="font-bold uppercase tracking-wider text-slate-400 mb-2 block">Billed To</span>
                             <p class="font-bold text-slate-900 text-sm">{{ $invoice->order?->user?->outlet_name ?: ($invoice->order?->user?->name ?? 'Valued Customer') }}</p>
@@ -204,7 +204,7 @@
                     </div>
 
                     {{-- Financial Totals Box --}}
-                    <div class="p-6 bg-slate-50 border-t border-slate-200">
+                    <div class="p-4 sm:p-6 bg-slate-50 border-t border-slate-200">
                         <div class="max-w-xs ml-auto space-y-2 text-xs">
                             <div class="flex justify-between text-slate-600">
                                 <span>Subtotal:</span>
@@ -242,7 +242,7 @@
             <div class="lg:col-span-5 space-y-6">
                 
                 {{-- Payment Card --}}
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sticky top-24">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 sticky top-24">
                     
                     @if($invoice->due_amount <= 0)
                         {{-- Already Paid State --}}
@@ -266,7 +266,7 @@
                             <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Payment Due</span>
                             <div class="flex items-baseline justify-between mt-1">
                                 <span class="text-3xl font-black text-slate-900">kr. {{ number_format($invoice->due_amount, 2) }}</span>
-                                <span class="text-xs font-semibold px-2 py-0.5 bg-amber-50 text-amber-700 rounded-md border border-amber-200">
+                                <span class="text-xs font-semibold px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md border border-blue-200">
                                     DKK
                                 </span>
                             </div>

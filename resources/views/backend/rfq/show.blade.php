@@ -28,7 +28,7 @@
         color: #94a3b8;
     }
     .stepper-step.active {
-        color: #6777ef;
+        color: #2563eb;
     }
     .stepper-step.completed {
         color: #47c363;
@@ -49,7 +49,7 @@
         color: #ffffff;
     }
     .stepper-step.active .step-icon {
-        background: #6777ef;
+        background: #2563eb;
         color: #ffffff;
     }
     .stepper-line {
@@ -84,7 +84,6 @@
         vertical-align: middle !important;
     }
     .cs-enterprise-card {
-        border-left: 4px solid #6777ef !important;
         background: #ffffff;
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.04);
