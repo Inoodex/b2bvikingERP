@@ -146,7 +146,7 @@
                                 <button type="button" class="btn btn-sm btn-primary font-weight-bold shadow-sm mr-1" id="btn-auto-allocate">
                                     <i class="fas fa-bolt mr-1"></i> ⚡ Auto-Allocate (FIFO)
                                 </button>
-                                <button type="button" class="btn btn-sm btn-light border font-weight-bold" id="btn-clear-allocations">
+                                <button type="button" class="btn btn-sm btn-light border font-weight-bold reset-arrow-button" id="btn-clear-allocations">
                                     <i class="fas fa-undo mr-1"></i> Clear
                                 </button>
                             </div>

@@ -214,21 +214,12 @@
     }
     .dataTables_length select {
         height: 36px;
-        border: 1px solid #cbd5e1;
+        border: 1px solid #dc2626;
         border-radius: 6px;
         padding: 4px 8px;
         font-size: 13px;
         margin: 0 4px;
     }
-    .dataTables_filter input {
-        height: 36px;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        padding: 4px 12px;
-        font-size: 13px;
-        margin-left: 6px;
-    }
-
     /* Modal Inspection Card Styles */
     .modal-card-box {
         background: #ffffff;

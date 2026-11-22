@@ -751,7 +751,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <a href="{{ route('admin.reports.stock') }}" class="sr-btn rose w-100" style="margin-top: 4px; justify-content: center;">
+                                    <a href="{{ route('admin.reports.stock') }}" class="sr-btn rose w-100 reset-arrow-button" style="margin-top: 4px; justify-content: center;">
                                         <i class="fas fa-undo"></i> Reset
                                     </a>
                                 </div>
@@ -1059,7 +1059,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <a href="{{ route('admin.reports.stock', ['tab' => 'expected']) }}" class="sr-btn rose w-100" style="margin-top: 4px; justify-content: center; height: 38px;">
+                                    <a href="{{ route('admin.reports.stock', ['tab' => 'expected']) }}" class="sr-btn rose w-100 reset-arrow-button" style="margin-top: 4px; justify-content: center; height: 38px;">
                                         <i class="fas fa-undo"></i> Reset Filters
                                     </a>
                                 </div>

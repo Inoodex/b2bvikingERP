@@ -122,7 +122,7 @@
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <button type="button" id="btn-reset-negotiation-filter" class="btn btn-outline-secondary btn-block font-weight-bold py-2" style="border-radius: 8px;">
+                                <button type="button" id="btn-reset-negotiation-filter" class="btn btn-outline-secondary btn-block font-weight-bold py-2 reset-arrow-button" style="border-radius: 8px;">
                                     <i class="fas fa-undo mr-1"></i> Reset
                                 </button>
                             </div>

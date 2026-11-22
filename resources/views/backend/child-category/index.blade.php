@@ -121,17 +121,17 @@
         align-items: center;
         gap: 6px;
     }
-    #childcategory-table_wrapper .dataTables_length select,
-    #childcategory-table_wrapper .dataTables_filter input {
+    #childcategory-table_wrapper .dataTables_length select {
         border-radius: 8px !important;
-        border: 1.5px solid #dbeafe !important;
         padding: 5px 10px !important;
         font-size: 12px !important;
         background: #fff !important;
         transition: all 0.2s ease;
     }
-    #childcategory-table_wrapper .dataTables_length select:focus,
-    #childcategory-table_wrapper .dataTables_filter input:focus {
+    #childcategory-table_wrapper .dataTables_length select {
+        border: 1.5px solid #dbeafe !important;
+    }
+    #childcategory-table_wrapper .dataTables_length select:focus {
         border-color: var(--pp-teal) !important;
         box-shadow: 0 0 0 3px var(--pp-teal-soft) !important;
         outline: none;
@@ -271,7 +271,6 @@
         #childcategory-table .btn { padding: 4px 8px !important; font-size: 10.5px !important; }
         #childcategory-table .btn + .btn { margin-left: 3px !important; }
         #childcategory-table_wrapper .dataTables_length, #childcategory-table_wrapper .dataTables_filter { padding: 0 4px; margin-bottom: 10px; }
-        #childcategory-table_wrapper .dataTables_filter input { max-width: 170px; }
         #childcategory-table_wrapper .dataTables_info, #childcategory-table_wrapper .dataTables_paginate { padding: 8px 4px 0; font-size: 11px !important; }
         #childcategory-table_wrapper .paginate_button { font-size: 10.5px !important; padding: 4px 8px !important; }
     }
@@ -289,7 +288,6 @@
         #childcategory-table .btn { padding: 4px 7px !important; font-size: 10px !important; }
         #childcategory-table_wrapper .dataTables_length, #childcategory-table_wrapper .dataTables_filter { float: none !important; text-align: left !important; padding: 0 4px; }
         #childcategory-table_wrapper .dataTables_length { margin-bottom: 8px; }
-        #childcategory-table_wrapper .dataTables_filter input { max-width: 100%; width: 100%; margin-left: 0 !important; }
         #childcategory-table_wrapper .dataTables_info, #childcategory-table_wrapper .dataTables_paginate { padding: 8px 4px 0; text-align: left; }
         #childcategory-table_wrapper .paginate_button { font-size: 10px !important; padding: 4px 7px !important; margin: 0 1px; }
     }

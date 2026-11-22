@@ -229,7 +229,7 @@
                                 <div class="row mt-4 pt-3 border-top">
                                     <div class="col-12">
                                         <div class="d-flex flex-column flex-sm-row justify-content-sm-end" style="gap: 12px;">
-                                            <button type="reset" class="btn btn-secondary px-4 order-2 order-sm-1" 
+                                            <button type="reset" class="btn btn-secondary px-4 order-2 order-sm-1 reset-arrow-button"
                                                     style="border-radius: 10px; min-height: 44px; font-weight: 600; transition: all 0.3s ease; color: #ffffff; background: #6c757d; border: none;" id="resetBtn">
                                                 <i class="fas fa-undo mr-1"></i> Reset
                                             </button>

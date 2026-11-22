@@ -26,7 +26,7 @@
                     <tr>
                         <td class="pl-4 text-center">
                             @if($rank === 1)
-                                <span class="badge badge-warning text-dark font-weight-bold px-2 py-0.5" style="background: #fbbf24; font-size: 11px;">
+                                <span class="badge badge-warning font-weight-bold px-2 py-0.5" style="background: #dc2626; font-size: 11px;">
                                     <i class="fas fa-crown mr-1"></i>#1
                                 </span>
                             @elseif($rank === 2)

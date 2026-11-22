@@ -53,7 +53,7 @@
                                         <input type="date" name="end_date" class="form-control filter-input">
                                     </div>
                                     <div class="col-md-2 col-sm-12 mb-2">
-                                        <button type="button" id="btn-reset-filter" class="btn btn-outline-danger btn-block shadow-sm">
+                                        <button type="button" id="btn-reset-filter" class="btn btn-outline-danger btn-block shadow-sm reset-arrow-button">
                                             <i class="fas fa-undo-alt mr-1"></i> Reset Filters
                                         </button>
                                     </div>

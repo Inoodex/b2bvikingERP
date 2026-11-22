@@ -38,7 +38,7 @@ class SalesReturnDataTable extends DataTable
                 if ($totalItems > 0 && $scrapCount === $totalItems) {
                     return '<span class="badge badge-danger"><i class="fas fa-trash-alt mr-1"></i> Scrapped / Damaged</span>';
                 } elseif ($scrapCount > 0 && $restockCount > 0) {
-                    return '<span class="badge badge-warning text-dark"><i class="fas fa-adjust mr-1"></i> Partial Restock</span>';
+                    return '<span class="badge badge-success"><i class="fas fa-adjust mr-1"></i> Partial Restock</span>';
                 }
 
                 return '<span class="badge badge-info"><i class="fas fa-boxes mr-1"></i> Restocked</span>';

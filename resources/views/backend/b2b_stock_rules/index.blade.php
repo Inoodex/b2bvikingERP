@@ -218,7 +218,7 @@
     .select2-container .select2-selection--single {
         height: 38px !important;
         border-radius: 8px !important;
-        border: 1px solid #cbd5e1 !important;
+        border: 1px solid #dc2626 !important;
         display: flex !important;
         align-items: center !important;
     }
@@ -795,7 +795,7 @@
                         <div class="text-muted" style="font-size: 11px;">Filter rules across scopes, accounts and policies</div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-filter-reset" id="btn-reset-filters" title="Reset all filters to default">
+                <button type="button" class="btn btn-filter-reset reset-arrow-button" id="btn-reset-filters" title="Reset all filters to default">
                     <i class="fas fa-undo"></i>
                     <span>Reset Filters</span>
                 </button>
@@ -913,7 +913,7 @@
                         <div class="text-muted" style="font-size: 11px;">Select target customer account and filter catalog products</div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-filter-reset" id="btn-matrix-reset-filter" title="Reset all matrix filters">
+                <button type="button" class="btn btn-filter-reset reset-arrow-button" id="btn-matrix-reset-filter" title="Reset all matrix filters">
                     <i class="fas fa-undo"></i>
                     <span>Reset Filters</span>
                 </button>

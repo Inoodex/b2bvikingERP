@@ -127,7 +127,7 @@
             text-transform: uppercase;
             color: #fff;
         }
-        .badge-warning { background-color: #ffc107; color: #000; }
+        .badge-warning { background-color: #dc2626; color: #fff; }
         .badge-info { background-color: #17a2b8; }
         .badge-primary { background-color: #2563eb; }
         .badge-success { background-color: #28a745; }

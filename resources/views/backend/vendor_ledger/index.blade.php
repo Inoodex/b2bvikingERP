@@ -161,18 +161,6 @@
         #vendor-ledger-table_wrapper {
             padding: 8px 4px;
         }
-        #vendor-ledger-table_wrapper .dataTables_filter input {
-            border-radius: 8px;
-            border: 1px solid #cbd5e1;
-            padding: 6px 12px;
-            font-size: 13px;
-            outline: none;
-            transition: border-color 0.15s ease;
-        }
-        #vendor-ledger-table_wrapper .dataTables_filter input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
         #vendor-ledger-table_wrapper .dataTables_length select {
             border-radius: 8px;
             border: 1px solid #cbd5e1;

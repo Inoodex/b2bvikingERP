@@ -42,22 +42,6 @@
         align-items: center;
         gap: 8px;
     }
-    #role-table_wrapper .dataTables_filter input {
-        border: 1px solid #dbeafe !important;
-        border-radius: 4px !important;
-        padding: 6px 12px !important;
-        height: 35px !important;
-        font-size: 13px !important;
-        background-color: #fdfdff !important;
-        width: 220px !important;
-        transition: all 0.3s ease;
-    }
-    #role-table_wrapper .dataTables_filter input:focus {
-        width: 260px !important;
-        border-color: #2563eb !important;
-        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.2) !important;
-    }
-
     /* Table Typography */
     #role-table thead th {
         background: #2563eb !important;
@@ -153,9 +137,6 @@
             text-align: left !important;
             justify-content: flex-start !important;
             margin-bottom: 10px;
-        }
-        #role-table_wrapper .dataTables_filter input {
-            width: 100% !important;
         }
         #role-table_wrapper .dataTables_paginate {
             justify-content: flex-start !important;

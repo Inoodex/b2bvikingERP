@@ -73,7 +73,7 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <button id="tc-clear" class="btn btn-sm btn-outline-secondary" style="height:38px; border-radius:6px; font-size:12px; display:none;">
+                                <button id="tc-clear" class="btn btn-sm btn-outline-secondary reset-arrow-button" style="height:38px; border-radius:6px; font-size:12px; display:none;">
                                     <i class="fas fa-undo mr-1"></i> Clear
                                 </button>
                                 <div id="tc-loading" class="spinner-border spinner-border-sm text-primary ml-1" role="status" style="display:none;"></div>

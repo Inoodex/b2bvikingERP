@@ -18,7 +18,7 @@
             <div class="card-header">
                 <h4><i class="fas fa-filter mr-2 text-primary"></i>Filter Options</h4>
                 <div class="card-header-action">
-                    <a href="{{ route('admin.reports.current-stock') }}" class="btn btn-outline-danger btn-sm">
+                    <a href="{{ route('admin.reports.current-stock') }}" class="btn btn-outline-danger btn-sm reset-arrow-button">
                         <i class="fas fa-undo mr-1"></i>Reset
                     </a>
                 </div>

@@ -4,10 +4,10 @@
 @push('css')
 <style>
     :root {
-        --pp-amber: #d4a24e;
-        --pp-amber-bright: #ecc78b;
-        --pp-amber-deep: #b8852a;
-        --pp-amber-soft: rgba(212, 162, 78, 0.08);
+        --pp-blue: #2563eb;
+        --pp-blue-bright: #3b82f6;
+        --pp-blue-deep: #1d4ed8;
+        --pp-blue-soft: rgba(37, 99, 235, 0.08);
         --pp-teal: #328A9A;
         --pp-teal-soft: rgba(50, 138, 154, 0.12);
         --pp-border: rgba(11, 17, 32, 0.07);
@@ -52,9 +52,9 @@
         justify-content: center;
         border-radius: 10px;
         font-size: 14px;
-        color: #1a1306;
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber));
-        box-shadow: 0 4px 14px rgba(212, 162, 78, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+        color: #ffffff;
+        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue));
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
     }
     .pp-btn {
         border: none !important;
@@ -69,12 +69,12 @@
     }
     .pp-btn:hover { transform: translateY(-2px); }
     .pp-btn:active { transform: translateY(0) scale(0.97); }
-    .pp-btn-amber {
-        background: linear-gradient(145deg, var(--pp-amber-bright), var(--pp-amber-deep)) !important;
-        color: #1a1306 !important;
-        box-shadow: 0 4px 14px -4px rgba(212, 162, 78, 0.45), inset 0 1px 0 rgba(255,255,255,0.25);
+    .pp-btn-blue {
+        background: linear-gradient(145deg, var(--pp-blue-bright), var(--pp-blue-deep)) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 14px -4px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255,255,255,0.25);
     }
-    .pp-btn-amber:hover { filter: brightness(1.06); box-shadow: 0 8px 24px -6px rgba(212, 162, 78, 0.5); }
+    .pp-btn-blue:hover { filter: brightness(1.06); box-shadow: 0 8px 24px -6px rgba(37, 99, 235, 0.5); }
 
     .pp-card {
         border-radius: var(--pp-radius-md) !important;
@@ -105,35 +105,32 @@
         align-items: center;
         gap: 8px;
     }
-    .pp-card-header h4 i { color: var(--pp-amber); }
+    .pp-card-header h4 i { color: var(--pp-blue); }
 
     #subcategory-table_wrapper {
         padding: 4px 0 0;
     }
     .pp-table-container {
-        overflow: visible !important;
-    }
-    #subcategory-table_wrapper .dataTables_scrollBody {
         overflow-x: auto !important;
         overflow-y: hidden !important;
         scrollbar-width: auto;
         scrollbar-color: #2563eb #e2e8f0;
         -webkit-overflow-scrolling: touch;
     }
-    #subcategory-table_wrapper .dataTables_scrollBody::-webkit-scrollbar {
+    .pp-table-container::-webkit-scrollbar {
         height: 10px;
         display: block;
     }
-    #subcategory-table_wrapper .dataTables_scrollBody::-webkit-scrollbar-track {
+    .pp-table-container::-webkit-scrollbar-track {
         background: #e2e8f0;
         border-radius: 5px;
     }
-    #subcategory-table_wrapper .dataTables_scrollBody::-webkit-scrollbar-thumb {
+    .pp-table-container::-webkit-scrollbar-thumb {
         background: #2563eb;
         border: 2px solid #e2e8f0;
         border-radius: 5px;
     }
-    #subcategory-table_wrapper .dataTables_scrollBody::-webkit-scrollbar-thumb:hover {
+    .pp-table-container::-webkit-scrollbar-thumb:hover {
         background: #1d4ed8;
     }
     #subcategory-table_wrapper .dataTables_length label,
@@ -145,22 +142,21 @@
         align-items: center;
         gap: 6px;
     }
-    #subcategory-table_wrapper .dataTables_length select,
-    #subcategory-table_wrapper .dataTables_filter input {
+    #subcategory-table_wrapper .dataTables_length select {
         border-radius: 8px !important;
-        border: 1.5px solid #dbeafe !important;
         padding: 5px 10px !important;
         font-size: 12px !important;
         background: #fff !important;
         transition: all 0.2s ease;
     }
-    #subcategory-table_wrapper .dataTables_length select:focus,
-    #subcategory-table_wrapper .dataTables_filter input:focus {
+    #subcategory-table_wrapper .dataTables_length select {
+        border: 1.5px solid #dbeafe !important;
+    }
+    #subcategory-table_wrapper .dataTables_length select:focus {
         border-color: var(--pp-teal) !important;
         box-shadow: 0 0 0 3px var(--pp-teal-soft) !important;
         outline: none;
     }
-
     #subcategory-table {
         font-size: 12px !important;
         border-collapse: separate;
@@ -199,13 +195,13 @@
         transition: background 0.15s;
     }
     #subcategory-table tbody tr:hover td {
-        background: var(--pp-amber-soft) !important;
+        background: var(--pp-blue-soft) !important;
     }
     #subcategory-table tbody tr:nth-child(even) td {
         background: var(--pp-surface);
     }
     #subcategory-table tbody tr:nth-child(even):hover td {
-        background: var(--pp-amber-soft) !important;
+        background: var(--pp-blue-soft) !important;
     }
 
     #subcategory-table .btn {
@@ -296,14 +292,13 @@
         .pp-header h1 .pp-icon { width: 30px; height: 30px; min-width: 30px; font-size: 13px; }
         .pp-card { border-radius: 12px !important; }
         .pp-card-header { padding: 12px 16px !important; }
-        .pp-table-container { padding: 12px 14px !important; overflow: visible !important; width: 100% !important; }
+        .pp-table-container { padding: 12px 14px !important; overflow-x: auto !important; overflow-y: hidden !important; width: 100% !important; }
         #subcategory-table { width: 100% !important; min-width: 100% !important; }
         #subcategory-table thead th { font-size: 10.5px !important; padding: 10px 8px !important; }
         #subcategory-table tbody td { font-size: 11px !important; padding: 9px 8px !important; }
         #subcategory-table .btn { padding: 4px 8px !important; font-size: 10.5px !important; }
         #subcategory-table .btn + .btn { margin-left: 3px !important; }
         #subcategory-table_wrapper .dataTables_length, #subcategory-table_wrapper .dataTables_filter { padding: 0 4px; margin-bottom: 10px; }
-        #subcategory-table_wrapper .dataTables_filter input { max-width: 170px; }
         #subcategory-table_wrapper .dataTables_info, #subcategory-table_wrapper .dataTables_paginate { padding: 8px 4px 0; font-size: 11px !important; }
         #subcategory-table_wrapper .paginate_button { font-size: 10.5px !important; padding: 4px 8px !important; }
     }
@@ -314,14 +309,13 @@
         .pp-header h1 { font-size: 16px; gap: 8px; }
         .pp-header h1 .pp-icon { width: 28px; height: 28px; min-width: 28px; font-size: 12px; }
         .pp-card-header { flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px 14px !important; }
-        .pp-table-container { padding: 10px 10px !important; overflow: visible !important; }
+        .pp-table-container { padding: 10px 10px !important; overflow-x: auto !important; overflow-y: hidden !important; }
         #subcategory-table { width: 100% !important; min-width: 580px !important; table-layout: auto !important; }
         #subcategory-table thead th { font-size: 9.5px !important; padding: 8px 5px !important; white-space: nowrap !important; }
         #subcategory-table tbody td { font-size: 10.5px !important; padding: 8px 5px !important; white-space: nowrap !important; }
         #subcategory-table .btn { padding: 4px 7px !important; font-size: 10px !important; }
         #subcategory-table_wrapper .dataTables_length, #subcategory-table_wrapper .dataTables_filter { float: none !important; text-align: left !important; padding: 0 4px; }
         #subcategory-table_wrapper .dataTables_length { margin-bottom: 8px; }
-        #subcategory-table_wrapper .dataTables_filter input { max-width: 100%; width: 100%; margin-left: 0 !important; }
         #subcategory-table_wrapper .dataTables_info, #subcategory-table_wrapper .dataTables_paginate { padding: 8px 4px 0; text-align: left; }
         #subcategory-table_wrapper .paginate_button { font-size: 10px !important; padding: 4px 7px !important; margin: 0 1px; }
         #subcategory-table_wrapper .dataTables_paginate .pagination { flex-wrap: wrap !important; gap: 2px; margin-bottom: 0; }
@@ -337,7 +331,7 @@
                 Sub Category
             </h1>
             <div>
-                <a href="{{ route('admin.sub-category.create') }}" class="btn pp-btn pp-btn-amber shadow-sm">
+                <a href="{{ route('admin.sub-category.create') }}" class="btn pp-btn pp-btn-blue shadow-sm">
                     <i class="fas fa-plus mr-1"></i> Create New
                 </a>
             </div>

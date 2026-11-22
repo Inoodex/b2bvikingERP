@@ -21,7 +21,7 @@ class OutletDataTable extends DataTable
                 } elseif ($query->type === 'retail') {
                     return '<span class="badge badge-info"><i class="fas fa-store mr-1"></i> Retail Store</span>';
                 } else {
-                    return '<span class="badge badge-warning"><i class="fas fa-truck-loading mr-1"></i> Wholesale Hub</span>';
+                    return '<span class="badge badge-light border text-dark"><i class="fas fa-truck-loading mr-1"></i> Wholesale Hub</span>';
                 }
             })
             ->addColumn('company', function ($query) {

@@ -241,7 +241,7 @@
                                      @php
                                          $paymentStatusClass = match($purchase->payment_status) {
                                              'paid' => 'success',
-                                             'partial' => 'warning',
+                                             'partial' => 'success',
                                              default => 'secondary',
                                          };
                                      @endphp

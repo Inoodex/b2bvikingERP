@@ -120,7 +120,7 @@
                             </select>
                         </div>
                         <div class="col-lg-3 col-md-6 col-6 form-group mb-lg-0 mb-3 d-flex align-items-center">
-                            <button type="button" id="btn-reset" class="btn btn-sm d-inline-flex align-items-center font-weight-bold mr-2" style="background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px; height: 35px; padding: 0 16px; transition: all 0.2s;" title="Reset Filters">
+                            <button type="button" id="btn-reset" class="btn reset-arrow-button btn-sm d-inline-flex align-items-center font-weight-bold mr-2" style="background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px; height: 35px; padding: 0 16px; transition: all 0.2s;" title="Reset Filters">
                                 <i class="fas fa-undo mr-1.5"></i> Reset
                             </button>
                         </div>

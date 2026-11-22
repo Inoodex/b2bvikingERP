@@ -7,6 +7,7 @@
         height: 42px;
         padding-right: 40px;
         border-radius: 12px;
+        position: relative;
     }
 
     .bank-reconciliation-page #bankAccountFilter + .select2-container .select2-selection__rendered {

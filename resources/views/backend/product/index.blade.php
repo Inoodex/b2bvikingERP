@@ -1623,7 +1623,7 @@
                                     </div>
                                     <div class="col-12 col-md-2">
                                         <button type="button" id="reset-filters"
-                                            class="btn pp-btn pp-btn-reset btn-sm shadow-sm w-100 d-flex align-items-center justify-content-center"
+                                            class="btn pp-btn pp-btn-reset btn-sm shadow-sm w-100 d-flex align-items-center justify-content-center reset-arrow-button"
                                             style="height: 36px;">
                                             <i class="fas fa-undo mr-1"></i> Reset Filters
                                         </button>

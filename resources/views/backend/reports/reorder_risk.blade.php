@@ -391,7 +391,7 @@
                                 </div>
                             </div>
                             <div class="col-lg-2 col-md-4 col-12">
-                                <a href="{{ route('admin.reports.reorder-risk') }}" class="btn btn-filter-reset btn-block" title="Reset all filters">
+                                <a href="{{ route('admin.reports.reorder-risk') }}" class="btn btn-filter-reset reset-arrow-button btn-block" title="Reset all filters">
                                     <i class="fas fa-undo"></i>
                                     <span>Reset</span>
                                 </a>

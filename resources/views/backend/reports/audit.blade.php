@@ -999,7 +999,7 @@
 
                 <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
                     <label class="filter-label d-none d-lg-block" style="visibility: hidden;">Reset</label>
-                    <a href="{{ route('admin.reports.audit') }}" class="btn btn-filter-reset {{ $hasActiveFilters ? 'btn-filter-reset-active' : 'btn-filter-reset-idle' }}" id="btnResetFilters" title="{{ $hasActiveFilters ? 'Clear all applied filters' : 'Filters are currently at default state' }}">
+                    <a href="{{ route('admin.reports.audit') }}" class="btn btn-filter-reset reset-arrow-button {{ $hasActiveFilters ? 'btn-filter-reset-active' : 'btn-filter-reset-idle' }}" id="btnResetFilters" title="{{ $hasActiveFilters ? 'Clear all applied filters' : 'Filters are currently at default state' }}">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline></svg>
                         <span>Reset Filters</span>
                         @if($hasActiveFilters)

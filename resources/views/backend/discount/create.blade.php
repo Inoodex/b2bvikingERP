@@ -160,7 +160,7 @@
 
                                 {{-- Submit Buttons --}}
                                 <div class="text-right mt-4 pt-3 border-top">
-                                    <button type="reset" class="btn btn-outline-secondary px-4 mr-2">
+                                    <button type="reset" class="btn btn-outline-secondary px-4 mr-2 reset-arrow-button">
                                         <i class="fas fa-undo mr-1"></i> Reset
                                     </button>
                                     <button type="submit" class="btn btn-primary px-5 shadow-sm">

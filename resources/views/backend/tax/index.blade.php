@@ -150,8 +150,8 @@
     }
 
     .badge-warning {
-        background: linear-gradient(135deg, #E11835, #dda20a) !important;
-        color: #1a1a2e !important;
+        background: #dc2626 !important;
+        color: #ffffff !important;
     }
 
     .badge-primary {
@@ -348,22 +348,6 @@
         box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
     }
 
-    .dataTables_wrapper .dataTables_filter input {
-        border-radius: 8px !important;
-        border: 1.5px solid #e2e8f0 !important;
-        padding: 0.35rem 0.7rem !important;
-        font-size: 0.8rem !important;
-        background: #fafbfc !important;
-        transition: all 0.3s ease !important;
-        height: 38px !important;
-    }
-
-    .dataTables_wrapper .dataTables_filter input:focus {
-        border-color: #2563eb !important;
-        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
-        background: #ffffff !important;
-    }
-
     .dataTables_wrapper .dataTables_length select {
         border-radius: 8px !important;
         border: 1.5px solid #e2e8f0 !important;
@@ -493,11 +477,6 @@
             transform: translateX(0.9rem) !important;
         }
         
-        .dataTables_wrapper .dataTables_filter input {
-            width: 120px !important;
-            font-size: 0.7rem !important;
-            height: 34px !important;
-        }
         .dataTables_wrapper .dataTables_paginate .paginate_button {
             padding: 0.15rem 0.4rem !important;
             font-size: 0.65rem !important;
@@ -540,9 +519,6 @@
             width: 30px !important;
             height: 30px !important;
             min-height: 30px !important;
-        }
-        .dataTables_wrapper .dataTables_filter input {
-            width: 150px !important;
         }
         .section-header .ml-auto {
             flex-wrap: wrap !important;
@@ -587,9 +563,6 @@
         .card-body {
             padding: 15px !important;
         }
-        .dataTables_wrapper .dataTables_filter input {
-            width: 180px !important;
-        }
     }
 
     @media (min-width: 992px) {
@@ -600,9 +573,6 @@
         .table th {
             font-size: 0.75rem !important;
             padding: 0.75rem 1rem !important;
-        }
-        .dataTables_wrapper .dataTables_filter input {
-            width: 220px !important;
         }
     }
 

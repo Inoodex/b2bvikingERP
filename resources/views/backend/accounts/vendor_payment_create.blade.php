@@ -293,7 +293,7 @@
 
     .badge-warning {
         background: #E11835 !important;
-        color: #1a1a2e !important;
+        color: #ffffff !important;
     }
 
     .badge-success {
@@ -586,7 +586,7 @@
     $(document).ready(function() {
         const statusClasses = {
             pending: 'badge-secondary',
-            partial: 'badge-warning',
+            partial: 'badge-success',
             paid: 'badge-success'
         };
 
@@ -643,7 +643,7 @@
                         $('#due_amount').text(purchase.due_amount);
                         $('#payment_status')
                             .text(purchase.payment_status)
-                            .removeClass('badge-secondary badge-warning badge-success')
+                            .removeClass('badge-secondary badge-warning badge-success badge-light border text-dark')
                             .addClass(statusClasses[normalizedStatus] || 'badge-secondary');
 
                         $('#payment_form').attr('action', `/admin/accounts/purchases/${purchase.id}/payment`);

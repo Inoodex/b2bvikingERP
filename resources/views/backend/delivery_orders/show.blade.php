@@ -147,7 +147,7 @@
                                     @if ($fulfillmentStatus === 'fully_delivered')
                                         <span class="badge badge-success px-2">Fully Delivered</span>
                                     @elseif ($fulfillmentStatus === 'partially_delivered')
-                                        <span class="badge badge-warning px-2">Partially Delivered</span>
+                                        <span class="badge badge-success px-2">Partially Delivered</span>
                                     @else
                                         <span class="badge badge-secondary px-2">Unfulfilled</span>
                                     @endif

@@ -90,7 +90,7 @@
 
 <style>
     :root {
-        --sb-width: 268px;
+        --sb-width: 284px;
         --sb-width-collapsed: 80px;
         --tb-height: 68px;
         --tb-height-mobile: 58px;
@@ -1083,7 +1083,7 @@
         flex: 1;
         overflow-y: auto;
         overflow-x: hidden;
-        padding: 14px 12px 40px;
+        padding: 14px 10px 40px;
         scrollbar-width: thin;
         scrollbar-color: #2563eb transparent;
     }
@@ -1241,7 +1241,7 @@
     .sb-submenu::before {
         content: '';
         position: absolute;
-        left: 24px;
+        left: 20px;
         top: 2px;
         bottom: 10px;
         width: 1px;
@@ -1252,15 +1252,16 @@
         position: relative;
         display: flex;
         align-items: center;
-        gap: 11px;
-        padding: 9px 12px 9px 42px;
+        gap: 9px;
+        padding: 8px 10px 8px 34px;
         color: rgba(255, 255, 255, 0.68);
         font-size: 12px;
         font-weight: 500;
         text-decoration: none;
         border-radius: 8px;
         transition: all 0.18s ease;
-        white-space: nowrap;
+        line-height: 1.35;
+        white-space: normal;
     }
 
     .sb-submenu li a i {
@@ -1268,6 +1269,7 @@
         width: 14px;
         color: rgba(226, 220, 205, 0.28);
         transition: color 0.15s ease;
+        flex-shrink: 0;
     }
 
     .sb-submenu li a:hover {
@@ -1313,7 +1315,7 @@
     }
 
     .sb-submenu .sb-submenu-header {
-        padding: 10px 12px 3px 42px;
+        padding: 10px 10px 3px 34px;
         color: var(--nb-brand);
         font-family: var(--nb-font-display);
         font-size: 9px;
@@ -1324,7 +1326,7 @@
     }
 
     .sb-submenu-divider {
-        margin: 5px 14px 5px 42px;
+        margin: 5px 12px 5px 34px;
         border-top: 1px solid var(--nb-border);
     }
 

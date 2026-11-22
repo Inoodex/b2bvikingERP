@@ -120,7 +120,7 @@
                         </div>
                         <div class="row">
                             <div class="col-12 text-right">
-                                <a href="{{ route('admin.reports.best-sellers') }}" class="btn btn-danger btn-sm" id="btn-reset"><i class="fas fa-undo"></i> Reset Filters</a>
+                                <a href="{{ route('admin.reports.best-sellers') }}" class="btn btn-danger btn-sm reset-arrow-button" id="btn-reset"><i class="fas fa-undo"></i> Reset Filters</a>
                             </div>
                         </div>
                     </form>
@@ -360,7 +360,7 @@
                 totalAssigned += recommendedQty;
 
                 var medal = idx === 0 
-                    ? '<span class="badge badge-warning text-dark font-weight-bold px-2 py-0.5" style="font-size: 11px; background: #fbbf24;"><i class="fas fa-crown mr-0.5"></i>#1</span>'
+                    ? '<span class="badge badge-warning font-weight-bold px-2 py-0.5" style="font-size: 11px; background: #dc2626;"><i class="fas fa-crown mr-0.5"></i>#1</span>'
                     : (idx === 1 
                         ? '<span class="badge badge-secondary font-weight-bold px-2 py-0.5" style="font-size: 11px;"><i class="fas fa-medal mr-0.5"></i>#2</span>'
                         : (idx === 2 

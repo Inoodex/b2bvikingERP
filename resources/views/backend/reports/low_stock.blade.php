@@ -402,7 +402,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-2 col-sm-6">
-                                    <button type="button" id="btn-reset-filter" class="sr-btn rose w-100" style="margin-top: 4px; justify-content: center; height: 38px;">
+                                    <button type="button" id="btn-reset-filter" class="sr-btn rose w-100 reset-arrow-button" style="margin-top: 4px; justify-content: center; height: 38px;">
                                         <i class="fas fa-undo"></i> Reset
                                     </button>
                                 </div>

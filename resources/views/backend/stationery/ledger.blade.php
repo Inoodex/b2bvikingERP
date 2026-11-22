@@ -75,7 +75,7 @@
                         <button type="submit" class="btn font-weight-bold flex-fill shadow-sm" style="background: #0f172a; color: #fff; border-radius: 8px;">
                             <i class="fas fa-filter mr-1"></i> Filter
                         </button>
-                        <a href="{{ route('admin.stationery-supplies.ledger') }}" class="btn btn-light border" title="Reset Filters" style="border-radius: 8px;">
+                        <a href="{{ route('admin.stationery-supplies.ledger') }}" class="btn btn-light border reset-arrow-button" title="Reset Filters" style="border-radius: 8px;">
                             <i class="fas fa-undo text-muted"></i>
                         </a>
                     </div>

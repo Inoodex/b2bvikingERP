@@ -54,7 +54,7 @@
                     <button type="button" id="btn-generate-pdf" class="btn btn-primary btn-sm mr-1" style="border-radius:6px;" title="Generate PDF in Background" data-url="{{ route('admin.accounts.payments.pdf') }}" data-type="customer_ledger">
                         <i class="fas fa-file-pdf mr-1"></i> PDF
                     </button>
-                    <button type="button" id="btn-reset" class="btn btn-light border btn-sm" style="border-radius:6px;" title="Reset Filters">
+                    <button type="button" id="btn-reset" class="btn btn-light border btn-sm reset-arrow-button" style="border-radius:6px;" title="Reset Filters">
                         <i class="fas fa-undo"></i>
                     </button>
                 </form>

@@ -149,7 +149,7 @@
 
     .badge-warning {
         background: #E11835 !important;
-        color: #1a1a2e !important;
+        color: #ffffff !important;
     }
 
     .badge-primary {
@@ -376,21 +376,6 @@
         box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
     }
 
-    .dataTables_wrapper .dataTables_filter input {
-        border-radius: 8px !important;
-        border: 1.5px solid #e2e8f0 !important;
-        padding: 0.4rem 0.75rem !important;
-        font-size: 0.85rem !important;
-        background: #fafbfc !important;
-        transition: all 0.3s ease !important;
-    }
-
-    .dataTables_wrapper .dataTables_filter input:focus {
-        border-color: #2563eb !important;
-        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
-        background: #ffffff !important;
-    }
-
     .dataTables_wrapper .dataTables_length select {
         border-radius: 8px !important;
         border: 1.5px solid #e2e8f0 !important;
@@ -501,10 +486,6 @@
         }
         .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
             transform: translateX(0.9rem) !important;
-        }
-        .dataTables_wrapper .dataTables_filter input {
-            width: 120px !important;
-            font-size: 0.7rem !important;
         }
         .dataTables_wrapper .dataTables_paginate .paginate_button {
             padding: 0.15rem 0.4rem !important;

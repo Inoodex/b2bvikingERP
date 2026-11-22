@@ -59,7 +59,7 @@
                             </select>
                         </div>
                         <div class="col-md-1 mb-2">
-                            <button type="button" id="btn-reset-filter" class="btn btn-outline-danger btn-block shadow-sm" title="Reset Filters">
+                            <button type="button" id="btn-reset-filter" class="btn btn-outline-danger btn-block shadow-sm reset-arrow-button" title="Reset Filters">
                                 <i class="fas fa-undo-alt"></i>
                             </button>
                         </div>

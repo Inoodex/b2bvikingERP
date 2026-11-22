@@ -937,6 +937,7 @@
                                                 'processing' => 'badge-primary',
                                                 'credit_hold' => 'badge-danger',
                                                 'cancelled', 'rejected' => 'badge-secondary',
+                                                'pending' => 'badge-danger',
                                                 default => 'badge-warning',
                                             };
                                             $clientName =

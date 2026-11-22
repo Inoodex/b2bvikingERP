@@ -101,7 +101,7 @@
                         </div>
                         <div class="col-lg-2 col-md-2">
                             <label class="font-weight-bold text-dark mb-1 d-none d-md-block" style="font-size: 12px; visibility: hidden;">Reset</label>
-                            <button type="button" id="btn-reset" class="btn btn-danger font-weight-bold w-100 d-inline-flex align-items-center justify-content-center" style="border-radius: 8px; height: 38px; font-size: 13px;" title="Reset all filters">
+                            <button type="button" id="btn-reset" class="btn btn-danger font-weight-bold w-100 d-inline-flex align-items-center justify-content-center reset-arrow-button" style="border-radius: 8px; height: 38px; font-size: 13px;" title="Reset all filters">
                                 <i class="fas fa-undo mr-1.5"></i> Reset
                             </button>
                         </div>

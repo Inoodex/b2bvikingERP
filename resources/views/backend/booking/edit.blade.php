@@ -94,7 +94,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <button type="button" class="btn btn-outline-secondary btn-block" id="reset_filters">
+                                        <button type="button" class="btn btn-outline-secondary btn-block reset-arrow-button" id="reset_filters">
                                             <i class="fas fa-undo"></i> Reset Filters
                                         </button>
                                     </div>

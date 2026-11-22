@@ -48,7 +48,7 @@
                     <i class="fas fa-times-circle mr-1"></i> Rejected
                 </span>
             @else
-                <span class="badge badge-warning text-dark font-weight-bold px-2 py-1" style="background: #fef08a;">
+                <span class="badge badge-warning text-white font-weight-bold px-2 py-1" style="background: #dc2626;">
                     <i class="fas fa-hourglass-half mr-1"></i> In Progress
                 </span>
             @endif
@@ -105,7 +105,7 @@
                                     @elseif($isStepRejected)
                                         <span class="badge badge-danger px-2 py-1 font-weight-bold" style="font-size: 10px;">Rejected</span>
                                     @elseif($isPending)
-                                        <span class="badge badge-warning text-dark px-2 py-1 font-weight-bold" style="font-size: 10px; background: #fbbf24;">Waiting Authorization</span>
+                                        <span class="badge badge-warning text-white px-2 py-1 font-weight-bold" style="font-size: 10px; background: #dc2626;">Waiting Authorization</span>
                                     @else
                                         <span class="badge badge-secondary px-2 py-1" style="font-size: 10px;">Locked</span>
                                     @endif

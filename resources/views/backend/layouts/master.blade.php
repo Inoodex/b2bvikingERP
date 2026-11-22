@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
   <!-- laravel ajax csrf token -->
   <meta name="csrf-token" content="{{ csrf_token() }}" />
 
@@ -229,11 +229,49 @@
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 
+  <!-- Universal DataTables Pagination Pattern: 1, 2, 3 ... [Last] Next -->
+  <script>
+    (function($) {
+      if (!$ || !$.fn || !$.fn.dataTable) return;
+      $.fn.dataTable.ext.errMode = 'none';
+
+      function customDtNumbers(page, pages) {
+        var numbers = [];
+        if (pages <= 4) {
+          for (var i = 0; i < pages; i++) numbers.push(i);
+        } else if (page <= 2) {
+          numbers = [0, 1, 2, 'ellipsis', pages - 1];
+        } else if (page >= pages - 3) {
+          numbers = [0, 'ellipsis', pages - 3, pages - 2, pages - 1];
+        } else {
+          numbers = [0, 'ellipsis', page - 1, page, page + 1, 'ellipsis', pages - 1];
+        }
+        numbers.DT_el = 'span';
+        return numbers;
+      }
+
+      if ($.fn.dataTable.ext && $.fn.dataTable.ext.pager) {
+        $.fn.dataTable.ext.pager._numbers = customDtNumbers;
+        $.fn.dataTable.ext.pager.simple_numbers = function(page, pages) {
+          return ['previous', customDtNumbers(page, pages), 'next'];
+        };
+        $.fn.dataTable.ext.pager.full_numbers = function(page, pages) {
+          return ['first', 'previous', customDtNumbers(page, pages), 'next', 'last'];
+        };
+        $.fn.dataTable.ext.pager.numbers = function(page, pages) {
+          return [customDtNumbers(page, pages)];
+        };
+      }
+
+      if ($.fn.dataTable.defaults) {
+        $.fn.dataTable.defaults.pagingType = 'simple_numbers';
+      }
+    })(window.jQuery);
+  </script>
 
   <!-- Dynamic Delete alert -->
   <script>
   $(document).ready(function() {
-    $.fn.dataTable.ext.errMode = 'none';
 
     $.ajaxSetup({
       headers: {

@@ -259,7 +259,7 @@
                                                     <td class="text-right text-success">{!! formatConverted($order->paid_amount) !!}</td>
                                                     <td class="text-right {{ $order->due_amount > 0 ? 'text-danger font-weight-bold' : 'text-muted' }}">{!! formatConverted($order->due_amount) !!}</td>
                                                     <td>
-                                                        <span class="badge badge-{{ $order->payment_status === 'paid' ? 'success' : ($order->payment_status === 'partial' ? 'warning' : 'danger') }}">
+                                                        <span class="badge {{ $order->payment_status === 'paid' ? 'badge-success' : ($order->payment_status === 'partial' ? 'badge-success' : 'badge-danger') }}">
                                                             {{ ucfirst($order->payment_status) }}
                                                         </span>
                                                     </td>

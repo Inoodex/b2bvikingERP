@@ -72,7 +72,7 @@
                                                     @php
                                                         $paymentClass = match($purchase->payment_status) {
                                                             'paid' => 'badge-success',
-                                                            'partial' => 'badge-warning',
+                                                            'partial' => 'badge-success',
                                                             default => 'badge-secondary',
                                                         };
                                                     @endphp

@@ -73,7 +73,7 @@
     }
     .pp-btn-blue:hover { filter: brightness(1.06); box-shadow: 0 8px 24px -6px rgba(37, 99, 235, 0.5); }
     .pp-btn-outline {
-        border: 1.5px solid var(--pp-border) !important;
+        border: 1.5px solid #dc2626 !important;
         color: var(--pp-ink-soft) !important;
         background: transparent !important;
     }
@@ -121,17 +121,17 @@
         font-weight: 600;
         color: var(--pp-muted);
     }
-    #permission-table_wrapper .dataTables_length select,
-    #permission-table_wrapper .dataTables_filter input {
+    #permission-table_wrapper .dataTables_length select {
         border-radius: 10px !important;
-        border: 1.5px solid var(--pp-border) !important;
         padding: 4px 10px !important;
         font-size: 12px !important;
         background: #fff !important;
         transition: all 0.2s ease;
     }
-    #permission-table_wrapper .dataTables_length select:focus,
-    #permission-table_wrapper .dataTables_filter input:focus {
+    #permission-table_wrapper .dataTables_length select {
+        border: 1.5px solid var(--pp-border) !important;
+    }
+    #permission-table_wrapper .dataTables_length select:focus {
         border-color: var(--pp-blue) !important;
         box-shadow: 0 0 0 3px var(--pp-blue-soft) !important;
         outline: none;
@@ -225,7 +225,6 @@
         #permission-table_wrapper .dataTables_length,
         #permission-table_wrapper .dataTables_filter { float: none !important; text-align: left !important; padding: 0 10px; }
         #permission-table_wrapper .dataTables_length { margin-bottom: 6px; }
-        #permission-table_wrapper .dataTables_filter input { max-width: 160px; }
         #permission-table_wrapper .dataTables_info { font-size: 10px; padding: 8px 10px 0; text-align: left; }
         #permission-table_wrapper .dataTables_paginate { padding: 8px 10px 0; text-align: left; }
         #permission-table_wrapper .paginate_button { font-size: 10px !important; padding: 4px 8px !important; margin: 0 1px; }

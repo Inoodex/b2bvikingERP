@@ -114,20 +114,19 @@
         color: var(--pp-muted);
     }
     #category-table_wrapper .dataTables_length select,
-    #category-table_wrapper .dataTables_filter input,
-    #brand-table_wrapper .dataTables_length select,
-    #brand-table_wrapper .dataTables_filter input {
+    #brand-table_wrapper .dataTables_length select {
         border-radius: 10px !important;
-        border: 1.5px solid var(--pp-border) !important;
         padding: 4px 10px !important;
         font-size: 12px !important;
         background: #fff !important;
         transition: all 0.2s ease;
     }
+    #category-table_wrapper .dataTables_length select,
+    #brand-table_wrapper .dataTables_length select {
+        border: 1.5px solid var(--pp-border) !important;
+    }
     #category-table_wrapper .dataTables_length select:focus,
-    #category-table_wrapper .dataTables_filter input:focus,
-    #brand-table_wrapper .dataTables_length select:focus,
-    #brand-table_wrapper .dataTables_filter input:focus {
+    #brand-table_wrapper .dataTables_length select:focus {
         border-color: var(--pp-amber) !important;
         box-shadow: 0 0 0 3px var(--pp-amber-soft) !important;
         outline: none;
@@ -254,7 +253,6 @@
         #category-table tbody td, #brand-table tbody td { font-size: 11px !important; padding: 9px 8px !important; }
         #category-table_wrapper .dataTables_length, #brand-table_wrapper .dataTables_length,
         #category-table_wrapper .dataTables_filter, #brand-table_wrapper .dataTables_filter { padding: 0 4px; margin-bottom: 10px; }
-        #category-table_wrapper .dataTables_filter input, #brand-table_wrapper .dataTables_filter input { max-width: 170px; }
         #category-table_wrapper .dataTables_info, #brand-table_wrapper .dataTables_info,
         #category-table_wrapper .dataTables_paginate, #brand-table_wrapper .dataTables_paginate { padding: 8px 4px 0; font-size: 11px !important; }
         #category-table_wrapper .paginate_button, #brand-table_wrapper .paginate_button { font-size: 10.5px !important; padding: 4px 8px !important; }
@@ -271,7 +269,6 @@
         #category-table_wrapper .dataTables_length, #brand-table_wrapper .dataTables_length,
         #category-table_wrapper .dataTables_filter, #brand-table_wrapper .dataTables_filter { float: none !important; text-align: left !important; padding: 0 4px; }
         #category-table_wrapper .dataTables_length, #brand-table_wrapper .dataTables_length { margin-bottom: 6px; }
-        #category-table_wrapper .dataTables_filter input, #brand-table_wrapper .dataTables_filter input { max-width: 100%; width: 100%; margin-left: 0 !important; }
         #category-table_wrapper .dataTables_info, #brand-table_wrapper .dataTables_info { font-size: 10px; padding: 8px 10px 0; text-align: left; }
         #category-table_wrapper .dataTables_paginate, #brand-table_wrapper .dataTables_paginate { padding: 8px 10px 0; text-align: left; }
         #category-table_wrapper .paginate_button, #brand-table_wrapper .paginate_button { font-size: 10px !important; padding: 4px 8px !important; margin: 0 1px; }
