@@ -855,39 +855,81 @@ class ReportController extends Controller implements HasMiddleware
                 ->withQueryString()
                 ->fragment('paymentsTab');
 
-            $demandedSummary = OrderItem::whereIn('order_id', $orderIds)
+            // Category breakdown for this user (strictly only categories with ordered quantity > 0)
+            $userCategories = OrderItem::whereIn('order_items.order_id', $orderIds)
+                ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
+                ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
                 ->selectRaw('
-                    COUNT(DISTINCT CONCAT(COALESCE(product_id, 0), "-", product_name)) as total_items,
-                    COALESCE(SUM(quantity), 0) as total_qty,
-                    COALESCE(SUM(line_total), 0) as total_value
+                    MAX(COALESCE(categories.id, 0)) as category_id,
+                    COALESCE(categories.name, order_items.category_name, "General") as category_name,
+                    SUM(order_items.quantity) as total_qty,
+                    COALESCE(SUM(order_items.line_total), 0) as total_amount,
+                    COUNT(DISTINCT order_items.order_id) as orders_count
+                ')
+                ->groupBy(DB::raw('COALESCE(categories.name, order_items.category_name, "General")'))
+                ->havingRaw('total_qty > 0')
+                ->orderByDesc('total_amount')
+                ->get();
+
+            $chartCategoryLabels = $userCategories->pluck('category_name')->toArray();
+            $chartCategoryData = $userCategories->pluck('total_amount')->map(fn($v) => round((float)$v, 2))->toArray();
+            $chartCategoryQuantities = $userCategories->pluck('total_qty')->map(fn($v) => (int)$v)->toArray();
+
+            $demandedSummary = OrderItem::whereIn('order_items.order_id', $orderIds)
+                ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
+                ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+                ->when($request->filled('category_name'), function($q) use ($request) {
+                    $q->where(function($sub) use ($request) {
+                        $sub->where('categories.name', $request->category_name)
+                            ->orWhere('order_items.category_name', $request->category_name);
+                    });
+                })
+                ->selectRaw('
+                    COUNT(DISTINCT CONCAT(COALESCE(order_items.product_id, 0), "-", order_items.product_name)) as total_items,
+                    COALESCE(SUM(order_items.quantity), 0) as total_qty,
+                    COALESCE(SUM(order_items.line_total), 0) as total_value
                 ')->first();
 
-            $productComparison = OrderItem::whereIn('order_id', $orderIds)
-                ->with(['product.category'])
+            $productComparisonQuery = OrderItem::whereIn('order_items.order_id', $orderIds)
+                ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
+                ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
                 ->selectRaw('
-                    product_id,
-                    product_name,
-                    MAX(product_image) as item_image,
-                    MAX(category_name) as item_category,
-                    COUNT(DISTINCT order_id) as times_ordered,
-                    SUM(quantity) as ordered_qty,
-                    COALESCE(SUM(line_total),0) as ordered_value
+                    order_items.product_id,
+                    order_items.product_name,
+                    MAX(order_items.product_image) as item_image,
+                    MAX(COALESCE(categories.name, order_items.category_name, "General")) as item_category,
+                    MAX(COALESCE(categories.id, products.category_id, 0)) as item_category_id,
+                    COUNT(DISTINCT order_items.order_id) as times_ordered,
+                    SUM(order_items.quantity) as ordered_qty,
+                    COALESCE(SUM(order_items.line_total),0) as ordered_value
                 ')
-                ->groupBy('product_id', 'product_name')
+                ->groupBy('order_items.product_id', 'order_items.product_name')
                 ->orderByDesc('ordered_qty')
-                ->orderByDesc('ordered_value')
-                ->paginate(20, ['*'], 'products_page')
+                ->orderByDesc('ordered_value');
+
+            if ($request->filled('category_name')) {
+                $productComparisonQuery->where(function($q) use ($request) {
+                    $q->where('categories.name', $request->category_name)
+                        ->orWhere('order_items.category_name', $request->category_name);
+                });
+            }
+
+            $productComparison = $productComparisonQuery->paginate(20, ['*'], 'products_page')
                 ->withQueryString()
                 ->fragment('productsTab');
 
-            $productComparison->getCollection()->transform(function ($item) {
+            $productIds = $productComparison->getCollection()->pluck('product_id')->filter()->unique();
+            $productsMap = \App\Models\Product::with('category')->whereIn('id', $productIds)->get()->keyBy('id');
+
+            $productComparison->getCollection()->transform(function ($item) use ($productsMap) {
                 $item->issued_qty = (int) $item->ordered_qty;
                 $item->pending_qty = 0;
                 $item->avg_price = $item->ordered_qty > 0 ? ($item->ordered_value / $item->ordered_qty) : 0;
-                $item->display_image = $item->product?->thumb_image ?: $item->item_image;
-                $item->sku = $item->product?->sku ?: $item->product?->product_number;
-                $item->display_category = $item->product?->category?->name ?: ($item->item_category ?: 'General');
-                $item->current_stock = $item->product?->qty ?? 0;
+                $p = $item->product_id ? $productsMap->get($item->product_id) : null;
+                $item->display_image = $p?->thumb_image ?: $item->item_image;
+                $item->sku = $p?->sku ?: $p?->product_number;
+                $item->display_category = $p?->category?->name ?: ($item->item_category ?: 'General');
+                $item->current_stock = $p?->qty ?? 0;
                 return $item;
             });
 
@@ -908,7 +950,8 @@ class ReportController extends Controller implements HasMiddleware
             return view('backend.reports.orders', compact(
                 'user', 'users', 'summary', 'issueStats', 'orderIds',
                 'paymentStats', 'totalDue', 'issueValue', 'pendingValue',
-                'orders', 'issues', 'payments', 'productComparison', 'demandedSummary', 'monthlyTrend', 'totalRevenue', 'latestPdf'
+                'orders', 'issues', 'payments', 'productComparison', 'demandedSummary', 'monthlyTrend', 'totalRevenue', 'latestPdf',
+                'userCategories', 'chartCategoryLabels', 'chartCategoryData', 'chartCategoryQuantities'
             ));
         }
 
@@ -946,8 +989,14 @@ class ReportController extends Controller implements HasMiddleware
 
         $latestPdf = $this->getLatestReportFile('order_sales_report', 'admin.reports.orders.pdf.download');
 
+        $userCategories = collect();
+        $chartCategoryLabels = [];
+        $chartCategoryData = [];
+        $chartCategoryQuantities = [];
+
         return view('backend.reports.orders', compact(
-            'summary', 'issueStats', 'productFrequency', 'monthlyTrend', 'userSummary', 'users', 'orderIds', 'orders', 'issueValue', 'totalRevenue', 'latestPdf'
+            'summary', 'issueStats', 'productFrequency', 'monthlyTrend', 'userSummary', 'users', 'orderIds', 'orders', 'issueValue', 'totalRevenue', 'latestPdf',
+            'userCategories', 'chartCategoryLabels', 'chartCategoryData', 'chartCategoryQuantities'
         ));
     }
 
