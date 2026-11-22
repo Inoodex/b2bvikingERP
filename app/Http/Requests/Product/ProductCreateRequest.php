@@ -34,6 +34,8 @@ class ProductCreateRequest extends FormRequest
             'outlet_price' => ['nullable', 'numeric', 'min:0'],
             'long_description' => ['nullable', 'string'],
             'status' => ['required', 'boolean'],
+            'procurement_status' => ['nullable', 'string', 'in:active,do_not_order,discontinued'],
+            'procurement_note' => ['nullable', 'string', 'max:1000'],
             'barcode' => ['nullable', 'string', 'max:200'],
             'raw_material_cost' => ['nullable', 'numeric', 'min:0'],
             'transport_cost' => ['nullable', 'numeric', 'min:0'],

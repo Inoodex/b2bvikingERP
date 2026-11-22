@@ -41,6 +41,8 @@ class Product extends Model
         'discount_type',
         'vat_type',
         'vat_value',
+        'procurement_status',
+        'procurement_note',
     ];
 
     public function category()
@@ -315,5 +317,41 @@ class Product extends Model
     public function customerVisibilities()
     {
         return $this->hasMany(\App\Models\CustomerProductVisibility::class);
+    }
+
+    /**
+     * Procurement status scopes & helpers
+     */
+    public function scopeProcurementActive($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('procurement_status', 'active')
+              ->orWhereNull('procurement_status');
+        });
+    }
+
+    public function scopeDoNotOrder($query)
+    {
+        return $query->where('procurement_status', 'do_not_order');
+    }
+
+    public function scopeDiscontinued($query)
+    {
+        return $query->where('procurement_status', 'discontinued');
+    }
+
+    public function isProcurementActive(): bool
+    {
+        return empty($this->procurement_status) || $this->procurement_status === 'active';
+    }
+
+    public function isDoNotOrder(): bool
+    {
+        return $this->procurement_status === 'do_not_order';
+    }
+
+    public function isDiscontinued(): bool
+    {
+        return $this->procurement_status === 'discontinued';
     }
 }

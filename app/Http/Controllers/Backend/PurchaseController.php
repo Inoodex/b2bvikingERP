@@ -54,8 +54,15 @@ class PurchaseController extends Controller
     {
         
         $vendors = Vendor::where('status', 1)->get();
-        // Passing products for JS selection
-        $products = Product::where('status', 1)->with('variants.color', 'variants.size')->orderByDesc('id')->get(); 
+        // Passing products for JS selection (exclude discontinued products from procurement)
+        $products = Product::where('status', 1)
+            ->where(function($q) {
+                $q->where('procurement_status', '!=', 'discontinued')
+                  ->orWhereNull('procurement_status');
+            })
+            ->with('variants.color', 'variants.size')
+            ->orderByDesc('id')
+            ->get(); 
 
         $pricingRules = PricingRule::where('status', 1)->orderByDesc('is_default')->orderBy('name')->get();
         $defaultPricingRuleId = optional($pricingRules->firstWhere('is_default', true))->id;

@@ -170,16 +170,35 @@ class ProductController extends Controller implements HasMiddleware
             }
         }
 
+        if ($request->filled('procurement_status')) {
+            $ps = $request->procurement_status;
+            if ($ps === 'active') {
+                $query->where(function ($q) {
+                    $q->where('procurement_status', 'active')
+                      ->orWhereNull('procurement_status');
+                });
+            } elseif (in_array($ps, ['do_not_order', 'discontinued'])) {
+                $query->where('procurement_status', $ps);
+            }
+        }
+
         $products = $query->paginate(20)->withQueryString();
         $categories = Category::where('status', 1)->get();
         $productTypes = ProductType::where('status', 1)->get();
         $vendors = Vendor::where('status', 1)->get();
         
+        $procurementCounts = [
+            'all' => Product::count(),
+            'active' => Product::where(function($q) { $q->where('procurement_status', 'active')->orWhereNull('procurement_status'); })->count(),
+            'do_not_order' => Product::where('procurement_status', 'do_not_order')->count(),
+            'discontinued' => Product::where('procurement_status', 'discontinued')->count(),
+        ];
+
         if ($request->ajax()) {
             return view('backend.product.product_grid', compact('products'))->render();
         }
 
-        return view('backend.product.index', compact('products', 'categories', 'productTypes', 'vendors'));
+        return view('backend.product.index', compact('products', 'categories', 'productTypes', 'vendors', 'procurementCounts'));
     }
 
     /**
@@ -228,6 +247,8 @@ class ProductController extends Controller implements HasMiddleware
             $product->outlet_price = $request->outlet_price ?? 0;
             $product->barcode = $request->barcode;
             $product->status = $request->status;
+            $product->procurement_status = $request->procurement_status ?? 'active';
+            $product->procurement_note = $request->procurement_note;
             $product->product_type = $request->product_type;
             $product->product_type_id = $request->product_type_id;
             $product->custom_label = $request->custom_label;
@@ -445,6 +466,8 @@ class ProductController extends Controller implements HasMiddleware
             $product->outlet_price = $request->outlet_price ?? 0;
             $product->barcode = $request->barcode;
             $product->status = $request->status;
+            $product->procurement_status = $request->procurement_status ?? 'active';
+            $product->procurement_note = $request->procurement_note;
             $product->product_type = $request->product_type;
             $product->product_type_id = $request->product_type_id;
             $product->custom_label = $request->custom_label;
