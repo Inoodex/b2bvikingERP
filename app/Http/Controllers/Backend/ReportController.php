@@ -811,7 +811,7 @@ class ReportController extends Controller implements HasMiddleware
         // 1. Fetch Low Stock Products
         $lowStockProducts = Product::where('status', 1)
             ->withSum('inventoryStocks', 'quantity')
-            ->havingRaw('inventory_stocks_sum_quantity <= COALESCE(products.min_inventory_qty, 10) OR inventory_stocks_sum_quantity IS NULL')
+            ->whereRaw('(SELECT COALESCE(SUM(quantity), 0) FROM inventory_stocks WHERE inventory_stocks.product_id = products.id) <= COALESCE(products.min_inventory_qty, 10)')
             ->orderBy('updated_at', 'desc') // Fetch by recent update
             ->take(15)
             ->get();
@@ -820,17 +820,18 @@ class ReportController extends Controller implements HasMiddleware
             $isUnread = !$lastReadAt || $product->updated_at->gt($lastReadAt);
             if ($isUnread) $unreadCount++;
 
+            $currentStock = (float) ($product->inventory_stocks_sum_quantity ?? 0);
             $notifications[] = [
                 'type' => 'lowStock',
                 'title' => $product->name,
-                'desc' => ($product->inventory_stocks_sum_quantity ?? 0) . ' in stock',
+                'desc' => $currentStock . ' in stock',
                 'time' => $product->updated_at->diffForHumans(),
                 'timestamp' => $product->updated_at->timestamp, // For sorting
                 'url' => route('admin.reports.low-stock'),
                 'icon' => 'fas fa-exclamation-triangle',
-                'class' => ($product->inventory_stocks_sum_quantity <= 0) ? 'bg-danger' : 'bg-warning',
+                'class' => ($currentStock <= 0) ? 'bg-danger' : 'bg-warning',
                 'is_unread' => $isUnread,
-                'is_out_of_stock' => ($product->inventory_stocks_sum_quantity <= 0)
+                'is_out_of_stock' => ($currentStock <= 0)
             ];
         }
 
