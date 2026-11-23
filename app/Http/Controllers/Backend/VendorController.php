@@ -59,7 +59,8 @@ class VendorController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $vendor = Vendor::findOrFail($id);
+        return redirect()->route('admin.vendor.edit', $vendor->id);
     }
 
     /**
