@@ -9,38 +9,53 @@
         $productTypes = collect($productTypes ?? []);
     @endphp
 
-    <div id="shop-page-root"
-         class="bg-slate-50 min-h-screen"
-         x-data="shopFilter($el)"
-         @shop-open-filters.window="openMobileFilters()"
-         @keydown.escape.window="mobileFiltersOpen = false"
-         data-active-cat="{{ request('category', '') }}"
-         data-active-sub="{{ request('subcategory', '') }}"
-         data-min-range="{{ $min_range }}"
-         data-max-range="{{ $max_range }}"
-         data-min-price="{{ request('min_price', $min_range) }}"
-        data-max-price="{{ request('max_price', $max_range) }}"
-        data-sort="{{ request('sort', 'latest') }}"
-        data-product-type="{{ request('product_type', '') }}"
-         data-search="{{ request('search', '') }}">
+    <div id="shop-page-root" class="bg-slate-50 min-h-screen" x-data="shopFilter($el)"
+        @shop-open-filters.window="openMobileFilters()" @keydown.escape.window="mobileFiltersOpen = false"
+        data-active-cat="{{ request('category', '') }}" data-active-sub="{{ request('subcategory', '') }}"
+        data-min-range="{{ $min_range }}" data-max-range="{{ $max_range }}"
+        data-min-price="{{ request('min_price', $min_range) }}" data-max-price="{{ request('max_price', $max_range) }}"
+        data-sort="{{ request('sort', 'latest') }}" data-product-type="{{ request('product_type', '') }}"
+        data-popular-only="{{ request('popular_only', '') }}" data-search="{{ request('search', '') }}">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
             <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
                 <!-- Sidebar Filters -->
                 <aside class="shop-desktop-sidebar hidden lg:block w-full lg:w-72 shrink-0">
-                    <div class="bg-white rounded-lg p-6 shadow-sm border border-slate-200 sm:sticky sm:top-24 overflow-hidden relative">
-                        <div class="absolute top-0 left-0 right-0 h-[2.5px]" style="background: linear-gradient(90deg, #82966A 0%, #B0789B 50%, #328A9A 100%);"></div>
+                    <div
+                        class="bg-white rounded-lg p-6 shadow-sm border border-slate-200 sm:sticky sm:top-24 overflow-hidden relative">
+                        <div class="absolute top-0 left-0 right-0 h-[2.5px]"
+                            style="background: linear-gradient(90deg, #82966A 0%, #B0789B 50%, #328A9A 100%);"></div>
                         <div class="flex items-center justify-between mb-5">
                             <h2 class="text-[13px] font-semibold uppercase tracking-[0.12em] text-slate-900">Filters</h2>
-                            <button type="button"
-                                @click="resetFilters()"
+                            <button type="button" @click="resetFilters()"
                                 class="text-[10px] font-semibold uppercase tracking-[0.12em] bg-red-50 px-3 py-1.5 rounded-md text-red-500 hover:text-red-600 transition-colors">
                                 Clear
                             </button>
                         </div>
 
+                        <!-- Frequently Ordered Filter (Point 23) -->
+                        <div class="mb-6 pb-5 border-b border-slate-200">
+                            <h3 class="text-[12px] font-semibold text-slate-500 uppercase tracking-[0.12em] mb-3">Popularity
+                            </h3>
+                            <button type="button" @click="togglePopularOnly()"
+                                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-md border text-[12px] font-medium transition-all"
+                                :class="popularOnly ? 'border-amber-400 bg-amber-50 text-amber-800 font-semibold shadow-xs' :
+                                    'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+                                <span class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.527.82-1.125 1.91-1.745 3.123C7.54 7.79 6.78 9.39 6.25 10.74c-.53 1.35-.75 2.56-.75 3.26 0 3.31 2.69 6 6 6s6-2.69 6-6c0-1.66-.67-3.16-1.76-4.24l-.17-.16c-.47-.44-.9-.81-1.3-1.19-.78-.75-1.45-1.55-1.87-2.857z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    Frequently Ordered
+                                </span>
+                                <span x-show="popularOnly" class="text-amber-600 text-xs font-bold">✓</span>
+                            </button>
+                        </div>
+
                         <!-- Categories -->
                         <div class="mb-9">
-                            <h3 class="text-[12px] font-semibold text-slate-500 uppercase tracking-[0.12em] mb-4">Categories</h3>
+                            <h3 class="text-[12px] font-semibold text-slate-500 uppercase tracking-[0.12em] mb-4">Categories
+                            </h3>
                             <div class="shop-filter-categories space-y-3">
                                 @foreach ($categories as $category)
                                     <div class="space-y-2">
@@ -104,7 +119,8 @@
                                                                         @click="toggleChildCategory({{ $category->id }}, {{ $sub->id }}, {{ $child->id }})"
                                                                         class="block text-[11px] font-medium uppercase tracking-[0.06em] transition-colors text-left"
                                                                         :class="{{ request('childcategory') == $child->id ? 'true' : 'false' }}
-                                                                            ? 'text-slate-900' :
+                                                                            ?
+                                                                            'text-slate-900' :
                                                                             'text-slate-400 hover:text-slate-900'">
                                                                         {{ $child->name }}
                                                                     </button>
@@ -121,42 +137,44 @@
                         </div>
 
                         <!-- Price Filter Slider -->
-                    @auth
-                        <div class="pt-6 border-t border-slate-200">
-                            <h3 class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.25em] mb-5">Price Range</h3>
+                        @auth
+                            <div class="pt-6 border-t border-slate-200">
+                                <h3 class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.25em] mb-5">Price
+                                    Range</h3>
 
-                            <div class="relative w-full h-10 mt-4">
-                                <div class="h-1.5 w-full bg-slate-200 rounded-full absolute top-1/2 -translate-y-1/2"></div>
-                                <div class="h-1.5 bg-blue-600 rounded-full absolute top-1/2 -translate-y-1/2"
-                                     :style="`left: ${((minPrice - minRange) / (maxRange - minRange)) * 100}%; right: ${100 - ((maxPrice - minRange) / (maxRange - minRange)) * 100}%`" class="text-blue-500"></div>
+                                <div class="relative w-full h-10 mt-4">
+                                    <div class="h-1.5 w-full bg-slate-200 rounded-full absolute top-1/2 -translate-y-1/2"></div>
+                                    <div class="h-1.5 bg-blue-600 rounded-full absolute top-1/2 -translate-y-1/2"
+                                        :style="`left: ${((minPrice - minRange) / (maxRange - minRange)) * 100}%; right: ${100 - ((maxPrice - minRange) / (maxRange - minRange)) * 100}%`"
+                                        class="text-blue-500"></div>
 
-                                <input type="range"
-                                       :min="minRange" :max="maxRange" step="1"
-                                       x-model.number="minPrice"
-                                       @input="if(minPrice > maxPrice) minPrice = maxPrice - 1"
-                                       @change="applyFilters()"
-                                       class="absolute w-full h-1.5 top-1/2 -translate-y-1/2 appearance-none bg-transparent pointer-events-none px-0 cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:appearance-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white">
+                                    <input type="range" :min="minRange" :max="maxRange" step="1"
+                                        x-model.number="minPrice" @input="if(minPrice > maxPrice) minPrice = maxPrice - 1"
+                                        @change="applyFilters()"
+                                        class="absolute w-full h-1.5 top-1/2 -translate-y-1/2 appearance-none bg-transparent pointer-events-none px-0 cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:appearance-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white">
 
-                                <input type="range"
-                                       :min="minRange" :max="maxRange" step="1"
-                                       x-model.number="maxPrice"
-                                       @input="if(maxPrice < minPrice) maxPrice = minPrice + 1"
-                                       @change="applyFilters()"
-                                       class="absolute w-full h-1.5 top-1/2 -translate-y-1/2 appearance-none bg-transparent pointer-events-none px-0 cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:appearance-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white">
-                            </div>
-
-                            <div class="flex items-center justify-between mt-6 px-1">
-                                <div class="flex flex-col">
-                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Min Price</span>
-                                    <span class="text-sm font-bold text-slate-900" x-text="'{{ $currencyIcon }}' + minPrice"></span>
+                                    <input type="range" :min="minRange" :max="maxRange" step="1"
+                                        x-model.number="maxPrice" @input="if(maxPrice < minPrice) maxPrice = minPrice + 1"
+                                        @change="applyFilters()"
+                                        class="absolute w-full h-1.5 top-1/2 -translate-y-1/2 appearance-none bg-transparent pointer-events-none px-0 cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:appearance-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white">
                                 </div>
-                                <div class="flex flex-col text-right">
-                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Max Price</span>
-                                    <span class="text-sm font-bold text-slate-900" x-text="'{{ $currencyIcon }}' + maxPrice"></span>
+
+                                <div class="flex items-center justify-between mt-6 px-1">
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Min
+                                            Price</span>
+                                        <span class="text-sm font-bold text-slate-900"
+                                            x-text="'{{ $currencyIcon }}' + minPrice"></span>
+                                    </div>
+                                    <div class="flex flex-col text-right">
+                                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Max
+                                            Price</span>
+                                        <span class="text-sm font-bold text-slate-900"
+                                            x-text="'{{ $currencyIcon }}' + maxPrice"></span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endauth
+                        @endauth
                     </div>
                 </aside>
 
@@ -164,18 +182,19 @@
                 <div class="flex-1">
                     <!-- Mobile Filters Trigger -->
                     <div class="shop-mobile-filters-trigger lg:hidden mb-4">
-                        <div class="bg-white rounded-lg px-4 py-3 shadow-sm border border-slate-200 flex items-center justify-between gap-3">
-                            <button type="button"
-                                    @click="openMobileFilters()"
-                                    class="inline-flex items-center gap-2 rounded-md bg-slate-900 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white hover:bg-black transition-colors">
+                        <div
+                            class="bg-white rounded-lg px-4 py-3 shadow-sm border border-slate-200 flex items-center justify-between gap-3">
+                            <button type="button" @click="openMobileFilters()"
+                                class="inline-flex items-center gap-2 rounded-md bg-slate-900 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white hover:bg-black transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L14 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 018 21v-7.586L3.293 6.707A1 1 0 013 6V4z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L14 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 018 21v-7.586L3.293 6.707A1 1 0 013 6V4z">
+                                    </path>
                                 </svg>
                                 Filters
                             </button>
-                            <button type="button"
-                                    @click="resetFilters()"
-                                    class="text-[10px] font-semibold uppercase tracking-[0.12em] bg-red-50 px-3 py-2 rounded-md text-red-600 hover:text-red-700 transition-colors">
+                            <button type="button" @click="resetFilters()"
+                                class="text-[10px] font-semibold uppercase tracking-[0.12em] bg-red-50 px-3 py-2 rounded-md text-red-600 hover:text-red-700 transition-colors">
                                 Clear
                             </button>
                         </div>
@@ -185,67 +204,73 @@
                         class="bg-white rounded-lg px-4 py-3 mb-8 shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
                         <div class="flex items-center gap-4 px-1">
                             <span class="text-[12px] font-medium uppercase tracking-[0.08em] text-slate-500">Showing <span
-                                    class="text-slate-900 font-semibold">{{ $products->count() }}</span> of <span class="text-slate-900 font-semibold">{{ $products->total() }}</span>
+                                    class="text-slate-900 font-semibold">{{ $products->count() }}</span> of <span
+                                    class="text-slate-900 font-semibold">{{ $products->total() }}</span>
                                 results</span>
                         </div>
 
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between md:justify-end gap-3 w-full md:w-auto">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center justify-between md:justify-end gap-3 w-full md:w-auto">
                             @auth
-                            <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-                                <label
-                                    class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] shrink-0">Sort
-                                    by:</label>
-                                <select x-model="sort" @change="applyFilters()"
-                                    class="w-full sm:w-auto bg-white border border-slate-200 rounded-md px-3.5 py-2 text-[12px] font-medium text-slate-700 outline-none focus:border-slate-900 cursor-pointer appearance-none pr-9 relative">
-                                    <option value="stock_first">In Stock First</option>
-                                    <option value="latest">Latest Product</option>
-                                    <option value="price_low_high">Price: Low to High</option>
-                                    <option value="price_high_low">Price: High to Low</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-                                <label class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.12em] shrink-0">Occasion/Type:</label>
-                                @php $selectedType = (string) request('product_type', ''); @endphp
-                                <select x-model="productType" @change="applyFilters()"
+                                <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+                                    <label
+                                        class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] shrink-0">Sort
+                                        by:</label>
+                                    <select x-model="sort" @change="applyFilters()"
                                         class="w-full sm:w-auto bg-white border border-slate-200 rounded-md px-3.5 py-2 text-[12px] font-medium text-slate-700 outline-none focus:border-slate-900 cursor-pointer appearance-none pr-9 relative">
-                                    <option value="" {{ $selectedType === '' ? 'selected' : '' }}>All Types</option>
-                                    <option value="new_arrival" {{ $selectedType === 'new_arrival' ? 'selected' : '' }}>New Arrival (Legacy)</option>
-                                    <option value="upcoming" {{ $selectedType === 'upcoming' ? 'selected' : '' }}>Upcoming (Legacy)</option>
-                                    @foreach($productTypes as $type)
-                                        <option value="{{ $type->id }}" {{ $selectedType === (string) $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                                        <option value="stock_first">In Stock First</option>
+                                        <option value="popular">Popular / Most Ordered</option>
+                                        <option value="latest">Latest Product</option>
+                                        <option value="price_low_high">Price: Low to High</option>
+                                        <option value="price_high_low">Price: High to Low</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+                                    <label
+                                        class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.12em] shrink-0">Occasion/Type:</label>
+                                    @php $selectedType = (string) request('product_type', ''); @endphp
+                                    <select x-model="productType" @change="applyFilters()"
+                                        class="w-full sm:w-auto bg-white border border-slate-200 rounded-md px-3.5 py-2 text-[12px] font-medium text-slate-700 outline-none focus:border-slate-900 cursor-pointer appearance-none pr-9 relative">
+                                        <option value="" {{ $selectedType === '' ? 'selected' : '' }}>All Types</option>
+                                        <option value="new_arrival" {{ $selectedType === 'new_arrival' ? 'selected' : '' }}>
+                                            New Arrival (Legacy)</option>
+                                        <option value="upcoming" {{ $selectedType === 'upcoming' ? 'selected' : '' }}>Upcoming
+                                            (Legacy)</option>
+                                        @foreach ($productTypes as $type)
+                                            <option value="{{ $type->id }}"
+                                                {{ $selectedType === (string) $type->id ? 'selected' : '' }}>
+                                                {{ $type->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             @endauth
 
                         </div>
                     </div>
 
                     <!-- Products Grid -->
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                    <div
+                        class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                         @forelse($shopCards as $card)
-                            <x-frontend.product-card
-                                :product="$card['product']"
-                                :variants="$card['variants']"
-                                :display-path="$card['display_path']"
-                                :category-name="$card['category_name']"
-                                :product-type="$card['product_type']"
-                                :currency-icon="$currencyIcon"
-                                :is-outlet-user="$isOutletUser"
-                                :is-standard-user="$isStandardUser"
-                                :details-url="$card['details_url']"
-                                class="p-3" />
+                            <x-frontend.product-card :product="$card['product']" :variants="$card['variants']" :display-path="$card['display_path']" :category-name="$card['category_name']"
+                                :product-type="$card['product_type']" :currency-icon="$currencyIcon" :is-outlet-user="$isOutletUser" :is-standard-user="$isStandardUser" :is-popular="$card['is_popular'] ?? false"
+                                :details-url="$card['details_url']" class="p-3" />
 
                         @empty
                             <div class="col-span-full py-32 text-center">
-                                <div class="w-20 h-20 bg-slate-100 rounded-lg flex items-center justify-center mx-auto mb-6">
-                                    <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                <div
+                                    class="w-20 h-20 bg-slate-100 rounded-lg flex items-center justify-center mx-auto mb-6">
+                                    <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
                                 </div>
                                 <h3 class="text-lg font-semibold text-slate-900 mb-2">No products found</h3>
                                 <p class="text-sm text-slate-500">Try adjusting your filters or search terms.</p>
-                                <button @click="resetFilters()" class="mt-6 px-6 py-2.5 bg-slate-900 text-white rounded-md text-[11px] font-semibold uppercase tracking-[0.3em] hover:bg-black transition-colors">Clear All Filters</button>
+                                <button @click="resetFilters()"
+                                    class="mt-6 px-6 py-2.5 bg-slate-900 text-white rounded-md text-[11px] font-semibold uppercase tracking-[0.3em] hover:bg-black transition-colors">Clear
+                                    All Filters</button>
                             </div>
                         @endforelse
                     </div>
@@ -259,30 +284,30 @@
         </div>
 
         <!-- Mobile Filters Drawer -->
-        <div x-show="mobileFiltersOpen"
-             x-cloak
-             class="fixed inset-0 z-[70] lg:hidden">
-            <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"
-                 @click="closeMobileFilters()"></div>
-            <div class="absolute inset-y-0 left-0 w-[min(92vw,380px)] sm:w-[380px] md:w-[420px] bg-white shadow-2xl overflow-y-auto">
-                <div class="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-slate-100 px-4 py-4 flex items-center justify-between">
+        <div x-show="mobileFiltersOpen" x-cloak class="fixed inset-0 z-[70] lg:hidden">
+            <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" @click="closeMobileFilters()"></div>
+            <div
+                class="absolute inset-y-0 left-0 w-[min(92vw,380px)] sm:w-[380px] md:w-[420px] bg-white shadow-2xl overflow-y-auto">
+                <div
+                    class="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-slate-100 px-4 py-4 flex items-center justify-between">
                     <div>
                         <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">Shop</p>
                         <h2 class="text-lg font-semibold text-slate-900">Filters</h2>
                     </div>
-                    <button type="button"
-                            @click="closeMobileFilters()"
-                            class="grid h-10 w-10 place-items-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition">
+                    <button type="button" @click="closeMobileFilters()"
+                        class="grid h-10 w-10 place-items-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
                 <div class="p-4">
-                    @include('frontend.partials.shop-filters', ['filterCardClass' => 'bg-white rounded-2xl p-5 border border-slate-200 shadow-sm'])
-                    <button type="button"
-                            @click="closeMobileFilters()"
-                            class="mt-4 w-full inline-flex items-center justify-center rounded-xl bg-slate-100 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-700 hover:bg-slate-200 transition">
+                    @include('frontend.partials.shop-filters', [
+                        'filterCardClass' => 'bg-white rounded-2xl p-5 border border-slate-200 shadow-sm',
+                    ])
+                    <button type="button" @click="closeMobileFilters()"
+                        class="mt-4 w-full inline-flex items-center justify-center rounded-xl bg-slate-100 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-700 hover:bg-slate-200 transition">
                         Done
                     </button>
                 </div>
@@ -290,7 +315,7 @@
         </div>
 
         <script>
-            (function () {
+            (function() {
                 let loadingShopPage = false;
                 const shopBaseUrl = @json(route('shop'));
 
@@ -332,16 +357,24 @@
                         }
 
                         if (pushState) {
-                            window.history.pushState({ shopAjax: true }, '', url);
+                            window.history.pushState({
+                                shopAjax: true
+                            }, '', url);
                         }
 
                         if (scrollToTop) {
                             requestAnimationFrame(() => {
                                 const root = document.getElementById('shop-page-root');
                                 if (root) {
-                                    root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    root.scrollIntoView({
+                                        behavior: 'smooth',
+                                        block: 'start'
+                                    });
                                 } else {
-                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    window.scrollTo({
+                                        top: 0,
+                                        behavior: 'smooth'
+                                    });
                                 }
                             });
                         }
@@ -356,7 +389,7 @@
                     }
                 }
 
-                window.shopFilter = function (rootEl) {
+                window.shopFilter = function(rootEl) {
                     const parseIntOrNull = (value) => {
                         const parsed = parseInt(value, 10);
                         return Number.isFinite(parsed) ? parsed : null;
@@ -382,6 +415,7 @@
                         sort: (root?.dataset?.sort || 'latest'),
                         productType: (root?.dataset?.productType || ''),
                         search: (root?.dataset?.search || ''),
+                        popularOnly: (root?.dataset?.popularOnly === '1' || root?.dataset?.popularOnly === 'true'),
 
                         openMobileFilters() {
                             this.mobileFiltersOpen = true;
@@ -389,6 +423,13 @@
 
                         closeMobileFilters() {
                             this.mobileFiltersOpen = false;
+                        },
+
+                        togglePopularOnly() {
+                            this.popularOnly = !this.popularOnly;
+                            this.updateUrl({
+                                popular_only: this.popularOnly ? '1' : null
+                            });
                         },
 
                         toggleCategory(id) {
@@ -430,7 +471,8 @@
                                 min_price: this.minPrice,
                                 max_price: this.maxPrice,
                                 sort: this.sort,
-                                product_type: this.productType
+                                product_type: this.productType,
+                                popular_only: this.popularOnly ? '1' : null
                             });
                         },
 
@@ -454,7 +496,7 @@
                     };
                 };
 
-                document.addEventListener('click', function (event) {
+                document.addEventListener('click', function(event) {
                     const paginationLink = event.target.closest('#shop-pagination a');
                     if (!paginationLink) {
                         return;
@@ -468,7 +510,7 @@
                     loadShopPage(paginationLink.href, true, true);
                 });
 
-                window.addEventListener('popstate', function () {
+                window.addEventListener('popstate', function() {
                     const currentUrl = new URL(window.location.href);
                     const shopUrl = new URL(shopBaseUrl);
 

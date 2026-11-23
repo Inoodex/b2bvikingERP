@@ -10,6 +10,7 @@ use App\Models\InventoryStock;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductRequestItem;
 use App\Models\ProductVariant;
 use App\Models\SavedPurchaseForm;
 use App\Models\Wishlist;
@@ -1425,7 +1426,20 @@ class CartController extends Controller
         $stockRow = $this->findInventoryStockRowInCollection($stocks, $outletId)
             ?? $this->fetchInventoryStockRow((int) $product->id, $variant?->id, $outletId);
 
-        return max(0, (int) ($stockRow?->quantity ?? 0));
+        $physicalQty = max(0, (int) ($stockRow?->quantity ?? 0));
+
+        // Point 24: Real-time stock reservation (subtract unfulfilled pending orders & store requisitions)
+        $reservedOrderQty = (int) OrderItem::where('product_id', $product->id)
+            ->when($variant, fn($q) => $q->where('variant_id', $variant->id))
+            ->whereHas('order', fn($q) => $q->whereIn('status', ['pending', 'approved']))
+            ->sum('quantity');
+
+        $reservedReqQty = (int) ProductRequestItem::where('product_id', $product->id)
+            ->when($variant, fn($q) => $q->where('variant_id', $variant->id))
+            ->whereHas('productRequest', fn($q) => $q->whereIn('status', ['pending', 'approved']))
+            ->sum('qty');
+
+        return max(0, $physicalQty - $reservedOrderQty - $reservedReqQty);
     }
 
     private function buildRequestedLinesFromCart($cartRows): array
@@ -1477,10 +1491,10 @@ class CartController extends Controller
     private function resolveOrderOutletId(): int
     {
         $user = Auth::user();
-        $userOutletId = $user?->outlet_id ?? null;
+        $userOutletId = (int) ($user?->outlet_id ?? 0);
 
-        if (!empty($userOutletId)) {
-            return (int) $userOutletId;
+        if ($userOutletId > 1 && InventoryStock::where('outlet_id', $userOutletId)->exists()) {
+            return $userOutletId;
         }
 
         return (int) config('inventory.default_outlet_id', 1);

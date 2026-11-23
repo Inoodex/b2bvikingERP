@@ -12,6 +12,21 @@
         </button>
     </div>
 
+    <!-- Frequently Ordered Filter (Point 23) -->
+    <div class="mb-6 pb-5 border-b border-slate-200">
+        <h3 class="text-[12px] font-semibold text-slate-500 uppercase tracking-[0.12em] mb-3">Popularity</h3>
+        <button type="button"
+            @click="togglePopularOnly()"
+            class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-md border text-[12px] font-medium transition-all"
+            :class="popularOnly ? 'border-amber-400 bg-amber-50 text-amber-800 font-semibold shadow-xs' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+            <span class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.527.82-1.125 1.91-1.745 3.123C7.54 7.79 6.78 9.39 6.25 10.74c-.53 1.35-.75 2.56-.75 3.26 0 3.31 2.69 6 6 6s6-2.69 6-6c0-1.66-.67-3.16-1.76-4.24l-.17-.16c-.47-.44-.9-.81-1.3-1.19-.78-.75-1.45-1.55-1.87-2.857z" clip-rule="evenodd"></path></svg>
+                Frequently Ordered
+            </span>
+            <span x-show="popularOnly" class="text-amber-600 text-xs font-bold">✓</span>
+        </button>
+    </div>
+
     <!-- Categories -->
     <div class="mb-9">
         <h3 class="text-[12px] font-semibold text-slate-500 uppercase tracking-[0.12em] mb-4">Categories</h3>

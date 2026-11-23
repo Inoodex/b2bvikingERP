@@ -7,6 +7,7 @@
     'currencyIcon' => 'Tk',
     'isOutletUser' => false,
     'isStandardUser' => false,
+    'isPopular' => false,
     'alpineComponent' => 'productCardItem',
     'detailsUrl' => null,
 ])
@@ -58,6 +59,12 @@
                 @endphp
                 <span class="rounded-md border px-2 py-1 text-[10px] font-semibold uppercase tracking-wider {{ $badgeClass }}">
                     {{ str_replace('_', ' ', $productType) }}
+                </span>
+            @endif
+            @if ($isPopular || (!empty($product['is_popular'])))
+                <span class="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1 shadow-xs">
+                    <svg class="w-3 h-3 text-amber-500 inline shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.527.82-1.125 1.91-1.745 3.123C7.54 7.79 6.78 9.39 6.25 10.74c-.53 1.35-.75 2.56-.75 3.26 0 3.31 2.69 6 6 6s6-2.69 6-6c0-1.66-.67-3.16-1.76-4.24l-.17-.16c-.47-.44-.9-.81-1.3-1.19-.78-.75-1.45-1.55-1.87-2.857z" clip-rule="evenodd"></path></svg>
+                    Popular
                 </span>
             @endif
             @auth

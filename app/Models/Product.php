@@ -90,6 +90,22 @@ class Product extends Model
         return $this->hasMany(OrderItem::class, 'product_id');
     }
 
+    public function activeOrderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'product_id')
+            ->whereHas('order', function ($query) {
+                $query->whereIn('status', ['pending', 'approved']);
+            });
+    }
+
+    public function activeProductRequestItems()
+    {
+        return $this->hasMany(ProductRequestItem::class, 'product_id')
+            ->whereHas('productRequest', function ($query) {
+                $query->whereIn('status', ['pending', 'approved']);
+            });
+    }
+
     public function purchaseDetails()
     {
         return $this->hasMany(PurchaseDetail::class);
@@ -414,5 +430,19 @@ class Product extends Model
             'icon'        => 'fas fa-pause-circle',
             'order_count' => 0,
         ];
+    }
+
+    /**
+     * Point 23: Determine if product is popular/frequently ordered
+     */
+    public function getIsPopularAttribute(): bool
+    {
+        $orderCount = (int) ($this->order_items_count ?? (
+            $this->relationLoaded('orderItems') 
+                ? $this->orderItems->count() 
+                : $this->orderItems()->count()
+        ));
+
+        return $orderCount >= 10;
     }
 }
