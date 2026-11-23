@@ -281,7 +281,7 @@ class ReportController extends Controller implements HasMiddleware
      */
     public function stockReport(Request $request)
     {
-        $query = Product::with(['category', 'unit', 'brand', 'inventoryStocks'])
+        $query = Product::withCount('orderItems')->with(['category', 'unit', 'brand', 'inventoryStocks'])
             ->withSum('inventoryStocks', 'quantity')
             ->where('status', 1);
 
@@ -291,6 +291,34 @@ class ReportController extends Controller implements HasMiddleware
         }
         if ($request->brand_id) {
             $query->where('brand_id', $request->brand_id);
+        }
+
+        // Point 20: Sales Velocity Filter
+        if ($request->filled('sales_velocity')) {
+            $sv = $request->sales_velocity;
+            if ($sv === 'frequently_ordered') {
+                $query->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) >= 10 OR SUM(quantity) >= 50');
+                });
+            } elseif ($sv === 'slow_going') {
+                $query->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) > 0 AND COUNT(*) < 10 AND SUM(quantity) < 50');
+                });
+            } elseif ($sv === 'not_going') {
+                $query->whereNotIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id');
+                });
+            }
         }
 
         // Calculate Summary Stats from database aggregates BEFORE pagination
@@ -304,6 +332,32 @@ class ReportController extends Controller implements HasMiddleware
         }
         if ($request->brand_id) {
             $summaryQuery->where('products.brand_id', $request->brand_id);
+        }
+        if ($request->filled('sales_velocity')) {
+            $sv = $request->sales_velocity;
+            if ($sv === 'frequently_ordered') {
+                $summaryQuery->whereIn('products.id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) >= 10 OR SUM(quantity) >= 50');
+                });
+            } elseif ($sv === 'slow_going') {
+                $summaryQuery->whereIn('products.id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) > 0 AND COUNT(*) < 10 AND SUM(quantity) < 50');
+                });
+            } elseif ($sv === 'not_going') {
+                $summaryQuery->whereNotIn('products.id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id');
+                });
+            }
         }
 
         $summaryData = $summaryQuery->selectRaw('
@@ -345,7 +399,7 @@ class ReportController extends Controller implements HasMiddleware
             }
         }
 
-        $expectedQuery = Product::with([
+        $expectedQuery = Product::withCount('orderItems')->with([
             'category',
             'unit',
             'brand',
@@ -377,6 +431,33 @@ class ReportController extends Controller implements HasMiddleware
             $expectedQuery->where('brand_id', $request->expected_brand_id);
         }
 
+        $expectedVelocity = $request->get('expected_sales_velocity') ?: $request->get('sales_velocity');
+        if ($expectedVelocity) {
+            if ($expectedVelocity === 'frequently_ordered') {
+                $expectedQuery->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) >= 10 OR SUM(quantity) >= 50');
+                });
+            } elseif ($expectedVelocity === 'slow_going') {
+                $expectedQuery->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) > 0 AND COUNT(*) < 10 AND SUM(quantity) < 50');
+                });
+            } elseif ($expectedVelocity === 'not_going') {
+                $expectedQuery->whereNotIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id');
+                });
+            }
+        }
+
         $expectedSummaryQuery = DB::table('products')
             ->join('inventory_stocks', 'products.id', '=', 'inventory_stocks.product_id')
             ->join(DB::raw('(SELECT product_id, COALESCE(SUM(total) / NULLIF(SUM(qty), 0), 0) as avg_cost FROM purchase_details GROUP BY product_id) as costs'), 'products.id', '=', 'costs.product_id')
@@ -390,6 +471,31 @@ class ReportController extends Controller implements HasMiddleware
         }
         if ($request->expected_brand_id) {
             $expectedSummaryQuery->where('products.brand_id', $request->expected_brand_id);
+        }
+        if ($expectedVelocity) {
+            if ($expectedVelocity === 'frequently_ordered') {
+                $expectedSummaryQuery->whereIn('products.id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) >= 10 OR SUM(quantity) >= 50');
+                });
+            } elseif ($expectedVelocity === 'slow_going') {
+                $expectedSummaryQuery->whereIn('products.id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) > 0 AND COUNT(*) < 10 AND SUM(quantity) < 50');
+                });
+            } elseif ($expectedVelocity === 'not_going') {
+                $expectedSummaryQuery->whereNotIn('products.id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id');
+                });
+            }
         }
 
         $expectedSummaryData = $expectedSummaryQuery->selectRaw('
@@ -1035,12 +1141,13 @@ class ReportController extends Controller implements HasMiddleware
     public function stockReportPdf(Request $request): JsonResponse|RedirectResponse
     {
         $filters = [
-            'category_id' => $request->get('category_id'),
-            'brand_id'    => $request->get('brand_id'),
+            'category_id'    => $request->get('category_id'),
+            'brand_id'       => $request->get('brand_id'),
+            'sales_velocity' => $request->get('sales_velocity'),
         ];
 
-        if (empty($filters['category_id']) && empty($filters['brand_id'])) {
-            $msg = 'Please select a Category or Brand filter before exporting PDF. For full inventory, please use Excel export.';
+        if (empty($filters['category_id']) && empty($filters['brand_id']) && empty($filters['sales_velocity'])) {
+            $msg = 'Please select a Category, Brand, or Sales Velocity filter before exporting PDF. For full inventory, please use Excel export.';
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'status'  => 'warning',

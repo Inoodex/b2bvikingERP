@@ -732,7 +732,7 @@
                     <div class="sr-filter-body">
                         <form id="stock-filter-form" action="{{ route('admin.reports.stock') }}" method="GET">
                             <div class="row g-3 align-items-end">
-                                <div class="col-md-5">
+                                <div class="col-md-4">
                                     <label>Category</label>
                                     <select name="category_id" class="form-control select2">
                                         <option value="">All Categories</option>
@@ -741,13 +741,22 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-3">
                                     <label>Brand</label>
                                     <select name="brand_id" class="form-control select2">
                                         <option value="">All Brands</option>
                                         @foreach ($brands as $brand)
                                             <option value="{{ $brand->id }}" {{ request()->brand_id == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
                                         @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Sales Velocity</label>
+                                    <select name="sales_velocity" class="form-control select2">
+                                        <option value="">Sales Velocity (All)</option>
+                                        <option value="frequently_ordered" {{ request()->sales_velocity == 'frequently_ordered' ? 'selected' : '' }}>🚀 Frequently Ordered</option>
+                                        <option value="slow_going" {{ request()->sales_velocity == 'slow_going' ? 'selected' : '' }}>⏳ Slow Going</option>
+                                        <option value="not_going" {{ request()->sales_velocity == 'not_going' ? 'selected' : '' }}>🛑 Not Going (Dead Stock)</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
@@ -849,6 +858,12 @@
                                         </td>
                                         <td>
                                             <span class="sr-cat-badge">{{ $product->category->name ?? '-' }}</span>
+                                            @php $vel = $product->sales_velocity; @endphp
+                                            <div class="mt-1">
+                                                <span class="badge {{ $vel['badge_class'] }}" style="font-size: 9.5px;" title="Velocity: {{ $vel['full_label'] }}">
+                                                    <i class="{{ $vel['icon'] }} mr-1"></i>{{ $vel['label'] }}
+                                                </span>
+                                            </div>
                                         </td>
                                         <td class="text-center">
                                             @if($qty <= $product->min_inventory_qty)
@@ -1040,7 +1055,7 @@
                                 </div>
                             </div>
                             <div class="row g-3 align-items-end">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="font-weight-bold">Category</label>
                                     <select name="expected_category_id" class="form-control select2">
                                         <option value="">All Categories</option>
@@ -1049,7 +1064,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="font-weight-bold">Brand</label>
                                     <select name="expected_brand_id" class="form-control select2">
                                         <option value="">All Brands</option>
@@ -1058,7 +1073,16 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
+                                    <label class="font-weight-bold">Sales Velocity</label>
+                                    <select name="expected_sales_velocity" class="form-control select2">
+                                        <option value="">Sales Velocity (All)</option>
+                                        <option value="frequently_ordered" {{ (request()->expected_sales_velocity ?? request()->sales_velocity) == 'frequently_ordered' ? 'selected' : '' }}>🚀 Frequently Ordered</option>
+                                        <option value="slow_going" {{ (request()->expected_sales_velocity ?? request()->sales_velocity) == 'slow_going' ? 'selected' : '' }}>⏳ Slow Going</option>
+                                        <option value="not_going" {{ (request()->expected_sales_velocity ?? request()->sales_velocity) == 'not_going' ? 'selected' : '' }}>🛑 Not Going (Dead Stock)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
                                     <a href="{{ route('admin.reports.stock', ['tab' => 'expected']) }}" class="sr-btn rose w-100 reset-arrow-button" style="margin-top: 4px; justify-content: center; height: 38px;">
                                         <i class="fas fa-undo"></i> Reset Filters
                                     </a>
@@ -1167,6 +1191,12 @@
                                         </td>
                                         <td>
                                             <span class="sr-cat-badge">{{ $product->category->name ?? '-' }}</span>
+                                            @php $vel = $product->sales_velocity; @endphp
+                                            <div class="mt-1">
+                                                <span class="badge {{ $vel['badge_class'] }}" style="font-size: 9.5px;" title="Velocity: {{ $vel['full_label'] }}">
+                                                    <i class="{{ $vel['icon'] }} mr-1"></i>{{ $vel['label'] }}
+                                                </span>
+                                            </div>
                                         </td>
                                         <td class="text-center">
                                             @if($qty <= $product->min_inventory_qty)
@@ -1365,7 +1395,7 @@
         }
         initExportButtons();
 
-        $(document).on('change select2:select', '#stock-filter-form select[name="category_id"], #stock-filter-form select[name="brand_id"]', function () {
+        $(document).on('change select2:select', '#stock-filter-form select[name="category_id"], #stock-filter-form select[name="brand_id"], #stock-filter-form select[name="sales_velocity"]', function () {
             $('#stock-filter-form').trigger('submit');
         });
 

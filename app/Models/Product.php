@@ -85,6 +85,11 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class);
     }
 
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'product_id');
+    }
+
     public function purchaseDetails()
     {
         return $this->hasMany(PurchaseDetail::class);
@@ -366,5 +371,48 @@ class Product extends Model
     public function isDiscontinued(): bool
     {
         return $this->procurement_status === 'discontinued';
+    }
+
+    /**
+     * Point 20: Sales Velocity evaluation (Frequently Ordered, Slow Going, Not Going / Dead Stock)
+     */
+    public function getSalesVelocityAttribute(): array
+    {
+        $orderCount = $this->order_items_count ?? (
+            $this->relationLoaded('orderItems') 
+                ? $this->orderItems->count() 
+                : $this->orderItems()->count()
+        );
+
+        if ($orderCount >= 10) {
+            return [
+                'key'         => 'frequently_ordered',
+                'label'       => 'Fast Mover',
+                'full_label'  => 'Frequently Ordered',
+                'badge_class' => 'badge-success',
+                'icon'        => 'fas fa-fire',
+                'order_count' => $orderCount,
+            ];
+        }
+
+        if ($orderCount > 0) {
+            return [
+                'key'         => 'slow_going',
+                'label'       => 'Slow Mover',
+                'full_label'  => 'Slow Going',
+                'badge_class' => 'badge-warning text-dark',
+                'icon'        => 'fas fa-hourglass-half',
+                'order_count' => $orderCount,
+            ];
+        }
+
+        return [
+            'key'         => 'not_going',
+            'label'       => 'Non-Moving',
+            'full_label'  => 'Not Going (Dead Stock)',
+            'badge_class' => 'badge-secondary',
+            'icon'        => 'fas fa-pause-circle',
+            'order_count' => 0,
+        ];
     }
 }

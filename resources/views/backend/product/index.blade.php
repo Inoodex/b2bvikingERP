@@ -1536,7 +1536,18 @@
                                             <option value="">Child Category</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-1">
+                                        <select name="alphabet" id="alphabet-dropdown"
+                                            class="form-control select2 pp-select2">
+                                            <option value="">A-Z</option>
+                                            @foreach (range('A', 'Z') as $char)
+                                                <option value="{{ $char }}"
+                                                    {{ request('alphabet') == $char ? 'selected' : '' }}>
+                                                    {{ $char }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-2">
                                         <select name="procurement_status" id="procurement_status_filter"
                                             class="form-control select2 pp-select2">
                                             <option value="">Procurement Status (All)</option>
@@ -1555,30 +1566,39 @@
                                 <hr style="border-top: 1px solid var(--pp-border); margin: 6px 0 10px;">
                                 <div class="row g-4 align-items-end">
                                     <div class="col-12 col-md-2">
-                                        <select name="sort" id="sort" class="form-control select2 pp-select2">
-                                            <option value="">Sort by</option>
-                                            <option value="latest"
-                                                {{ request('sort') == 'latest' || !request('sort') ? 'selected' : '' }}>
-                                                Latest</option>
-                                            <option value="a-z" {{ request('sort') == 'a-z' ? 'selected' : '' }}>A-Z
-                                            </option>
-                                            <option value="z-a" {{ request('sort') == 'z-a' ? 'selected' : '' }}>Z-A
-                                            </option>
-                                            <option value="active" {{ request('sort') == 'active' ? 'selected' : '' }}>
-                                                Active</option>
-                                            <option value="inactive" {{ request('sort') == 'inactive' ? 'selected' : '' }}>
-                                                Inactive</option>
+                                        <select name="sales_velocity" id="sales_velocity_filter"
+                                            class="form-control select2 pp-select2">
+                                            <option value="">Sales Velocity (All)</option>
+                                            <option value="frequently_ordered"
+                                                {{ request('sales_velocity') == 'frequently_ordered' ? 'selected' : '' }}>
+                                                🚀 Frequently Ordered</option>
+                                            <option value="slow_going"
+                                                {{ request('sales_velocity') == 'slow_going' ? 'selected' : '' }}>
+                                                ⏳ Slow Going</option>
+                                            <option value="not_going"
+                                                {{ request('sales_velocity') == 'not_going' ? 'selected' : '' }}>
+                                                🛑 Not Going (Dead Stock)</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-2">
-                                        <select name="alphabet" id="alphabet-dropdown"
+                                        <select name="order_status" id="order_status_filter"
                                             class="form-control select2 pp-select2">
-                                            <option value="">Alphabet (All)</option>
-                                            @foreach (range('A', 'Z') as $char)
-                                                <option value="{{ $char }}"
-                                                    {{ request('alphabet') == $char ? 'selected' : '' }}>
-                                                    {{ $char }}</option>
-                                            @endforeach
+                                            <option value="">Order Pipeline (All)</option>
+                                            <option value="on_order"
+                                                {{ request('order_status') == 'on_order' ? 'selected' : '' }}>⏳ On Order /
+                                                Active PO</option>
+                                            <option value="in_shipment"
+                                                {{ request('order_status') == 'in_shipment' ? 'selected' : '' }}>🚢 In
+                                                Shipment / Shipped</option>
+                                            <option value="out_of_stock_not_ordered"
+                                                {{ request('order_status') == 'out_of_stock_not_ordered' ? 'selected' : '' }}>
+                                                ⚠️ Stockout • Not Ordered</option>
+                                            <option value="out_of_stock_ordered"
+                                                {{ request('order_status') == 'out_of_stock_ordered' ? 'selected' : '' }}>
+                                                📦 Stockout • Already Ordered</option>
+                                            <option value="in_stock"
+                                                {{ request('order_status') == 'in_stock' ? 'selected' : '' }}>✅ In Stock
+                                                (Qty &gt; 0)</option>
                                         </select>
                                     </div>
                                     @if (isset($vendors) && $vendors->count() > 0)
@@ -1630,24 +1650,19 @@
                                         </div>
                                     @endif
                                     <div class="col-12 col-md-2">
-                                        <select name="order_status" id="order_status_filter"
-                                            class="form-control select2 pp-select2">
-                                            <option value="">Order Pipeline (All)</option>
-                                            <option value="on_order"
-                                                {{ request('order_status') == 'on_order' ? 'selected' : '' }}>⏳ On Order /
-                                                Active PO</option>
-                                            <option value="in_shipment"
-                                                {{ request('order_status') == 'in_shipment' ? 'selected' : '' }}>🚢 In
-                                                Shipment / Shipped</option>
-                                            <option value="out_of_stock_not_ordered"
-                                                {{ request('order_status') == 'out_of_stock_not_ordered' ? 'selected' : '' }}>
-                                                ⚠️ Stockout • Not Ordered</option>
-                                            <option value="out_of_stock_ordered"
-                                                {{ request('order_status') == 'out_of_stock_ordered' ? 'selected' : '' }}>
-                                                📦 Stockout • Already Ordered</option>
-                                            <option value="in_stock"
-                                                {{ request('order_status') == 'in_stock' ? 'selected' : '' }}>✅ In Stock
-                                                (Qty &gt; 0)</option>
+                                        <select name="sort" id="sort" class="form-control select2 pp-select2">
+                                            <option value="">Sort by</option>
+                                            <option value="latest"
+                                                {{ request('sort') == 'latest' || !request('sort') ? 'selected' : '' }}>
+                                                Latest</option>
+                                            <option value="a-z" {{ request('sort') == 'a-z' ? 'selected' : '' }}>A-Z
+                                            </option>
+                                            <option value="z-a" {{ request('sort') == 'z-a' ? 'selected' : '' }}>Z-A
+                                            </option>
+                                            <option value="active" {{ request('sort') == 'active' ? 'selected' : '' }}>
+                                                 Active</option>
+                                            <option value="inactive" {{ request('sort') == 'inactive' ? 'selected' : '' }}>
+                                                Inactive</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-2">
@@ -2377,6 +2392,7 @@
                 let vendor = $('#vendor_filter').val();
                 let order_status = $('#order_status_filter').val();
                 let procurement_status = $('#procurement_status_filter').val();
+                let sales_velocity = $('#sales_velocity_filter').val();
                 let sort = $('#sort').val();
 
                 $.ajax({
@@ -2392,6 +2408,7 @@
                         vendor: vendor,
                         order_status: order_status,
                         procurement_status: procurement_status,
+                        sales_velocity: sales_velocity,
                         sort: sort
                     },
                     beforeSend: function() {
@@ -2435,6 +2452,7 @@
                             vendor: vendor,
                             order_status: order_status,
                             procurement_status: procurement_status,
+                            sales_velocity: sales_velocity,
                             sort: sort
                         });
 
@@ -2622,6 +2640,11 @@
                 fetchProducts();
             });
 
+            // Sales Velocity Filter Change (Point 20)
+            $('body').on('change', '#sales_velocity_filter', function() {
+                fetchProducts();
+            });
+
             // Reset Filters
             $('body').on('click', '#reset-filters', function() {
                 $('.search-input').val('');
@@ -2635,6 +2658,7 @@
                 $('#vendor_filter').val('');
                 $('#order_status_filter').val('');
                 $('#procurement_status_filter').val('');
+                $('#sales_velocity_filter').val('');
                 $('#sort').val('latest');
 
                 // Re-trigger select2 UI update without triggering 'change' listener

@@ -60,7 +60,7 @@ class ProductController extends Controller implements HasMiddleware
      */
     public function index(Request $request)
     {
-        $query = Product::with([
+        $query = Product::withCount('orderItems')->with([
             'category',
             'variants.color',
             'variants.size',
@@ -179,6 +179,34 @@ class ProductController extends Controller implements HasMiddleware
                 });
             } elseif (in_array($ps, ['do_not_order', 'discontinued'])) {
                 $query->where('procurement_status', $ps);
+            }
+        }
+
+        // Point 20: Sales Velocity Filter (Frequently Ordered, Slow Going, Not Going)
+        if ($request->filled('sales_velocity')) {
+            $sv = $request->sales_velocity;
+            if ($sv === 'frequently_ordered') {
+                $query->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) >= 10 OR SUM(quantity) >= 50');
+                });
+            } elseif ($sv === 'slow_going') {
+                $query->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) > 0 AND COUNT(*) < 10 AND SUM(quantity) < 50');
+                });
+            } elseif ($sv === 'not_going') {
+                $query->whereNotIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id');
+                });
             }
         }
 

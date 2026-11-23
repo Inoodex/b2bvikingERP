@@ -48,6 +48,33 @@ class GenerateStockReportPdfJob implements ShouldQueue
             $query->where('brand_id', $this->filters['brand_id']);
         }
 
+        if (!empty($this->filters['sales_velocity'])) {
+            $sv = $this->filters['sales_velocity'];
+            if ($sv === 'frequently_ordered') {
+                $query->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) >= 10 OR SUM(quantity) >= 50');
+                });
+            } elseif ($sv === 'slow_going') {
+                $query->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) > 0 AND COUNT(*) < 10 AND SUM(quantity) < 50');
+                });
+            } elseif ($sv === 'not_going') {
+                $query->whereNotIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id');
+                });
+            }
+        }
+
         $products = $query->orderBy('name', 'asc')->get();
 
         $totalQty = 0;

@@ -92,11 +92,20 @@
 
                 <div class="pp-card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="pp-badge-category">{{ $product->category->name ?? 'Uncategorized' }}</span>
-                        <span class="pp-badge-stock {{ $stock > 0 ? 'in-stock' : 'out-of-stock' }}"
-                            title="Warehouse Inventory Stock">
-                            Stock: {{ (float) $stock }}
-                        </span>
+                        <span class="pp-badge-category text-truncate" style="max-width: 45%;">{{ $product->category->name ?? 'Uncategorized' }}</span>
+                        <div class="d-flex align-items-center" style="gap: 4px;">
+                            @php $velocity = $product->sales_velocity; @endphp
+                            <span class="badge {{ $velocity['badge_class'] }} px-1 py-0 shadow-sm"
+                                style="font-size: 8.5px; border-radius: 4px; font-weight: 600;"
+                                title="Sales Velocity: {{ $velocity['full_label'] }} ({{ $velocity['order_count'] }} orders)"
+                                data-toggle="tooltip">
+                                <i class="{{ $velocity['icon'] }} mr-1"></i>{{ $velocity['label'] }}
+                            </span>
+                            <span class="pp-badge-stock {{ $stock > 0 ? 'in-stock' : 'out-of-stock' }}"
+                                title="Warehouse Inventory Stock">
+                                Stock: {{ (float) $stock }}
+                            </span>
+                        </div>
                     </div>
 
                     <div class="mb-1 d-flex align-items-center" style="min-height: 20px;">

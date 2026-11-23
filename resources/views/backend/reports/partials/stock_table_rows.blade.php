@@ -29,7 +29,13 @@
         </td>
         <td>
             <div class="badge badge-light mb-1">{{ $product->category->name ?? '-' }}</div>
-            <div class="text-small text-muted">{{ $product->brand->name ?? '-' }}</div>
+            <div class="text-small text-muted mb-1">{{ $product->brand->name ?? '-' }}</div>
+            @php $vel = $product->sales_velocity; @endphp
+            <div>
+                <span class="badge {{ $vel['badge_class'] }}" style="font-size: 9.5px;" title="{{ $vel['full_label'] }}">
+                    <i class="{{ $vel['icon'] }} mr-1"></i>{{ $vel['label'] }}
+                </span>
+            </div>
         </td>
         <td class="text-center">
             @if($qty <= $product->min_inventory_qty)
