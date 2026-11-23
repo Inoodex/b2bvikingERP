@@ -16,9 +16,13 @@ $(document).ready(function() {
         if (reportType === 'stock_valuation_report') {
             var catVal = $('select[name="category_id"]').val();
             var brandVal = $('select[name="brand_id"]').val();
-            if (!catVal && !brandVal) {
+            var vendorVal = $('select[name="vendor_id"]').val();
+            var velVal = $('select[name="sales_velocity"]').val();
+            var fromVal = $('input[name="item_code_from"]').val();
+            var toVal = $('input[name="item_code_to"]').val();
+            if (!catVal && !brandVal && !vendorVal && !velVal && !fromVal && !toVal) {
                 if (typeof toastr !== 'undefined') {
-                    toastr.warning('Please select a Category or Brand filter before exporting PDF. For full inventory, please use Excel export.', 'Filter Required');
+                    toastr.warning('Please select a Category, Brand, Vendor, Velocity, or Item Range filter before exporting PDF. For full inventory, please use Excel export.', 'Filter Required');
                 }
                 return;
             }
@@ -27,9 +31,13 @@ $(document).ready(function() {
         if (reportType === 'expected_stock_report') {
             var expCatVal = $('select[name="expected_category_id"]').val();
             var expBrandVal = $('select[name="expected_brand_id"]').val();
-            if (!expCatVal && !expBrandVal) {
+            var expVendorVal = $('select[name="expected_vendor_id"]').val();
+            var expVelVal = $('select[name="expected_sales_velocity"]').val();
+            var expFromVal = $('input[name="expected_item_code_from"]').val();
+            var expToVal = $('input[name="expected_item_code_to"]').val();
+            if (!expCatVal && !expBrandVal && !expVendorVal && !expVelVal && !expFromVal && !expToVal) {
                 if (typeof toastr !== 'undefined') {
-                    toastr.warning('Please select a Category or Brand filter before exporting PDF. For full inventory, please use Excel export.', 'Filter Required');
+                    toastr.warning('Please select a Category, Brand, Vendor, Velocity, or Item Range filter before exporting PDF. For full inventory, please use Excel export.', 'Filter Required');
                 }
                 return;
             }

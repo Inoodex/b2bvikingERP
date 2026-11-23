@@ -292,6 +292,22 @@ class ReportController extends Controller implements HasMiddleware
         if ($request->brand_id) {
             $query->where('brand_id', $request->brand_id);
         }
+        // Point 22: Filter by Vendor / Company
+        if ($request->filled('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+        // Point 22: Item Code / Product Number Range Filter (e.g. 1003 to 1135)
+        if ($request->filled('item_code_from') && $request->filled('item_code_to')) {
+            $from = (int) preg_replace('/[^0-9]/', '', $request->item_code_from);
+            $to   = (int) preg_replace('/[^0-9]/', '', $request->item_code_to);
+            $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) BETWEEN ? AND ?", [$from, $to]);
+        } elseif ($request->filled('item_code_from')) {
+            $from = (int) preg_replace('/[^0-9]/', '', $request->item_code_from);
+            $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) >= ?", [$from]);
+        } elseif ($request->filled('item_code_to')) {
+            $to = (int) preg_replace('/[^0-9]/', '', $request->item_code_to);
+            $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) <= ?", [$to]);
+        }
 
         // Point 20: Sales Velocity Filter
         if ($request->filled('sales_velocity')) {
@@ -332,6 +348,20 @@ class ReportController extends Controller implements HasMiddleware
         }
         if ($request->brand_id) {
             $summaryQuery->where('products.brand_id', $request->brand_id);
+        }
+        if ($request->filled('vendor_id')) {
+            $summaryQuery->where('products.vendor_id', $request->vendor_id);
+        }
+        if ($request->filled('item_code_from') && $request->filled('item_code_to')) {
+            $from = (int) preg_replace('/[^0-9]/', '', $request->item_code_from);
+            $to   = (int) preg_replace('/[^0-9]/', '', $request->item_code_to);
+            $summaryQuery->whereRaw("CAST(REGEXP_SUBSTR(products.product_number, '[0-9]+') AS UNSIGNED) BETWEEN ? AND ?", [$from, $to]);
+        } elseif ($request->filled('item_code_from')) {
+            $from = (int) preg_replace('/[^0-9]/', '', $request->item_code_from);
+            $summaryQuery->whereRaw("CAST(REGEXP_SUBSTR(products.product_number, '[0-9]+') AS UNSIGNED) >= ?", [$from]);
+        } elseif ($request->filled('item_code_to')) {
+            $to = (int) preg_replace('/[^0-9]/', '', $request->item_code_to);
+            $summaryQuery->whereRaw("CAST(REGEXP_SUBSTR(products.product_number, '[0-9]+') AS UNSIGNED) <= ?", [$to]);
         }
         if ($request->filled('sales_velocity')) {
             $sv = $request->sales_velocity;
@@ -375,6 +405,7 @@ class ReportController extends Controller implements HasMiddleware
         
         $categories = Category::where('status', 1)->get();
         $brands = Brand::where('status', 1)->get();
+        $vendors = Vendor::where('status', 1)->orderBy('shop_name')->get();
         $settings = GeneralSetting::first() ?? new GeneralSetting(['site_name' => 'B2B Viking ERP', 'currency_icon' => 'Kr.']);
 
         // ─── TAB 2: Expected Retail Price (User / Outlet) Data ───
@@ -430,6 +461,23 @@ class ReportController extends Controller implements HasMiddleware
         if ($request->expected_brand_id) {
             $expectedQuery->where('brand_id', $request->expected_brand_id);
         }
+        $expectedVendorId = $request->get('expected_vendor_id') ?: $request->get('vendor_id');
+        if ($expectedVendorId) {
+            $expectedQuery->where('vendor_id', $expectedVendorId);
+        }
+        $expItemFrom = $request->get('expected_item_code_from') ?: $request->get('item_code_from');
+        $expItemTo   = $request->get('expected_item_code_to') ?: $request->get('item_code_to');
+        if ($expItemFrom && $expItemTo) {
+            $from = (int) preg_replace('/[^0-9]/', '', $expItemFrom);
+            $to   = (int) preg_replace('/[^0-9]/', '', $expItemTo);
+            $expectedQuery->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) BETWEEN ? AND ?", [$from, $to]);
+        } elseif ($expItemFrom) {
+            $from = (int) preg_replace('/[^0-9]/', '', $expItemFrom);
+            $expectedQuery->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) >= ?", [$from]);
+        } elseif ($expItemTo) {
+            $to = (int) preg_replace('/[^0-9]/', '', $expItemTo);
+            $expectedQuery->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) <= ?", [$to]);
+        }
 
         $expectedVelocity = $request->get('expected_sales_velocity') ?: $request->get('sales_velocity');
         if ($expectedVelocity) {
@@ -471,6 +519,20 @@ class ReportController extends Controller implements HasMiddleware
         }
         if ($request->expected_brand_id) {
             $expectedSummaryQuery->where('products.brand_id', $request->expected_brand_id);
+        }
+        if ($expectedVendorId) {
+            $expectedSummaryQuery->where('products.vendor_id', $expectedVendorId);
+        }
+        if ($expItemFrom && $expItemTo) {
+            $from = (int) preg_replace('/[^0-9]/', '', $expItemFrom);
+            $to   = (int) preg_replace('/[^0-9]/', '', $expItemTo);
+            $expectedSummaryQuery->whereRaw("CAST(REGEXP_SUBSTR(products.product_number, '[0-9]+') AS UNSIGNED) BETWEEN ? AND ?", [$from, $to]);
+        } elseif ($expItemFrom) {
+            $from = (int) preg_replace('/[^0-9]/', '', $expItemFrom);
+            $expectedSummaryQuery->whereRaw("CAST(REGEXP_SUBSTR(products.product_number, '[0-9]+') AS UNSIGNED) >= ?", [$from]);
+        } elseif ($expItemTo) {
+            $to = (int) preg_replace('/[^0-9]/', '', $expItemTo);
+            $expectedSummaryQuery->whereRaw("CAST(REGEXP_SUBSTR(products.product_number, '[0-9]+') AS UNSIGNED) <= ?", [$to]);
         }
         if ($expectedVelocity) {
             if ($expectedVelocity === 'frequently_ordered') {
@@ -528,7 +590,7 @@ class ReportController extends Controller implements HasMiddleware
         $latestExpectedPdf = $this->getLatestReportFile('expected_stock_report', 'admin.reports.stock.expected.pdf.download');
 
         return view('backend.reports.stock', compact(
-            'products', 'categories', 'brands', 'totalQty', 'totalValue', 'potentialRevenue', 'potentialProfit', 'settings', 'latestPdf', 'latestExpectedPdf',
+            'products', 'categories', 'brands', 'vendors', 'totalQty', 'totalValue', 'potentialRevenue', 'potentialProfit', 'settings', 'latestPdf', 'latestExpectedPdf',
             'activeTab', 'outlets', 'customers', 'expectedProducts', 'selectedExpectedEntityName', 'selectedExpectedOutletId', 'selectedExpectedUserId',
             'expTotalQty', 'expTotalCost', 'expTotalWholesale', 'expTotalRetail', 'expTotalMargin'
         ));
@@ -562,6 +624,19 @@ class ReportController extends Controller implements HasMiddleware
             $query->where('vendor_id', $request->vendor_id);
         }
 
+        // Point 22: Item Code / Product Number Range Filter (e.g. 1003 to 1135)
+        if ($request->filled('item_code_from') && $request->filled('item_code_to')) {
+            $from = (int) preg_replace('/[^0-9]/', '', $request->item_code_from);
+            $to   = (int) preg_replace('/[^0-9]/', '', $request->item_code_to);
+            $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) BETWEEN ? AND ?", [$from, $to]);
+        } elseif ($request->filled('item_code_from')) {
+            $from = (int) preg_replace('/[^0-9]/', '', $request->item_code_from);
+            $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) >= ?", [$from]);
+        } elseif ($request->filled('item_code_to')) {
+            $to = (int) preg_replace('/[^0-9]/', '', $request->item_code_to);
+            $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) <= ?", [$to]);
+        }
+
         // Vendor-wala products first (NULL vendor_id LAST), then latest product id
         $products = $query->orderByRaw('CASE WHEN vendor_id IS NULL THEN 1 ELSE 0 END ASC')
                           ->orderBy('vendor_id', 'asc')
@@ -579,7 +654,16 @@ class ReportController extends Controller implements HasMiddleware
      */
     public function exportCurrentStockReport(Request $request)
     {
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\CurrentStockExport($request->category_id, $request->stock_status, $request->vendor_id), 'current-stock-report-' . now()->format('Y-m-d') . '.xlsx');
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\CurrentStockExport(
+                $request->category_id,
+                $request->stock_status,
+                $request->vendor_id,
+                $request->item_code_from,
+                $request->item_code_to
+            ),
+            'current-stock-report-' . now()->format('Y-m-d') . '.xlsx'
+        );
     }
 
     /**
@@ -1143,11 +1227,14 @@ class ReportController extends Controller implements HasMiddleware
         $filters = [
             'category_id'    => $request->get('category_id'),
             'brand_id'       => $request->get('brand_id'),
+            'vendor_id'      => $request->get('vendor_id'),
             'sales_velocity' => $request->get('sales_velocity'),
+            'item_code_from' => $request->get('item_code_from'),
+            'item_code_to'   => $request->get('item_code_to'),
         ];
 
-        if (empty($filters['category_id']) && empty($filters['brand_id']) && empty($filters['sales_velocity'])) {
-            $msg = 'Please select a Category, Brand, or Sales Velocity filter before exporting PDF. For full inventory, please use Excel export.';
+        if (empty($filters['category_id']) && empty($filters['brand_id']) && empty($filters['vendor_id']) && empty($filters['sales_velocity']) && empty($filters['item_code_from']) && empty($filters['item_code_to'])) {
+            $msg = 'Please select a Category, Brand, Vendor, Velocity, or Item Range filter before exporting PDF. For full inventory, please use Excel export.';
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'status'  => 'warning',

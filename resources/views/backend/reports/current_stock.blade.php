@@ -25,7 +25,7 @@
             </div>
             <div class="card-body">
                 <form id="stock-filter-form" action="{{ route('admin.reports.current-stock') }}" method="GET">
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="col-md-4">
                             <div class="form-group mb-0">
                                 <label class="font-weight-600">Category</label>
@@ -61,6 +61,25 @@
                                     <option value="out_of_stock" {{ request()->stock_status == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+                    <div class="row align-items-end">
+                        <div class="col-md-5">
+                            <div class="form-group mb-0">
+                                <label class="font-weight-600">Item Code Range: From (e.g. 1003)</label>
+                                <input type="text" name="item_code_from" class="form-control" placeholder="From (e.g. 1003)" value="{{ request()->item_code_from }}">
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group mb-0">
+                                <label class="font-weight-600">Item Code Range: To (e.g. 1135)</label>
+                                <input type="text" name="item_code_to" class="form-control" placeholder="To (e.g. 1135)" value="{{ request()->item_code_to }}">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ route('admin.reports.current-stock') }}" class="btn btn-outline-danger btn-block reset-arrow-button" style="height: 42px; display: inline-flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-undo mr-1"></i>Reset Filters
+                            </a>
                         </div>
                     </div>
                 </form>
@@ -224,4 +243,19 @@
     background-color: #f8f9ff !important;
 }
 </style>
+
+@push('scripts')
+<script>
+    let currentStockRangeDebounce = null;
+    $(document).on('input', '#stock-filter-form input[name="item_code_from"], #stock-filter-form input[name="item_code_to"]', function () {
+        clearTimeout(currentStockRangeDebounce);
+        currentStockRangeDebounce = setTimeout(function () {
+            $('#stock-filter-form').submit();
+        }, 600);
+    });
+    $(document).on('change', '#stock-filter-form input[name="item_code_from"], #stock-filter-form input[name="item_code_to"]', function () {
+        $('#stock-filter-form').submit();
+    });
+</script>
+@endpush
 @endsection

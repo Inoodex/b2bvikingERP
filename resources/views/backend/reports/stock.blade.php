@@ -731,8 +731,8 @@
                 <div class="collapse show" id="sr-filter-collapse">
                     <div class="sr-filter-body">
                         <form id="stock-filter-form" action="{{ route('admin.reports.stock') }}" method="GET">
-                            <div class="row g-3 align-items-end">
-                                <div class="col-md-4">
+                            <div class="row g-3 align-items-end mb-2">
+                                <div class="col-md-3">
                                     <label>Category</label>
                                     <select name="category_id" class="form-control select2">
                                         <option value="">All Categories</option>
@@ -751,6 +751,17 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
+                                    <label>Company / Vendor</label>
+                                    <select name="vendor_id" class="form-control select2">
+                                        <option value="">All Vendors</option>
+                                        @if(isset($vendors))
+                                            @foreach ($vendors as $vendor)
+                                                <option value="{{ $vendor->id }}" {{ request()->vendor_id == $vendor->id ? 'selected' : '' }}>{{ $vendor->shop_name }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
                                     <label>Sales Velocity</label>
                                     <select name="sales_velocity" class="form-control select2">
                                         <option value="">Sales Velocity (All)</option>
@@ -759,9 +770,19 @@
                                         <option value="not_going" {{ request()->sales_velocity == 'not_going' ? 'selected' : '' }}>🛑 Not Going (Dead Stock)</option>
                                     </select>
                                 </div>
+                            </div>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-5">
+                                    <label>Item Code Range: From (e.g. 1003)</label>
+                                    <input type="text" name="item_code_from" class="form-control" placeholder="From (e.g. 1003)" value="{{ request()->item_code_from }}" style="height: 38px; border-radius: 10px; border: 1.5px solid var(--sr-border);">
+                                </div>
+                                <div class="col-md-5">
+                                    <label>Item Code Range: To (e.g. 1135)</label>
+                                    <input type="text" name="item_code_to" class="form-control" placeholder="To (e.g. 1135)" value="{{ request()->item_code_to }}" style="height: 38px; border-radius: 10px; border: 1.5px solid var(--sr-border);">
+                                </div>
                                 <div class="col-md-2">
-                                    <a href="{{ route('admin.reports.stock') }}" class="sr-btn rose w-100 reset-arrow-button" style="margin-top: 4px; justify-content: center;">
-                                        <i class="fas fa-undo"></i> Reset
+                                    <a href="{{ route('admin.reports.stock') }}" class="sr-btn rose w-100 reset-arrow-button" style="margin-top: 4px; justify-content: center; height: 38px;">
+                                        <i class="fas fa-undo"></i> Reset Filters
                                     </a>
                                 </div>
                             </div>
@@ -1054,7 +1075,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="row g-3 align-items-end">
+                            <div class="row g-3 align-items-end mb-2">
                                 <div class="col-md-3">
                                     <label class="font-weight-bold">Category</label>
                                     <select name="expected_category_id" class="form-control select2">
@@ -1074,6 +1095,17 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
+                                    <label class="font-weight-bold">Company / Vendor</label>
+                                    <select name="expected_vendor_id" class="form-control select2">
+                                        <option value="">All Vendors</option>
+                                        @if(isset($vendors))
+                                            @foreach ($vendors as $vendor)
+                                                <option value="{{ $vendor->id }}" {{ (request()->expected_vendor_id ?? request()->vendor_id) == $vendor->id ? 'selected' : '' }}>{{ $vendor->shop_name }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
                                     <label class="font-weight-bold">Sales Velocity</label>
                                     <select name="expected_sales_velocity" class="form-control select2">
                                         <option value="">Sales Velocity (All)</option>
@@ -1082,7 +1114,17 @@
                                         <option value="not_going" {{ (request()->expected_sales_velocity ?? request()->sales_velocity) == 'not_going' ? 'selected' : '' }}>🛑 Not Going (Dead Stock)</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+                            </div>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-5">
+                                    <label class="font-weight-bold">Item Code Range: From (e.g. 1003)</label>
+                                    <input type="text" name="expected_item_code_from" class="form-control" placeholder="From (e.g. 1003)" value="{{ request()->expected_item_code_from ?? request()->item_code_from }}" style="height: 38px; border-radius: 10px; border: 1.5px solid var(--sr-border);">
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="font-weight-bold">Item Code Range: To (e.g. 1135)</label>
+                                    <input type="text" name="expected_item_code_to" class="form-control" placeholder="To (e.g. 1135)" value="{{ request()->expected_item_code_to ?? request()->item_code_to }}" style="height: 38px; border-radius: 10px; border: 1.5px solid var(--sr-border);">
+                                </div>
+                                <div class="col-md-2">
                                     <a href="{{ route('admin.reports.stock', ['tab' => 'expected']) }}" class="sr-btn rose w-100 reset-arrow-button" style="margin-top: 4px; justify-content: center; height: 38px;">
                                         <i class="fas fa-undo"></i> Reset Filters
                                     </a>
@@ -1395,7 +1437,19 @@
         }
         initExportButtons();
 
-        $(document).on('change select2:select', '#stock-filter-form select[name="category_id"], #stock-filter-form select[name="brand_id"], #stock-filter-form select[name="sales_velocity"]', function () {
+        $(document).on('change select2:select', '#stock-filter-form select', function () {
+            $('#stock-filter-form').trigger('submit');
+        });
+
+        // Dynamic auto-filter for Item Code Range (Point 22)
+        let stockRangeDebounce = null;
+        $(document).on('input', '#stock-filter-form input[name="item_code_from"], #stock-filter-form input[name="item_code_to"]', function () {
+            clearTimeout(stockRangeDebounce);
+            stockRangeDebounce = setTimeout(function () {
+                $('#stock-filter-form').trigger('submit');
+            }, 600);
+        });
+        $(document).on('change', '#stock-filter-form input[name="item_code_from"], #stock-filter-form input[name="item_code_to"]', function () {
             $('#stock-filter-form').trigger('submit');
         });
 
@@ -1459,6 +1513,18 @@
         });
 
         $(document).on('change select2:select', '#expected-filter-form select', function () {
+            $('#expected-filter-form').trigger('submit');
+        });
+
+        // Dynamic auto-filter for Tab 2 Item Code Range
+        let expRangeDebounce = null;
+        $(document).on('input', '#expected-filter-form input[name="expected_item_code_from"], #expected-filter-form input[name="expected_item_code_to"]', function () {
+            clearTimeout(expRangeDebounce);
+            expRangeDebounce = setTimeout(function () {
+                $('#expected-filter-form').trigger('submit');
+            }, 600);
+        });
+        $(document).on('change', '#expected-filter-form input[name="expected_item_code_from"], #expected-filter-form input[name="expected_item_code_to"]', function () {
             $('#expected-filter-form').trigger('submit');
         });
 
