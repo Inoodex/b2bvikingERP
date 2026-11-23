@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Discount;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,35 +13,60 @@ class CheckoutDiscountResolver
     private ?Discount $defaultDiscount = null;
     private bool $defaultDiscountLoaded = false;
 
-    public function resolveForLine($product, float $lineSubtotal, int $quantity = 1): array
+    public function resolveForLine($product, float $lineSubtotal, int $quantity = 1, ?int $userId = null): array
     {
         $lineSubtotal = max(0, $lineSubtotal);
         $quantity = max(1, $quantity);
         $currentSubtotal = $lineSubtotal;
         $discounts = [];
         $totalAmount = 0.0;
+        $effectiveUserId = $userId ?: Auth::id();
 
-        // 1. Resolve Product Discount
-        $productDiscount = $this->resolveProductDiscount($product);
-        if ($productDiscount !== null) {
+        // 1. Resolve Active Seasonal / Targeted Discount Rule
+        $seasonalDiscount = $this->resolveSeasonalDiscount($product, $effectiveUserId);
+        if ($seasonalDiscount !== null) {
             $amount = $this->calculateAmount(
                 $currentSubtotal,
-                $productDiscount['type'],
-                $productDiscount['value'],
+                $seasonalDiscount['type'],
+                $seasonalDiscount['value'],
                 $quantity,
                 true
             );
             $discounts[] = [
-                'source' => 'product',
-                'type' => $productDiscount['type'],
-                'value' => $productDiscount['value'],
+                'source' => 'seasonal',
+                'name' => $seasonalDiscount['name'],
+                'occasion' => $seasonalDiscount['occasion'],
+                'type' => $seasonalDiscount['type'],
+                'value' => $seasonalDiscount['value'],
                 'amount' => $amount,
             ];
             $totalAmount += $amount;
             $currentSubtotal = max(0, $currentSubtotal - $amount);
         }
 
-        // 2. Resolve Default Discount (Only if no product discount was applied)
+        // 2. Resolve Product Discount (Only if no seasonal discount was applied)
+        if (empty($discounts)) {
+            $productDiscount = $this->resolveProductDiscount($product);
+            if ($productDiscount !== null) {
+                $amount = $this->calculateAmount(
+                    $currentSubtotal,
+                    $productDiscount['type'],
+                    $productDiscount['value'],
+                    $quantity,
+                    true
+                );
+                $discounts[] = [
+                    'source' => 'product',
+                    'type' => $productDiscount['type'],
+                    'value' => $productDiscount['value'],
+                    'amount' => $amount,
+                ];
+                $totalAmount += $amount;
+                $currentSubtotal = max(0, $currentSubtotal - $amount);
+            }
+        }
+
+        // 3. Resolve Default Store Discount (Only if no other discount was applied)
         if (empty($discounts)) {
             $defaultDiscount = $this->getDefaultDiscount();
             if ($defaultDiscount) {
@@ -71,6 +97,61 @@ class CheckoutDiscountResolver
             'type' => count($discounts) === 1 ? $discounts[0]['type'] : null,
             'value' => count($discounts) === 1 ? $discounts[0]['value'] : 0,
         ];
+    }
+
+    /**
+     * Resolve active seasonal or targeted discount rule for the product & customer
+     */
+    public function resolveSeasonalDiscount($product, ?int $userId = null): ?array
+    {
+        if (!$product || !Schema::hasTable('discounts')) {
+            return null;
+        }
+
+        $categoryId = is_object($product) ? ($product->category_id ?? null) : (is_array($product) ? ($product['category_id'] ?? null) : null);
+        $productTypeId = is_object($product) ? ($product->product_type_id ?? null) : (is_array($product) ? ($product['product_type_id'] ?? null) : null);
+        $today = Carbon::today();
+
+        // Get active seasonal rules ordered by ID desc (latest rule priority)
+        $seasonalRules = Discount::with('productType')
+            ->where('is_seasonal', true)
+            ->where('status', true)
+            ->orderByDesc('id')
+            ->get();
+
+        foreach ($seasonalRules as $rule) {
+            // Check date range
+            if (!$rule->isDateActive($today)) {
+                continue;
+            }
+
+            // Check product type / occasion target
+            if (!$rule->appliesToProductType($productTypeId ? (int)$productTypeId : null)) {
+                continue;
+            }
+
+            // Check category target
+            if (!$rule->appliesToCategory($categoryId ? (int)$categoryId : null)) {
+                continue;
+            }
+
+            // Check user target
+            if (!$rule->appliesToUser($userId ? (int)$userId : null)) {
+                continue;
+            }
+
+            // Matches!
+            $occasionLabel = optional($rule->productType)->name ?? ($rule->occasion ?: 'Seasonal Sale');
+            return [
+                'id' => $rule->id,
+                'name' => $rule->name,
+                'occasion' => $occasionLabel,
+                'type' => $rule->type === 'flat' ? 'flat' : 'percent',
+                'value' => (float)$rule->value,
+            ];
+        }
+
+        return null;
     }
 
     public function getDefaultDiscount(): ?Discount
