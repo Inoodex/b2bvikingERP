@@ -95,7 +95,7 @@
 
                                 <div class="form-group">
                                     <label>Select Vendors to Invite *</label>
-                                    <select name="vendors[]" class="form-control select2" multiple required>
+                                    <select name="vendors[]" id="vendor_select" class="form-control select2" multiple required>
                                         @foreach($vendors as $vendor)
                                             <option value="{{ $vendor->id }}" {{ (isset($defaultVendorIds) && in_array($vendor->id, (array)$defaultVendorIds)) ? 'selected' : '' }}>{{ $vendor->shop_name }} ({{ $vendor->email }})</option>
                                         @endforeach
@@ -123,7 +123,11 @@
                                             <select class="form-control select2" id="product_selector">
                                                 <option value="">-- Choose Product --</option>
                                                 @foreach($products as $product)
-                                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                                    <option value="{{ $product->id }}"
+                                                        data-procurement-status="{{ $product->procurement_status ?? 'active' }}"
+                                                        data-procurement-note="{{ $product->procurement_note ?? '' }}">
+                                                        {{ $product->name }}{{ $product->category ? ' — [' . $product->category->name . ']' : '' }}{{ $product->procurement_status === 'do_not_order' ? ' (⚠️ Do Not Re-Order)' : '' }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -231,13 +235,82 @@
 
 @push('scripts')
 <script>
-    let rowIndex = 1;
+    const products = @json($products);
+    const vendorHistoryProductIds = @json($vendorHistoryProductIds ?? []);
+    let rowIndex = {{ (isset($cartItems) && $cartItems->count() > 0) ? $cartItems->count() + 1 : 1 }};
+
+    function renderProductSelector(selectedVendorIds) {
+        const $selector = $('#product_selector');
+        $selector.empty();
+        $selector.append('<option value="">-- Choose Product --</option>');
+
+        selectedVendorIds = (selectedVendorIds || []).map(Number).filter(v => v > 0);
+
+        if (selectedVendorIds.length === 0) {
+            // No vendor selected: show all products sorted by ID desc (latest first)
+            products.forEach(p => {
+                const catName = p.category ? ` — [${p.category.name}]` : '';
+                const statusWarn = p.procurement_status === 'do_not_order' ? ' (⚠️ Do Not Re-Order)' : '';
+                $selector.append(`<option value="${p.id}" data-procurement-status="${p.procurement_status || 'active'}" data-procurement-note="${p.procurement_note || ''}">${p.name}${catName}${statusWarn}</option>`);
+            });
+        } else {
+            // Collect all product IDs associated with the selected vendors
+            let vendorAssociatedIds = new Set();
+            selectedVendorIds.forEach(vId => {
+                let historyIds = vendorHistoryProductIds[vId] || [];
+                historyIds.forEach(id => vendorAssociatedIds.add(Number(id)));
+            });
+
+            const vendorProducts = [];
+            const otherProducts = [];
+
+            products.forEach(p => {
+                const isVendorDirect = selectedVendorIds.includes(Number(p.vendor_id));
+                const isVendorHistory = vendorAssociatedIds.has(Number(p.id));
+
+                if (isVendorDirect || isVendorHistory) {
+                    vendorProducts.push(p);
+                } else {
+                    otherProducts.push(p);
+                }
+            });
+
+            // Group 1: ⭐️ Vendor's Items & Previously Ordered (latest first)
+            if (vendorProducts.length > 0) {
+                let $optgroupVendor = $(`<optgroup label="⭐️ Selected Vendor Items & Previously Ordered (${vendorProducts.length})"></optgroup>`);
+                vendorProducts.forEach(p => {
+                    const catName = p.category ? ` — [${p.category.name}]` : '';
+                    const statusWarn = p.procurement_status === 'do_not_order' ? ' (⚠️ Do Not Re-Order)' : '';
+                    $optgroupVendor.append(`<option value="${p.id}" data-procurement-status="${p.procurement_status || 'active'}" data-procurement-note="${p.procurement_note || ''}">${p.name}${catName}${statusWarn}</option>`);
+                });
+                $selector.append($optgroupVendor);
+            }
+
+            // Group 2: 🌐 Other Products in Catalog (latest first)
+            if (otherProducts.length > 0) {
+                let $optgroupOther = $(`<optgroup label="🌐 Other Products in Catalog (${otherProducts.length})"></optgroup>`);
+                otherProducts.forEach(p => {
+                    const catName = p.category ? ` — [${p.category.name}]` : '';
+                    const statusWarn = p.procurement_status === 'do_not_order' ? ' (⚠️ Do Not Re-Order)' : '';
+                    $optgroupOther.append(`<option value="${p.id}" data-procurement-status="${p.procurement_status || 'active'}" data-procurement-note="${p.procurement_note || ''}">${p.name}${catName}${statusWarn}</option>`);
+                });
+                $selector.append($optgroupOther);
+            }
+        }
+
+        $selector.trigger('change.select2');
+    }
     
     // Auto-fetch variants when product is selected
     $('#product_selector').on('change', function() {
         let productId = $(this).val();
         let productName = $(this).find('option:selected').text();
         if (!productId) return;
+
+        let p = products.find(prod => prod.id == productId);
+        if (p && p.procurement_status === 'do_not_order') {
+            toastr.warning(p.procurement_note ? `Procurement Note: ${p.procurement_note}` : 'Notice: This product is marked as "Do Not Re-Order"');
+        }
 
         // Reset selector
         $(this).val('').trigger('change.select2');
@@ -529,5 +602,11 @@
     // Trigger on load for pre-selected values and item count badge
     handleSourceTypeChange();
     updateRfqItemCount();
+
+    // Render product selector on load & on vendor change
+    renderProductSelector($('#vendor_select').val());
+    $('#vendor_select').on('change', function() {
+        renderProductSelector($(this).val());
+    });
 </script>
 @endpush

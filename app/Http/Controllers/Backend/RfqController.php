@@ -14,6 +14,7 @@ use App\Http\Requests\Backend\Rfq\StoreRfqRequest;
 use App\Http\Requests\Backend\Rfq\UpdateRfqRequest;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RfqController extends Controller
 {
@@ -37,7 +38,26 @@ class RfqController extends Controller
         $productRequests = ProductRequest::where('status', 'approved')->latest()->get();
         
         $vendors = Vendor::where('status', 1)->get();
-        $products = Product::where('status', 1)->with('variants')->get();
+        $products = Product::where('status', 1)
+            ->where(function($q) {
+                $q->where('procurement_status', '!=', 'discontinued')
+                  ->orWhereNull('procurement_status');
+            })
+            ->with(['variants', 'category:id,name'])
+            ->orderByDesc('id')
+            ->get();
+
+        // Vendor PO order history mapping (which products were ordered from which vendor)
+        $vendorHistoryProductIds = DB::table('purchase_details')
+            ->join('purchases', 'purchase_details.purchase_id', '=', 'purchases.id')
+            ->whereNotNull('purchases.vendor_id')
+            ->select('purchases.vendor_id', 'purchase_details.product_id')
+            ->distinct()
+            ->get()
+            ->groupBy('vendor_id')
+            ->map(function ($items) {
+                return $items->pluck('product_id')->toArray();
+            });
         
         $selectedSourceType = $request->query('source_type');
         $selectedSourceId = $request->query('source_id');
@@ -58,7 +78,7 @@ class RfqController extends Controller
         $nextId = $latestRfq ? $latestRfq->id + 1 : 1;
         $rfqNo = 'RFQ-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
-        return view('backend.rfq.create', compact('orders', 'customRequests', 'productRequests', 'vendors', 'products', 'selectedSourceType', 'selectedSourceId', 'rfqNo', 'cartItems', 'defaultVendorIds'));
+        return view('backend.rfq.create', compact('orders', 'customRequests', 'productRequests', 'vendors', 'products', 'selectedSourceType', 'selectedSourceId', 'rfqNo', 'cartItems', 'defaultVendorIds', 'vendorHistoryProductIds'));
     }
 
     public function store(StoreRfqRequest $request)
