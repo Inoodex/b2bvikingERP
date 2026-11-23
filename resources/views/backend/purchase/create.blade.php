@@ -158,18 +158,66 @@
                                     <hr style="border-top: 2px solid #e2e8f0; opacity: 0.5; margin-top: 0.3rem;">
                                 </div>
 
+                                {{-- Point 13: Cascading Category -> SubCategory -> ChildCategory & Occasion Filter --}}
+                                <div class="card mb-3 border shadow-none" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                                                <i class="fas fa-filter text-primary mr-1"></i> Filter Products by Category & Occasion
+                                            </span>
+                                            <button type="button" class="btn btn-sm btn-link text-muted p-0" id="btn_reset_category_filter" style="font-size: 0.75rem;">
+                                                <i class="fas fa-undo mr-1"></i> Reset Filters
+                                            </button>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3 col-6 form-group mb-2">
+                                                <label class="font-weight-bold text-muted small mb-1">Category</label>
+                                                <select id="filter_category" class="form-control select2">
+                                                    <option value="">-- All Categories --</option>
+                                                    @foreach($categories ?? [] as $cat)
+                                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3 col-6 form-group mb-2">
+                                                <label class="font-weight-bold text-muted small mb-1">Sub Category</label>
+                                                <select id="filter_sub_category" class="form-control select2" disabled>
+                                                    <option value="">-- Select Sub Category --</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3 col-6 form-group mb-2">
+                                                <label class="font-weight-bold text-muted small mb-1">Child Category</label>
+                                                <select id="filter_child_category" class="form-control select2" disabled>
+                                                    <option value="">-- Select Child Category --</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3 col-6 form-group mb-2">
+                                                <label class="font-weight-bold text-muted small mb-1">Occasion / Season</label>
+                                                <select id="filter_occasion" class="form-control select2">
+                                                    <option value="">-- All Occasions --</option>
+                                                    @foreach($productTypes ?? [] as $pt)
+                                                        <option value="{{ $pt->id }}">{{ $pt->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row align-items-end mb-3">
-                                    <div class="col-md-6">
+                                    <div class="col-md-7">
                                         <div class="form-group mb-0">
-                                            <label class="font-weight-bold" style="font-size: 0.8rem;">Select Product to
-                                                Add</label>
+                                            <label class="font-weight-bold" style="font-size: 0.8rem;">
+                                                Select Product to Add
+                                                <span id="filtered_products_count_badge" class="badge badge-light ml-2 text-muted font-weight-normal border" style="font-size: 11px;"></span>
+                                            </label>
                                             <select class="form-control select2" id="product_selector">
                                                 <option value="">-- Choose Product --</option>
                                                 @foreach ($products as $product)
                                                     <option value="{{ $product->id }}"
                                                         data-procurement-status="{{ $product->procurement_status ?? 'active' }}"
                                                         data-procurement-note="{{ $product->procurement_note ?? '' }}">
-                                                        {{ $product->name }}{{ $product->procurement_status === 'do_not_order' ? ' (⚠️ Do Not Re-Order)' : '' }}
+                                                        {{ $product->name }}{{ $product->category ? ' — [' . $product->category->name . ']' : '' }}{{ $product->procurement_status === 'do_not_order' ? ' (⚠️ Do Not Re-Order)' : '' }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -1058,6 +1106,111 @@
             $(document).on('click', '.remove_row', function() {
                 $(this).closest('tr').remove();
                 calculateGrandTotal();
+            });
+
+            // Point 13: Cascading Category -> SubCategory -> ChildCategory & Occasion Filter Logic
+            function filterPurchaseProducts() {
+                const $selector = $('#product_selector');
+                $selector.empty();
+                $selector.append('<option value="">-- Choose Product --</option>');
+
+                const filterCatId = $('#filter_category').val();
+                const filterSubCatId = $('#filter_sub_category').val();
+                const filterChildCatId = $('#filter_child_category').val();
+                const filterOccasionId = $('#filter_occasion').val();
+
+                let pool = products.filter(p => {
+                    if (filterCatId && p.category_id != filterCatId) return false;
+                    if (filterSubCatId && p.sub_category_id != filterSubCatId) return false;
+                    if (filterChildCatId && p.child_category_id != filterChildCatId) return false;
+                    if (filterOccasionId && p.product_type_id != filterOccasionId) return false;
+                    return true;
+                });
+
+                const hasFilters = filterCatId || filterSubCatId || filterChildCatId || filterOccasionId;
+                if (hasFilters) {
+                    $('#filtered_products_count_badge').text(`${pool.length} items matching filters`).show();
+                } else {
+                    $('#filtered_products_count_badge').text(`${pool.length} total items`).show();
+                }
+
+                pool.forEach(p => {
+                    const catName = p.category ? ` — [${p.category.name}]` : '';
+                    const statusWarn = p.procurement_status === 'do_not_order' ? ' (⚠️ Do Not Re-Order)' : '';
+                    $selector.append(`<option value="${p.id}" data-procurement-status="${p.procurement_status || 'active'}" data-procurement-note="${p.procurement_note || ''}">${p.name}${catName}${statusWarn}</option>`);
+                });
+
+                $selector.trigger('change.select2');
+            }
+
+            $('#filter_category').on('change', function() {
+                const catId = $(this).val();
+                const $sub = $('#filter_sub_category');
+                const $child = $('#filter_child_category');
+
+                $sub.empty().append('<option value="">-- All Sub Categories --</option>').val('').trigger('change.select2');
+                $child.empty().append('<option value="">-- All Child Categories --</option>').val('').trigger('change.select2').prop('disabled', true);
+
+                if (catId) {
+                    $sub.prop('disabled', false);
+                    $.ajax({
+                        url: "{{ route('admin.get-subCategories') }}",
+                        type: 'GET',
+                        data: { id: catId },
+                        success: function(data) {
+                            (data || []).forEach(sub => {
+                                $sub.append(`<option value="${sub.id}">${sub.name}</option>`);
+                            });
+                            $sub.trigger('change.select2');
+                        }
+                    });
+                } else {
+                    $sub.prop('disabled', true);
+                }
+
+                filterPurchaseProducts();
+            });
+
+            $('#filter_sub_category').on('change', function() {
+                const subId = $(this).val();
+                const $child = $('#filter_child_category');
+
+                $child.empty().append('<option value="">-- All Child Categories --</option>').val('').trigger('change.select2');
+
+                if (subId) {
+                    $child.prop('disabled', false);
+                    $.ajax({
+                        url: "{{ route('admin.get-child-categories') }}",
+                        type: 'GET',
+                        data: { id: subId },
+                        success: function(data) {
+                            (data || []).forEach(child => {
+                                $child.append(`<option value="${child.id}">${child.name}</option>`);
+                            });
+                            $child.trigger('change.select2');
+                        }
+                    });
+                } else {
+                    $child.prop('disabled', true);
+                }
+
+                filterPurchaseProducts();
+            });
+
+            $('#filter_child_category').on('change', function() {
+                filterPurchaseProducts();
+            });
+
+            $('#filter_occasion').on('change', function() {
+                filterPurchaseProducts();
+            });
+
+            $('#btn_reset_category_filter').on('click', function() {
+                $('#filter_category').val('').trigger('change.select2');
+                $('#filter_sub_category').empty().append('<option value="">-- Select Sub Category --</option>').val('').trigger('change.select2').prop('disabled', true);
+                $('#filter_child_category').empty().append('<option value="">-- Select Child Category --</option>').val('').trigger('change.select2').prop('disabled', true);
+                $('#filter_occasion').val('').trigger('change.select2');
+                filterPurchaseProducts();
             });
 
             // Auto-fetch variants when product is selected

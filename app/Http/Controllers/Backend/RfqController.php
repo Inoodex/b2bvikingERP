@@ -38,12 +38,14 @@ class RfqController extends Controller
         $productRequests = ProductRequest::where('status', 'approved')->latest()->get();
         
         $vendors = Vendor::where('status', 1)->get();
+        $categories = \App\Models\Category::where('status', 1)->orderBy('name')->get(['id', 'name']);
+        $productTypes = \App\Models\ProductType::where('status', 1)->orderBy('name')->get(['id', 'name']);
         $products = Product::where('status', 1)
             ->where(function($q) {
                 $q->where('procurement_status', '!=', 'discontinued')
                   ->orWhereNull('procurement_status');
             })
-            ->with(['variants', 'category:id,name'])
+            ->with(['variants', 'category:id,name', 'subCategory:id,name', 'childCategory:id,name', 'productType:id,name'])
             ->orderByDesc('id')
             ->get();
 
@@ -78,7 +80,7 @@ class RfqController extends Controller
         $nextId = $latestRfq ? $latestRfq->id + 1 : 1;
         $rfqNo = 'RFQ-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
-        return view('backend.rfq.create', compact('orders', 'customRequests', 'productRequests', 'vendors', 'products', 'selectedSourceType', 'selectedSourceId', 'rfqNo', 'cartItems', 'defaultVendorIds', 'vendorHistoryProductIds'));
+        return view('backend.rfq.create', compact('orders', 'customRequests', 'productRequests', 'vendors', 'products', 'categories', 'productTypes', 'selectedSourceType', 'selectedSourceId', 'rfqNo', 'cartItems', 'defaultVendorIds', 'vendorHistoryProductIds'));
     }
 
     public function store(StoreRfqRequest $request)
