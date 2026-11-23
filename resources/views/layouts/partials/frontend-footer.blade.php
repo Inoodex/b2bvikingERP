@@ -80,13 +80,13 @@
 
         <div class="mt-10 border-t flex md:flex-row flex-col text-center md:text-left gap-3 items-center justify-between border-slate-200 pt-6">
             <p class='text-sm text-slate-500 '>
-                Ideation & Design Shahadat
+                Ideation &amp; Design: <b>Shahadat</b>
             </p>
             <p class="text-sm text-slate-500 ">
                 &copy; {{ date('Y') }} {{ $footerSiteName }} - Copenhagen Tourist Point . All rights reserved.
             </p>
             <p class="text-sm text-slate-500 text-center">
-                Developed by <span class='text-orange-700 font-medium'>Inoodex</span>
+                Developed by <a href="https://inoodex.com/" target="_blank" class='text-orange-700 font-medium hover:underline'>Inoodex</a>
             </p>
         </div>
     </div>
