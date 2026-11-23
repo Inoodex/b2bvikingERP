@@ -153,11 +153,24 @@ class Product extends Model
             $ship = $activeShipment ?? $purchase?->shipments?->sortByDesc('id')->first();
             $etaFull = $ship?->eta ? \Carbon\Carbon::parse($ship->eta)->format('d M Y') : null;
             $etaShort = $ship?->eta ? \Carbon\Carbon::parse($ship->eta)->format('d M') : null;
-            $label = 'In Shipment' . ($etaShort ? ' (ETA: ' . $etaShort . ')' : '') . ' • ' . number_format($totalOrderedQty) . ' pcs';
-            $badgeClass = 'badge-primary';
-            $icon = 'fa-shipping-fast';
-            $title = 'Procurement in Shipment';
-            $content = "<strong>Procurement Ref:</strong> {$poNo}<br><strong>Supplier:</strong> " . e($vName) . "<br><strong>Procurement Qty:</strong> " . number_format($totalOrderedQty) . " pcs<br><strong>Stage:</strong> Shipped / In Transit" . ($etaFull ? "<br><strong>Expected ETA:</strong> {$etaFull}" : '') . ($ship?->container_no ? "<br><strong>Container:</strong> " . e($ship->container_no) : '');
+            $modeName = $ship?->transport_name ?? 'In Shipment';
+            $icon = match ($ship?->transport_mode) {
+                'air'  => 'fa-plane-departure',
+                'road' => 'fa-truck',
+                'rail' => 'fa-train',
+                default => 'fa-ship',
+            };
+            $label = $modeName . ' • ' . number_format($totalOrderedQty) . ' pcs' . ($etaShort ? ' (ETA: ' . $etaShort . ')' : '');
+            $badgeClass = match ($ship?->transport_mode) {
+                'air'  => 'badge-info',
+                'road' => 'badge-warning',
+                'rail' => 'badge-secondary',
+                default => 'badge-primary',
+            };
+            $title = 'Procurement in ' . $modeName;
+            $identifierLabel = $ship?->identifier_label ?? 'Vessel / Flight';
+            $identifierVal = $ship?->vessel_or_flight ? "<br><strong>{$identifierLabel}:</strong> " . e($ship->vessel_or_flight) : '';
+            $content = "<strong>Procurement Ref:</strong> {$poNo}<br><strong>Supplier:</strong> " . e($vName) . "<br><strong>Freight Mode:</strong> " . e($modeName) . "{$identifierVal}<br><strong>Procurement Qty:</strong> " . number_format($totalOrderedQty) . " pcs<br><strong>Stage:</strong> Shipped / In Transit" . ($etaFull ? "<br><strong>Expected ETA:</strong> {$etaFull}" : '') . ($ship?->container_no ? "<br><strong>Container:</strong> " . e($ship->container_no) : '');
 
             return [
                 'has_active_order'  => true,

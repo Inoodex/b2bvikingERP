@@ -18,16 +18,29 @@ class ShipmentDataTable extends DataTable
             ->addColumn('po_no', function ($row) {
                 return '<a href="' . route('admin.purchase-orders.show', $row->purchase_id) . '" class="font-weight-bold" target="_blank">' . ($row->purchase?->po_no ?? 'PO #' . $row->purchase_id) . '</a>';
             })
+            ->addColumn('transport_mode', function ($row) {
+                return $row->transport_badge;
+            })
             ->addColumn('supplier', function ($row) {
                 return '<strong>' . e($row->purchase?->vendor?->name ?? 'N/A') . '</strong>';
             })
-            ->addColumn('vessel_container', function ($row) {
-                $vessel = $row->vessel_or_flight ? '<strong>' . e($row->vessel_or_flight) . '</strong>' : 'N/A';
+            ->addColumn('carrier_identifier', function ($row) {
+                $carrier = $row->carrier_name ? '<span class="text-primary font-weight-bold">' . e($row->carrier_name) . '</span><br>' : '';
+                $identifier = $row->vessel_or_flight ? '<span><i class="' . $row->transport_icon . ' text-muted mr-1"></i> ' . e($row->vessel_or_flight) . '</span>' : '<span class="text-muted">N/A</span>';
                 $container = $row->container_no ? '<br><small class="text-muted"><i class="fas fa-box"></i> ' . e($row->container_no) . '</small>' : '';
-                return $vessel . $container;
+                return $carrier . $identifier . $container;
             })
             ->addColumn('bl_awb', function ($row) {
-                return $row->bl_awb_no ? '<code>' . e($row->bl_awb_no) . '</code>' : '<span class="text-muted">N/A</span>';
+                if (!$row->bl_awb_no) {
+                    return '<span class="text-muted">N/A</span>';
+                }
+                $badgeType = match ($row->transport_mode) {
+                    'air' => 'badge-info',
+                    'road' => 'badge-warning',
+                    'rail' => 'badge-secondary',
+                    default => 'badge-primary',
+                };
+                return '<code>' . e($row->bl_awb_no) . '</code>';
             })
             ->addColumn('ports', function ($row) {
                 $loading = e($row->port_of_loading ?? 'N/A');
@@ -57,7 +70,7 @@ class ShipmentDataTable extends DataTable
                 
                 return '<div class="btn-group" role="group">' . $viewBtn . $editBtn . $deleteBtn . '</div>';
             })
-            ->rawColumns(['po_no', 'supplier', 'vessel_container', 'bl_awb', 'ports', 'etd_eta', 'status_badge', 'action'])
+            ->rawColumns(['po_no', 'transport_mode', 'supplier', 'carrier_identifier', 'bl_awb', 'ports', 'etd_eta', 'status_badge', 'action'])
             ->setRowId('id');
     }
 
@@ -78,8 +91,6 @@ class ShipmentDataTable extends DataTable
                         Button::make('excel'),
                         Button::make('csv'),
                         Button::make('print'),
-                        // Button::make('reset'),
-                        // Button::make('reload')
                     ]);
     }
 
@@ -88,10 +99,11 @@ class ShipmentDataTable extends DataTable
         return [
             Column::make('id')->title('ID')->width(50),
             Column::computed('po_no')->title('PO Reference'),
+            Column::computed('transport_mode')->title('Mode'),
             Column::computed('supplier')->title('Supplier'),
-            Column::computed('vessel_container')->title('Vessel / Container'),
+            Column::computed('carrier_identifier')->title('Carrier & Vessel / Flight'),
             Column::computed('bl_awb')->title('BL / AWB No'),
-            Column::computed('ports')->title('Port Route'),
+            Column::computed('ports')->title('Route (Origin &rarr; Dest)'),
             Column::computed('etd_eta')->title('ETD / ETA'),
             Column::computed('status_badge')->title('Status'),
             Column::computed('action')->title('Action')->exportable(false)->printable(false)->width(130)->addClass('text-center'),
