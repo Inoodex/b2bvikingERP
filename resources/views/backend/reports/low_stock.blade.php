@@ -373,6 +373,7 @@
                 <div class="collapse show" id="low-stock-filter-collapse">
                     <div class="sr-filter-body">
                         <form id="low-stock-filter-form" action="{{ route('admin.reports.low-stock') }}" method="GET" onsubmit="return false;">
+                            <input type="hidden" name="per_page" id="low_stock_per_page" value="{{ $perPage ?? 10 }}">
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-4 col-sm-6">
                                     <label>Category</label>
@@ -613,6 +614,7 @@
                 const categoryId = $('#category_filter').val() || '';
                 const brandId = $('#brand_filter').val() || '';
                 const vendorId = $('#vendor_filter').val() || '';
+                const perPage = $('#low_stock_per_page').val() || '10';
 
                 let url = targetUrl || "{{ route('admin.reports.low-stock') }}";
                 let finalUrl = url;
@@ -628,12 +630,15 @@
                     if (vendorId) parsedUrl.searchParams.set('vendor_id', vendorId);
                     else parsedUrl.searchParams.delete('vendor_id');
 
+                    if (perPage) parsedUrl.searchParams.set('per_page', perPage);
+
                     finalUrl = parsedUrl.toString();
                 } else {
                     const params = new URLSearchParams();
                     if (categoryId) params.set('category_id', categoryId);
                     if (brandId) params.set('brand_id', brandId);
                     if (vendorId) params.set('vendor_id', vendorId);
+                    if (perPage) params.set('per_page', perPage);
                     const qs = params.toString();
                     finalUrl = url + (qs ? '?' + qs : '');
                 }
@@ -694,6 +699,13 @@
                         scrollTop: $('#products-container').offset().top - 120
                     }, 200);
                 }
+            });
+
+            // Dynamic Per Page change handler for Low Stock
+            $(document).on('change', '#select-low-stock-per-page', function () {
+                const val = $(this).val();
+                $('#low_stock_per_page').val(val);
+                fetchFilteredProducts();
             });
 
             // Handle browser Back/Forward buttons

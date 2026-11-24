@@ -401,7 +401,8 @@ class ReportController extends Controller implements HasMiddleware
         $potentialRevenue = $summaryData->untyped_potential_revenue ?? 0;
         $potentialProfit = $potentialRevenue - $totalValue;
 
-        $products = $query->paginate(30)->withQueryString();
+        $perPage = in_array((int) $request->get('per_page'), [10, 30, 50, 100], true) ? (int) $request->get('per_page') : 10;
+        $products = $query->paginate($perPage)->withQueryString();
         
         $categories = Category::where('status', 1)->get();
         $brands = Brand::where('status', 1)->get();
@@ -573,7 +574,11 @@ class ReportController extends Controller implements HasMiddleware
         $expTotalRetail = $expectedSummaryData->untyped_expected_retail ?? 0;
         $expTotalMargin = $expTotalRetail - $expTotalCost;
 
-        $expectedProducts = $expectedQuery->paginate(30, ['*'], 'expected_page')->withQueryString();
+        $expectedPerPage = in_array((int) $request->get('expected_per_page'), [10, 30, 50, 100], true) 
+            ? (int) $request->get('expected_per_page') 
+            : (in_array((int) $request->get('per_page'), [10, 30, 50, 100], true) ? (int) $request->get('per_page') : 10);
+
+        $expectedProducts = $expectedQuery->paginate($expectedPerPage, ['*'], 'expected_page')->withQueryString();
 
         if ($request->ajax()) {
             return response()->json([
@@ -592,7 +597,7 @@ class ReportController extends Controller implements HasMiddleware
         return view('backend.reports.stock', compact(
             'products', 'categories', 'brands', 'vendors', 'totalQty', 'totalValue', 'potentialRevenue', 'potentialProfit', 'settings', 'latestPdf', 'latestExpectedPdf',
             'activeTab', 'outlets', 'customers', 'expectedProducts', 'selectedExpectedEntityName', 'selectedExpectedOutletId', 'selectedExpectedUserId',
-            'expTotalQty', 'expTotalCost', 'expTotalWholesale', 'expTotalRetail', 'expTotalMargin'
+            'expTotalQty', 'expTotalCost', 'expTotalWholesale', 'expTotalRetail', 'expTotalMargin', 'perPage', 'expectedPerPage'
         ));
     }
 
@@ -637,16 +642,18 @@ class ReportController extends Controller implements HasMiddleware
             $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) <= ?", [$to]);
         }
 
+        $perPage = in_array((int) $request->get('per_page'), [10, 30, 50, 100], true) ? (int) $request->get('per_page') : 10;
+
         // Vendor-wala products first (NULL vendor_id LAST), then latest product id
         $products = $query->orderByRaw('CASE WHEN vendor_id IS NULL THEN 1 ELSE 0 END ASC')
                           ->orderBy('vendor_id', 'asc')
                           ->orderBy('id', 'desc')
-                          ->paginate(30)->withQueryString();
+                          ->paginate($perPage)->withQueryString();
         $categories = Category::where('status', 1)->orderBy('id', 'desc')->get();
         $vendors = Vendor::where('status', 1)->orderBy('id', 'desc')->get();
         $settings = GeneralSetting::first();
 
-        return view('backend.reports.current_stock', compact('products', 'categories', 'vendors', 'settings'));
+        return view('backend.reports.current_stock', compact('products', 'categories', 'vendors', 'settings', 'perPage'));
     }
 
     /**
@@ -749,11 +756,13 @@ class ReportController extends Controller implements HasMiddleware
             $query->where('vendor_id', $request->vendor_id);
         }
 
+        $perPage = in_array((int) $request->get('per_page'), [10, 30, 50, 100], true) ? (int) $request->get('per_page') : 10;
+
         $products = $query->orderBy('inventory_stocks_sum_quantity', 'asc')
-            ->paginate(30)->withQueryString();
+            ->paginate($perPage)->withQueryString();
 
         if ($request->ajax() || $request->wantsJson()) {
-            $html = view('backend.reports.partials.low_stock_table', compact('products'))->render();
+            $html = view('backend.reports.partials.low_stock_table', compact('products', 'perPage'))->render();
             return response()->json([
                 'success' => true,
                 'html'    => $html,
@@ -765,7 +774,7 @@ class ReportController extends Controller implements HasMiddleware
         $brands = Brand::where('status', 1)->orderBy('name')->get();
         $vendors = Vendor::where('status', 1)->orderBy('shop_name')->get();
 
-        return view('backend.reports.low_stock', compact('products', 'categories', 'brands', 'vendors'));
+        return view('backend.reports.low_stock', compact('products', 'categories', 'brands', 'vendors', 'perPage'));
     }
 
     /**

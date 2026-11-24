@@ -731,6 +731,7 @@
                 <div class="collapse show" id="sr-filter-collapse">
                     <div class="sr-filter-body">
                         <form id="stock-filter-form" action="{{ route('admin.reports.stock') }}" method="GET">
+                            <input type="hidden" name="per_page" id="stock-filter-per-page" value="{{ $perPage ?? 10 }}">
                             <div class="row g-3 align-items-end mb-2">
                                 <div class="col-md-3">
                                     <label>Category</label>
@@ -977,13 +978,24 @@
                     </div>
 
                     {{-- Pagination --}}
-                    <div class="sr-pagination-wrap">
-                        <div class="sr-pagination-info">
-                            Showing
-                            <strong>{{ $products->firstItem() ?? 0 }} – {{ $products->lastItem() ?? 0 }}</strong>
-                            of
-                            <strong>{{ $products->total() }}</strong>
-                            products
+                    <div class="sr-pagination-wrap d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="d-flex align-items-center flex-wrap" style="gap: 15px;">
+                            <div class="sr-pagination-info">
+                                Showing
+                                <strong>{{ $products->firstItem() ?? 0 }} – {{ $products->lastItem() ?? 0 }}</strong>
+                                of
+                                <strong>{{ $products->total() }}</strong>
+                                products
+                            </div>
+                            <div class="d-flex align-items-center" style="gap: 6px;">
+                                <label class="mb-0 text-muted font-weight-bold" style="font-size: 11.5px;">Show:</label>
+                                <select class="form-control form-control-sm per-page-dropdown" data-form="#stock-filter-form" style="width: 75px; height: 32px; font-weight: 600; border-radius: 6px; padding: 2px 8px;">
+                                    <option value="10" {{ ($perPage ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="30" {{ ($perPage ?? 10) == 30 ? 'selected' : '' }}>30</option>
+                                    <option value="50" {{ ($perPage ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                                    <option value="100" {{ ($perPage ?? 10) == 100 ? 'selected' : '' }}>100</option>
+                                </select>
+                            </div>
                         </div>
                         {{ $products->links() }}
                     </div>
@@ -1051,6 +1063,7 @@
                     <div class="sr-filter-body">
                         <form id="expected-filter-form" action="{{ route('admin.reports.stock') }}" method="GET">
                             <input type="hidden" name="tab" value="expected">
+                            <input type="hidden" name="expected_per_page" id="exp-filter-per-page" value="{{ $expectedPerPage ?? 10 }}">
                             <div class="row g-3 mb-2">
                                 <div class="col-md-6">
                                     <label class="font-weight-bold"><i class="fas fa-store mr-1 text-primary"></i> Outlet</label>
@@ -1336,13 +1349,24 @@
                     </div>
 
                     {{-- Pagination for Tab 2 --}}
-                    <div class="sr-pagination-wrap">
-                        <div class="sr-pagination-info">
-                            Showing
-                            <strong>{{ $expectedProducts->firstItem() ?? 0 }} – {{ $expectedProducts->lastItem() ?? 0 }}</strong>
-                            of
-                            <strong>{{ $expectedProducts->total() }}</strong>
-                            products
+                    <div class="sr-pagination-wrap d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="d-flex align-items-center flex-wrap" style="gap: 15px;">
+                            <div class="sr-pagination-info">
+                                Showing
+                                <strong>{{ $expectedProducts->firstItem() ?? 0 }} – {{ $expectedProducts->lastItem() ?? 0 }}</strong>
+                                of
+                                <strong>{{ $expectedProducts->total() }}</strong>
+                                products
+                            </div>
+                            <div class="d-flex align-items-center" style="gap: 6px;">
+                                <label class="mb-0 text-muted font-weight-bold" style="font-size: 11.5px;">Show:</label>
+                                <select class="form-control form-control-sm per-page-dropdown" data-form="#expected-filter-form" style="width: 75px; height: 32px; font-weight: 600; border-radius: 6px; padding: 2px 8px;">
+                                    <option value="10" {{ ($expectedPerPage ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="30" {{ ($expectedPerPage ?? 10) == 30 ? 'selected' : '' }}>30</option>
+                                    <option value="50" {{ ($expectedPerPage ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                                    <option value="100" {{ ($expectedPerPage ?? 10) == 100 ? 'selected' : '' }}>100</option>
+                                </select>
+                            </div>
                         </div>
                         {{ $expectedProducts->links() }}
                     </div>
@@ -1454,50 +1478,16 @@
         });
 
         // ─── TAB 2: Expected Retail Price DataTable & Filters ───
+        // Note: DataTables is disabled here because nested variant drawer rows cause infinite layout reflows and browser freezing.
+        // Server-side pagination and native PDF/Excel export handle this report cleanly.
         function initExpectedDataTable() {
-            if ($('#table-expected-stock').length === 0) return null;
-
-            // Temporarily detach variant drawer rows so DataTable initializes without column warnings
-            const drawerRows = $('#table-expected-stock tbody tr.exp-variant-drawer-row').detach();
-
-            if ($.fn.DataTable.isDataTable('#table-expected-stock')) {
-                $('#table-expected-stock').DataTable().destroy();
-            }
-            const expTable = $('#table-expected-stock').DataTable({
-                dom: 'Brt',
-                paging: false,
-                info: false,
-                searching: false,
-                buttons: [
-                    { extend: 'copy', messageTop: 'Expected Retail Price Stock Valuation Report', exportOptions: commonExportOptions },
-                    { extend: 'csv', filename: 'expected-retail-stock-' + @json(date('Y-m-d')), exportOptions: commonExportOptions },
-                    { extend: 'excel', title: 'Expected Retail Price Stock Valuation', filename: 'expected-retail-stock-' + @json(date('Y-m-d')), exportOptions: commonExportOptions },
-                    { extend: 'print', title: 'Expected Retail Price Stock Valuation', messageTop: 'Generated on: ' + @json(date('F d, Y h:i A')) }
-                ]
-            });
-
-            // Re-attach variant drawer rows right after their respective parent product rows
-            drawerRows.each(function() {
-                const parentId = $(this).attr('id').replace('exp-variant-drawer-', '');
-                const $parentRow = $('#table-expected-stock tbody tr').filter(function() {
-                    return $(this).find('[data-target="#exp-variant-drawer-' + parentId + '"]').length > 0;
-                });
-                if ($parentRow.length) {
-                    $parentRow.after($(this));
-                }
-            });
-
-            $('#table-expected-stock_wrapper .dt-buttons').hide();
-            return expTable;
+            return null;
         }
 
         let expTable = initExpectedDataTable();
 
-        $('#btn-exp-export-excel').off('click').on('click', function () { 
-            if (expTable) expTable.button(2).trigger(); 
-        });
         $('#btn-exp-print').off('click').on('click', function () { 
-            if (expTable) expTable.button(3).trigger(); 
+            window.print(); 
         });
 
         $(document).on('click', '.toggle-variant-drawer', function (e) {
@@ -1526,6 +1516,18 @@
         });
         $(document).on('change', '#expected-filter-form input[name="expected_item_code_from"], #expected-filter-form input[name="expected_item_code_to"]', function () {
             $('#expected-filter-form').trigger('submit');
+        });
+
+        // Per Page dynamic change handler
+        $(document).on('change', '.per-page-dropdown', function() {
+            var formSelector = $(this).data('form');
+            var val = $(this).val();
+            if (formSelector === '#expected-filter-form') {
+                $('#exp-filter-per-page').val(val);
+            } else {
+                $('#stock-filter-per-page').val(val);
+            }
+            $(formSelector).trigger('submit');
         });
 
         // Tab state preservation in browser URL
