@@ -2,6 +2,88 @@
 
 @section('title', 'Payment Transactions Audit Trail')
 
+@push('css')
+<style>
+  .transactions-toolbar {
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .transactions-toolbar-title {
+    margin: 0;
+  }
+
+  .transactions-filter-form {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .transactions-filter-form .form-control {
+    margin: 0 !important;
+  }
+
+  .transactions-filter-form select {
+    flex: 1 1 145px;
+    min-width: 135px;
+  }
+
+  .transactions-filter-form input {
+    flex: 2 1 190px;
+    min-width: 170px;
+  }
+
+  .transactions-filter-form button {
+    flex: 0 0 auto;
+  }
+
+  #payment-summary .payment-stat-card .card-icon {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe) !important;
+    border: 1px solid rgba(37, 99, 235, 0.18) !important;
+    border-radius: 15px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 5px 12px rgba(37, 99, 235, 0.12) !important;
+  }
+
+  #payment-summary .payment-stat-card .card-icon i {
+    color: #2563eb !important;
+    font-size: 1.3rem;
+    filter: drop-shadow(0 2px 3px rgba(37, 99, 235, 0.2));
+    transition: transform 0.2s ease;
+  }
+
+  #payment-summary .payment-stat-card:hover .card-icon i {
+    transform: scale(1.12);
+  }
+
+  @media (max-width: 991.98px) {
+    .transactions-toolbar {
+      align-items: stretch !important;
+      flex-direction: column;
+    }
+
+    .transactions-filter-form {
+      justify-content: flex-start;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .transactions-filter-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .transactions-filter-form input,
+    .transactions-filter-form button {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
+@endpush
+
 @section('content')
 <section class="section">
   <div class="section-header d-flex justify-content-between align-items-center">
@@ -23,17 +105,17 @@
   <div class="section-body">
 
     {{-- Top Stats --}}
-    <div class="row">
+    <div class="row" id="payment-summary">
       <div class="col-lg-4 col-md-4 col-12">
-        <div class="card card-statistic-1 shadow-sm border-0">
-          <div class="card-icon bg-success">
-            <i class="fas fa-check-circle text-white"></i>
+        <div class="card card-statistic-1 payment-stat-card shadow-sm border-0">
+          <div class="card-icon bg-primary">
+            <i class="fas fa-check-circle"></i>
           </div>
           <div class="card-wrap">
             <div class="card-header">
               <h4>Total Settled Online & COD</h4>
             </div>
-            <div class="card-body font-weight-bold text-success">
+            <div class="card-body font-weight-bold text-primary">
               kr. {{ number_format($totalCaptured, 2) }}
             </div>
           </div>
@@ -41,9 +123,9 @@
       </div>
 
       <div class="col-lg-4 col-md-4 col-12">
-        <div class="card card-statistic-1 shadow-sm border-0">
+        <div class="card card-statistic-1 payment-stat-card shadow-sm border-0">
           <div class="card-icon bg-primary">
-            <i class="fab fa-paypal text-white"></i>
+            <i class="fab fa-paypal"></i>
           </div>
           <div class="card-wrap">
             <div class="card-header">
@@ -57,9 +139,9 @@
       </div>
 
       <div class="col-lg-4 col-md-4 col-12">
-        <div class="card card-statistic-1 shadow-sm border-0">
-          <div class="card-icon bg-warning">
-            <i class="fas fa-truck text-white"></i>
+        <div class="card card-statistic-1 payment-stat-card shadow-sm border-0">
+          <div class="card-icon bg-primary">
+            <i class="fas fa-truck"></i>
           </div>
           <div class="card-wrap">
             <div class="card-header">
@@ -75,9 +157,9 @@
 
     {{-- Transactions Table Card --}}
     <div class="card shadow-sm border-0">
-      <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
-        <h5 class="mb-0 font-weight-bold text-dark"><i class="fas fa-history mr-2 text-primary"></i> Gateway Transactions Log</h5>
-        <form method="GET" action="{{ route('admin.payments.transactions.index') }}" class="form-inline">
+      <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3 transactions-toolbar">
+        <h5 class="mb-0 font-weight-bold text-dark transactions-toolbar-title"><i class="fas fa-history mr-2 text-primary"></i> Gateway Transactions Log</h5>
+        <form method="GET" action="{{ route('admin.payments.transactions.index') }}" class="form-inline transactions-filter-form">
           <select name="gateway" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
             <option value="">-- All Gateways --</option>
             <option value="paypal" {{ request('gateway') === 'paypal' ? 'selected' : '' }}>PayPal Express</option>

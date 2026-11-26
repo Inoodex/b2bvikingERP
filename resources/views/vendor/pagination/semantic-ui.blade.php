@@ -1,4 +1,25 @@
 @if ($paginator->hasPages())
+    @php
+        $isLengthAware = $paginator instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator;
+        $current = $paginator->currentPage();
+        $last = $isLengthAware ? max(1, $paginator->lastPage()) : $current;
+        $pages = [];
+
+        if ($isLengthAware) {
+            if ($last <= 5) {
+                $pages = range(1, $last);
+            } elseif ($current <= 2) {
+                $pages = [1, 2, 3, '...', $last];
+            } elseif ($current >= $last - 2) {
+                $pages = [1, '...', $last - 2, $last - 1, $last];
+            } else {
+                $pages = [1, '...', $current, $current + 1, '...', $last];
+            }
+        } else {
+            $pages = [$current];
+        }
+    @endphp
+
     <div class="ui pagination menu" role="navigation">
         {{-- Previous Page Link --}}
         @if ($paginator->onFirstPage())
@@ -8,21 +29,13 @@
         @endif
 
         {{-- Pagination Elements --}}
-        @foreach ($elements as $element)
-            {{-- "Three Dots" Separator --}}
-            @if (is_string($element))
-                <a class="icon item disabled" aria-disabled="true">{{ $element }}</a>
-            @endif
-
-            {{-- Array Of Links --}}
-            @if (is_array($element))
-                @foreach ($element as $page => $url)
-                    @if ($page == $paginator->currentPage())
-                        <a class="item active" href="{{ $url }}" aria-current="page">{{ $page }}</a>
-                    @else
-                        <a class="item" href="{{ $url }}">{{ $page }}</a>
-                    @endif
-                @endforeach
+        @foreach ($pages as $page)
+            @if ($page === '...')
+                <a class="item disabled" aria-disabled="true">…</a>
+            @elseif ($page == $current)
+                <a class="item active" href="{{ $paginator->url($page) }}" aria-current="page">{{ $page }}</a>
+            @else
+                <a class="item" href="{{ $paginator->url($page) }}">{{ $page }}</a>
             @endif
         @endforeach
 

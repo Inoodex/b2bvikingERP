@@ -1655,15 +1655,24 @@ select:not([multiple]):not([size]):focus {
 
 /* Select2 Dropdown Arrow Upgrade */
 .select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    bottom: 0 !important;
     right: 8px !important;
-    width: 20px !important;
+    width: 22px !important;
+    height: 100% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    transform: none !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow::after {
+    display: none !important;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow b {
+    display: block !important;
     border: none !important;
     width: 14px !important;
     height: 14px !important;
@@ -1812,15 +1821,24 @@ select:not([multiple]):not([size]):focus {
 
 /* Select2 Dropdown Arrow Upgrade */
 .select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    bottom: 0 !important;
     right: 8px !important;
-    width: 20px !important;
+    width: 22px !important;
+    height: 100% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    transform: none !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow::after {
+    display: none !important;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow b {
+    display: block !important;
     border: none !important;
     width: 14px !important;
     height: 14px !important;
@@ -2123,6 +2141,7 @@ input[type="date"].form-control-sm:focus {
 }
 
 @media (max-width: 767.98px) {
+
     .dataTables_wrapper .dataTables_filter input,
     .dataTables_wrapper .dt-search input,
     .dt-container .dt-search input {
@@ -2166,8 +2185,8 @@ textarea:hover,
 #app,
 .main-wrapper,
 .main-content,
-.main-content > .section,
-.main-content .row > [class*="col-"],
+.main-content>.section,
+.main-content .row>[class*="col-"],
 .main-content .card,
 .main-content .card-body,
 .form-control,
@@ -2222,4 +2241,67 @@ select.form-control-sm:not([multiple]):not([size]) {
     background-position: right 10px center !important;
     background-size: 18px 18px !important;
     padding-right: 36px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    right: 8px !important;
+    width: 22px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    width: 18px !important;
+    height: 18px !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2.8' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m5 9 7 7 7-7'/%3E%3C/svg%3E") !important;
+}
+
+.select2-container--default:hover .select2-selection--single .select2-selection__arrow b,
+.select2-container--default.select2-container--focus .select2-selection--single .select2-selection__arrow b,
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2.8' stroke='%23dc2626'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m5 9 7 7 7-7'/%3E%3C/svg%3E") !important;
+}
+
+/* Sidebar links should not get an underline on hover or focus. */
+.main-sidebar .sidebar-menu a,
+.main-sidebar .sidebar-menu a:hover,
+.main-sidebar .sidebar-menu a:focus,
+.main-sidebar .sidebar-menu a:active,
+.main-sidebar .sidebar-menu a span,
+.main-sidebar .sidebar-menu a:hover span,
+.main-sidebar .sidebar-menu a:focus span,
+.main-sidebar .sidebar-menu a:active span {
+    text-decoration: none !important;
+    text-decoration-line: none !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+}
+
+.main-sidebar .sidebar-menu li,
+.main-sidebar .sidebar-menu li a,
+.main-sidebar .sidebar-menu li a::before,
+.main-sidebar .sidebar-menu li a::after,
+.main-sidebar .sidebar-menu li a span,
+.main-sidebar .sidebar-menu li a span::before,
+.main-sidebar .sidebar-menu li a span::after {
+    text-decoration: none !important;
+    border: 0 !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Custom modern sidebar: remove every underline/decoration state. */
+.app-sidebar a,
+.app-sidebar a:hover,
+.app-sidebar a:focus,
+.app-sidebar a:active,
+.app-sidebar a:visited,
+.app-sidebar a *,
+.app-sidebar a:hover *,
+.app-sidebar a:focus *,
+.app-sidebar a:active *,
+.app-sidebar a:visited * {
+    text-decoration: none !important;
+    text-decoration-line: none !important;
+    text-decoration-style: solid !important;
+    border-bottom: 0 !important;
+    outline: 0 !important;
 }

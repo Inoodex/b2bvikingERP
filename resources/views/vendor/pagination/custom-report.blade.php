@@ -11,23 +11,17 @@
 
         $pages = [];
         if ($isLengthAware) {
-            if ($last <= 4) {
+            if ($last <= 5) {
                 $pages = range(1, $last);
             } elseif ($current <= 2) {
                 // Beginning: 1 2 3 ... last
                 $pages = [1, 2, 3, '...', $last];
-            } elseif ($current == 3) {
-                if ($last <= 5) {
-                    $pages = range(1, $last);
-                } else {
-                    $pages = [1, 2, 3, '...', $last];
-                }
             } elseif ($current >= $last - 2) {
                 // End: 1 ... (last-2) (last-1) last
                 $pages = [1, '...', $last - 2, $last - 1, $last];
             } else {
-                // Middle: 1 ... (current-1) current (current+1) ... last
-                $pages = [1, '...', $current - 1, $current, $current + 1, '...', $last];
+                // Middle: 1 ... current next ... last
+                $pages = [1, '...', $current, $current + 1, '...', $last];
             }
         } else {
             $pages = [$current];

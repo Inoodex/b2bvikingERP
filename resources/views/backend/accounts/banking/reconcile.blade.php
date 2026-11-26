@@ -4,48 +4,71 @@
 @push('styles')
 <style>
     .bank-reconciliation-page #bankAccountFilter + .select2-container .select2-selection--single {
-        height: 42px;
-        padding-right: 40px;
-        border-radius: 12px;
-        position: relative;
+        height: 38px !important;
+        border: 1.5px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        padding-right: 36px !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+        display: flex !important;
+        align-items: center !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+        position: relative !important;
     }
 
     .bank-reconciliation-page #bankAccountFilter + .select2-container .select2-selection__rendered {
-        padding-left: 14px;
-        line-height: 40px;
+        padding-left: 12px !important;
+        line-height: 36px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #1e293b !important;
     }
 
     .bank-reconciliation-page #bankAccountFilter + .select2-container .select2-selection__arrow {
-        top: 50%;
-        right: 5px;
-        width: 30px;
-        height: 30px;
-        transform: translateY(-50%);
-        border-radius: 9px;
-        background: transparent;
-        transition: background 0.2s ease, transform 0.2s ease;
+        position: absolute !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        right: 8px !important;
+        width: 22px !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transform: none !important;
+        background: transparent !important;
     }
 
     .bank-reconciliation-page #bankAccountFilter + .select2-container .select2-selection__arrow b {
-        display: none;
+        display: block !important;
+        border: none !important;
+        width: 14px !important;
+        height: 14px !important;
+        margin: 0 !important;
+        position: static !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2.4' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-size: contain !important;
+        background-position: center !important;
+        transition: transform 0.2s ease, background-image 0.2s ease !important;
     }
 
     .bank-reconciliation-page #bankAccountFilter + .select2-container .select2-selection__arrow::after {
-        position: absolute;
-        top: 10px;
-        left: 11px;
-        width: 8px;
-        height: 8px;
-        border-right: 2px solid #667085;
-        border-bottom: 2px solid #667085;
-        content: "";
-        transform: rotate(45deg);
-        transition: transform 0.2s ease;
+        display: none !important;
     }
 
-    .bank-reconciliation-page #bankAccountFilter + .select2-container--open .select2-selection__arrow::after {
-        top: 13px;
-        transform: rotate(225deg);
+    .bank-reconciliation-page #bankAccountFilter + .select2-container--open .select2-selection__arrow b {
+        transform: rotate(180deg) !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2.4' stroke='%232563eb'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E") !important;
+    }
+
+    .bank-reconciliation-page #bankAccountFilter + .select2-container--default:hover .select2-selection--single {
+        border-color: #2563eb !important;
+    }
+
+    .bank-reconciliation-page #bankAccountFilter + .select2-container--default.select2-container--focus .select2-selection--single,
+    .bank-reconciliation-page #bankAccountFilter + .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16) !important;
     }
 </style>
 @endpush

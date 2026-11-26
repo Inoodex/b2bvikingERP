@@ -1705,6 +1705,26 @@
         z-index: 10500 !important;
     }
 
+    /* No underline or bottom border on any sidebar link state. */
+    .app-sidebar a,
+    .app-sidebar a:hover,
+    .app-sidebar a:focus,
+    .app-sidebar a:active,
+    .app-sidebar a:visited,
+    .app-sidebar a *,
+    .app-sidebar a:hover *,
+    .app-sidebar a:focus *,
+    .app-sidebar a:active *,
+    .app-sidebar a:visited * {
+        text-decoration: none !important;
+        text-decoration-line: none !important;
+        text-decoration-style: solid !important;
+        border: 0 !important;
+        border-bottom: 0 !important;
+        box-shadow: none !important;
+        outline: 0 !important;
+    }
+
     .modal {
         z-index: 10550 !important;
     }
