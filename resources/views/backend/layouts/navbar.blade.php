@@ -982,7 +982,7 @@
         right: -1px;
         bottom: 0;
         width: 1.5px;
-        background: linear-gradient(180deg, transparent, #15803d 10%, #2563eb 35%, #E11835 65%, #E11835 90%, transparent 100%);
+        background: #15803d;
         opacity: 0.7;
     }
 
@@ -1001,7 +1001,7 @@
         flex-shrink: 0;
         overflow: hidden;
         white-space: nowrap;
-        background: radial-gradient(180px 70px at 10% 0%, rgba(37, 99, 235, 0.24), rgba(225, 24, 53, 0.14) 60%, transparent 100%);
+        background: rgba(21, 128, 61, 0.12);
     }
 
     .sidebar-header i {
@@ -1013,10 +1013,10 @@
         align-items: center;
         justify-content: center;
         border-radius: 12px;
-        background: linear-gradient(135deg, #15803d 0%, #2563eb 33%, #E11835 66%, #E11835 100%);
+        background: #15803d;
         color: #ffffff;
         font-size: 16px;
-        box-shadow: 0 4px 18px rgba(37, 99, 235, 0.40), 0 2px 10px rgba(225, 24, 53, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        box-shadow: 0 4px 18px rgba(21, 128, 61, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.5);
         overflow: hidden;
     }
 
@@ -1047,9 +1047,7 @@
 
     .sidebar-header span {
         font-family: var(--nb-font-display);
-        background: linear-gradient(135deg, #ffffff 40%, #E11835 75%, #60a5fa 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #15803d;
         font-weight: 800;
         font-size: 16px;
         letter-spacing: 0.6px;
@@ -1085,7 +1083,7 @@
         overflow-x: hidden;
         padding: 14px 10px 40px;
         scrollbar-width: thin;
-        scrollbar-color: #2563eb transparent;
+        scrollbar-color: #15803d transparent;
     }
 
     .sb-footer {
@@ -1103,12 +1101,12 @@
     }
 
     .sidebar-body::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #15803d, #2563eb, #E11835, #E11835);
+        background: #15803d;
         border-radius: 10px;
     }
 
     .sidebar-body::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #4ade80, #60a5fa, #fb923c, #E11835);
+        background: #4ade80;
     }
 
     .sb-nav {
@@ -1177,19 +1175,19 @@
     }
 
     .sb-link:hover>i:first-child {
-        color: #60a5fa;
+        color: #15803d;
         transform: scale(1.08);
     }
 
     .sb-item.active>.sb-link {
-        background: linear-gradient(90deg, rgba(37, 99, 235, 0.20), rgba(225, 24, 53, 0.10) 65%, rgba(21, 128, 61, 0.04) 100%);
+        background: rgba(21, 128, 61, 0.16);
         backdrop-filter: blur(6px);
         color: var(--nb-text) !important;
-        box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 14px -6px rgba(37, 99, 235, 0.30);
+        box-shadow: inset 0 0 0 1px rgba(21, 128, 61, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 14px -6px rgba(21, 128, 61, 0.30);
     }
 
     .sb-item.active>.sb-link>i:first-child {
-        color: #E11835;
+        color: #15803d;
     }
 
     .sb-item.active>.sb-link::before {
@@ -1201,8 +1199,8 @@
         width: 3.5px;
         height: 24px;
         border-radius: 3px;
-        background: linear-gradient(180deg, #15803d 0%, #2563eb 33%, #E11835 66%, #E11835 100%);
-        box-shadow: 0 0 12px rgba(225, 24, 53, 0.65), 0 0 6px rgba(37, 99, 235, 0.55);
+        background: #15803d;
+        box-shadow: 0 0 12px rgba(21, 128, 61, 0.65);
     }
 
     .sb-link span.sb-label {
@@ -1245,7 +1243,7 @@
         top: 2px;
         bottom: 10px;
         width: 1px;
-        background: linear-gradient(180deg, #15803d, #2563eb 35%, #E11835 65%, #E11835 85%, transparent);
+        background: #15803d;
     }
 
     .sb-submenu li a {

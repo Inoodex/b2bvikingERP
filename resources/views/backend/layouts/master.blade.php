@@ -43,103 +43,11 @@
         href="{{ asset('backend/assets/css/custom.css') }}?v={{ filemtime(public_path('backend/assets/css/custom.css')) }}">
     @stack('css')
     @stack('styles')
-    <style>
-        @media (min-width: 768px) {
-            .main-wrapper.container {
-                max-width: 100% !important;
-                width: 100% !important;
-                padding: 0 !important;
-            }
-        }
-
-        /* Bell Shake Animation */
-        @keyframes bell-shake {
-            0% {
-                transform: rotate(0);
-            }
-
-            15% {
-                transform: rotate(5deg);
-            }
-
-            30% {
-                transform: rotate(-5deg);
-            }
-
-            45% {
-                transform: rotate(4deg);
-            }
-
-            60% {
-                transform: rotate(-4deg);
-            }
-
-            75% {
-                transform: rotate(2deg);
-            }
-
-            85% {
-                transform: rotate(-2deg);
-            }
-
-            100% {
-                transform: rotate(0);
-            }
-        }
-
-        .shake {
-            animation: bell-shake 0.5s cubic-bezier(.36, .07, .19, .97) both infinite;
-            transform: translate3d(0, 0, 0);
-            backface-visibility: hidden;
-            perspective: 1000px;
-        }
-
-        /* Ensure SweetAlert2 is always on top of all modals, offcanvas drawers & backdrops */
-        .swal2-container {
-            z-index: 10000000 !important;
-        }
-    </style>
     <!-- DataTables CSS for Bootstrap 4 -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
     <link rel="stylesheet"
         href="{{ asset('backend/assets/modules/datatables/Responsive-2.2.1/css/responsive.bootstrap4.css') }}">
-    <style>
-        /* Universal Crisp White DataTables Headers across all backend pages */
-        .table thead th,
-        .table thead th *,
-        .dataTable thead th,
-        .dataTable thead th *,
-        table.dataTable thead th,
-        table.dataTable thead th *,
-        table[id$="-table"] thead th,
-        table[id$="-table"] thead th * {
-            color: #ffffff !important;
-        }
-
-        table.dataTable thead .sorting:before,
-        table.dataTable thead .sorting_asc:before,
-        table.dataTable thead .sorting_desc:before,
-        table.dataTable thead .sorting:after,
-        table.dataTable thead .sorting_asc:after,
-        table.dataTable thead .sorting_desc:after,
-        .dataTable thead .sorting:before,
-        .dataTable thead .sorting_asc:before,
-        .dataTable thead .sorting_desc:before,
-        .dataTable thead .sorting:after,
-        .dataTable thead .sorting_asc:after,
-        .dataTable thead .sorting_desc:after {
-            color: #ffffff !important;
-            opacity: 0.75 !important;
-        }
-
-        table.dataTable thead .sorting_asc:before,
-        table.dataTable thead .sorting_desc:after,
-        .dataTable thead .sorting_asc:before,
-        .dataTable thead .sorting_desc:after {
-            opacity: 1 !important;
-        }
-    </style>
 </head>
 
 <body class="layout-3">
@@ -249,7 +157,7 @@
                 var numbers = [];
                 if (pages <= 4) {
                     for (var i = 0; i < pages; i++) numbers.push(i);
-                } else if (page <= 2) {
+                } else if (page <= 1) {
                     numbers = [0, 1, 2, 'ellipsis', pages - 1];
                 } else if (page >= pages - 3) {
                     numbers = [0, 'ellipsis', pages - 3, pages - 2, pages - 1];

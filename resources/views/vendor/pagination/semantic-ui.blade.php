@@ -6,7 +6,7 @@
         $pages = [];
 
         if ($isLengthAware) {
-            if ($last <= 5) {
+            if ($last <= 4) {
                 $pages = range(1, $last);
             } elseif ($current <= 2) {
                 $pages = [1, 2, 3, '...', $last];

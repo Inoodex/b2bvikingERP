@@ -14,7 +14,7 @@
                         <div class="breadcrumb-item active">Barcode Labels</div>
                     </div>
                 </div>
-                <div class="header-badges d-none d-md-flex gap-2">
+                <div class="header-badges d-none d-md-flex">
                     <span class="badge badge-primary px-3 py-2"><i class="fas fa-check-circle mr-1"></i> Pure Vector
                         SVG</span>
                     <span class="badge badge-info px-3 py-2"><i class="fas fa-print mr-1"></i> Zebra / Thermal Ready</span>
@@ -373,6 +373,23 @@
     <style>
         .cursor-pointer {
             cursor: pointer;
+        }
+
+        .header-badges {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .header-badges .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            white-space: nowrap;
+            border-radius: 999px;
+            line-height: 1.2;
         }
 
         .preset-card-label {
