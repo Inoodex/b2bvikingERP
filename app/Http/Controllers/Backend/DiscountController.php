@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Backend;
 
 use App\DataTables\DiscountDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Discount;
+use App\Models\ProductType;
+use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +27,10 @@ class DiscountController extends Controller
      */
     public function create()
     {
-        return view('backend.discount.create');
+        $categories = Category::where('status', 1)->orderBy('name')->get(['id', 'name']);
+        $customers = User::orderBy('name')->get(['id', 'name', 'outlet_name', 'email']);
+        $productTypes = ProductType::where('status', 1)->orderBy('id')->get(['id', 'name']);
+        return view('backend.discount.create', compact('categories', 'customers', 'productTypes'));
     }
 
     /**
@@ -38,6 +44,15 @@ class DiscountController extends Controller
             'value' => 'required|numeric|min:0',
             'is_default' => 'nullable|boolean',
             'status' => 'required|boolean',
+            'is_seasonal' => 'nullable|boolean',
+            'product_type_id' => 'nullable|exists:product_types,id',
+            'occasion' => 'nullable|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'exists:categories,id',
+            'user_ids' => 'nullable|array',
+            'user_ids.*' => 'exists:users,id',
         ]);
 
         if ($data['type'] === 'percent' && (float) $data['value'] > 100) {
@@ -50,7 +65,19 @@ class DiscountController extends Controller
             $status = true;
         }
 
-        DB::transaction(function () use ($data, $isDefault, $status) {
+        $isSeasonal = (bool) ($request->is_seasonal ?? false);
+        $productTypeId = !empty($data['product_type_id']) ? (int) $data['product_type_id'] : null;
+
+        // Auto-resolve occasion label from ProductType if not explicitly typed
+        $occasion = $data['occasion'] ?? null;
+        if ($productTypeId && empty($occasion)) {
+            $pt = ProductType::find($productTypeId);
+            if ($pt) {
+                $occasion = $pt->name;
+            }
+        }
+
+        DB::transaction(function () use ($data, $isDefault, $status, $isSeasonal, $productTypeId, $occasion) {
             if ($isDefault) {
                 Discount::query()->update(['is_default' => false]);
             }
@@ -59,6 +86,13 @@ class DiscountController extends Controller
                 'name' => $data['name'],
                 'type' => $data['type'],
                 'value' => $data['value'],
+                'is_seasonal' => $isSeasonal,
+                'product_type_id' => $isSeasonal ? $productTypeId : null,
+                'occasion' => $isSeasonal ? $occasion : null,
+                'start_date' => $isSeasonal ? ($data['start_date'] ?? null) : null,
+                'end_date' => $isSeasonal ? ($data['end_date'] ?? null) : null,
+                'category_ids' => ($isSeasonal && !empty($data['category_ids'])) ? array_values(array_map('intval', $data['category_ids'])) : null,
+                'user_ids' => ($isSeasonal && !empty($data['user_ids'])) ? array_values(array_map('intval', $data['user_ids'])) : null,
                 'is_default' => $isDefault,
                 'status' => $status,
             ]);
@@ -82,7 +116,10 @@ class DiscountController extends Controller
     public function edit(string $id)
     {
         $discount = Discount::findOrFail($id);
-        return view('backend.discount.edit', compact('discount'));
+        $categories = Category::where('status', 1)->orderBy('name')->get(['id', 'name']);
+        $customers = User::orderBy('name')->get(['id', 'name', 'outlet_name', 'email']);
+        $productTypes = ProductType::where('status', 1)->orderBy('id')->get(['id', 'name']);
+        return view('backend.discount.edit', compact('discount', 'categories', 'customers', 'productTypes'));
     }
 
     /**
@@ -98,6 +135,15 @@ class DiscountController extends Controller
             'value' => 'required|numeric|min:0',
             'is_default' => 'nullable|boolean',
             'status' => 'required|boolean',
+            'is_seasonal' => 'nullable|boolean',
+            'product_type_id' => 'nullable|exists:product_types,id',
+            'occasion' => 'nullable|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'exists:categories,id',
+            'user_ids' => 'nullable|array',
+            'user_ids.*' => 'exists:users,id',
         ]);
 
         if ($data['type'] === 'percent' && (float) $data['value'] > 100) {
@@ -110,7 +156,19 @@ class DiscountController extends Controller
             $status = true;
         }
 
-        DB::transaction(function () use ($discount, $data, $isDefault, $status) {
+        $isSeasonal = (bool) ($request->is_seasonal ?? false);
+        $productTypeId = !empty($data['product_type_id']) ? (int) $data['product_type_id'] : null;
+
+        // Auto-resolve occasion label from ProductType if not explicitly typed
+        $occasion = $data['occasion'] ?? null;
+        if ($productTypeId && empty($occasion)) {
+            $pt = ProductType::find($productTypeId);
+            if ($pt) {
+                $occasion = $pt->name;
+            }
+        }
+
+        DB::transaction(function () use ($discount, $data, $isDefault, $status, $isSeasonal, $productTypeId, $occasion) {
             if ($isDefault) {
                 Discount::query()->where('id', '!=', $discount->id)->update(['is_default' => false]);
             }
@@ -119,6 +177,13 @@ class DiscountController extends Controller
                 'name' => $data['name'],
                 'type' => $data['type'],
                 'value' => $data['value'],
+                'is_seasonal' => $isSeasonal,
+                'product_type_id' => $isSeasonal ? $productTypeId : null,
+                'occasion' => $isSeasonal ? $occasion : null,
+                'start_date' => $isSeasonal ? ($data['start_date'] ?? null) : null,
+                'end_date' => $isSeasonal ? ($data['end_date'] ?? null) : null,
+                'category_ids' => ($isSeasonal && !empty($data['category_ids'])) ? array_values(array_map('intval', $data['category_ids'])) : null,
+                'user_ids' => ($isSeasonal && !empty($data['user_ids'])) ? array_values(array_map('intval', $data['user_ids'])) : null,
                 'is_default' => $isDefault,
                 'status' => $status,
             ]);

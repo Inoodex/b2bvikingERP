@@ -53,6 +53,32 @@ class ProductVariant extends Model
         return $this->hasMany(StockBatch::class, 'variant_id');
     }
 
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'variant_id');
+    }
+
+    public function activeOrderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'variant_id')
+            ->whereHas('order', function ($query) {
+                $query->whereIn('status', ['pending', 'approved']);
+            });
+    }
+
+    public function productRequestItems()
+    {
+        return $this->hasMany(ProductRequestItem::class, 'variant_id');
+    }
+
+    public function activeProductRequestItems()
+    {
+        return $this->hasMany(ProductRequestItem::class, 'variant_id')
+            ->whereHas('productRequest', function ($query) {
+                $query->whereIn('status', ['pending', 'approved']);
+            });
+    }
+
     public function getInventoryStockAttribute()
     {
         return $this->inventoryStocks->sum('quantity');

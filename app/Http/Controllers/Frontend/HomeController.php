@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Mail\ContactMessageMail;
 use App\Models\Product;
+use App\Models\InventoryStock;
 use App\Models\Category;
 use App\Models\GeneralSetting;
 use App\Models\ProductType;
@@ -66,12 +67,9 @@ class HomeController extends Controller
                         ]);
 
                     if ($isOutletCustomer) {
-                        $query->withSum([
-                            'inventoryStocks as scoped_stock_qty' => function ($stockQuery) use ($outletId) {
-                                $stockQuery->where('outlet_id', $outletId);
-                            }
-                        ], 'quantity');
+                        $this->applyAvailableStockScope($query, $outletId, 'products', 'product_id');
                     }
+                    $query->withCount('orderItems');
                 }
             ])
             ->orderByDesc('latest_product_created_at');
@@ -94,8 +92,36 @@ class HomeController extends Controller
             })
             ->values();
 
+        // Point 23: Load Popular / Frequently Ordered items for Homepage highlight
+        $popularProductsQuery = Product::query()
+            ->with([
+                'category:id,name',
+                'productType:id,name',
+                'variants' => function ($variantQuery) use ($roleContext) {
+                    $this->configureVariantQuery($variantQuery, $roleContext);
+                },
+            ])
+            ->where('status', 1)
+            ->when(!empty($hiddenProductIds), fn($q) => $q->whereNotIn('id', $hiddenProductIds));
+
+        if ($isOutletCustomer) {
+            $this->applyAvailableStockScope($popularProductsQuery, $outletId, 'products', 'product_id');
+        }
+
+        $popularProducts = $popularProductsQuery
+            ->withCount('orderItems')
+            ->has('orderItems', '>=', 5)
+            ->orderByDesc('order_items_count')
+            ->take(4)
+            ->get();
+        $popularAvailabilityMap = B2bProductVisibilityService::resolveAvailabilityMap($popularProducts, $request->user());
+        $popularCards = $popularProducts
+            ->map(fn(Product $product) => $this->transformProductForCard($product, $roleContext, $popularAvailabilityMap->get($product->id)))
+            ->values();
+
         return view('frontend.pages.home', [
             'sliders' => $sliders,
+            'popularCards' => $popularCards,
             'latestCategoryBlocks' => $latestCategoryBlocks,
             'latestCategories' => $latestCategories,
             'roleContext' => $roleContext,
@@ -143,12 +169,9 @@ class HomeController extends Controller
                         ]);
 
                     if ($isOutletCustomer) {
-                        $query->withSum([
-                            'inventoryStocks as scoped_stock_qty' => function ($stockQuery) use ($outletId) {
-                                $stockQuery->where('outlet_id', $outletId);
-                            }
-                        ], 'quantity');
+                        $this->applyAvailableStockScope($query, $outletId, 'products', 'product_id');
                     }
+                    $query->withCount('orderItems');
                 }
             ])
             ->orderByDesc('latest_product_created_at')
@@ -210,12 +233,9 @@ class HomeController extends Controller
             });
 
         if ($isOutletCustomer) {
-            $query->withSum([
-                'inventoryStocks as scoped_stock_qty' => function ($query) use ($outletId) {
-                    $query->where('outlet_id', $outletId);
-                }
-            ], 'quantity');
+            $this->applyAvailableStockScope($query, $outletId, 'products', 'product_id');
         }
+        $query->withCount('orderItems');
 
         // Search
         if ($request->filled('search')) {
@@ -256,9 +276,19 @@ class HomeController extends Controller
             }
         }
 
+        // Popularity Filter (Point 23)
+        if ($request->boolean('popular_only')) {
+            $query->has('orderItems', '>=', 5);
+        }
+
         // Sorting
         $sort = $request->get('sort', 'latest');
         switch ($sort) {
+            case 'popular':
+            case 'frequently_ordered':
+                $query->orderByDesc('order_items_count')
+                    ->latest();
+                break;
             case 'stock_first':
                 if ($isOutletCustomer) {
                     $query->orderByRaw('CASE WHEN COALESCE(scoped_stock_qty, 0) > 0 THEN 0 ELSE 1 END')
@@ -495,12 +525,9 @@ class HomeController extends Controller
             ->where('status', 1);
 
         if ($canViewInventory) {
-            $productQuery->withSum([
-                'inventoryStocks as scoped_stock_qty' => function ($query) use ($outletId) {
-                    $query->where('outlet_id', $outletId);
-                },
-            ], 'quantity');
+            $this->applyAvailableStockScope($productQuery, $outletId, 'products', 'product_id');
         }
+        $productQuery->withCount('orderItems');
 
         $product = $productQuery->firstOrFail();
 
@@ -525,12 +552,9 @@ class HomeController extends Controller
             ->when(!empty($hiddenProductIds), fn($q) => $q->whereNotIn('id', $hiddenProductIds));
 
         if ($canViewInventory) {
-            $relatedQuery->withSum([
-                'inventoryStocks as scoped_stock_qty' => function ($query) use ($outletId) {
-                    $query->where('outlet_id', $outletId);
-                },
-            ], 'quantity');
+            $this->applyAvailableStockScope($relatedQuery, $outletId, 'products', 'product_id');
         }
+        $relatedQuery->withCount('orderItems');
 
         $relatedProducts = $relatedQuery
             ->latest()
@@ -656,7 +680,10 @@ class HomeController extends Controller
     {
         $userOutletId = $request->user()?->outlet_id ?? null;
         if (!empty($userOutletId)) {
-            return (int) $userOutletId;
+            $userOutletId = (int) $userOutletId;
+            if ($userOutletId === 1 || InventoryStock::where('outlet_id', $userOutletId)->exists()) {
+                return $userOutletId;
+            }
         }
 
         return 1;
@@ -670,12 +697,27 @@ class HomeController extends Controller
 
         if (!empty($roleContext['canViewInventory']) && !empty($roleContext['outletId'])) {
             $outletId = (int) $roleContext['outletId'];
-            $query->withSum([
-                'inventoryStocks as scoped_stock_qty' => function ($stockQuery) use ($outletId) {
-                    $stockQuery->where('outlet_id', $outletId);
-                },
-            ], 'quantity');
+            $this->applyAvailableStockScope($query, $outletId, 'product_variants', 'variant_id');
         }
+    }
+
+    /**
+     * Point 24: Apply real-time available stock scope (Physical Stock minus unfulfilled pending orders & requisitions)
+     */
+    private function applyAvailableStockScope($query, int $outletId, string $table = 'products', string $foreignKey = 'product_id')
+    {
+        $outletId = (int) ($outletId ?: 1);
+        if ($outletId > 1 && !InventoryStock::where('outlet_id', $outletId)->exists()) {
+            $outletId = 1;
+        }
+
+        $sql = "GREATEST(0, (COALESCE((SELECT SUM(quantity) FROM inventory_stocks WHERE {$foreignKey} = {$table}.id AND outlet_id = {$outletId}), 0) - COALESCE((SELECT SUM(oi.quantity) FROM order_items oi JOIN orders o ON o.id = oi.order_id WHERE oi.{$foreignKey} = {$table}.id AND o.status IN ('pending', 'approved')), 0) - COALESCE((SELECT SUM(pri.qty) FROM product_request_items pri JOIN product_requests pr ON pr.id = pri.product_request_id WHERE pri.{$foreignKey} = {$table}.id AND pr.status IN ('pending', 'approved')), 0))) as scoped_stock_qty";
+
+        if (empty($query->getQuery()->columns)) {
+            $query->select("{$table}.*");
+        }
+
+        return $query->selectRaw($sql);
     }
 
     private function transformProductForCard(Product $product, array $roleContext, ?array $availability = null): array
@@ -696,6 +738,9 @@ class HomeController extends Controller
             }
         }
 
+        $orderCount = (int) ($product->order_items_count ?? 0);
+        $isPopular = $orderCount >= 10 || (bool) ($product->is_popular ?? false);
+
         $productPayload = [
             'id' => (int) $product->id,
             'slug' => (string) $product->slug,
@@ -711,6 +756,8 @@ class HomeController extends Controller
             'minimum_order_qty' => max(1, (int) ($product->minimum_order_qty ?? 1)),
             'stock' => $effectiveStock,
             'inventory_visible' => $canViewInventory,
+            'is_popular' => $isPopular,
+            'order_items_count' => $orderCount,
         ];
 
         $variantPayload = $product->variants
@@ -740,6 +787,8 @@ class HomeController extends Controller
             'category_name' => $categoryName !== '' ? $categoryName : 'Category not set',
             'product_type' => $productTypeName !== '' ? $productTypeName : null,
             'details_url' => route('product.details', $product->slug),
+            'is_popular' => $isPopular,
+            'order_items_count' => $orderCount,
         ];
     }
 

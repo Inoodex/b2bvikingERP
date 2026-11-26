@@ -45,15 +45,17 @@
                                 </div>
                                 <div>
                                     <h5 class="mb-0 font-weight-bold text-dark">Add Discount Rule</h5>
-                                    <small class="text-muted">Create a new discount or promo rule for your store</small>
+                                    <small class="text-muted">Create a standard or seasonal targeted discount for your store</small>
                                 </div>
                             </div>
                         </div>
 
                         {{-- Card Body --}}
                         <div class="card-body p-4">
-                            <form action="{{ route('admin.discounts.store') }}" method="post">
+                            <form action="{{ route('admin.discounts.store') }}" method="post" id="discountForm">
                                 @csrf
+
+                                {{-- Basic Settings --}}
                                 <div class="row">
                                     {{-- Rule Name --}}
                                     <div class="form-group col-md-6">
@@ -64,7 +66,7 @@
                                         </label>
                                         <input type="text" class="form-control form-control-lg @error('name') is-invalid @enderror" 
                                                name="name" value="{{ old('name') }}"
-                                               placeholder="Enter discount rule name">
+                                               placeholder="e.g. Winter Sale 15% OFF" required>
                                         @error('name')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -74,16 +76,16 @@
                                     <div class="form-group col-md-3">
                                         <label class="font-weight-bold text-dark">
                                             <i class="fas fa-list-ul text-info mr-1"></i>
-                                            Type
+                                            Discount Type
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-control form-control-lg @error('type') is-invalid @enderror" 
                                                 id="discount_type" name="type" required>
                                             <option value="percent" {{ old('type', 'percent') == 'percent' ? 'selected' : '' }}>
-                                                Percent
+                                                Percentage (%)
                                             </option>
                                             <option value="flat" {{ old('type') == 'flat' ? 'selected' : '' }}>
-                                                Flat
+                                                Flat Amount (kr.)
                                             </option>
                                         </select>
                                         @error('type')
@@ -104,7 +106,7 @@
                                                    name="value" value="{{ old('value', 0) }}"
                                                    placeholder="0.00" required>
                                             <div class="input-group-append">
-                                                <span class="input-group-text bg-light" id="value-symbol">%</span>
+                                                <span class="input-group-text bg-light font-weight-bold" id="value-symbol">%</span>
                                             </div>
                                         </div>
                                         @error('value')
@@ -118,21 +120,21 @@
                                     <div class="form-group col-md-6">
                                         <label class="font-weight-bold text-dark">
                                             <i class="fas fa-star text-warning mr-1"></i>
-                                            Set as Default
+                                            Set as Default Store Discount
                                         </label>
                                         <select class="form-control form-control-lg @error('is_default') is-invalid @enderror" 
                                                 name="is_default">
                                             <option value="0" {{ old('is_default', '0') == '0' ? 'selected' : '' }}>
-                                                No
+                                                No (Custom Rule)
                                             </option>
                                             <option value="1" {{ old('is_default') == '1' ? 'selected' : '' }}>
-                                                Yes
+                                                Yes (Default for All Orders)
                                             </option>
                                         </select>
                                         @error('is_default')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                        <small class="text-muted">Set this discount as the default rule</small>
+                                        <small class="text-muted">Default rule applies whenever no product or seasonal discount matches.</small>
                                     </div>
 
                                     {{-- Status --}}
@@ -147,24 +149,135 @@
                                             <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>
                                                 Active
                                             </option>
-                                            <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>
+                                            <option value="0" {{ old('status') === '0' ? 'selected' : '' }}>
                                                 Inactive
                                             </option>
                                         </select>
                                         @error('status')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                        <small class="text-muted">Active discount rules will be applied to orders</small>
+                                    </div>
+                                </div>
+
+                                {{-- Advanced / Seasonal Options Progressive Disclosure Toggle --}}
+                                <div class="seasonal-toggle-card mt-3 mb-4 p-3 rounded" style="background: #f8fafc; border: 1.5px dashed #cbd5e1;">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                        <div class="d-flex align-items-center">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-switch-input" id="toggleSeasonal" 
+                                                       name="is_seasonal" value="1" {{ old('is_seasonal') ? 'checked' : '' }}>
+                                                <label class="custom-switch-indicator" for="toggleSeasonal"></label>
+                                            </div>
+                                            <label class="font-weight-bold text-dark mb-0 ml-2 cursor-pointer" for="toggleSeasonal" style="font-size: 0.95rem;">
+                                                <i class="fas fa-snowflake text-info mr-1"></i> 
+                                                ⚙️ Advanced / Seasonal Settings (Occasion Type, Date Range, Category & Customer Targeting)
+                                            </label>
+                                        </div>
+                                        <span class="badge badge-light border text-muted px-2 py-1 mt-2 mt-sm-0" style="font-size: 11px;">
+                                            Optional Target Rules
+                                        </span>
+                                    </div>
+
+                                    {{-- Expandable Seasonal Settings Container --}}
+                                    <div id="seasonalSettingsContainer" class="mt-3 pt-3 border-top" style="display: {{ old('is_seasonal') ? 'block' : 'none' }};">
+                                        <div class="row">
+                                            {{-- Occasion Type Dropdown (Exact match with product create/edit) --}}
+                                            <div class="form-group col-md-4">
+                                                <label class="font-weight-bold text-dark">
+                                                    <i class="fas fa-calendar-alt text-primary mr-1"></i>
+                                                    Occasion Type / Season
+                                                </label>
+                                                <select name="product_type_id" id="product_type_id" class="form-control select2" style="width: 100%;">
+                                                    <option value="">-- All Occasions / Any --</option>
+                                                    @foreach ($productTypes as $pt)
+                                                        <option value="{{ $pt->id }}" {{ old('product_type_id') == $pt->id ? 'selected' : '' }}>
+                                                            {{ $pt->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <small class="text-muted">Matches products tagged with this Occasion (e.g. Winter Item)</small>
+                                            </div>
+
+                                            {{-- Start Date --}}
+                                            <div class="form-group col-md-4">
+                                                <label class="font-weight-bold text-dark">
+                                                    <i class="fas fa-hourglass-start text-success mr-1"></i>
+                                                    Season Start Date
+                                                </label>
+                                                <input type="date" class="form-control @error('start_date') is-invalid @enderror" 
+                                                       name="start_date" id="start_date" value="{{ old('start_date') }}">
+                                                @error('start_date')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                                <small class="text-muted">Leave blank to start immediately</small>
+                                            </div>
+
+                                            {{-- End Date --}}
+                                            <div class="form-group col-md-4">
+                                                <label class="font-weight-bold text-dark">
+                                                    <i class="fas fa-hourglass-end text-danger mr-1"></i>
+                                                    Season End Date (Expiry)
+                                                </label>
+                                                <input type="date" class="form-control @error('end_date') is-invalid @enderror" 
+                                                       name="end_date" id="end_date" value="{{ old('end_date') }}">
+                                                @error('end_date')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                                <small class="text-muted">Auto-expires at 23:59 on this date</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            {{-- Target Categories --}}
+                                            <div class="form-group col-md-6">
+                                                <label class="font-weight-bold text-dark">
+                                                    <i class="fas fa-boxes text-info mr-1"></i>
+                                                    Category-wise Target (Product Categories)
+                                                </label>
+                                                <select name="category_ids[]" id="category_ids" class="form-control select2" multiple="multiple" style="width: 100%;">
+                                                    @foreach ($categories as $cat)
+                                                        <option value="{{ $cat->id }}" 
+                                                            {{ (is_array(old('category_ids')) && in_array($cat->id, old('category_ids'))) ? 'selected' : '' }}>
+                                                            {{ $cat->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-info-circle text-info"></i> 
+                                                    Select categories. <strong>Leave empty to apply to ALL categories.</strong>
+                                                </small>
+                                            </div>
+
+                                            {{-- Target Customers / Outlets --}}
+                                            <div class="form-group col-md-6">
+                                                <label class="font-weight-bold text-dark">
+                                                    <i class="fas fa-users text-primary mr-1"></i>
+                                                    Customer / Outlet Target
+                                                </label>
+                                                <select name="user_ids[]" id="user_ids" class="form-control select2" multiple="multiple" style="width: 100%;">
+                                                    @foreach ($customers as $cust)
+                                                        <option value="{{ $cust->id }}"
+                                                            {{ (is_array(old('user_ids')) && in_array($cust->id, old('user_ids'))) ? 'selected' : '' }}>
+                                                            {{ $cust->name }} {{ $cust->outlet_name ? '— [' . $cust->outlet_name . ']' : '' }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-info-circle text-info"></i> 
+                                                    Select specific customer or outlet stores. <strong>Leave empty to apply to ALL customers.</strong>
+                                                </small>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 {{-- Submit Buttons --}}
                                 <div class="text-right mt-4 pt-3 border-top">
-                                    <button type="reset" class="btn btn-outline-secondary px-4 mr-2 reset-arrow-button">
+                                    <button type="reset" class="btn btn-outline-secondary px-4 mr-2 reset-arrow-button" id="btnReset">
                                         <i class="fas fa-undo mr-1"></i> Reset
                                     </button>
-                                    <button type="submit" class="btn btn-primary px-5 shadow-sm">
-                                        <i class="fas fa-save mr-2"></i> Create
+                                    <button type="submit" class="btn btn-primary px-5 shadow-sm" id="btnSubmit">
+                                        <i class="fas fa-save mr-2"></i> Create Discount Rule
                                     </button>
                                 </div>
                             </form>
@@ -178,22 +291,11 @@
 
 @push('styles')
 <style>
-    /* =============================================
-       DISCOUNT RULES CREATE - CUSTOM STYLES
-       ============================================= */
-
     .form-group label {
         font-size: 0.85rem;
         margin-bottom: 0.5rem;
         letter-spacing: 0.3px;
     }
-
-    .form-group .form-text {
-        font-size: 0.8rem;
-        margin-top: 0.25rem;
-        color: #858796;
-    }
-
     .form-control {
         border-radius: 10px !important;
         border: 2px solid #e2e8f0;
@@ -202,300 +304,88 @@
         font-size: 0.95rem;
         background: #fafbfc;
     }
-
     .form-control:focus {
         border-color: #2563eb;
         box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
         background: #ffffff;
     }
-
     .form-control-lg {
         height: 50px !important;
         font-size: 0.95rem !important;
     }
-
-    .form-control.is-invalid:focus {
-        border-color: #E11835;
-        box-shadow: 0 0 0 0.2rem rgba(225, 24, 53, 0.15);
+    .cursor-pointer {
+        cursor: pointer;
     }
-
-    /* Input Group */
-    .input-group .input-group-text {
-        border-radius: 0 10px 10px 0 !important;
-        border: 2px solid #e2e8f0;
-        border-left: none;
-        background: #f8f9fc;
-        padding: 0 1.2rem;
-        font-weight: 600;
-        color: #2563eb;
-    }
-
-    .input-group .form-control {
-        border-radius: 10px 0 0 10px !important;
-    }
-
-    .input-group .form-control:focus + .input-group-append .input-group-text {
-        border-color: #2563eb;
-    }
-
-    /* Buttons */
-    .btn {
+    .select2-container--default .select2-selection--multiple,
+    .select2-container--default .select2-selection--single {
+        border: 2px solid #e2e8f0 !important;
         border-radius: 10px !important;
-        font-weight: 600 !important;
-        transition: all 0.3s ease !important;
-        min-height: 44px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 0 1.5rem !important;
-        font-size: 0.9rem !important;
-        letter-spacing: 0.3px;
+        min-height: 48px !important;
+        padding: 4px 8px;
+        background: #fafbfc;
     }
-
-    .btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 38px !important;
     }
-
-    .btn:active {
-        transform: scale(0.97);
-    }
-
-    .btn-primary {
-        background: #2563eb !important;
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #2563eb !important;
         border: none !important;
         color: #ffffff !important;
+        border-radius: 6px !important;
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
     }
-
-    .btn-primary:hover {
-        background: #1d4ed8 !important;
-        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35) !important;
-    }
-
-    .btn-outline-secondary {
-        color: #858796 !important;
-        border-color: #858796 !important;
-        background: transparent !important;
-    }
-
-    .btn-outline-secondary:hover {
-        background: #858796 !important;
-        color: #fff !important;
-        border-color: #858796 !important;
-    }
-
-    /* Card */
-    .card {
-        border-radius: 16px !important;
-        overflow: hidden !important;
-    }
-
-    .card-header:first-child {
-        border-radius: 16px 16px 0 0 !important;
-    }
-
-    .card-footer:last-child {
-        border-radius: 0 0 16px 16px !important;
-    }
-
-    /* Mobile Responsive */
-    @media (max-width: 575.98px) {
-        .section-header {
-            padding: 12px 15px !important;
-        }
-        .section-header h1 {
-            font-size: 1rem !important;
-        }
-        .card-body {
-            padding: 15px !important;
-        }
-        .card-header {
-            padding: 10px 15px !important;
-        }
-        .form-group {
-            margin-bottom: 1.25rem !important;
-        }
-        .text-right {
-            text-align: center !important;
-        }
-        .text-right .btn {
-            width: 100% !important;
-            margin-bottom: 8px !important;
-        }
-        .text-right .btn:last-child {
-            margin-bottom: 0 !important;
-        }
-        .section-header .ml-auto {
-            width: 100% !important;
-            justify-content: space-between !important;
-        }
-        .section-header .btn {
-            width: auto !important;
-        }
-        .form-control-lg {
-            height: 44px !important;
-            font-size: 0.85rem !important;
-        }
-        .btn {
-            font-size: 0.8rem !important;
-            min-height: 38px !important;
-            padding: 0 1rem !important;
-        }
-        .input-group .form-control {
-            font-size: 0.85rem !important;
-            height: 44px !important;
-        }
-        .input-group .input-group-text {
-            padding: 0 0.8rem !important;
-            font-size: 0.85rem !important;
-        }
-        .card-header .d-flex {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-        }
-    }
-
-    @media (min-width: 576px) and (max-width: 767.98px) {
-        .card-body {
-            padding: 20px !important;
-        }
-        .form-control-lg {
-            height: 46px !important;
-        }
-        .btn {
-            min-height: 40px !important;
-            padding: 0 1.2rem !important;
-        }
-    }
-
-    @media (max-width: 767.98px) {
-        .section-header .breadcrumb {
-            font-size: 0.75rem !important;
-        }
-        .card-header .d-flex {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-        }
-        .card-header .ml-auto {
-            margin-left: 0 !important;
-            margin-top: 8px !important;
-            width: 100% !important;
-        }
-        .card-header .ml-auto .btn {
-            width: 100% !important;
-        }
-    }
-
-    /* Animation */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .card {
-        animation: fadeInUp 0.4s ease-out;
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: #2563eb;
-        border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: #1d4ed8;
-    }
-
-    /* Validation */
-    .invalid-feedback {
-        font-size: 0.8rem;
-        font-weight: 500;
-        margin-top: 0.3rem;
-    }
-
-    .was-validated .form-control:valid,
-    .form-control.is-valid {
-        border-color: #15803d !important;
-    }
-
-    .was-validated .form-control:invalid,
-    .form-control.is-invalid {
-        border-color: #E11835 !important;
-    }
-
-    .text-danger {
-        font-weight: 700 !important;
-        font-size: 1.1rem;
-    }
-
-    .form-control:hover {
-        border-color: #2563eb;
-        background: #ffffff;
-    }
-
-    .form-control:focus {
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
-    }
-
-    select.form-control {
-        appearance: auto !important;
-        -webkit-appearance: auto !important;
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: #ffffff !important;
+        margin-right: 6px !important;
     }
 </style>
 @endpush
 
 @push('scripts')
-    <script>
-        $(document).ready(function() {
-            function updateValueLabel() {
-                const type = $('#discount_type').val();
-                const label = type === 'percent' ? 'Value (%)' : 'Value (Flat)';
-                const symbol = type === 'percent' ? '%' : '$';
-                
-                $('#discount_value_label').html(`
-                    <i class="fas fa-calculator text-warning mr-1"></i>
-                    ${label}
-                    <span class="text-danger">*</span>
-                `);
-                $('#value-symbol').text(symbol);
-            }
-
-            $('#discount_type').on('change', updateValueLabel);
-            updateValueLabel();
-
-            // Reset button
-            $('button[type="reset"]').on('click', function(e) {
-                e.preventDefault();
-                $('form')[0].reset();
-                $('.is-invalid').removeClass('is-invalid');
-                $('form').removeClass('was-validated');
-                updateValueLabel();
-            });
-
-            // Form validation
-            $('form').on('submit', function(e) {
-                if (!this.checkValidity()) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    $(this).addClass('was-validated');
-                }
-            });
+<script>
+    $(document).ready(function() {
+        // Initialize Select2
+        $('.select2').select2({
+            placeholder: 'Click to select options...',
+            allowClear: true,
+            width: '100%'
         });
-    </script>
+
+        // Type change label handler
+        function updateTypeDisplay() {
+            let type = $('#discount_type').val();
+            if (type === 'percent') {
+                $('#discount_value_label').html('<i class="fas fa-calculator text-warning mr-1"></i> Value (%) <span class="text-danger">*</span>');
+                $('#value-symbol').text('%');
+            } else {
+                $('#discount_value_label').html('<i class="fas fa-calculator text-warning mr-1"></i> Value (kr.) <span class="text-danger">*</span>');
+                $('#value-symbol').text('kr.');
+            }
+        }
+        $('#discount_type').on('change', updateTypeDisplay);
+        updateTypeDisplay();
+
+        // Advanced / Seasonal Toggle handler
+        $('#toggleSeasonal').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#seasonalSettingsContainer').slideDown(250);
+            } else {
+                $('#seasonalSettingsContainer').slideUp(200);
+            }
+        });
+
+        // Reset Handler
+        $('#btnReset').on('click', function() {
+            setTimeout(function() {
+                $('#discount_type').trigger('change');
+                $('.select2').val(null).trigger('change');
+                if (!$('#toggleSeasonal').is(':checked')) {
+                    $('#seasonalSettingsContainer').hide();
+                }
+            }, 50);
+        });
+    });
+</script>
 @endpush

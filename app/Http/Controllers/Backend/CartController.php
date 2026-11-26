@@ -172,6 +172,15 @@ class CartController extends Controller
         $product = Product::with(['variants.color', 'variants.size', 'vendor'])->findOrFail($productId);
         $productVendorId = $product->vendor_id;
 
+        // Guard against adding discontinued products to procurement basket (booking)
+        if ($cartType === 'booking' && $product->procurement_status === 'discontinued' && $action !== 'remove') {
+            return response()->json([
+                'success' => false,
+                'status' => 'error',
+                'message' => 'This product is discontinued and cannot be added to the procurement basket.'
+            ], 422);
+        }
+
         // 1. Handle Bulk Variants Addition (from Variant Modal)
         if ($isBulkVariants) {
             // Remove previous variants for this product to prevent stale / duplicate entries
@@ -475,6 +484,7 @@ class CartController extends Controller
                 $qty = !empty($it['quantity']) ? (float)$it['quantity'] : 1;
                 $p = $products->get($pId);
                 if (!$p) continue;
+                if ($cartType === 'booking' && $p->procurement_status === 'discontinued') continue;
 
                 $cartItem = Cart::where('user_id', $userId)
                     ->where('product_id', $pId)
@@ -501,6 +511,7 @@ class CartController extends Controller
             foreach ($productIds as $pId) {
                 $p = $products->get($pId);
                 if (!$p) continue;
+                if ($cartType === 'booking' && $p->procurement_status === 'discontinued') continue;
 
                 $exists = Cart::where('user_id', $userId)
                     ->where('product_id', $pId)

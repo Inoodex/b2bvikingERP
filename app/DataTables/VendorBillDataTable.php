@@ -37,16 +37,35 @@ class VendorBillDataTable extends DataTable
                 return $row->due_date ? $row->due_date->format('d M Y') : 'N/A';
             })
             ->editColumn('grand_total', function ($row) {
-                $symbol = $row->currency ? $row->currency->symbol : (getSettings()->currency_icon ?? 'Kr.');
-                return $symbol . ' ' . number_format($row->grand_total, 2);
+                $curr = $row->currency ?: ($row->purchase?->currency ?: $row->vendor?->currency);
+                $symbol = $curr ? $curr->symbol : 'kr.';
+                $code = $curr ? $curr->code : 'DKK';
+                $isForeign = $code !== 'DKK';
+                $rate = (float)($row->purchase?->exchange_rate_used ?: ($curr?->exchange_rate ?: 1.0));
+                $val = $symbol . ' ' . number_format($row->grand_total, 2);
+                if ($isForeign && $rate > 0) {
+                    $baseVal = number_format(round($row->grand_total * $rate, 2), 2);
+                    return '<span title="Base Equivalent: kr. ' . $baseVal . ' DKK">' . $val . ' <small class="text-muted">(' . $code . ')</small></span>';
+                }
+                return $val;
             })
             ->editColumn('paid_amount', function ($row) {
-                $symbol = $row->currency ? $row->currency->symbol : (getSettings()->currency_icon ?? 'Kr.');
+                $curr = $row->currency ?: ($row->purchase?->currency ?: $row->vendor?->currency);
+                $symbol = $curr ? $curr->symbol : 'kr.';
                 return $symbol . ' ' . number_format($row->paid_amount, 2);
             })
             ->editColumn('due_amount', function ($row) {
-                $symbol = $row->currency ? $row->currency->symbol : (getSettings()->currency_icon ?? 'Kr.');
-                return $symbol . ' ' . number_format($row->due_amount, 2);
+                $curr = $row->currency ?: ($row->purchase?->currency ?: $row->vendor?->currency);
+                $symbol = $curr ? $curr->symbol : 'kr.';
+                $code = $curr ? $curr->code : 'DKK';
+                $isForeign = $code !== 'DKK';
+                $rate = (float)($row->purchase?->exchange_rate_used ?: ($curr?->exchange_rate ?: 1.0));
+                $val = $symbol . ' ' . number_format($row->due_amount, 2);
+                if ($isForeign && $row->due_amount > 0 && $rate > 0) {
+                    $baseDue = number_format(round($row->due_amount * $rate, 2), 2);
+                    return '<span class="text-danger font-weight-bold" title="Base Due: kr. ' . $baseDue . ' DKK">' . $val . '</span>';
+                }
+                return '<span class="text-danger font-weight-bold">' . $val . '</span>';
             })
             ->addColumn('vendor_name', function ($row) {
                 return $row->vendor ? '<strong>' . e($row->vendor->name) . '</strong>' : '<span class="text-muted">N/A</span>';
@@ -63,7 +82,7 @@ class VendorBillDataTable extends DataTable
                 }
                 return '<span class="badge badge-info px-2 py-1 font-weight-bold" title="Direct Purchase Order Invoicing"><i class="fas fa-file-invoice mr-1"></i> PO Invoiced</span>';
             })
-            ->rawColumns(['action', 'vendor_name', 'po_no', 'payment_status_badge', 'match_status']);
+            ->rawColumns(['action', 'grand_total', 'due_amount', 'vendor_name', 'po_no', 'payment_status_badge', 'match_status']);
     }
 
     /**
@@ -71,7 +90,7 @@ class VendorBillDataTable extends DataTable
      */
     public function query(VendorBill $model): QueryBuilder
     {
-        return $model->newQuery()->with(['purchase', 'vendor', 'goodsReceipt']);
+        return $model->newQuery()->with(['purchase.currency', 'vendor.currency', 'currency', 'goodsReceipt']);
     }
 
     /**

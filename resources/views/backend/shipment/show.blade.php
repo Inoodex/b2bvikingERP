@@ -22,7 +22,7 @@
             <div class="col-lg-4 col-md-5">
                 <div class="card card-primary shadow-sm">
                     <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
-                        <h4 class="text-dark font-weight-bold mb-0"><i class="fas fa-ship text-primary mr-2"></i> Logistics Summary</h4>
+                        <h4 class="text-dark font-weight-bold mb-0"><i class="{{ $shipment->transport_icon }} text-primary mr-2"></i> Logistics Summary</h4>
                         @if($shipment->status !== 'cancelled' && $shipment->goodsReceiptsCount() == 0)
                             <a href="{{ route('admin.shipments.edit', $shipment->id) }}" class="btn btn-primary btn-sm font-weight-bold">
                                 <i class="fas fa-edit mr-1"></i> Edit Logistics
@@ -33,7 +33,11 @@
                         <table class="table table-md table-borderless mb-0">
                             <tbody>
                                 <tr>
-                                    <td class="font-weight-bold text-muted" width="40%">Status:</td>
+                                    <td class="font-weight-bold text-muted" width="40%">Freight Mode:</td>
+                                    <td>{!! $shipment->transport_badge !!}</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-weight-bold text-muted">Status:</td>
                                     <td>{!! $shipment->status_badge !!}</td>
                                 </tr>
                                 <tr>
@@ -49,23 +53,27 @@
                                     <td><strong class="text-dark">{{ $shipment->purchase?->vendor?->name ?? $shipment->purchase?->vendor?->shop_name ?? 'N/A' }}</strong></td>
                                 </tr>
                                 <tr>
-                                    <td class="font-weight-bold text-muted">Vessel / Flight:</td>
+                                    <td class="font-weight-bold text-muted">{{ $shipment->carrier_label }}:</td>
+                                    <td><strong>{{ $shipment->carrier_name ?? 'N/A' }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-weight-bold text-muted">{{ $shipment->identifier_label }}:</td>
                                     <td>{{ $shipment->vessel_or_flight ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="font-weight-bold text-muted">Container No:</td>
+                                    <td class="font-weight-bold text-muted">{{ $shipment->container_label }}:</td>
                                     <td><code class="text-dark font-weight-bold">{{ $shipment->container_no ?? 'N/A' }}</code></td>
                                 </tr>
                                 <tr>
-                                    <td class="font-weight-bold text-muted">BL / AWB No:</td>
+                                    <td class="font-weight-bold text-muted">{{ $shipment->document_label }}:</td>
                                     <td><code class="text-danger font-weight-bold">{{ $shipment->bl_awb_no ?? 'N/A' }}</code></td>
                                 </tr>
                                 <tr>
-                                    <td class="font-weight-bold text-muted">Loading Port:</td>
+                                    <td class="font-weight-bold text-muted">{{ $shipment->origin_label }}:</td>
                                     <td>{{ $shipment->port_of_loading ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="font-weight-bold text-muted">Discharge Port:</td>
+                                    <td class="font-weight-bold text-muted">{{ $shipment->destination_label }}:</td>
                                     <td>{{ $shipment->port_of_discharge ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
@@ -79,10 +87,17 @@
                             </tbody>
                         </table>
 
+                        @if($shipment->mode_change_reason)
+                            <div class="p-3 border-top bg-light">
+                                <small class="text-warning font-weight-bold d-block"><i class="fas fa-history mr-1"></i> Mode Conversion Audit Trail:</small>
+                                <span class="small text-muted">{{ $shipment->mode_change_reason }}</span>
+                            </div>
+                        @endif
+
                         @if($shipment->document_path)
                             <div class="p-3 border-top bg-light">
                                 <a href="{{ asset('storage/' . $shipment->document_path) }}" target="_blank" class="btn btn-outline-primary btn-block font-weight-bold">
-                                    <i class="fas fa-file-download mr-1"></i> Download BL / Packing List
+                                    <i class="fas fa-file-download mr-1"></i> Download {{ $shipment->document_label }}
                                 </a>
                             </div>
                         @endif
@@ -109,8 +124,28 @@
                                 <div class="form-group mb-3">
                                     <label for="status" class="font-weight-bold">Current Logistics Milestone</label>
                                     <select name="status" id="status" class="form-control">
-                                        <option value="in_transit" {{ $shipment->status == 'in_transit' ? 'selected' : '' }}>🚢 In Transit (Vessel Departed)</option>
-                                        <option value="arrived" {{ $shipment->status == 'arrived' ? 'selected' : '' }}>⚓ Arrived at Port</option>
+                                        <option value="in_transit" {{ $shipment->status == 'in_transit' ? 'selected' : '' }}>
+                                            @if($shipment->transport_mode == 'air')
+                                                ✈️ In Flight / Transit
+                                            @elseif($shipment->transport_mode == 'road')
+                                                🚚 On Route / In Transit
+                                            @elseif($shipment->transport_mode == 'rail')
+                                                🚆 On Rail / In Transit
+                                            @else
+                                                🚢 In Transit (Vessel Departed)
+                                            @endif
+                                        </option>
+                                        <option value="arrived" {{ $shipment->status == 'arrived' ? 'selected' : '' }}>
+                                            @if($shipment->transport_mode == 'air')
+                                                🛬 Landed at Airport
+                                            @elseif($shipment->transport_mode == 'road')
+                                                🏢 Arrived at Logistics Hub
+                                            @elseif($shipment->transport_mode == 'rail')
+                                                🚉 Arrived at Rail Terminal
+                                            @else
+                                                ⚓ Arrived at Port
+                                            @endif
+                                        </option>
                                         <option value="cleared" {{ $shipment->status == 'cleared' ? 'selected' : '' }}>✅ Customs Cleared</option>
                                         <option value="cancelled" {{ $shipment->status == 'cancelled' ? 'selected' : '' }}>❌ Cancelled (Shipment Cancelled)</option>
                                     </select>

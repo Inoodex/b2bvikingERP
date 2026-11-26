@@ -19,16 +19,20 @@ class CurrentStockExport implements FromArray, WithCustomStartCell, WithEvents
     protected $categoryId;
     protected $stockStatus;
     protected $vendorId;
+    protected $itemCodeFrom;
+    protected $itemCodeTo;
 
     // Columns: A=SL  B=Vendor  C=Product Name  D=Item Code  E=Photo  F=Qty  G=Unit Price  H=Total
     private const COLS     = ['A','B','C','D','E','F','G','H'];
     private const LAST_COL = 'H';
 
-    public function __construct($categoryId = null, $stockStatus = null, $vendorId = null)
+    public function __construct($categoryId = null, $stockStatus = null, $vendorId = null, $itemCodeFrom = null, $itemCodeTo = null)
     {
-        $this->categoryId  = $categoryId;
-        $this->stockStatus = $stockStatus;
-        $this->vendorId    = $vendorId;
+        $this->categoryId   = $categoryId;
+        $this->stockStatus  = $stockStatus;
+        $this->vendorId     = $vendorId;
+        $this->itemCodeFrom = $itemCodeFrom;
+        $this->itemCodeTo   = $itemCodeTo;
     }
 
     public function array(): array  { return []; }
@@ -57,6 +61,19 @@ class CurrentStockExport implements FromArray, WithCustomStartCell, WithEvents
                     $query->having('inventory_stocks_sum_quantity', '>', 0);
                 } elseif ($this->stockStatus === 'out_of_stock') {
                     $query->havingRaw('inventory_stocks_sum_quantity <= 0 OR inventory_stocks_sum_quantity IS NULL');
+                }
+
+                // Point 22: Item Code / Product Number Range Filter (e.g. 1003 to 1135)
+                if ($this->itemCodeFrom && $this->itemCodeTo) {
+                    $from = (int) preg_replace('/[^0-9]/', '', $this->itemCodeFrom);
+                    $to   = (int) preg_replace('/[^0-9]/', '', $this->itemCodeTo);
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) BETWEEN ? AND ?", [$from, $to]);
+                } elseif ($this->itemCodeFrom) {
+                    $from = (int) preg_replace('/[^0-9]/', '', $this->itemCodeFrom);
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) >= ?", [$from]);
+                } elseif ($this->itemCodeTo) {
+                    $to = (int) preg_replace('/[^0-9]/', '', $this->itemCodeTo);
+                    $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) <= ?", [$to]);
                 }
 
                 // Vendor products first, no-vendor products last

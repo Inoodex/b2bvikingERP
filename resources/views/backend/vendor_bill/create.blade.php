@@ -220,6 +220,13 @@
 
                             <div class="row justify-content-end mt-4">
                                 <div class="col-md-6">
+                                    @php
+                                        $exchangeRate = $purchase->exchange_rate_used ?? $purchase->vendor?->effective_exchange_rate ?? 1.0;
+                                        $currCode = $purchase->currency?->code ?? $purchase->vendor?->currency?->code ?? 'DKK';
+                                        $isForeign = $currCode !== 'DKK';
+                                        $netPayable = max(0, $calculatedSubtotal - $debitNoteAmount);
+                                        $baseNetPayable = round($netPayable * $exchangeRate, 2);
+                                    @endphp
                                     <table class="table table-sm text-right">
                                         <tr>
                                             <th>Subtotal:</th>
@@ -233,8 +240,18 @@
                                         @endif
                                         <tr class="table-active">
                                             <th>Net Payable Amount:</th>
-                                            <th class="text-primary h5">{{ $currSym }} {{ number_format(max(0, $calculatedSubtotal - $debitNoteAmount), 2) }}</th>
+                                            <th class="text-primary h5">{{ $currSym }} {{ number_format($netPayable, 2) }} {{ $currCode }}</th>
                                         </tr>
+                                        @if($isForeign)
+                                        <tr class="table-light">
+                                            <th class="text-muted small">Exchange Rate:</th>
+                                            <td class="small">1 {{ $currCode }} = {{ number_format($exchangeRate, 4) }} DKK</td>
+                                        </tr>
+                                        <tr class="table-light font-weight-bold text-success">
+                                            <th>Base Equivalent (DKK):</th>
+                                            <td class="h6 text-success">kr. {{ number_format($baseNetPayable, 2) }}</td>
+                                        </tr>
+                                        @endif
                                     </table>
 
                                     <button type="submit" class="btn btn-primary btn-block btn-lg mt-3">

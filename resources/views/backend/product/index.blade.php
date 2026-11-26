@@ -1037,8 +1037,8 @@
         }
 
         /* =========================================================================
-               SLIDE-OVER STOCK & VELOCITY INSPECTOR DRAWER (Exact Match to Audit Drawer)
-               ========================================================================= */
+                       SLIDE-OVER STOCK & VELOCITY INSPECTOR DRAWER (Exact Match to Audit Drawer)
+                       ========================================================================= */
         .audit-drawer-backdrop {
             position: fixed;
             top: 0;
@@ -1206,8 +1206,8 @@
         }
 
         /* =========================================================================
-               SELECT2 STYLING INSIDE OFF-CANVAS DRAWER (Zero Text Clipping)
-               ========================================================================= */
+                       SELECT2 STYLING INSIDE OFF-CANVAS DRAWER (Zero Text Clipping)
+                       ========================================================================= */
         #stockMovementDrawer .select2-container {
             width: 100% !important;
             display: block;
@@ -1277,8 +1277,8 @@
         }
 
         /* =========================================================================
-           VELOCITY WINDOW SEGMENTED CONTROL & BUTTON FOCUS (Zero Outline / Zero Glow)
-           ========================================================================= */
+                   VELOCITY WINDOW SEGMENTED CONTROL & BUTTON FOCUS (Zero Outline / Zero Glow)
+                   ========================================================================= */
         /* Remove harsh browser outline and Bootstrap focus glow across all drawer controls */
         #stockMovementDrawer .btn:focus,
         #stockMovementDrawer .btn.focus,
@@ -1431,16 +1431,19 @@
             transition: all 0.2s ease-in-out;
             width: 100%;
         }
+
         .b2b-phone-input-wrap:focus-within {
             border-color: #2563eb !important;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
         }
+
         .b2b-phone-input-wrap i {
             color: #64748b;
             font-size: 13px;
             margin-right: 10px;
             flex-shrink: 0;
         }
+
         .b2b-phone-input-wrap input {
             border: none !important;
             outline: none !important;
@@ -1453,6 +1456,7 @@
             font-weight: 500;
             padding: 0;
         }
+
         .b2b-phone-input-wrap input::placeholder {
             color: #94a3b8;
             font-size: 12px;
@@ -1489,13 +1493,13 @@
                                             class="btn pp-btn pp-btn-emerald shadow-sm">
                                             <i class="fas fa-file-import mr-1"></i> Import
                                         </a>
-                                        <a href="{{ route('admin.products.create') }}"
-                                            class="btn pp-btn pp-btn-blue shadow-sm">
+                                        <a href="{{ route('admin.products.create') }}" class="btn pp-btn pp-btn-blue shadow-sm">
                                             <i class="fas fa-plus mr-1"></i> Create Product
                                         </a>
                                     </div>
                                 @endcan
                             </div>
+
                             <form id="filter-form">
                                 <div class="row g-4 align-items-end">
                                     <div class="col-12 col-md-3">
@@ -1510,7 +1514,7 @@
                                                 autocomplete="off">
                                         </div>
                                     </div>
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-2">
                                         <select name="category" id="category" class="form-control select2 pp-select2">
                                             <option value="">All Categories</option>
                                             @foreach ($categories as $category)
@@ -1520,46 +1524,81 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-2">
                                         <select name="sub_category" id="sub_category" data-placeholder="Sub Category"
                                             class="form-control select2 pp-select2">
                                             <option value="">Sub Category</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-2">
                                         <select name="child_category" id="child_category" data-placeholder="Child Category"
                                             class="form-control select2 pp-select2">
                                             <option value="">Child Category</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-1">
+                                        <select name="alphabet" id="alphabet-dropdown"
+                                            class="form-control select2 pp-select2">
+                                            <option value="">A-Z</option>
+                                            @foreach (range('A', 'Z') as $char)
+                                                <option value="{{ $char }}"
+                                                    {{ request('alphabet') == $char ? 'selected' : '' }}>
+                                                    {{ $char }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-2">
+                                        <select name="procurement_status" id="procurement_status_filter"
+                                            class="form-control select2 pp-select2">
+                                            <option value="">Procurement Status (All)</option>
+                                            <option value="active"
+                                                {{ request('procurement_status') == 'active' ? 'selected' : '' }}>🟢 Active
+                                                for Re-Order</option>
+                                            <option value="do_not_order"
+                                                {{ request('procurement_status') == 'do_not_order' ? 'selected' : '' }}>🟡
+                                                Do Not Re-Order</option>
+                                            <option value="discontinued"
+                                                {{ request('procurement_status') == 'discontinued' ? 'selected' : '' }}>🔴
+                                                Discontinued</option>
                                         </select>
                                     </div>
                                 </div>
                                 <hr style="border-top: 1px solid var(--pp-border); margin: 6px 0 10px;">
                                 <div class="row g-4 align-items-end">
                                     <div class="col-12 col-md-2">
-                                        <select name="sort" id="sort" class="form-control select2 pp-select2">
-                                            <option value="">Sort by</option>
-                                            <option value="latest"
-                                                {{ request('sort') == 'latest' || !request('sort') ? 'selected' : '' }}>
-                                                Latest</option>
-                                            <option value="a-z" {{ request('sort') == 'a-z' ? 'selected' : '' }}>A-Z
-                                            </option>
-                                            <option value="z-a" {{ request('sort') == 'z-a' ? 'selected' : '' }}>Z-A
-                                            </option>
-                                            <option value="active" {{ request('sort') == 'active' ? 'selected' : '' }}>
-                                                Active</option>
-                                            <option value="inactive" {{ request('sort') == 'inactive' ? 'selected' : '' }}>
-                                                Inactive</option>
+                                        <select name="sales_velocity" id="sales_velocity_filter"
+                                            class="form-control select2 pp-select2">
+                                            <option value="">Sales Velocity (All)</option>
+                                            <option value="frequently_ordered"
+                                                {{ request('sales_velocity') == 'frequently_ordered' ? 'selected' : '' }}>
+                                                🚀 Frequently Ordered</option>
+                                            <option value="slow_going"
+                                                {{ request('sales_velocity') == 'slow_going' ? 'selected' : '' }}>
+                                                ⏳ Slow Going</option>
+                                            <option value="not_going"
+                                                {{ request('sales_velocity') == 'not_going' ? 'selected' : '' }}>
+                                                🛑 Not Going (Dead Stock)</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-2">
-                                        <select name="alphabet" id="alphabet-dropdown"
+                                        <select name="order_status" id="order_status_filter"
                                             class="form-control select2 pp-select2">
-                                            <option value="">Alphabet (All)</option>
-                                            @foreach (range('A', 'Z') as $char)
-                                                <option value="{{ $char }}"
-                                                    {{ request('alphabet') == $char ? 'selected' : '' }}>
-                                                    {{ $char }}</option>
-                                            @endforeach
+                                            <option value="">Order Pipeline (All)</option>
+                                            <option value="on_order"
+                                                {{ request('order_status') == 'on_order' ? 'selected' : '' }}>⏳ On Order /
+                                                Active PO</option>
+                                            <option value="in_shipment"
+                                                {{ request('order_status') == 'in_shipment' ? 'selected' : '' }}>🚢 In
+                                                Shipment / Shipped</option>
+                                            <option value="out_of_stock_not_ordered"
+                                                {{ request('order_status') == 'out_of_stock_not_ordered' ? 'selected' : '' }}>
+                                                ⚠️ Stockout • Not Ordered</option>
+                                            <option value="out_of_stock_ordered"
+                                                {{ request('order_status') == 'out_of_stock_ordered' ? 'selected' : '' }}>
+                                                📦 Stockout • Already Ordered</option>
+                                            <option value="in_stock"
+                                                {{ request('order_status') == 'in_stock' ? 'selected' : '' }}>✅ In Stock
+                                                (Qty &gt; 0)</option>
                                         </select>
                                     </div>
                                     @if (isset($vendors) && $vendors->count() > 0)
@@ -1572,7 +1611,7 @@
                                                     Arrival</option>
                                                 <option value="upcoming"
                                                     {{ request('product_type') == 'upcoming' ? 'selected' : '' }}>Upcoming
-                                                    </option>
+                                                </option>
                                                 @foreach ($productTypes as $type)
                                                     <option value="{{ $type->id }}"
                                                         {{ request('product_type') == $type->id ? 'selected' : '' }}>
@@ -1601,7 +1640,7 @@
                                                     Arrival</option>
                                                 <option value="upcoming"
                                                     {{ request('product_type') == 'upcoming' ? 'selected' : '' }}>Upcoming
-                                                    </option>
+                                                </option>
                                                 @foreach ($productTypes as $type)
                                                     <option value="{{ $type->id }}"
                                                         {{ request('product_type') == $type->id ? 'selected' : '' }}>
@@ -1611,14 +1650,19 @@
                                         </div>
                                     @endif
                                     <div class="col-12 col-md-2">
-                                        <select name="order_status" id="order_status_filter"
-                                            class="form-control select2 pp-select2">
-                                            <option value="">Order Pipeline (All)</option>
-                                            <option value="on_order" {{ request('order_status') == 'on_order' ? 'selected' : '' }}>⏳ On Order / Active PO</option>
-                                            <option value="in_shipment" {{ request('order_status') == 'in_shipment' ? 'selected' : '' }}>🚢 In Shipment / Shipped</option>
-                                            <option value="out_of_stock_not_ordered" {{ request('order_status') == 'out_of_stock_not_ordered' ? 'selected' : '' }}>⚠️ Stockout • Not Ordered</option>
-                                            <option value="out_of_stock_ordered" {{ request('order_status') == 'out_of_stock_ordered' ? 'selected' : '' }}>📦 Stockout • Already Ordered</option>
-                                            <option value="in_stock" {{ request('order_status') == 'in_stock' ? 'selected' : '' }}>✅ In Stock (Qty &gt; 0)</option>
+                                        <select name="sort" id="sort" class="form-control select2 pp-select2">
+                                            <option value="">Sort by</option>
+                                            <option value="latest"
+                                                {{ request('sort') == 'latest' || !request('sort') ? 'selected' : '' }}>
+                                                Latest</option>
+                                            <option value="a-z" {{ request('sort') == 'a-z' ? 'selected' : '' }}>A-Z
+                                            </option>
+                                            <option value="z-a" {{ request('sort') == 'z-a' ? 'selected' : '' }}>Z-A
+                                            </option>
+                                            <option value="active" {{ request('sort') == 'active' ? 'selected' : '' }}>
+                                                 Active</option>
+                                            <option value="inactive" {{ request('sort') == 'inactive' ? 'selected' : '' }}>
+                                                Inactive</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-2">
@@ -1710,7 +1754,8 @@
                     <span class="chip-severity"
                         style="background: rgba(37, 99, 235, 0.15); color: #1d4ed8; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Inventory</span>
                     <span class="chip-module"
-                        style="background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase;">Movement Ledger</span>
+                        style="background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase;">Movement
+                        Ledger</span>
                 </div>
                 <h3 class="drawer-header-title">Stock Movement & Consumption Velocity</h3>
                 <p class="drawer-header-sub">Movement history, consumption analysis and customer visibility rules</p>
@@ -1738,7 +1783,9 @@
                 <i class="fas fa-database text-primary mr-1"></i> Inventory Movement Ledger & Customer Visibility Rules
             </span>
             <span class="badge badge-light border text-muted px-2 py-1 small" style="font-size: 11px;">
-                Press <kbd style="padding: 1px 4px; font-size: 10px; background: #e2e8f0; color: #334155; border-radius: 3px;">ESC</kbd> to close
+                Press <kbd
+                    style="padding: 1px 4px; font-size: 10px; background: #e2e8f0; color: #334155; border-radius: 3px;">ESC</kbd>
+                to close
             </span>
         </div>
     </div>
@@ -1898,6 +1945,51 @@
                     "{{ asset('uploads/no-image.svg') }}";
                 const vendorName = $card.find('.pp-badge-category').text().trim() || 'Primary Supplier';
 
+                const procurementStatus = $btn.data('procurement-status');
+                const procurementNote = $btn.data('procurement-note');
+
+                // Hard block for discontinued products
+                if (procurementStatus === 'discontinued') {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: '⛔ Discontinued Product',
+                            html: `<strong>${productName}</strong><br><br><div class="alert alert-danger text-left py-2 mb-2" style="font-size: 13px;"><strong>Status:</strong> Discontinued / Terminated<br>${procurementNote ? `<strong>Procurement Note:</strong> ${procurementNote}` : 'This product has been marked as discontinued.'}</div><span style="font-size: 13px; color: #4b5563;">This product cannot be added to procurement baskets or purchase orders.</span>`,
+                            icon: 'error',
+                            confirmButtonColor: '#dc3545',
+                            confirmButtonText: 'Understood'
+                        });
+                    } else {
+                        alert('This product is discontinued and cannot be ordered.');
+                    }
+                    return;
+                }
+
+                // Warn for 'do_not_order' products
+                if (!$btn.hasClass('added') && procurementStatus === 'do_not_order') {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: '⚠️ Do Not Re-Order Notice',
+                            html: `<strong>${productName}</strong><br><br><div class="alert alert-warning text-left py-2 mb-2" style="background:#fff3cd; color:#856404; border:1px solid #ffeeba; font-size: 13px;"><strong>Warning:</strong> Flagged as 'Do Not Order' / Phase Out<br>${procurementNote ? `<strong>Procurement Note:</strong> ${procurementNote}` : 'Phase out after selling remaining inventory.'}</div><span style="font-size: 13px; color: #4b5563;">Are you sure you want to bypass this restriction and order this product?</span>`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#f59e0b',
+                            cancelButtonColor: '#6b7280',
+                            confirmButtonText: '<span style="color:#212529; font-weight:600;"><i class="fas fa-exclamation-triangle mr-1"></i> Proceed Anyway</span>',
+                            cancelButtonText: 'Cancel'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                proceedAddToBasket($btn, productId, hasVariants, productName,
+                                    productImg, vendorName);
+                            }
+                        });
+                        return;
+                    }
+                }
+
+                proceedAddToBasket($btn, productId, hasVariants, productName, productImg, vendorName);
+            });
+
+            function proceedAddToBasket($btn, productId, hasVariants, productName, productImg, vendorName) {
                 const hasActivePo = Number($btn.data('has-active-po')) === 1;
                 const poInfo = $btn.data('po-info') || 'This product is already on order.';
 
@@ -1914,9 +2006,11 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             if (hasVariants) {
-                                openQuickVariantModal(productId, 'booking', productName, productImg, vendorName);
+                                openQuickVariantModal(productId, 'booking', productName, productImg,
+                                    vendorName);
                             } else {
-                                handleDirectCartToggle($btn, productId, 'booking', productName, productImg, vendorName);
+                                handleDirectCartToggle($btn, productId, 'booking', productName, productImg,
+                                    vendorName);
                             }
                         }
                     });
@@ -1930,7 +2024,7 @@
 
                 // Direct Toggle (Single product)
                 handleDirectCartToggle($btn, productId, 'booking', productName, productImg, vendorName);
-            });
+            }
 
             // Open Variant Modal or Direct Toggle for Request Basket
             $(document).on('click', '.add-to-request-basket', function(e) {
@@ -2010,7 +2104,7 @@
 
                                 const existingItem = storeItems.find(i => Number(i
                                         .product_id) === productId && Number(i
-                                    .variant_id) ===
+                                        .variant_id) ===
                                     Number(v.id));
                                 // Default quantity is 0 on initial add, or keep existing cart quantity if already added
                                 const defaultQty = existingItem ? (parseFloat(existingItem
@@ -2297,6 +2391,8 @@
                 let product_type = $('#product_type_filter').val();
                 let vendor = $('#vendor_filter').val();
                 let order_status = $('#order_status_filter').val();
+                let procurement_status = $('#procurement_status_filter').val();
+                let sales_velocity = $('#sales_velocity_filter').val();
                 let sort = $('#sort').val();
 
                 $.ajax({
@@ -2311,6 +2407,8 @@
                         product_type: product_type,
                         vendor: vendor,
                         order_status: order_status,
+                        procurement_status: procurement_status,
+                        sales_velocity: sales_velocity,
                         sort: sort
                     },
                     beforeSend: function() {
@@ -2353,6 +2451,8 @@
                             product_type: product_type,
                             vendor: vendor,
                             order_status: order_status,
+                            procurement_status: procurement_status,
+                            sales_velocity: sales_velocity,
                             sort: sort
                         });
 
@@ -2535,6 +2635,16 @@
                 fetchProducts();
             });
 
+            // Procurement Status Filter Change
+            $('body').on('change', '#procurement_status_filter', function() {
+                fetchProducts();
+            });
+
+            // Sales Velocity Filter Change (Point 20)
+            $('body').on('change', '#sales_velocity_filter', function() {
+                fetchProducts();
+            });
+
             // Reset Filters
             $('body').on('click', '#reset-filters', function() {
                 $('.search-input').val('');
@@ -2547,6 +2657,8 @@
                 $('#product_type_filter').val('');
                 $('#vendor_filter').val('');
                 $('#order_status_filter').val('');
+                $('#procurement_status_filter').val('');
+                $('#sales_velocity_filter').val('');
                 $('#sort').val('latest');
 
                 // Re-trigger select2 UI update without triggering 'change' listener
@@ -2597,15 +2709,18 @@
             $(document).on('click', function(e) {
                 if ($('#stockMovementDrawer').hasClass('is-active')) {
                     // NEVER close drawer if SweetAlert2 is open or if click target is inside SweetAlert2
-                    if ($(e.target).closest('.swal2-container, .swal2-popup, .swal2-modal, .swal2-backdrop').length || (typeof Swal !== 'undefined' && Swal.isVisible())) {
+                    if ($(e.target).closest('.swal2-container, .swal2-popup, .swal2-modal, .swal2-backdrop')
+                        .length || (typeof Swal !== 'undefined' && Swal.isVisible())) {
                         return;
                     }
                     // NEVER close drawer if clicking inside Select2 dropdown or toast notifications
-                    if ($(e.target).closest('.select2-container, .select2-dropdown, #toast-container, .toast').length) {
+                    if ($(e.target).closest(
+                            '.select2-container, .select2-dropdown, #toast-container, .toast').length) {
                         return;
                     }
                     // NEVER close if clicking inside the drawer or the trigger button
-                    if ($(e.target).closest('#stockMovementDrawer').length || $(e.target).closest('.view-stock-movement').length) {
+                    if ($(e.target).closest('#stockMovementDrawer').length || $(e.target).closest(
+                            '.view-stock-movement').length) {
                         return;
                     }
                     closeStockDrawer();
@@ -2620,7 +2735,8 @@
             // Keyboard ESC key closes drawer, unless SweetAlert2 is currently open
             $(document).on('keydown', function(e) {
                 if (e.key === 'Escape' && $('#stockMovementDrawer').hasClass('is-active')) {
-                    if ($('.swal2-container:visible').length > 0 || (typeof Swal !== 'undefined' && Swal.isVisible())) {
+                    if ($('.swal2-container:visible').length > 0 || (typeof Swal !== 'undefined' && Swal
+                            .isVisible())) {
                         return; // Let SweetAlert dismiss itself without closing the drawer
                     }
                     closeStockDrawer();
@@ -2831,7 +2947,8 @@
                 if (!ruleId) return;
 
                 let executeDelete = function() {
-                    let url = "{{ route('admin.products.b2b-visibility.destroy', ':id') }}".replace(':id', ruleId);
+                    let url = "{{ route('admin.products.b2b-visibility.destroy', ':id') }}".replace(
+                        ':id', ruleId);
                     btn.prop('disabled', true);
 
                     $.ajax({
@@ -2846,8 +2963,11 @@
                                 if (window.toastr) toastr.success(res.message);
                                 $(`#b2b-rule-row-${ruleId}`).fadeOut(300, function() {
                                     $(this).remove();
-                                    let remainingRows = $('#table-b2b-visibilities tbody tr[id^="b2b-rule-row-"]').length;
-                                    $('#b2b-rules-count-badge').text(remainingRows + ' Rules');
+                                    let remainingRows = $(
+                                        '#table-b2b-visibilities tbody tr[id^="b2b-rule-row-"]'
+                                    ).length;
+                                    $('#b2b-rules-count-badge').text(remainingRows +
+                                        ' Rules');
                                     if (remainingRows === 0) {
                                         $('#table-b2b-visibilities tbody').html(`
                                             <tr id="no-b2b-rules-row">
@@ -2870,7 +2990,8 @@
                         },
                         error: function(xhr) {
                             btn.prop('disabled', false);
-                            let msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error deleting rule';
+                            let msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr
+                                .responseJSON.message : 'Error deleting rule';
                             if (window.toastr) toastr.error(msg);
                         }
                     });
@@ -2936,10 +3057,12 @@
             });
 
             // Remove lingering browser focus outline on preset/scope clicks
-            $('body').on('click', '#velocity-preset-group .btn, #b2b-scope-pill-group .btn, #stockMovementDrawer button', function() {
-                $(this).blur();
-                $(this).find('input').blur();
-            });
+            $('body').on('click',
+                '#velocity-preset-group .btn, #b2b-scope-pill-group .btn, #stockMovementDrawer button',
+                function() {
+                    $(this).blur();
+                    $(this).find('input').blur();
+                });
 
         });
     </script>

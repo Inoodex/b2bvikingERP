@@ -3,6 +3,7 @@
 namespace App\DataTables;
 
 use App\Models\Discount;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -25,7 +26,35 @@ class DiscountDataTable extends DataTable
             })
             ->addColumn('value_label', function ($query) {
                 $value = number_format((float) $query->value, 2);
-                return $query->type === 'percent' ? $value . ' %' : $value;
+                return $query->type === 'percent' ? $value . ' %' : 'kr. ' . $value;
+            })
+            ->addColumn('target_scope', function ($query) {
+                if (!$query->is_seasonal) {
+                    return '<span class="badge badge-light border text-muted">All Products & Customers</span>';
+                }
+
+                $occasionName = optional($query->productType)->name ?? ($query->occasion ?: 'Seasonal');
+
+                $badge = '<div class="d-flex flex-column" style="gap: 2px;">';
+                $badge .= '<span class="badge badge-info px-2 py-1"><i class="fas fa-snowflake mr-1"></i> ' . e($occasionName) . '</span>';
+
+                $details = [];
+                if (!empty($query->category_ids)) {
+                    $details[] = count($query->category_ids) . ' Categories';
+                }
+                if (!empty($query->user_ids)) {
+                    $details[] = count($query->user_ids) . ' Outlets';
+                }
+                if ($query->end_date) {
+                    $details[] = 'until ' . Carbon::parse($query->end_date)->format('d M');
+                }
+
+                if (!empty($details)) {
+                    $badge .= '<small class="text-muted" style="font-size: 10.5px;">' . implode(' • ', $details) . '</small>';
+                }
+                $badge .= '</div>';
+
+                return $badge;
             })
             ->addColumn('default_badge', function ($query) {
                 if ($query->is_default) {
@@ -49,17 +78,17 @@ class DiscountDataTable extends DataTable
                 return $activeButton;
             })
             ->addColumn('action', function ($query) {
-                $editBtn = "<a href='" . route('admin.discounts.edit', $query->id) . "' class='btn btn-primary'><i class='far fa-edit'></i></a>";
-                $deleteBtn = "<a href='" . route('admin.discounts.destroy', $query->id) . "' class='btn btn-danger ml-2 delete-item'><i class='fas fa-trash'></i></a>";
+                $editBtn = "<a href='" . route('admin.discounts.edit', $query->id) . "' class='btn btn-primary btn-sm' title='Edit'><i class='far fa-edit'></i></a>";
+                $deleteBtn = "<a href='" . route('admin.discounts.destroy', $query->id) . "' class='btn btn-danger btn-sm ml-2 delete-item' title='Delete'><i class='fas fa-trash'></i></a>";
 
                 $defaultBtn = '';
                 if (!$query->is_default) {
-                    $defaultBtn = "<a href='javascript:void(0)' class='btn btn-warning ml-2 set-default' data-id='" . $query->id . "' title='Set as Default'><i class='fas fa-star'></i></a>";
+                    $defaultBtn = "<a href='javascript:void(0)' class='btn btn-warning btn-sm ml-2 set-default' data-id='" . $query->id . "' title='Set as Default'><i class='fas fa-star'></i></a>";
                 }
 
                 return $editBtn . $defaultBtn . $deleteBtn;
             })
-            ->rawColumns(['default_badge', 'status', 'action'])
+            ->rawColumns(['target_scope', 'default_badge', 'status', 'action'])
             ->setRowId('id');
     }
 
@@ -70,7 +99,7 @@ class DiscountDataTable extends DataTable
      */
     public function query(Discount $model): QueryBuilder
     {
-        return $model->newQuery()->orderByDesc('is_default')->orderByDesc('id');
+        return $model->newQuery()->with('productType')->orderByDesc('is_default')->orderByDesc('id');
     }
 
     /**
@@ -102,12 +131,13 @@ class DiscountDataTable extends DataTable
             Column::make('name'),
             Column::computed('type_label')->title('Type'),
             Column::computed('value_label')->title('Value'),
+            Column::computed('target_scope')->title('Scope / Season'),
             Column::computed('default_badge')->title('Default'),
             Column::make('status'),
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)
-                ->width(120)
+                ->width(130)
                 ->addClass('text-center'),
         ];
     }

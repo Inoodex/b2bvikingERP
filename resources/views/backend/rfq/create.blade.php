@@ -95,7 +95,7 @@
 
                                 <div class="form-group">
                                     <label>Select Vendors to Invite *</label>
-                                    <select name="vendors[]" class="form-control select2" multiple required>
+                                    <select name="vendors[]" id="vendor_select" class="form-control select2" multiple required>
                                         @foreach($vendors as $vendor)
                                             <option value="{{ $vendor->id }}" {{ (isset($defaultVendorIds) && in_array($vendor->id, (array)$defaultVendorIds)) ? 'selected' : '' }}>{{ $vendor->shop_name }} ({{ $vendor->email }})</option>
                                         @endforeach
@@ -116,14 +116,67 @@
                                     </button>
                                 </div>
 
+                                {{-- Point 13: Cascading Category -> SubCategory -> ChildCategory & Occasion Filter --}}
+                                <div class="card mb-3 border shadow-none" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                                                <i class="fas fa-filter text-primary mr-1"></i> Filter Products by Category & Occasion
+                                            </span>
+                                            <button type="button" class="btn btn-sm btn-link text-muted p-0" id="btn_reset_category_filter" style="font-size: 0.75rem;">
+                                                <i class="fas fa-undo mr-1"></i> Reset Filters
+                                            </button>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3 col-6 form-group mb-2">
+                                                <label class="font-weight-600 text-muted small mb-1">Category</label>
+                                                <select id="filter_category" class="form-control select2">
+                                                    <option value="">-- All Categories --</option>
+                                                    @foreach($categories ?? [] as $cat)
+                                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3 col-6 form-group mb-2">
+                                                <label class="font-weight-600 text-muted small mb-1">Sub Category</label>
+                                                <select id="filter_sub_category" class="form-control select2" disabled>
+                                                    <option value="">-- Select Sub Category --</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3 col-6 form-group mb-2">
+                                                <label class="font-weight-600 text-muted small mb-1">Child Category</label>
+                                                <select id="filter_child_category" class="form-control select2" disabled>
+                                                    <option value="">-- Select Child Category --</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3 col-6 form-group mb-2">
+                                                <label class="font-weight-600 text-muted small mb-1">Occasion / Season</label>
+                                                <select id="filter_occasion" class="form-control select2">
+                                                    <option value="">-- All Occasions --</option>
+                                                    @foreach($productTypes ?? [] as $pt)
+                                                        <option value="{{ $pt->id }}">{{ $pt->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row align-items-end mb-3">
-                                    <div class="col-md-6">
+                                    <div class="col-md-7">
                                         <div class="form-group mb-0">
-                                            <label class="font-weight-600">Select Product to Add</label>
+                                            <label class="font-weight-600">
+                                                Select Product to Add
+                                                <span id="filtered_products_count_badge" class="badge badge-light ml-2 text-muted font-weight-normal border" style="font-size: 11px;"></span>
+                                            </label>
                                             <select class="form-control select2" id="product_selector">
                                                 <option value="">-- Choose Product --</option>
                                                 @foreach($products as $product)
-                                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                                    <option value="{{ $product->id }}"
+                                                        data-procurement-status="{{ $product->procurement_status ?? 'active' }}"
+                                                        data-procurement-note="{{ $product->procurement_note ?? '' }}">
+                                                        {{ $product->name }}{{ $product->category ? ' — [' . $product->category->name . ']' : '' }}{{ $product->procurement_status === 'do_not_order' ? ' (⚠️ Do Not Re-Order)' : '' }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -231,13 +284,175 @@
 
 @push('scripts')
 <script>
-    let rowIndex = 1;
+    const products = @json($products);
+    const vendorHistoryProductIds = @json($vendorHistoryProductIds ?? []);
+    let rowIndex = {{ (isset($cartItems) && $cartItems->count() > 0) ? $cartItems->count() + 1 : 1 }};
+
+    function renderProductSelector(selectedVendorIds) {
+        const $selector = $('#product_selector');
+        $selector.empty();
+        $selector.append('<option value="">-- Choose Product --</option>');
+
+        selectedVendorIds = (selectedVendorIds || $('#vendors_selector').val() || []).map(Number).filter(v => v > 0);
+
+        const filterCatId = $('#filter_category').val();
+        const filterSubCatId = $('#filter_sub_category').val();
+        const filterChildCatId = $('#filter_child_category').val();
+        const filterOccasionId = $('#filter_occasion').val();
+
+        // Filter products pool by Category, SubCategory, ChildCategory, and Occasion Type
+        let pool = products.filter(p => {
+            if (filterCatId && p.category_id != filterCatId) return false;
+            if (filterSubCatId && p.sub_category_id != filterSubCatId) return false;
+            if (filterChildCatId && p.child_category_id != filterChildCatId) return false;
+            if (filterOccasionId && p.product_type_id != filterOccasionId) return false;
+            return true;
+        });
+
+        // Update count badge
+        const hasFilters = filterCatId || filterSubCatId || filterChildCatId || filterOccasionId;
+        if (hasFilters) {
+            $('#filtered_products_count_badge').text(`${pool.length} items matching filters`).show();
+        } else {
+            $('#filtered_products_count_badge').text(`${pool.length} total items`).show();
+        }
+
+        if (selectedVendorIds.length === 0) {
+            // No vendor selected: show all products from pool sorted by ID desc (latest first)
+            pool.forEach(p => {
+                const catName = p.category ? ` — [${p.category.name}]` : '';
+                const statusWarn = p.procurement_status === 'do_not_order' ? ' (⚠️ Do Not Re-Order)' : '';
+                $selector.append(`<option value="${p.id}" data-procurement-status="${p.procurement_status || 'active'}" data-procurement-note="${p.procurement_note || ''}">${p.name}${catName}${statusWarn}</option>`);
+            });
+        } else {
+            // Collect all product IDs associated with the selected vendors
+            let vendorAssociatedIds = new Set();
+            selectedVendorIds.forEach(vId => {
+                let historyIds = vendorHistoryProductIds[vId] || [];
+                historyIds.forEach(id => vendorAssociatedIds.add(Number(id)));
+            });
+
+            const vendorProducts = [];
+            const otherProducts = [];
+
+            pool.forEach(p => {
+                const isVendorDirect = selectedVendorIds.includes(Number(p.vendor_id));
+                const isVendorHistory = vendorAssociatedIds.has(Number(p.id));
+
+                if (isVendorDirect || isVendorHistory) {
+                    vendorProducts.push(p);
+                } else {
+                    otherProducts.push(p);
+                }
+            });
+
+            // Group 1: ⭐️ Vendor's Items & Previously Ordered (latest first)
+            if (vendorProducts.length > 0) {
+                let $optgroupVendor = $(`<optgroup label="⭐️ Selected Vendor Items & Previously Ordered (${vendorProducts.length})"></optgroup>`);
+                vendorProducts.forEach(p => {
+                    const catName = p.category ? ` — [${p.category.name}]` : '';
+                    const statusWarn = p.procurement_status === 'do_not_order' ? ' (⚠️ Do Not Re-Order)' : '';
+                    $optgroupVendor.append(`<option value="${p.id}" data-procurement-status="${p.procurement_status || 'active'}" data-procurement-note="${p.procurement_note || ''}">${p.name}${catName}${statusWarn}</option>`);
+                });
+                $selector.append($optgroupVendor);
+            }
+
+            // Group 2: 🌐 Other Products in Catalog (latest first)
+            if (otherProducts.length > 0) {
+                let $optgroupOther = $(`<optgroup label="🌐 Other Products in Catalog (${otherProducts.length})"></optgroup>`);
+                otherProducts.forEach(p => {
+                    const catName = p.category ? ` — [${p.category.name}]` : '';
+                    const statusWarn = p.procurement_status === 'do_not_order' ? ' (⚠️ Do Not Re-Order)' : '';
+                    $optgroupOther.append(`<option value="${p.id}" data-procurement-status="${p.procurement_status || 'active'}" data-procurement-note="${p.procurement_note || ''}">${p.name}${catName}${statusWarn}</option>`);
+                });
+                $selector.append($optgroupOther);
+            }
+        }
+
+        $selector.trigger('change.select2');
+    }
+
+    // --- Cascading Category Filters ---
+    $('#filter_category').on('change', function() {
+        const catId = $(this).val();
+        const $sub = $('#filter_sub_category');
+        const $child = $('#filter_child_category');
+
+        $sub.empty().append('<option value="">-- All Sub Categories --</option>').val('').trigger('change.select2');
+        $child.empty().append('<option value="">-- All Child Categories --</option>').val('').trigger('change.select2').prop('disabled', true);
+
+        if (catId) {
+            $sub.prop('disabled', false);
+            $.ajax({
+                url: "{{ route('admin.get-subCategories') }}",
+                type: 'GET',
+                data: { id: catId },
+                success: function(data) {
+                    (data || []).forEach(sub => {
+                        $sub.append(`<option value="${sub.id}">${sub.name}</option>`);
+                    });
+                    $sub.trigger('change.select2');
+                }
+            });
+        } else {
+            $sub.prop('disabled', true);
+        }
+
+        renderProductSelector();
+    });
+
+    $('#filter_sub_category').on('change', function() {
+        const subId = $(this).val();
+        const $child = $('#filter_child_category');
+
+        $child.empty().append('<option value="">-- All Child Categories --</option>').val('').trigger('change.select2');
+
+        if (subId) {
+            $child.prop('disabled', false);
+            $.ajax({
+                url: "{{ route('admin.get-child-categories') }}",
+                type: 'GET',
+                data: { id: subId },
+                success: function(data) {
+                    (data || []).forEach(child => {
+                        $child.append(`<option value="${child.id}">${child.name}</option>`);
+                    });
+                    $child.trigger('change.select2');
+                }
+            });
+        } else {
+            $child.prop('disabled', true);
+        }
+
+        renderProductSelector();
+    });
+
+    $('#filter_child_category').on('change', function() {
+        renderProductSelector();
+    });
+
+    $('#filter_occasion').on('change', function() {
+        renderProductSelector();
+    });
+
+    $('#btn_reset_category_filter').on('click', function() {
+        $('#filter_category').val('').trigger('change.select2');
+        $('#filter_sub_category').empty().append('<option value="">-- Select Sub Category --</option>').val('').trigger('change.select2').prop('disabled', true);
+        $('#filter_child_category').empty().append('<option value="">-- Select Child Category --</option>').val('').trigger('change.select2').prop('disabled', true);
+        $('#filter_occasion').val('').trigger('change.select2');
+        renderProductSelector();
+    });
     
     // Auto-fetch variants when product is selected
     $('#product_selector').on('change', function() {
         let productId = $(this).val();
         let productName = $(this).find('option:selected').text();
         if (!productId) return;
+
+        let p = products.find(prod => prod.id == productId);
+        if (p && p.procurement_status === 'do_not_order') {
+            toastr.warning(p.procurement_note ? `Procurement Note: ${p.procurement_note}` : 'Notice: This product is marked as "Do Not Re-Order"');
+        }
 
         // Reset selector
         $(this).val('').trigger('change.select2');
@@ -529,5 +744,11 @@
     // Trigger on load for pre-selected values and item count badge
     handleSourceTypeChange();
     updateRfqItemCount();
+
+    // Render product selector on load & on vendor change
+    renderProductSelector($('#vendor_select').val());
+    $('#vendor_select').on('change', function() {
+        renderProductSelector($(this).val());
+    });
 </script>
 @endpush

@@ -60,7 +60,7 @@ class ProductController extends Controller implements HasMiddleware
      */
     public function index(Request $request)
     {
-        $query = Product::with([
+        $query = Product::withCount('orderItems')->with([
             'category',
             'variants.color',
             'variants.size',
@@ -170,16 +170,63 @@ class ProductController extends Controller implements HasMiddleware
             }
         }
 
+        if ($request->filled('procurement_status')) {
+            $ps = $request->procurement_status;
+            if ($ps === 'active') {
+                $query->where(function ($q) {
+                    $q->where('procurement_status', 'active')
+                      ->orWhereNull('procurement_status');
+                });
+            } elseif (in_array($ps, ['do_not_order', 'discontinued'])) {
+                $query->where('procurement_status', $ps);
+            }
+        }
+
+        // Point 20: Sales Velocity Filter (Frequently Ordered, Slow Going, Not Going)
+        if ($request->filled('sales_velocity')) {
+            $sv = $request->sales_velocity;
+            if ($sv === 'frequently_ordered') {
+                $query->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) >= 10 OR SUM(quantity) >= 50');
+                });
+            } elseif ($sv === 'slow_going') {
+                $query->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) > 0 AND COUNT(*) < 10 AND SUM(quantity) < 50');
+                });
+            } elseif ($sv === 'not_going') {
+                $query->whereNotIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id');
+                });
+            }
+        }
+
         $products = $query->paginate(20)->withQueryString();
         $categories = Category::where('status', 1)->get();
         $productTypes = ProductType::where('status', 1)->get();
         $vendors = Vendor::where('status', 1)->get();
         
+        $procurementCounts = [
+            'all' => Product::count(),
+            'active' => Product::where(function($q) { $q->where('procurement_status', 'active')->orWhereNull('procurement_status'); })->count(),
+            'do_not_order' => Product::where('procurement_status', 'do_not_order')->count(),
+            'discontinued' => Product::where('procurement_status', 'discontinued')->count(),
+        ];
+
         if ($request->ajax()) {
             return view('backend.product.product_grid', compact('products'))->render();
         }
 
-        return view('backend.product.index', compact('products', 'categories', 'productTypes', 'vendors'));
+        return view('backend.product.index', compact('products', 'categories', 'productTypes', 'vendors', 'procurementCounts'));
     }
 
     /**
@@ -228,6 +275,8 @@ class ProductController extends Controller implements HasMiddleware
             $product->outlet_price = $request->outlet_price ?? 0;
             $product->barcode = $request->barcode;
             $product->status = $request->status;
+            $product->procurement_status = $request->procurement_status ?? 'active';
+            $product->procurement_note = $request->procurement_note;
             $product->product_type = $request->product_type;
             $product->product_type_id = $request->product_type_id;
             $product->custom_label = $request->custom_label;
@@ -445,6 +494,8 @@ class ProductController extends Controller implements HasMiddleware
             $product->outlet_price = $request->outlet_price ?? 0;
             $product->barcode = $request->barcode;
             $product->status = $request->status;
+            $product->procurement_status = $request->procurement_status ?? 'active';
+            $product->procurement_note = $request->procurement_note;
             $product->product_type = $request->product_type;
             $product->product_type_id = $request->product_type_id;
             $product->custom_label = $request->custom_label;

@@ -30,6 +30,19 @@
                         style="max-height: 100%; max-width: 100%; object-fit: contain;">
 
                     <div class="pp-card-badges" style="top: 6px; left: 6px; gap: 3px;">
+                        @if ($product->procurement_status === 'do_not_order')
+                            <span class="badge badge-warning text-dark shadow-sm pp-badge-type font-weight-bold"
+                                title="{{ $product->procurement_note ? 'Procurement Note: ' . $product->procurement_note : 'Do Not Re-Order / Phase Out' }}"
+                                data-toggle="tooltip">
+                                <i class="fas fa-ban mr-1"></i> Do Not Order
+                            </span>
+                        @elseif ($product->procurement_status === 'discontinued')
+                            <span class="badge badge-danger shadow-sm pp-badge-type font-weight-bold"
+                                title="{{ $product->procurement_note ? 'Procurement Note: ' . $product->procurement_note : 'Discontinued / Terminated' }}"
+                                data-toggle="tooltip">
+                                <i class="fas fa-times-circle mr-1"></i> Discontinued
+                            </span>
+                        @endif
                         @if (Auth::user()->hasRole('Admin'))
                             @if ($product->custom_label)
                                 <span class="badge badge-info shadow-sm pp-badge-type">
@@ -79,11 +92,20 @@
 
                 <div class="pp-card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="pp-badge-category">{{ $product->category->name ?? 'Uncategorized' }}</span>
-                        <span class="pp-badge-stock {{ $stock > 0 ? 'in-stock' : 'out-of-stock' }}"
-                            title="Warehouse Inventory Stock">
-                            Stock: {{ (float) $stock }}
-                        </span>
+                        <span class="pp-badge-category text-truncate" style="max-width: 45%;">{{ $product->category->name ?? 'Uncategorized' }}</span>
+                        <div class="d-flex align-items-center" style="gap: 4px;">
+                            @php $velocity = $product->sales_velocity; @endphp
+                            <span class="badge {{ $velocity['badge_class'] }} px-1 py-0 shadow-sm"
+                                style="font-size: 8.5px; border-radius: 4px; font-weight: 600;"
+                                title="Sales Velocity: {{ $velocity['full_label'] }} ({{ $velocity['order_count'] }} orders)"
+                                data-toggle="tooltip">
+                                <i class="{{ $velocity['icon'] }} mr-1"></i>{{ $velocity['label'] }}
+                            </span>
+                            <span class="pp-badge-stock {{ $stock > 0 ? 'in-stock' : 'out-of-stock' }}"
+                                title="Warehouse Inventory Stock">
+                                Stock: {{ (float) $stock }}
+                            </span>
+                        </div>
                     </div>
 
                     <div class="mb-1 d-flex align-items-center" style="min-height: 20px;">
@@ -114,6 +136,14 @@
                     <h6 class="pp-card-title" title="{{ $product->name }}">
                         {{ $product->name }}
                     </h6>
+
+                    @if ($product->procurement_note)
+                        <div class="mb-1 px-2 py-0 rounded text-truncate" 
+                            style="background: #fff8e1; border: 1px dashed #f59e0b; font-size: 10px; color: #92400e; cursor: help;" 
+                            title="Procurement Note: {{ $product->procurement_note }}" data-toggle="tooltip">
+                            <i class="fas fa-comment-alt mr-1 text-warning"></i>{{ Str::limit($product->procurement_note, 30) }}
+                        </div>
+                    @endif
 
                     @php
                         $avgRating = 0;
@@ -214,21 +244,33 @@
 
                         <div class="mt-2 d-flex" style="gap: 6px;">
                             @can('Manage Order Place')
-                                <button type="button" class="btn btn-sm pp-btn-card pp-btn-blue flex-fill add-to-basket"
-                                    data-id="{{ $product->id }}" data-has-variants="{{ $hasVariants ? 1 : 0 }}"
-                                    data-has-active-po="{{ $hasActiveOrder ? 1 : 0 }}"
-                                    data-po-info="{{ $hasActiveOrder ? 'Already on order (' . number_format($pipeline['total_ordered_qty']) . ' pcs on ' . $pipeline['po_no'] . ' - ' . ($pipeline['status_key'] ?? 'PO') . ')' : '' }}"
-                                    title="{{ $hasActiveOrder ? '⚠️ Notice: ' . number_format($pipeline['total_ordered_qty']) . ' pcs already on ' . $pipeline['po_no'] . ' - Click to order more' : 'Procurement Basket' }}"
-                                    style="padding: 7px 0; font-size: 13px; display: flex; align-items: center; justify-content: center; position: relative;">
-                                    <i class="fas fa-shopping-basket"></i>
-                                    @if ($hasActiveOrder)
-                                        <span class="badge badge-danger position-absolute"
-                                            style="top: -5px; right: -5px; font-size: 8px; padding: 2px 4px; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.25);"
-                                            title="Active order in progress">
-                                            <i class="fas fa-clock"></i>
-                                        </span>
-                                    @endif
-                                </button>
+                                @if ($product->procurement_status === 'discontinued')
+                                    <button type="button" class="btn btn-sm pp-btn-card flex-fill disabled"
+                                        style="padding: 7px 0; font-size: 13px; display: flex; align-items: center; justify-content: center; background-color: #f1f5f9; color: #94a3b8; border: 1px solid #cbd5e1; cursor: not-allowed;"
+                                        disabled
+                                        data-toggle="tooltip"
+                                        title="Discontinued: Cannot order this product. {{ $product->procurement_note ? 'Reason: ' . $product->procurement_note : '' }}">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                @else
+                                    <button type="button" class="btn btn-sm pp-btn-card {{ $product->procurement_status === 'do_not_order' ? 'btn-outline-warning' : 'pp-btn-blue' }} flex-fill add-to-basket"
+                                        data-id="{{ $product->id }}" data-has-variants="{{ $hasVariants ? 1 : 0 }}"
+                                        data-has-active-po="{{ $hasActiveOrder ? 1 : 0 }}"
+                                        data-procurement-status="{{ $product->procurement_status ?? 'active' }}"
+                                        data-procurement-note="{{ $product->procurement_note ?? '' }}"
+                                        data-po-info="{{ $hasActiveOrder ? 'Already on order (' . number_format($pipeline['total_ordered_qty']) . ' pcs on ' . $pipeline['po_no'] . ' - ' . ($pipeline['status_key'] ?? 'PO') . ')' : '' }}"
+                                        title="{{ $product->procurement_status === 'do_not_order' ? '⚠️ Notice: Marked as Do Not Order. ' . ($product->procurement_note ? 'Note: ' . $product->procurement_note : '') : ($hasActiveOrder ? '⚠️ Notice: ' . number_format($pipeline['total_ordered_qty']) . ' pcs already on ' . $pipeline['po_no'] . ' - Click to order more' : 'Procurement Basket') }}"
+                                        style="padding: 7px 0; font-size: 13px; display: flex; align-items: center; justify-content: center; position: relative; {{ $product->procurement_status === 'do_not_order' ? 'border-color: #f59e0b; color: #b45309; background: #fef3c7;' : '' }}">
+                                        <i class="fas {{ $product->procurement_status === 'do_not_order' ? 'fa-exclamation-triangle' : 'fa-shopping-basket' }}"></i>
+                                        @if ($hasActiveOrder)
+                                            <span class="badge badge-danger position-absolute"
+                                                style="top: -5px; right: -5px; font-size: 8px; padding: 2px 4px; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.25);"
+                                                title="Active order in progress">
+                                                <i class="fas fa-clock"></i>
+                                            </span>
+                                        @endif
+                                    </button>
+                                @endif
                             @endcan
                             @if (Auth::user()->can('Manage Sales Quotations') ||
                                     Auth::user()->can('Create Product Requests') ||

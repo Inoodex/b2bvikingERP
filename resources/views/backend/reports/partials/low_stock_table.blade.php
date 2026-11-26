@@ -229,20 +229,33 @@
         </table>
     </div>
 
-    <p class="text-muted mb-1 mt-3 text-center" style="font-size: 13.5px; font-weight: 500;">
-        Showing 
-        <span class="text-dark font-weight-bold">
-            {{ $products->firstItem() ?? 0 }} - {{ $products->lastItem() ?? 0 }}
-        </span> 
-        of 
-        <span class="text-dark font-weight-bold">
-            {{ $products->total() }}
-        </span> 
-        low stock products
-    </p>
+    <div class="d-flex justify-content-between align-items-center flex-wrap mt-3 pt-2 border-top">
+        <div class="d-flex align-items-center flex-wrap" style="gap: 15px;">
+            <p class="text-muted mb-0" style="font-size: 13.5px; font-weight: 500;">
+                Showing 
+                <span class="text-dark font-weight-bold">
+                    {{ $products->firstItem() ?? 0 }} - {{ $products->lastItem() ?? 0 }}
+                </span> 
+                of 
+                <span class="text-danger font-weight-bold">
+                    {{ $products->total() }}
+                </span> 
+                low stock products
+            </p>
+            <div class="d-flex align-items-center" style="gap: 6px;">
+                <label class="mb-0 text-muted font-weight-bold" style="font-size: 11.5px;">Show:</label>
+                <select class="form-control form-control-sm" id="select-low-stock-per-page" style="width: 75px; height: 32px; font-weight: 600; border-radius: 6px; padding: 2px 8px;">
+                    <option value="10" {{ ($perPage ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                    <option value="30" {{ ($perPage ?? 10) == 30 ? 'selected' : '' }}>30</option>
+                    <option value="50" {{ ($perPage ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ ($perPage ?? 10) == 100 ? 'selected' : '' }}>100</option>
+                </select>
+            </div>
+        </div>
 
-    <div class="mt-3 d-flex justify-content-center flex-wrap custom-pagination" id="pagination-container">
-        {{ $products->links() }}
+        <div class="custom-pagination" id="pagination-container">
+            {{ $products->links() }}
+        </div>
     </div>
 @else
     <div class="alert alert-success d-flex align-items-center">

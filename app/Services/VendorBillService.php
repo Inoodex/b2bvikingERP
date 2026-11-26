@@ -93,7 +93,7 @@ class VendorBillService
                 'purchase_id'           => $purchase->id,
                 'vendor_id'             => $purchase->vendor_id,
                 'goods_receipt_id'      => $goodsReceipt?->id,
-                'currency_id'           => $purchase->currency_id,
+                'currency_id'           => $purchase->currency_id ?: ($purchase->vendor?->currency_id ?: 1),
                 'bill_date'             => $data['bill_date'],
                 'due_date'              => $data['due_date'] ?? now()->addDays(30)->toDateString(),
                 'subtotal'              => $subtotal,

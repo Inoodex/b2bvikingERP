@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Vendor;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class VendorUpdateRequest extends FormRequest
 {
@@ -21,16 +22,34 @@ class VendorUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        $id = $this->route('vendor');
+        $vendor = $this->route('vendor');
+        $id = is_object($vendor) ? $vendor->id : $vendor;
+
         return [
-            'shop_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:50',
-            'email' => 'required|email:filter|max:255|unique:vendors,email,' . $id,
-            'address' => 'required|string|max:500',
-            'country' => 'required|string|max:255',
-            'currency_id' => 'required|exists:currencies,id',
-            'description' => 'nullable|string',
-            'status' => 'required|boolean',
+            'shop_name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+                Rule::unique('vendors', 'email')->ignore($id)->whereNull('deleted_at'),
+            ],
+            'address' => ['required', 'string', 'max:500'],
+            'country' => ['required', 'string', 'max:255'],
+            'currency_id' => ['required', 'exists:currencies,id'],
+            'description' => ['nullable', 'string'],
+            'status' => ['required', 'in:0,1'],
+        ];
+    }
+
+    /**
+     * Custom validation attribute names.
+     */
+    public function attributes(): array
+    {
+        return [
+            'shop_name' => 'company name',
+            'currency_id' => 'currency',
         ];
     }
 }

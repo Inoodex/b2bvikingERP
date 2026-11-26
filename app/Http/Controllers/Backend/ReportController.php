@@ -281,7 +281,7 @@ class ReportController extends Controller implements HasMiddleware
      */
     public function stockReport(Request $request)
     {
-        $query = Product::with(['category', 'unit', 'brand', 'inventoryStocks'])
+        $query = Product::withCount('orderItems')->with(['category', 'unit', 'brand', 'inventoryStocks'])
             ->withSum('inventoryStocks', 'quantity')
             ->where('status', 1);
 
@@ -291,6 +291,50 @@ class ReportController extends Controller implements HasMiddleware
         }
         if ($request->brand_id) {
             $query->where('brand_id', $request->brand_id);
+        }
+        // Point 22: Filter by Vendor / Company
+        if ($request->filled('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+        // Point 22: Item Code / Product Number Range Filter (e.g. 1003 to 1135)
+        if ($request->filled('item_code_from') && $request->filled('item_code_to')) {
+            $from = (int) preg_replace('/[^0-9]/', '', $request->item_code_from);
+            $to   = (int) preg_replace('/[^0-9]/', '', $request->item_code_to);
+            $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) BETWEEN ? AND ?", [$from, $to]);
+        } elseif ($request->filled('item_code_from')) {
+            $from = (int) preg_replace('/[^0-9]/', '', $request->item_code_from);
+            $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) >= ?", [$from]);
+        } elseif ($request->filled('item_code_to')) {
+            $to = (int) preg_replace('/[^0-9]/', '', $request->item_code_to);
+            $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) <= ?", [$to]);
+        }
+
+        // Point 20: Sales Velocity Filter
+        if ($request->filled('sales_velocity')) {
+            $sv = $request->sales_velocity;
+            if ($sv === 'frequently_ordered') {
+                $query->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) >= 10 OR SUM(quantity) >= 50');
+                });
+            } elseif ($sv === 'slow_going') {
+                $query->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) > 0 AND COUNT(*) < 10 AND SUM(quantity) < 50');
+                });
+            } elseif ($sv === 'not_going') {
+                $query->whereNotIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id');
+                });
+            }
         }
 
         // Calculate Summary Stats from database aggregates BEFORE pagination
@@ -305,6 +349,46 @@ class ReportController extends Controller implements HasMiddleware
         if ($request->brand_id) {
             $summaryQuery->where('products.brand_id', $request->brand_id);
         }
+        if ($request->filled('vendor_id')) {
+            $summaryQuery->where('products.vendor_id', $request->vendor_id);
+        }
+        if ($request->filled('item_code_from') && $request->filled('item_code_to')) {
+            $from = (int) preg_replace('/[^0-9]/', '', $request->item_code_from);
+            $to   = (int) preg_replace('/[^0-9]/', '', $request->item_code_to);
+            $summaryQuery->whereRaw("CAST(REGEXP_SUBSTR(products.product_number, '[0-9]+') AS UNSIGNED) BETWEEN ? AND ?", [$from, $to]);
+        } elseif ($request->filled('item_code_from')) {
+            $from = (int) preg_replace('/[^0-9]/', '', $request->item_code_from);
+            $summaryQuery->whereRaw("CAST(REGEXP_SUBSTR(products.product_number, '[0-9]+') AS UNSIGNED) >= ?", [$from]);
+        } elseif ($request->filled('item_code_to')) {
+            $to = (int) preg_replace('/[^0-9]/', '', $request->item_code_to);
+            $summaryQuery->whereRaw("CAST(REGEXP_SUBSTR(products.product_number, '[0-9]+') AS UNSIGNED) <= ?", [$to]);
+        }
+        if ($request->filled('sales_velocity')) {
+            $sv = $request->sales_velocity;
+            if ($sv === 'frequently_ordered') {
+                $summaryQuery->whereIn('products.id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) >= 10 OR SUM(quantity) >= 50');
+                });
+            } elseif ($sv === 'slow_going') {
+                $summaryQuery->whereIn('products.id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) > 0 AND COUNT(*) < 10 AND SUM(quantity) < 50');
+                });
+            } elseif ($sv === 'not_going') {
+                $summaryQuery->whereNotIn('products.id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id');
+                });
+            }
+        }
 
         $summaryData = $summaryQuery->selectRaw('
             SUM(inventory_stocks.quantity) as untyped_total_qty,
@@ -317,10 +401,12 @@ class ReportController extends Controller implements HasMiddleware
         $potentialRevenue = $summaryData->untyped_potential_revenue ?? 0;
         $potentialProfit = $potentialRevenue - $totalValue;
 
-        $products = $query->paginate(30)->withQueryString();
+        $perPage = in_array((int) $request->get('per_page'), [10, 30, 50, 100], true) ? (int) $request->get('per_page') : 10;
+        $products = $query->paginate($perPage)->withQueryString();
         
         $categories = Category::where('status', 1)->get();
         $brands = Brand::where('status', 1)->get();
+        $vendors = Vendor::where('status', 1)->orderBy('shop_name')->get();
         $settings = GeneralSetting::first() ?? new GeneralSetting(['site_name' => 'B2B Viking ERP', 'currency_icon' => 'Kr.']);
 
         // ─── TAB 2: Expected Retail Price (User / Outlet) Data ───
@@ -345,7 +431,7 @@ class ReportController extends Controller implements HasMiddleware
             }
         }
 
-        $expectedQuery = Product::with([
+        $expectedQuery = Product::withCount('orderItems')->with([
             'category',
             'unit',
             'brand',
@@ -376,6 +462,50 @@ class ReportController extends Controller implements HasMiddleware
         if ($request->expected_brand_id) {
             $expectedQuery->where('brand_id', $request->expected_brand_id);
         }
+        $expectedVendorId = $request->get('expected_vendor_id') ?: $request->get('vendor_id');
+        if ($expectedVendorId) {
+            $expectedQuery->where('vendor_id', $expectedVendorId);
+        }
+        $expItemFrom = $request->get('expected_item_code_from') ?: $request->get('item_code_from');
+        $expItemTo   = $request->get('expected_item_code_to') ?: $request->get('item_code_to');
+        if ($expItemFrom && $expItemTo) {
+            $from = (int) preg_replace('/[^0-9]/', '', $expItemFrom);
+            $to   = (int) preg_replace('/[^0-9]/', '', $expItemTo);
+            $expectedQuery->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) BETWEEN ? AND ?", [$from, $to]);
+        } elseif ($expItemFrom) {
+            $from = (int) preg_replace('/[^0-9]/', '', $expItemFrom);
+            $expectedQuery->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) >= ?", [$from]);
+        } elseif ($expItemTo) {
+            $to = (int) preg_replace('/[^0-9]/', '', $expItemTo);
+            $expectedQuery->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) <= ?", [$to]);
+        }
+
+        $expectedVelocity = $request->get('expected_sales_velocity') ?: $request->get('sales_velocity');
+        if ($expectedVelocity) {
+            if ($expectedVelocity === 'frequently_ordered') {
+                $expectedQuery->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) >= 10 OR SUM(quantity) >= 50');
+                });
+            } elseif ($expectedVelocity === 'slow_going') {
+                $expectedQuery->whereIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) > 0 AND COUNT(*) < 10 AND SUM(quantity) < 50');
+                });
+            } elseif ($expectedVelocity === 'not_going') {
+                $expectedQuery->whereNotIn('id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id');
+                });
+            }
+        }
 
         $expectedSummaryQuery = DB::table('products')
             ->join('inventory_stocks', 'products.id', '=', 'inventory_stocks.product_id')
@@ -391,6 +521,45 @@ class ReportController extends Controller implements HasMiddleware
         if ($request->expected_brand_id) {
             $expectedSummaryQuery->where('products.brand_id', $request->expected_brand_id);
         }
+        if ($expectedVendorId) {
+            $expectedSummaryQuery->where('products.vendor_id', $expectedVendorId);
+        }
+        if ($expItemFrom && $expItemTo) {
+            $from = (int) preg_replace('/[^0-9]/', '', $expItemFrom);
+            $to   = (int) preg_replace('/[^0-9]/', '', $expItemTo);
+            $expectedSummaryQuery->whereRaw("CAST(REGEXP_SUBSTR(products.product_number, '[0-9]+') AS UNSIGNED) BETWEEN ? AND ?", [$from, $to]);
+        } elseif ($expItemFrom) {
+            $from = (int) preg_replace('/[^0-9]/', '', $expItemFrom);
+            $expectedSummaryQuery->whereRaw("CAST(REGEXP_SUBSTR(products.product_number, '[0-9]+') AS UNSIGNED) >= ?", [$from]);
+        } elseif ($expItemTo) {
+            $to = (int) preg_replace('/[^0-9]/', '', $expItemTo);
+            $expectedSummaryQuery->whereRaw("CAST(REGEXP_SUBSTR(products.product_number, '[0-9]+') AS UNSIGNED) <= ?", [$to]);
+        }
+        if ($expectedVelocity) {
+            if ($expectedVelocity === 'frequently_ordered') {
+                $expectedSummaryQuery->whereIn('products.id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) >= 10 OR SUM(quantity) >= 50');
+                });
+            } elseif ($expectedVelocity === 'slow_going') {
+                $expectedSummaryQuery->whereIn('products.id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('COUNT(*) > 0 AND COUNT(*) < 10 AND SUM(quantity) < 50');
+                });
+            } elseif ($expectedVelocity === 'not_going') {
+                $expectedSummaryQuery->whereNotIn('products.id', function ($sub) {
+                    $sub->select('product_id')
+                        ->from('order_items')
+                        ->whereNotNull('product_id');
+                });
+            }
+        }
 
         $expectedSummaryData = $expectedSummaryQuery->selectRaw('
             SUM(inventory_stocks.quantity) as untyped_total_qty,
@@ -405,7 +574,11 @@ class ReportController extends Controller implements HasMiddleware
         $expTotalRetail = $expectedSummaryData->untyped_expected_retail ?? 0;
         $expTotalMargin = $expTotalRetail - $expTotalCost;
 
-        $expectedProducts = $expectedQuery->paginate(30, ['*'], 'expected_page')->withQueryString();
+        $expectedPerPage = in_array((int) $request->get('expected_per_page'), [10, 30, 50, 100], true) 
+            ? (int) $request->get('expected_per_page') 
+            : (in_array((int) $request->get('per_page'), [10, 30, 50, 100], true) ? (int) $request->get('per_page') : 10);
+
+        $expectedProducts = $expectedQuery->paginate($expectedPerPage, ['*'], 'expected_page')->withQueryString();
 
         if ($request->ajax()) {
             return response()->json([
@@ -422,9 +595,9 @@ class ReportController extends Controller implements HasMiddleware
         $latestExpectedPdf = $this->getLatestReportFile('expected_stock_report', 'admin.reports.stock.expected.pdf.download');
 
         return view('backend.reports.stock', compact(
-            'products', 'categories', 'brands', 'totalQty', 'totalValue', 'potentialRevenue', 'potentialProfit', 'settings', 'latestPdf', 'latestExpectedPdf',
+            'products', 'categories', 'brands', 'vendors', 'totalQty', 'totalValue', 'potentialRevenue', 'potentialProfit', 'settings', 'latestPdf', 'latestExpectedPdf',
             'activeTab', 'outlets', 'customers', 'expectedProducts', 'selectedExpectedEntityName', 'selectedExpectedOutletId', 'selectedExpectedUserId',
-            'expTotalQty', 'expTotalCost', 'expTotalWholesale', 'expTotalRetail', 'expTotalMargin'
+            'expTotalQty', 'expTotalCost', 'expTotalWholesale', 'expTotalRetail', 'expTotalMargin', 'perPage', 'expectedPerPage'
         ));
     }
 
@@ -456,16 +629,31 @@ class ReportController extends Controller implements HasMiddleware
             $query->where('vendor_id', $request->vendor_id);
         }
 
+        // Point 22: Item Code / Product Number Range Filter (e.g. 1003 to 1135)
+        if ($request->filled('item_code_from') && $request->filled('item_code_to')) {
+            $from = (int) preg_replace('/[^0-9]/', '', $request->item_code_from);
+            $to   = (int) preg_replace('/[^0-9]/', '', $request->item_code_to);
+            $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) BETWEEN ? AND ?", [$from, $to]);
+        } elseif ($request->filled('item_code_from')) {
+            $from = (int) preg_replace('/[^0-9]/', '', $request->item_code_from);
+            $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) >= ?", [$from]);
+        } elseif ($request->filled('item_code_to')) {
+            $to = (int) preg_replace('/[^0-9]/', '', $request->item_code_to);
+            $query->whereRaw("CAST(REGEXP_SUBSTR(product_number, '[0-9]+') AS UNSIGNED) <= ?", [$to]);
+        }
+
+        $perPage = in_array((int) $request->get('per_page'), [10, 30, 50, 100], true) ? (int) $request->get('per_page') : 10;
+
         // Vendor-wala products first (NULL vendor_id LAST), then latest product id
         $products = $query->orderByRaw('CASE WHEN vendor_id IS NULL THEN 1 ELSE 0 END ASC')
                           ->orderBy('vendor_id', 'asc')
                           ->orderBy('id', 'desc')
-                          ->paginate(30)->withQueryString();
+                          ->paginate($perPage)->withQueryString();
         $categories = Category::where('status', 1)->orderBy('id', 'desc')->get();
         $vendors = Vendor::where('status', 1)->orderBy('id', 'desc')->get();
         $settings = GeneralSetting::first();
 
-        return view('backend.reports.current_stock', compact('products', 'categories', 'vendors', 'settings'));
+        return view('backend.reports.current_stock', compact('products', 'categories', 'vendors', 'settings', 'perPage'));
     }
 
     /**
@@ -473,7 +661,16 @@ class ReportController extends Controller implements HasMiddleware
      */
     public function exportCurrentStockReport(Request $request)
     {
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\CurrentStockExport($request->category_id, $request->stock_status, $request->vendor_id), 'current-stock-report-' . now()->format('Y-m-d') . '.xlsx');
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\CurrentStockExport(
+                $request->category_id,
+                $request->stock_status,
+                $request->vendor_id,
+                $request->item_code_from,
+                $request->item_code_to
+            ),
+            'current-stock-report-' . now()->format('Y-m-d') . '.xlsx'
+        );
     }
 
     /**
@@ -559,11 +756,13 @@ class ReportController extends Controller implements HasMiddleware
             $query->where('vendor_id', $request->vendor_id);
         }
 
+        $perPage = in_array((int) $request->get('per_page'), [10, 30, 50, 100], true) ? (int) $request->get('per_page') : 10;
+
         $products = $query->orderBy('inventory_stocks_sum_quantity', 'asc')
-            ->paginate(30)->withQueryString();
+            ->paginate($perPage)->withQueryString();
 
         if ($request->ajax() || $request->wantsJson()) {
-            $html = view('backend.reports.partials.low_stock_table', compact('products'))->render();
+            $html = view('backend.reports.partials.low_stock_table', compact('products', 'perPage'))->render();
             return response()->json([
                 'success' => true,
                 'html'    => $html,
@@ -575,7 +774,7 @@ class ReportController extends Controller implements HasMiddleware
         $brands = Brand::where('status', 1)->orderBy('name')->get();
         $vendors = Vendor::where('status', 1)->orderBy('shop_name')->get();
 
-        return view('backend.reports.low_stock', compact('products', 'categories', 'brands', 'vendors'));
+        return view('backend.reports.low_stock', compact('products', 'categories', 'brands', 'vendors', 'perPage'));
     }
 
     /**
@@ -621,7 +820,7 @@ class ReportController extends Controller implements HasMiddleware
         // 1. Fetch Low Stock Products
         $lowStockProducts = Product::where('status', 1)
             ->withSum('inventoryStocks', 'quantity')
-            ->havingRaw('inventory_stocks_sum_quantity <= COALESCE(products.min_inventory_qty, 10) OR inventory_stocks_sum_quantity IS NULL')
+            ->whereRaw('(SELECT COALESCE(SUM(quantity), 0) FROM inventory_stocks WHERE inventory_stocks.product_id = products.id) <= COALESCE(products.min_inventory_qty, 10)')
             ->orderBy('updated_at', 'desc') // Fetch by recent update
             ->take(15)
             ->get();
@@ -630,17 +829,18 @@ class ReportController extends Controller implements HasMiddleware
             $isUnread = !$lastReadAt || $product->updated_at->gt($lastReadAt);
             if ($isUnread) $unreadCount++;
 
+            $currentStock = (float) ($product->inventory_stocks_sum_quantity ?? 0);
             $notifications[] = [
                 'type' => 'lowStock',
                 'title' => $product->name,
-                'desc' => ($product->inventory_stocks_sum_quantity ?? 0) . ' in stock',
+                'desc' => $currentStock . ' in stock',
                 'time' => $product->updated_at->diffForHumans(),
                 'timestamp' => $product->updated_at->timestamp, // For sorting
                 'url' => route('admin.reports.low-stock'),
                 'icon' => 'fas fa-exclamation-triangle',
-                'class' => ($product->inventory_stocks_sum_quantity <= 0) ? 'bg-danger' : 'bg-warning',
+                'class' => ($currentStock <= 0) ? 'bg-danger' : 'bg-warning',
                 'is_unread' => $isUnread,
-                'is_out_of_stock' => ($product->inventory_stocks_sum_quantity <= 0)
+                'is_out_of_stock' => ($currentStock <= 0)
             ];
         }
 
@@ -855,39 +1055,81 @@ class ReportController extends Controller implements HasMiddleware
                 ->withQueryString()
                 ->fragment('paymentsTab');
 
-            $demandedSummary = OrderItem::whereIn('order_id', $orderIds)
+            // Category breakdown for this user (strictly only categories with ordered quantity > 0)
+            $userCategories = OrderItem::whereIn('order_items.order_id', $orderIds)
+                ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
+                ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
                 ->selectRaw('
-                    COUNT(DISTINCT CONCAT(COALESCE(product_id, 0), "-", product_name)) as total_items,
-                    COALESCE(SUM(quantity), 0) as total_qty,
-                    COALESCE(SUM(line_total), 0) as total_value
+                    MAX(COALESCE(categories.id, 0)) as category_id,
+                    COALESCE(categories.name, order_items.category_name, "General") as category_name,
+                    SUM(order_items.quantity) as total_qty,
+                    COALESCE(SUM(order_items.line_total), 0) as total_amount,
+                    COUNT(DISTINCT order_items.order_id) as orders_count
+                ')
+                ->groupBy(DB::raw('COALESCE(categories.name, order_items.category_name, "General")'))
+                ->havingRaw('total_qty > 0')
+                ->orderByDesc('total_amount')
+                ->get();
+
+            $chartCategoryLabels = $userCategories->pluck('category_name')->toArray();
+            $chartCategoryData = $userCategories->pluck('total_amount')->map(fn($v) => round((float)$v, 2))->toArray();
+            $chartCategoryQuantities = $userCategories->pluck('total_qty')->map(fn($v) => (int)$v)->toArray();
+
+            $demandedSummary = OrderItem::whereIn('order_items.order_id', $orderIds)
+                ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
+                ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+                ->when($request->filled('category_name'), function($q) use ($request) {
+                    $q->where(function($sub) use ($request) {
+                        $sub->where('categories.name', $request->category_name)
+                            ->orWhere('order_items.category_name', $request->category_name);
+                    });
+                })
+                ->selectRaw('
+                    COUNT(DISTINCT CONCAT(COALESCE(order_items.product_id, 0), "-", order_items.product_name)) as total_items,
+                    COALESCE(SUM(order_items.quantity), 0) as total_qty,
+                    COALESCE(SUM(order_items.line_total), 0) as total_value
                 ')->first();
 
-            $productComparison = OrderItem::whereIn('order_id', $orderIds)
-                ->with(['product.category'])
+            $productComparisonQuery = OrderItem::whereIn('order_items.order_id', $orderIds)
+                ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
+                ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
                 ->selectRaw('
-                    product_id,
-                    product_name,
-                    MAX(product_image) as item_image,
-                    MAX(category_name) as item_category,
-                    COUNT(DISTINCT order_id) as times_ordered,
-                    SUM(quantity) as ordered_qty,
-                    COALESCE(SUM(line_total),0) as ordered_value
+                    order_items.product_id,
+                    order_items.product_name,
+                    MAX(order_items.product_image) as item_image,
+                    MAX(COALESCE(categories.name, order_items.category_name, "General")) as item_category,
+                    MAX(COALESCE(categories.id, products.category_id, 0)) as item_category_id,
+                    COUNT(DISTINCT order_items.order_id) as times_ordered,
+                    SUM(order_items.quantity) as ordered_qty,
+                    COALESCE(SUM(order_items.line_total),0) as ordered_value
                 ')
-                ->groupBy('product_id', 'product_name')
+                ->groupBy('order_items.product_id', 'order_items.product_name')
                 ->orderByDesc('ordered_qty')
-                ->orderByDesc('ordered_value')
-                ->paginate(20, ['*'], 'products_page')
+                ->orderByDesc('ordered_value');
+
+            if ($request->filled('category_name')) {
+                $productComparisonQuery->where(function($q) use ($request) {
+                    $q->where('categories.name', $request->category_name)
+                        ->orWhere('order_items.category_name', $request->category_name);
+                });
+            }
+
+            $productComparison = $productComparisonQuery->paginate(20, ['*'], 'products_page')
                 ->withQueryString()
                 ->fragment('productsTab');
 
-            $productComparison->getCollection()->transform(function ($item) {
+            $productIds = $productComparison->getCollection()->pluck('product_id')->filter()->unique();
+            $productsMap = \App\Models\Product::with('category')->whereIn('id', $productIds)->get()->keyBy('id');
+
+            $productComparison->getCollection()->transform(function ($item) use ($productsMap) {
                 $item->issued_qty = (int) $item->ordered_qty;
                 $item->pending_qty = 0;
                 $item->avg_price = $item->ordered_qty > 0 ? ($item->ordered_value / $item->ordered_qty) : 0;
-                $item->display_image = $item->product?->thumb_image ?: $item->item_image;
-                $item->sku = $item->product?->sku ?: $item->product?->product_number;
-                $item->display_category = $item->product?->category?->name ?: ($item->item_category ?: 'General');
-                $item->current_stock = $item->product?->qty ?? 0;
+                $p = $item->product_id ? $productsMap->get($item->product_id) : null;
+                $item->display_image = $p?->thumb_image ?: $item->item_image;
+                $item->sku = $p?->sku ?: $p?->product_number;
+                $item->display_category = $p?->category?->name ?: ($item->item_category ?: 'General');
+                $item->current_stock = $p?->qty ?? 0;
                 return $item;
             });
 
@@ -908,7 +1150,8 @@ class ReportController extends Controller implements HasMiddleware
             return view('backend.reports.orders', compact(
                 'user', 'users', 'summary', 'issueStats', 'orderIds',
                 'paymentStats', 'totalDue', 'issueValue', 'pendingValue',
-                'orders', 'issues', 'payments', 'productComparison', 'demandedSummary', 'monthlyTrend', 'totalRevenue', 'latestPdf'
+                'orders', 'issues', 'payments', 'productComparison', 'demandedSummary', 'monthlyTrend', 'totalRevenue', 'latestPdf',
+                'userCategories', 'chartCategoryLabels', 'chartCategoryData', 'chartCategoryQuantities'
             ));
         }
 
@@ -946,8 +1189,14 @@ class ReportController extends Controller implements HasMiddleware
 
         $latestPdf = $this->getLatestReportFile('order_sales_report', 'admin.reports.orders.pdf.download');
 
+        $userCategories = collect();
+        $chartCategoryLabels = [];
+        $chartCategoryData = [];
+        $chartCategoryQuantities = [];
+
         return view('backend.reports.orders', compact(
-            'summary', 'issueStats', 'productFrequency', 'monthlyTrend', 'userSummary', 'users', 'orderIds', 'orders', 'issueValue', 'totalRevenue', 'latestPdf'
+            'summary', 'issueStats', 'productFrequency', 'monthlyTrend', 'userSummary', 'users', 'orderIds', 'orders', 'issueValue', 'totalRevenue', 'latestPdf',
+            'userCategories', 'chartCategoryLabels', 'chartCategoryData', 'chartCategoryQuantities'
         ));
     }
 
@@ -986,12 +1235,16 @@ class ReportController extends Controller implements HasMiddleware
     public function stockReportPdf(Request $request): JsonResponse|RedirectResponse
     {
         $filters = [
-            'category_id' => $request->get('category_id'),
-            'brand_id'    => $request->get('brand_id'),
+            'category_id'    => $request->get('category_id'),
+            'brand_id'       => $request->get('brand_id'),
+            'vendor_id'      => $request->get('vendor_id'),
+            'sales_velocity' => $request->get('sales_velocity'),
+            'item_code_from' => $request->get('item_code_from'),
+            'item_code_to'   => $request->get('item_code_to'),
         ];
 
-        if (empty($filters['category_id']) && empty($filters['brand_id'])) {
-            $msg = 'Please select a Category or Brand filter before exporting PDF. For full inventory, please use Excel export.';
+        if (empty($filters['category_id']) && empty($filters['brand_id']) && empty($filters['vendor_id']) && empty($filters['sales_velocity']) && empty($filters['item_code_from']) && empty($filters['item_code_to'])) {
+            $msg = 'Please select a Category, Brand, Vendor, Velocity, or Item Range filter before exporting PDF. For full inventory, please use Excel export.';
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'status'  => 'warning',

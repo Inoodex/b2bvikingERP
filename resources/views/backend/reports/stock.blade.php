@@ -731,8 +731,9 @@
                 <div class="collapse show" id="sr-filter-collapse">
                     <div class="sr-filter-body">
                         <form id="stock-filter-form" action="{{ route('admin.reports.stock') }}" method="GET">
-                            <div class="row g-3 align-items-end">
-                                <div class="col-md-5">
+                            <input type="hidden" name="per_page" id="stock-filter-per-page" value="{{ $perPage ?? 10 }}">
+                            <div class="row g-3 align-items-end mb-2">
+                                <div class="col-md-3">
                                     <label>Category</label>
                                     <select name="category_id" class="form-control select2">
                                         <option value="">All Categories</option>
@@ -741,7 +742,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-3">
                                     <label>Brand</label>
                                     <select name="brand_id" class="form-control select2">
                                         <option value="">All Brands</option>
@@ -750,9 +751,39 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="col-md-3">
+                                    <label>Company / Vendor</label>
+                                    <select name="vendor_id" class="form-control select2">
+                                        <option value="">All Vendors</option>
+                                        @if(isset($vendors))
+                                            @foreach ($vendors as $vendor)
+                                                <option value="{{ $vendor->id }}" {{ request()->vendor_id == $vendor->id ? 'selected' : '' }}>{{ $vendor->shop_name }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Sales Velocity</label>
+                                    <select name="sales_velocity" class="form-control select2">
+                                        <option value="">Sales Velocity (All)</option>
+                                        <option value="frequently_ordered" {{ request()->sales_velocity == 'frequently_ordered' ? 'selected' : '' }}>🚀 Frequently Ordered</option>
+                                        <option value="slow_going" {{ request()->sales_velocity == 'slow_going' ? 'selected' : '' }}>⏳ Slow Going</option>
+                                        <option value="not_going" {{ request()->sales_velocity == 'not_going' ? 'selected' : '' }}>🛑 Not Going (Dead Stock)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-5">
+                                    <label>Item Code Range: From (e.g. 1003)</label>
+                                    <input type="text" name="item_code_from" class="form-control" placeholder="From (e.g. 1003)" value="{{ request()->item_code_from }}" style="height: 38px; border-radius: 10px; border: 1.5px solid var(--sr-border);">
+                                </div>
+                                <div class="col-md-5">
+                                    <label>Item Code Range: To (e.g. 1135)</label>
+                                    <input type="text" name="item_code_to" class="form-control" placeholder="To (e.g. 1135)" value="{{ request()->item_code_to }}" style="height: 38px; border-radius: 10px; border: 1.5px solid var(--sr-border);">
+                                </div>
                                 <div class="col-md-2">
-                                    <a href="{{ route('admin.reports.stock') }}" class="sr-btn rose w-100 reset-arrow-button" style="margin-top: 4px; justify-content: center;">
-                                        <i class="fas fa-undo"></i> Reset
+                                    <a href="{{ route('admin.reports.stock') }}" class="sr-btn rose w-100 reset-arrow-button" style="margin-top: 4px; justify-content: center; height: 38px;">
+                                        <i class="fas fa-undo"></i> Reset Filters
                                     </a>
                                 </div>
                             </div>
@@ -849,6 +880,12 @@
                                         </td>
                                         <td>
                                             <span class="sr-cat-badge">{{ $product->category->name ?? '-' }}</span>
+                                            @php $vel = $product->sales_velocity; @endphp
+                                            <div class="mt-1">
+                                                <span class="badge {{ $vel['badge_class'] }}" style="font-size: 9.5px;" title="Velocity: {{ $vel['full_label'] }}">
+                                                    <i class="{{ $vel['icon'] }} mr-1"></i>{{ $vel['label'] }}
+                                                </span>
+                                            </div>
                                         </td>
                                         <td class="text-center">
                                             @if($qty <= $product->min_inventory_qty)
@@ -941,13 +978,24 @@
                     </div>
 
                     {{-- Pagination --}}
-                    <div class="sr-pagination-wrap">
-                        <div class="sr-pagination-info">
-                            Showing
-                            <strong>{{ $products->firstItem() ?? 0 }} – {{ $products->lastItem() ?? 0 }}</strong>
-                            of
-                            <strong>{{ $products->total() }}</strong>
-                            products
+                    <div class="sr-pagination-wrap d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="d-flex align-items-center flex-wrap" style="gap: 15px;">
+                            <div class="sr-pagination-info">
+                                Showing
+                                <strong>{{ $products->firstItem() ?? 0 }} – {{ $products->lastItem() ?? 0 }}</strong>
+                                of
+                                <strong>{{ $products->total() }}</strong>
+                                products
+                            </div>
+                            <div class="d-flex align-items-center" style="gap: 6px;">
+                                <label class="mb-0 text-muted font-weight-bold" style="font-size: 11.5px;">Show:</label>
+                                <select class="form-control form-control-sm per-page-dropdown" data-form="#stock-filter-form" style="width: 75px; height: 32px; font-weight: 600; border-radius: 6px; padding: 2px 8px;">
+                                    <option value="10" {{ ($perPage ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="30" {{ ($perPage ?? 10) == 30 ? 'selected' : '' }}>30</option>
+                                    <option value="50" {{ ($perPage ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                                    <option value="100" {{ ($perPage ?? 10) == 100 ? 'selected' : '' }}>100</option>
+                                </select>
+                            </div>
                         </div>
                         {{ $products->links() }}
                     </div>
@@ -1015,6 +1063,7 @@
                     <div class="sr-filter-body">
                         <form id="expected-filter-form" action="{{ route('admin.reports.stock') }}" method="GET">
                             <input type="hidden" name="tab" value="expected">
+                            <input type="hidden" name="expected_per_page" id="exp-filter-per-page" value="{{ $expectedPerPage ?? 10 }}">
                             <div class="row g-3 mb-2">
                                 <div class="col-md-6">
                                     <label class="font-weight-bold"><i class="fas fa-store mr-1 text-primary"></i> Outlet</label>
@@ -1039,8 +1088,8 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="row g-3 align-items-end">
-                                <div class="col-md-4">
+                            <div class="row g-3 align-items-end mb-2">
+                                <div class="col-md-3">
                                     <label class="font-weight-bold">Category</label>
                                     <select name="expected_category_id" class="form-control select2">
                                         <option value="">All Categories</option>
@@ -1049,7 +1098,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="font-weight-bold">Brand</label>
                                     <select name="expected_brand_id" class="form-control select2">
                                         <option value="">All Brands</option>
@@ -1058,7 +1107,37 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
+                                    <label class="font-weight-bold">Company / Vendor</label>
+                                    <select name="expected_vendor_id" class="form-control select2">
+                                        <option value="">All Vendors</option>
+                                        @if(isset($vendors))
+                                            @foreach ($vendors as $vendor)
+                                                <option value="{{ $vendor->id }}" {{ (request()->expected_vendor_id ?? request()->vendor_id) == $vendor->id ? 'selected' : '' }}>{{ $vendor->shop_name }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="font-weight-bold">Sales Velocity</label>
+                                    <select name="expected_sales_velocity" class="form-control select2">
+                                        <option value="">Sales Velocity (All)</option>
+                                        <option value="frequently_ordered" {{ (request()->expected_sales_velocity ?? request()->sales_velocity) == 'frequently_ordered' ? 'selected' : '' }}>🚀 Frequently Ordered</option>
+                                        <option value="slow_going" {{ (request()->expected_sales_velocity ?? request()->sales_velocity) == 'slow_going' ? 'selected' : '' }}>⏳ Slow Going</option>
+                                        <option value="not_going" {{ (request()->expected_sales_velocity ?? request()->sales_velocity) == 'not_going' ? 'selected' : '' }}>🛑 Not Going (Dead Stock)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-5">
+                                    <label class="font-weight-bold">Item Code Range: From (e.g. 1003)</label>
+                                    <input type="text" name="expected_item_code_from" class="form-control" placeholder="From (e.g. 1003)" value="{{ request()->expected_item_code_from ?? request()->item_code_from }}" style="height: 38px; border-radius: 10px; border: 1.5px solid var(--sr-border);">
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="font-weight-bold">Item Code Range: To (e.g. 1135)</label>
+                                    <input type="text" name="expected_item_code_to" class="form-control" placeholder="To (e.g. 1135)" value="{{ request()->expected_item_code_to ?? request()->item_code_to }}" style="height: 38px; border-radius: 10px; border: 1.5px solid var(--sr-border);">
+                                </div>
+                                <div class="col-md-2">
                                     <a href="{{ route('admin.reports.stock', ['tab' => 'expected']) }}" class="sr-btn rose w-100 reset-arrow-button" style="margin-top: 4px; justify-content: center; height: 38px;">
                                         <i class="fas fa-undo"></i> Reset Filters
                                     </a>
@@ -1167,6 +1246,12 @@
                                         </td>
                                         <td>
                                             <span class="sr-cat-badge">{{ $product->category->name ?? '-' }}</span>
+                                            @php $vel = $product->sales_velocity; @endphp
+                                            <div class="mt-1">
+                                                <span class="badge {{ $vel['badge_class'] }}" style="font-size: 9.5px;" title="Velocity: {{ $vel['full_label'] }}">
+                                                    <i class="{{ $vel['icon'] }} mr-1"></i>{{ $vel['label'] }}
+                                                </span>
+                                            </div>
                                         </td>
                                         <td class="text-center">
                                             @if($qty <= $product->min_inventory_qty)
@@ -1264,13 +1349,24 @@
                     </div>
 
                     {{-- Pagination for Tab 2 --}}
-                    <div class="sr-pagination-wrap">
-                        <div class="sr-pagination-info">
-                            Showing
-                            <strong>{{ $expectedProducts->firstItem() ?? 0 }} – {{ $expectedProducts->lastItem() ?? 0 }}</strong>
-                            of
-                            <strong>{{ $expectedProducts->total() }}</strong>
-                            products
+                    <div class="sr-pagination-wrap d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="d-flex align-items-center flex-wrap" style="gap: 15px;">
+                            <div class="sr-pagination-info">
+                                Showing
+                                <strong>{{ $expectedProducts->firstItem() ?? 0 }} – {{ $expectedProducts->lastItem() ?? 0 }}</strong>
+                                of
+                                <strong>{{ $expectedProducts->total() }}</strong>
+                                products
+                            </div>
+                            <div class="d-flex align-items-center" style="gap: 6px;">
+                                <label class="mb-0 text-muted font-weight-bold" style="font-size: 11.5px;">Show:</label>
+                                <select class="form-control form-control-sm per-page-dropdown" data-form="#expected-filter-form" style="width: 75px; height: 32px; font-weight: 600; border-radius: 6px; padding: 2px 8px;">
+                                    <option value="10" {{ ($expectedPerPage ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="30" {{ ($expectedPerPage ?? 10) == 30 ? 'selected' : '' }}>30</option>
+                                    <option value="50" {{ ($expectedPerPage ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                                    <option value="100" {{ ($expectedPerPage ?? 10) == 100 ? 'selected' : '' }}>100</option>
+                                </select>
+                            </div>
                         </div>
                         {{ $expectedProducts->links() }}
                     </div>
@@ -1365,55 +1461,33 @@
         }
         initExportButtons();
 
-        $(document).on('change select2:select', '#stock-filter-form select[name="category_id"], #stock-filter-form select[name="brand_id"]', function () {
+        $(document).on('change select2:select', '#stock-filter-form select', function () {
+            $('#stock-filter-form').trigger('submit');
+        });
+
+        // Dynamic auto-filter for Item Code Range (Point 22)
+        let stockRangeDebounce = null;
+        $(document).on('input', '#stock-filter-form input[name="item_code_from"], #stock-filter-form input[name="item_code_to"]', function () {
+            clearTimeout(stockRangeDebounce);
+            stockRangeDebounce = setTimeout(function () {
+                $('#stock-filter-form').trigger('submit');
+            }, 600);
+        });
+        $(document).on('change', '#stock-filter-form input[name="item_code_from"], #stock-filter-form input[name="item_code_to"]', function () {
             $('#stock-filter-form').trigger('submit');
         });
 
         // ─── TAB 2: Expected Retail Price DataTable & Filters ───
+        // Note: DataTables is disabled here because nested variant drawer rows cause infinite layout reflows and browser freezing.
+        // Server-side pagination and native PDF/Excel export handle this report cleanly.
         function initExpectedDataTable() {
-            if ($('#table-expected-stock').length === 0) return null;
-
-            // Temporarily detach variant drawer rows so DataTable initializes without column warnings
-            const drawerRows = $('#table-expected-stock tbody tr.exp-variant-drawer-row').detach();
-
-            if ($.fn.DataTable.isDataTable('#table-expected-stock')) {
-                $('#table-expected-stock').DataTable().destroy();
-            }
-            const expTable = $('#table-expected-stock').DataTable({
-                dom: 'Brt',
-                paging: false,
-                info: false,
-                searching: false,
-                buttons: [
-                    { extend: 'copy', messageTop: 'Expected Retail Price Stock Valuation Report', exportOptions: commonExportOptions },
-                    { extend: 'csv', filename: 'expected-retail-stock-' + @json(date('Y-m-d')), exportOptions: commonExportOptions },
-                    { extend: 'excel', title: 'Expected Retail Price Stock Valuation', filename: 'expected-retail-stock-' + @json(date('Y-m-d')), exportOptions: commonExportOptions },
-                    { extend: 'print', title: 'Expected Retail Price Stock Valuation', messageTop: 'Generated on: ' + @json(date('F d, Y h:i A')) }
-                ]
-            });
-
-            // Re-attach variant drawer rows right after their respective parent product rows
-            drawerRows.each(function() {
-                const parentId = $(this).attr('id').replace('exp-variant-drawer-', '');
-                const $parentRow = $('#table-expected-stock tbody tr').filter(function() {
-                    return $(this).find('[data-target="#exp-variant-drawer-' + parentId + '"]').length > 0;
-                });
-                if ($parentRow.length) {
-                    $parentRow.after($(this));
-                }
-            });
-
-            $('#table-expected-stock_wrapper .dt-buttons').hide();
-            return expTable;
+            return null;
         }
 
         let expTable = initExpectedDataTable();
 
-        $('#btn-exp-export-excel').off('click').on('click', function () { 
-            if (expTable) expTable.button(2).trigger(); 
-        });
         $('#btn-exp-print').off('click').on('click', function () { 
-            if (expTable) expTable.button(3).trigger(); 
+            window.print(); 
         });
 
         $(document).on('click', '.toggle-variant-drawer', function (e) {
@@ -1430,6 +1504,30 @@
 
         $(document).on('change select2:select', '#expected-filter-form select', function () {
             $('#expected-filter-form').trigger('submit');
+        });
+
+        // Dynamic auto-filter for Tab 2 Item Code Range
+        let expRangeDebounce = null;
+        $(document).on('input', '#expected-filter-form input[name="expected_item_code_from"], #expected-filter-form input[name="expected_item_code_to"]', function () {
+            clearTimeout(expRangeDebounce);
+            expRangeDebounce = setTimeout(function () {
+                $('#expected-filter-form').trigger('submit');
+            }, 600);
+        });
+        $(document).on('change', '#expected-filter-form input[name="expected_item_code_from"], #expected-filter-form input[name="expected_item_code_to"]', function () {
+            $('#expected-filter-form').trigger('submit');
+        });
+
+        // Per Page dynamic change handler
+        $(document).on('change', '.per-page-dropdown', function() {
+            var formSelector = $(this).data('form');
+            var val = $(this).val();
+            if (formSelector === '#expected-filter-form') {
+                $('#exp-filter-per-page').val(val);
+            } else {
+                $('#stock-filter-per-page').val(val);
+            }
+            $(formSelector).trigger('submit');
         });
 
         // Tab state preservation in browser URL

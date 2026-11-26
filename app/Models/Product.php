@@ -41,6 +41,8 @@ class Product extends Model
         'discount_type',
         'vat_type',
         'vat_value',
+        'procurement_status',
+        'procurement_note',
     ];
 
     public function category()
@@ -81,6 +83,27 @@ class Product extends Model
     public function variants()
     {
         return $this->hasMany(ProductVariant::class);
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'product_id');
+    }
+
+    public function activeOrderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'product_id')
+            ->whereHas('order', function ($query) {
+                $query->whereIn('status', ['pending', 'approved']);
+            });
+    }
+
+    public function activeProductRequestItems()
+    {
+        return $this->hasMany(ProductRequestItem::class, 'product_id')
+            ->whereHas('productRequest', function ($query) {
+                $query->whereIn('status', ['pending', 'approved']);
+            });
     }
 
     public function purchaseDetails()
@@ -151,11 +174,24 @@ class Product extends Model
             $ship = $activeShipment ?? $purchase?->shipments?->sortByDesc('id')->first();
             $etaFull = $ship?->eta ? \Carbon\Carbon::parse($ship->eta)->format('d M Y') : null;
             $etaShort = $ship?->eta ? \Carbon\Carbon::parse($ship->eta)->format('d M') : null;
-            $label = 'In Shipment' . ($etaShort ? ' (ETA: ' . $etaShort . ')' : '') . ' • ' . number_format($totalOrderedQty) . ' pcs';
-            $badgeClass = 'badge-primary';
-            $icon = 'fa-shipping-fast';
-            $title = 'Procurement in Shipment';
-            $content = "<strong>Procurement Ref:</strong> {$poNo}<br><strong>Supplier:</strong> " . e($vName) . "<br><strong>Procurement Qty:</strong> " . number_format($totalOrderedQty) . " pcs<br><strong>Stage:</strong> Shipped / In Transit" . ($etaFull ? "<br><strong>Expected ETA:</strong> {$etaFull}" : '') . ($ship?->container_no ? "<br><strong>Container:</strong> " . e($ship->container_no) : '');
+            $modeName = $ship?->transport_name ?? 'In Shipment';
+            $icon = match ($ship?->transport_mode) {
+                'air'  => 'fa-plane-departure',
+                'road' => 'fa-truck',
+                'rail' => 'fa-train',
+                default => 'fa-ship',
+            };
+            $label = $modeName . ' • ' . number_format($totalOrderedQty) . ' pcs' . ($etaShort ? ' (ETA: ' . $etaShort . ')' : '');
+            $badgeClass = match ($ship?->transport_mode) {
+                'air'  => 'badge-info',
+                'road' => 'badge-warning',
+                'rail' => 'badge-secondary',
+                default => 'badge-primary',
+            };
+            $title = 'Procurement in ' . $modeName;
+            $identifierLabel = $ship?->identifier_label ?? 'Vessel / Flight';
+            $identifierVal = $ship?->vessel_or_flight ? "<br><strong>{$identifierLabel}:</strong> " . e($ship->vessel_or_flight) : '';
+            $content = "<strong>Procurement Ref:</strong> {$poNo}<br><strong>Supplier:</strong> " . e($vName) . "<br><strong>Freight Mode:</strong> " . e($modeName) . "{$identifierVal}<br><strong>Procurement Qty:</strong> " . number_format($totalOrderedQty) . " pcs<br><strong>Stage:</strong> Shipped / In Transit" . ($etaFull ? "<br><strong>Expected ETA:</strong> {$etaFull}" : '') . ($ship?->container_no ? "<br><strong>Container:</strong> " . e($ship->container_no) : '');
 
             return [
                 'has_active_order'  => true,
@@ -315,5 +351,98 @@ class Product extends Model
     public function customerVisibilities()
     {
         return $this->hasMany(\App\Models\CustomerProductVisibility::class);
+    }
+
+    /**
+     * Procurement status scopes & helpers
+     */
+    public function scopeProcurementActive($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('procurement_status', 'active')
+              ->orWhereNull('procurement_status');
+        });
+    }
+
+    public function scopeDoNotOrder($query)
+    {
+        return $query->where('procurement_status', 'do_not_order');
+    }
+
+    public function scopeDiscontinued($query)
+    {
+        return $query->where('procurement_status', 'discontinued');
+    }
+
+    public function isProcurementActive(): bool
+    {
+        return empty($this->procurement_status) || $this->procurement_status === 'active';
+    }
+
+    public function isDoNotOrder(): bool
+    {
+        return $this->procurement_status === 'do_not_order';
+    }
+
+    public function isDiscontinued(): bool
+    {
+        return $this->procurement_status === 'discontinued';
+    }
+
+    /**
+     * Point 20: Sales Velocity evaluation (Frequently Ordered, Slow Going, Not Going / Dead Stock)
+     */
+    public function getSalesVelocityAttribute(): array
+    {
+        $orderCount = $this->order_items_count ?? (
+            $this->relationLoaded('orderItems') 
+                ? $this->orderItems->count() 
+                : $this->orderItems()->count()
+        );
+
+        if ($orderCount >= 10) {
+            return [
+                'key'         => 'frequently_ordered',
+                'label'       => 'Fast Mover',
+                'full_label'  => 'Frequently Ordered',
+                'badge_class' => 'badge-success',
+                'icon'        => 'fas fa-fire',
+                'order_count' => $orderCount,
+            ];
+        }
+
+        if ($orderCount > 0) {
+            return [
+                'key'         => 'slow_going',
+                'label'       => 'Slow Mover',
+                'full_label'  => 'Slow Going',
+                'badge_class' => 'badge-warning text-dark',
+                'icon'        => 'fas fa-hourglass-half',
+                'order_count' => $orderCount,
+            ];
+        }
+
+        return [
+            'key'         => 'not_going',
+            'label'       => 'Non-Moving',
+            'full_label'  => 'Not Going (Dead Stock)',
+            'badge_class' => 'badge-secondary',
+            'icon'        => 'fas fa-pause-circle',
+            'order_count' => 0,
+        ];
+    }
+
+    /**
+     * Point 23: Determine if product is popular/frequently ordered
+     */
+    public function getIsPopularAttribute(): bool
+    {
+        $orderCount = (int) ($this->order_items_count ?? (
+            $this->relationLoaded('orderItems') 
+                ? $this->orderItems->count() 
+                : $this->orderItems()->count()
+        ));
+
+        return $orderCount >= 10;
     }
 }

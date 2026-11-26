@@ -24,13 +24,22 @@ class ShipmentController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('backend.shipment.create', compact('purchases', 'purchaseId'));
+        $transportModes = [
+            Shipment::MODE_SEA  => ['label' => 'Sea Freight', 'icon' => 'fas fa-ship', 'badge' => 'badge-primary'],
+            Shipment::MODE_AIR  => ['label' => 'Air Cargo', 'icon' => 'fas fa-plane-departure', 'badge' => 'badge-info'],
+            Shipment::MODE_ROAD => ['label' => 'Road Freight', 'icon' => 'fas fa-truck', 'badge' => 'badge-warning'],
+            Shipment::MODE_RAIL => ['label' => 'Rail Freight', 'icon' => 'fas fa-train', 'badge' => 'badge-secondary'],
+        ];
+
+        return view('backend.shipment.create', compact('purchases', 'purchaseId', 'transportModes'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'purchase_id'       => 'required|exists:purchases,id',
+            'transport_mode'    => 'required|in:sea,air,road,rail',
+            'carrier_name'      => 'nullable|string|max:255',
             'vessel_or_flight'  => 'nullable|string|max:255',
             'container_no'      => 'nullable|string|max:100',
             'bl_awb_no'         => 'nullable|string|max:100',
@@ -48,6 +57,8 @@ class ShipmentController extends Controller
 
         $shipment = Shipment::create([
             'purchase_id'       => $request->purchase_id,
+            'transport_mode'    => $request->transport_mode ?? Shipment::MODE_SEA,
+            'carrier_name'      => $request->carrier_name,
             'vessel_or_flight'  => $request->vessel_or_flight,
             'container_no'      => $request->container_no,
             'bl_awb_no'         => $request->bl_awb_no,
@@ -65,7 +76,7 @@ class ShipmentController extends Controller
             $purchase->advanceMilestone('shipped');
         }
 
-        Toastr::success('Shipment tracking registered successfully.', 'Success');
+        Toastr::success('Shipment tracking registered successfully with ' . $shipment->transport_name . ' logistics.', 'Success');
         return redirect()->route('admin.shipments.show', $shipment->id);
     }
 
@@ -89,7 +100,14 @@ class ShipmentController extends Controller
             return redirect()->back();
         }
 
-        return view('backend.shipment.edit', compact('shipment'));
+        $transportModes = [
+            Shipment::MODE_SEA  => ['label' => 'Sea Freight', 'icon' => 'fas fa-ship', 'badge' => 'badge-primary'],
+            Shipment::MODE_AIR  => ['label' => 'Air Cargo', 'icon' => 'fas fa-plane-departure', 'badge' => 'badge-info'],
+            Shipment::MODE_ROAD => ['label' => 'Road Freight', 'icon' => 'fas fa-truck', 'badge' => 'badge-warning'],
+            Shipment::MODE_RAIL => ['label' => 'Rail Freight', 'icon' => 'fas fa-train', 'badge' => 'badge-secondary'],
+        ];
+
+        return view('backend.shipment.edit', compact('shipment', 'transportModes'));
     }
 
     public function update(Request $request, $id)
@@ -107,25 +125,41 @@ class ShipmentController extends Controller
         }
 
         $request->validate([
-            'vessel_or_flight'  => 'nullable|string|max:255',
-            'container_no'      => 'nullable|string|max:100',
-            'bl_awb_no'         => 'nullable|string|max:100',
-            'port_of_loading'   => 'nullable|string|max:255',
-            'port_of_discharge' => 'nullable|string|max:255',
-            'etd'               => 'nullable|date',
-            'eta'               => 'nullable|date',
-            'document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'transport_mode'     => 'required|in:sea,air,road,rail',
+            'carrier_name'       => 'nullable|string|max:255',
+            'mode_change_reason' => 'nullable|string|max:1000',
+            'vessel_or_flight'   => 'nullable|string|max:255',
+            'container_no'       => 'nullable|string|max:100',
+            'bl_awb_no'          => 'nullable|string|max:100',
+            'port_of_loading'    => 'nullable|string|max:255',
+            'port_of_discharge'  => 'nullable|string|max:255',
+            'etd'                => 'nullable|date',
+            'eta'                => 'nullable|date',
+            'document'           => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
+        $modeChanged = ($shipment->transport_mode !== $request->transport_mode);
+        $changeNote = $request->mode_change_reason;
+
+        if ($modeChanged && empty($changeNote)) {
+            $changeNote = 'Transportation mode converted from ' . ucfirst($shipment->transport_mode) . ' to ' . ucfirst($request->transport_mode) . ' on ' . now()->format('d M Y');
+        }
+
         $data = [
-            'vessel_or_flight'  => $request->vessel_or_flight,
-            'container_no'      => $request->container_no,
-            'bl_awb_no'         => $request->bl_awb_no,
-            'port_of_loading'   => $request->port_of_loading,
-            'port_of_discharge' => $request->port_of_discharge,
-            'etd'               => $request->etd,
-            'eta'               => $request->eta,
+            'transport_mode'     => $request->transport_mode,
+            'carrier_name'       => $request->carrier_name,
+            'vessel_or_flight'   => $request->vessel_or_flight,
+            'container_no'       => $request->container_no,
+            'bl_awb_no'          => $request->bl_awb_no,
+            'port_of_loading'    => $request->port_of_loading,
+            'port_of_discharge'  => $request->port_of_discharge,
+            'etd'                => $request->etd,
+            'eta'                => $request->eta,
         ];
+
+        if ($changeNote) {
+            $data['mode_change_reason'] = $changeNote;
+        }
 
         if ($request->hasFile('document')) {
             if ($shipment->document_path && Storage::disk('public')->exists($shipment->document_path)) {
@@ -136,7 +170,11 @@ class ShipmentController extends Controller
 
         $shipment->update($data);
 
-        Toastr::success('Shipment details updated successfully.', 'Success');
+        $toastMsg = $modeChanged 
+            ? 'Shipment freight mode updated to ' . $shipment->transport_name . ' successfully.'
+            : 'Shipment details updated successfully.';
+
+        Toastr::success($toastMsg, 'Success');
         return redirect()->route('admin.shipments.show', $shipment->id);
     }
 
@@ -160,16 +198,12 @@ class ShipmentController extends Controller
         if ($request->status === 'cancelled') {
             $purchase = Purchase::find($shipment->purchase_id);
             if ($purchase && $shipment->goodsReceiptsCount() == 0) {
-                // Revert to lc_opened or approved
-                $newMilestone = $purchase->letterOfCredit ? 'lc_opened' : ($purchase->proformaInvoice ? 'pi_attached' : 'approved');
-                $purchase->update(['milestone_status' => $newMilestone]);
+                $purchase->update(['milestone_status' => 'approved']);
             }
-            Toastr::warning('Shipment has been cancelled and PO milestone reverted.', 'Shipment Cancelled');
-            return redirect()->back();
         }
 
-        Toastr::success('Shipment status updated to ' . ucfirst(str_replace('_', ' ', $request->status)) . '.', 'Success');
-        return redirect()->back();
+        Toastr::success('Shipment tracking status updated to ' . ucfirst(str_replace('_', ' ', $request->status)) . '.', 'Success');
+        return redirect()->route('admin.shipments.show', $shipment->id);
     }
 
     public function destroy($id)
@@ -178,27 +212,25 @@ class ShipmentController extends Controller
 
         if ($shipment->goodsReceiptsCount() > 0) {
             $msg = __('Shipment deletion prevented: Goods Receipts (GRNs) have already been generated for this shipment.');
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $msg,
-                ], 422);
+            if (request()->ajax()) {
+                return response()->json(['status' => 'error', 'message' => $msg], 422);
             }
-            Toastr::error($msg, 'Deletion Blocked');
+            Toastr::error($msg, 'Action Locked');
             return redirect()->back();
         }
 
-        $shipment->delete();
-        $message = __('Shipment record deleted successfully.');
-
-        if (request()->ajax() || request()->wantsJson()) {
-            return response()->json([
-                'status' => 'success',
-                'message' => $message,
-            ]);
+        if ($shipment->document_path && Storage::disk('public')->exists($shipment->document_path)) {
+            Storage::disk('public')->delete($shipment->document_path);
         }
 
-        Toastr::success($message, 'Success');
+        $shipment->delete();
+
+        $msg = __('Shipment tracking record deleted successfully.');
+        if (request()->ajax()) {
+            return response()->json(['status' => 'success', 'message' => $msg]);
+        }
+
+        Toastr::success($msg, 'Deleted');
         return redirect()->route('admin.shipments.index');
     }
 }

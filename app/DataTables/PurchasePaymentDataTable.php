@@ -36,7 +36,11 @@ class PurchasePaymentDataTable extends DataTable
                 return $symbol . ' ' . number_format($row->amount, 2);
             })
             ->editColumn('base_amount', function ($row) {
-                return number_format($row->base_amount, 2);
+                $base = '<strong>kr. ' . number_format($row->base_amount, 2) . '</strong>';
+                if ($row->exchange_rate && (float)$row->exchange_rate != 1.0) {
+                    $base .= ' <br><small class="text-muted">(@ ' . number_format($row->exchange_rate, 4) . ')</small>';
+                }
+                return $base;
             })
             ->addColumn('vendor_name', function ($row) {
                 return $row->vendor ? $row->vendor->name : 'N/A';
@@ -44,7 +48,7 @@ class PurchasePaymentDataTable extends DataTable
             ->addColumn('po_no', function ($row) {
                 return $row->purchase ? $row->purchase->po_no : 'N/A';
             })
-            ->rawColumns(['action']);
+            ->rawColumns(['action', 'base_amount']);
     }
 
     /**

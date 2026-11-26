@@ -167,10 +167,10 @@
 
                                 <div class="row">
                                     <div class="form-group col-md-4">
-                                        <label>Status</label>
+                                        <label>Catalog Status (Sales Visibility)</label>
                                         <select class="form-control" name="status">
-                                            <option value="1">Active</option>
-                                            <option value="0">Inactive</option>
+                                            <option value="1">Active (Visible)</option>
+                                            <option value="0">Inactive (Hidden)</option>
                                         </select>
                                     </div>
                                     <div class="form-group col-md-4" id="product-stock-group">
@@ -182,6 +182,25 @@
                                         <label>Minimum Order Quantity</label>
                                         <input type="number" class="form-control" name="minimum_order_qty" value="{{ old('minimum_order_qty', 1) }}">
                                         <small class="text-muted">Minimum quantity that can be ordered.</small>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group col-md-4">
+                                        <label class="font-weight-bold text-dark"><i class="fas fa-dolly text-primary mr-1"></i> Procurement / Re-Order Status</label>
+                                        <select class="form-control" name="procurement_status">
+                                            <option value="active" {{ old('procurement_status', 'active') == 'active' ? 'selected' : '' }}>🟢 Active for Re-Order</option>
+                                            <option value="do_not_order" {{ old('procurement_status') == 'do_not_order' ? 'selected' : '' }}>🟡 Do Not Re-Order / Phase Out</option>
+                                            <option value="discontinued" {{ old('procurement_status') == 'discontinued' ? 'selected' : '' }}>🔴 Discontinued / Terminated</option>
+                                        </select>
+                                        <small class="form-text text-muted">Controls purchasing order eligibility.</small>
+                                    </div>
+                                    <div class="form-group col-md-8">
+                                        <label class="font-weight-bold text-dark"><i class="fas fa-comment-dots text-info mr-1"></i> Procurement Note / Reason</label>
+                                        <input type="text" class="form-control" name="procurement_note" 
+                                            placeholder="e.g. Discontinued by factory, poor quality, phase out remaining inventory..." 
+                                            value="{{ old('procurement_note') }}">
+                                        <small class="form-text text-muted">Internal note displayed to purchasing managers and admins.</small>
                                     </div>
                                 </div>
 

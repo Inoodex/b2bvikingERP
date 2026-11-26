@@ -80,7 +80,12 @@
     <table class="total-box text-right" style="margin-bottom: 40px;">
         <tr>
             <td style="font-size: 16px; padding: 10px; background: #eef2f7; font-weight: bold;">
-                Total Amount Paid: {{ $payment->currency?->symbol ?? 'Kr.' }}{{ number_format($payment->amount, 2) }}
+                Total Amount Paid: {{ $payment->currency?->symbol ?? 'Kr.' }}{{ number_format($payment->amount, 2) }} {{ $payment->currency?->code ?? 'DKK' }}
+                @if($payment->exchange_rate && (float)$payment->exchange_rate != 1.0)
+                    <br><span style="font-size: 13px; color: #555; font-weight: normal;">
+                        (Base Equivalent: kr. {{ number_format($payment->base_amount, 2) }} @ 1 {{ $payment->currency?->code }} = {{ number_format($payment->exchange_rate, 4) }} DKK)
+                    </span>
+                @endif
             </td>
         </tr>
     </table>

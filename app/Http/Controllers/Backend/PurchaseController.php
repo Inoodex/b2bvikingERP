@@ -13,6 +13,8 @@ use App\Models\PurchaseDetail;
 use App\Models\StockLedger;
 use App\Models\Vendor;
 use App\Models\PricingRule;
+use App\Models\Category;
+use App\Models\ProductType;
 use App\Support\StoredFileSupport;
 use App\Support\AuditLogSupport;
 use Illuminate\Http\Request;
@@ -54,8 +56,17 @@ class PurchaseController extends Controller
     {
         
         $vendors = Vendor::where('status', 1)->get();
-        // Passing products for JS selection
-        $products = Product::where('status', 1)->with('variants.color', 'variants.size')->orderByDesc('id')->get(); 
+        $categories = Category::where('status', 1)->orderBy('name')->get(['id', 'name']);
+        $productTypes = ProductType::where('status', 1)->orderBy('name')->get(['id', 'name']);
+        // Passing products for JS selection (exclude discontinued products from procurement)
+        $products = Product::where('status', 1)
+            ->where(function($q) {
+                $q->where('procurement_status', '!=', 'discontinued')
+                  ->orWhereNull('procurement_status');
+            })
+            ->with(['variants.color', 'variants.size', 'category:id,name', 'subCategory:id,name', 'childCategory:id,name', 'productType:id,name'])
+            ->orderByDesc('id')
+            ->get(); 
 
         $pricingRules = PricingRule::where('status', 1)->orderByDesc('is_default')->orderBy('name')->get();
         $defaultPricingRuleId = optional($pricingRules->firstWhere('is_default', true))->id;
@@ -79,7 +90,7 @@ class PurchaseController extends Controller
             $selectedIds = explode(',', $request->ids);
         }
 
-        return view('backend.purchase.create', compact('vendors', 'products', 'bookings', 'pricingRules', 'defaultPricingRuleId', 'selectedIds'));
+        return view('backend.purchase.create', compact('vendors', 'categories', 'productTypes', 'products', 'bookings', 'pricingRules', 'defaultPricingRuleId', 'selectedIds'));
     }
 
     public function getBookingDetails(Request $request) {
